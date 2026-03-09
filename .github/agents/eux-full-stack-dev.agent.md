@@ -132,9 +132,12 @@ export const fetchData = (): AppThunk => async (dispatch) => {
   <Button variant="primary">Submit</Button>
 </HStack>
 
-// Responsive box
+// Responsive box with directional spacing
 <Box
   padding={{ xs: "space-4", md: "space-8" }}
+  paddingBlock="space-6"          // top + bottom
+  paddingInline="space-8"         // left + right
+  paddingBlockStart="space-4"     // top only
   background="surface-subtle"
   borderRadius="large"
 >
@@ -145,23 +148,99 @@ export const fetchData = (): AppThunk => async (dispatch) => {
 <HGrid gap="space-4" columns={{ xs: 1, md: 2, lg: 3 }}>
   <Card /><Card /><Card />
 </HGrid>
+
+// Responsive visibility
+<Show above="md"><DesktopNav /></Show>
+<Hide above="md"><MobileMenu /></Hide>
+```
+
+### Aksel 8 typography
+
+```typescript
+// Heading — always set semantic level for accessibility
+<Heading size="xlarge" level="1">Page Title</Heading>   // 48px
+<Heading size="large" level="2">Section</Heading>       // 32px
+<Heading size="medium" level="3">Subsection</Heading>   // 24px
+<Heading size="small" level="4">Card Title</Heading>    // 20px
+
+// Body text
+<BodyShort>Single paragraph (default 18px)</BodyShort>
+<BodyShort size="small">Small text (16px)</BodyShort>
+<BodyLong spacing>Multi-paragraph with bottom margin</BodyLong>
+```
+
+### Aksel 8 common components
+
+```typescript
+// Button variants
+<Button variant="primary">Submit</Button>
+<Button variant="secondary">Cancel</Button>
+<Button variant="tertiary">Details</Button>
+<Button variant="danger">Delete</Button>
+<Button icon={<TrashIcon />} aria-label="Delete item" />  // icon-only
+<Button loading>Processing...</Button>
+
+// Alert variants
+<Alert variant="info">Info message</Alert>
+<Alert variant="success">Success message</Alert>
+<Alert variant="warning">Warning message</Alert>
+<Alert variant="error">Error message</Alert>
+
+// Form inputs
+<TextField label="Email" description="Work email" error={errors.email} />
+<Select label="Department"><option value="">Choose...</option></Select>
+<CheckboxGroup legend="Options"><Checkbox value="a">A</Checkbox></CheckboxGroup>
+<RadioGroup legend="Type"><Radio value="x">X</Radio></RadioGroup>
+
+// Dialog (replaces Modal in v8) — use native <dialog> ref API
+const ref = useRef<HTMLDialogElement>(null)
+<Button onClick={() => ref.current?.showModal()}>Open</Button>
+<Dialog ref={ref} header={{ heading: "Title" }} closeOnBackdropClick>
+  <Dialog.Block><BodyShort>Content</BodyShort></Dialog.Block>
+  <Dialog.Footer><Button onClick={() => ref.current?.close()}>Close</Button></Dialog.Footer>
+</Dialog>
+
+// Table with sticky header
+<Table stickyHeader>
+  <Table.Header><Table.Row><Table.HeaderCell>Name</Table.HeaderCell></Table.Row></Table.Header>
+  <Table.Body>{items.map(i => <Table.Row key={i.id}><Table.DataCell>{i.name}</Table.DataCell></Table.Row>)}</Table.Body>
+</Table>
 ```
 
 ### Aksel 8 spacing scale (pixel-based naming)
 
 Token names reflect pixel values: `space-0` (0px), `space-2` (2px), `space-4` (4px), `space-6` (6px), `space-8` (8px), `space-12` (12px), `space-16` (16px), `space-20` (20px), `space-24` (24px), `space-32` (32px), `space-40` (40px), `space-48` (48px), `space-64` (64px), `space-80` (80px), `space-96` (96px), `space-128` (128px).
 
+Border radius: `radius-0`, `radius-2`, `radius-4`, `radius-8` (default cards), `radius-12`, `radius-16`, `radius-full` (pill).
+
 ### Aksel 8 breakpoints
 
-`xs`: 0px, `sm`: 480px, `md`: 768px, `lg`: 1024px, `xl`: 1280px, `2xl`: 1440px. Use object notation for responsive props.
+`xs`: 0px, `sm`: 480px, `md`: 768px, `lg`: 1024px, `xl`: 1280px, `2xl`: 1440px. Design mobile-first; use object notation for responsive props.
+
+### Aksel 8 color system
+
+Use semantic color tokens (`--ax-*` prefix), not raw palette values. Change color context per element with `data-color`:
+
+```typescript
+// data-color overrides semantic tokens for that subtree
+<Box data-color="success" background="bg-soft">Success context</Box>
+<Box data-color="danger" background="bg-soft">Danger context</Box>
+```
+
+Available color contexts: `neutral`, `accent` (default), `success`, `warning`, `danger`, `info`, `brand-magenta`, `brand-beige`, `brand-blue`, `meta-purple`, `meta-lime`.
+
+Semantic token pattern: `--ax-bg-{color}-{variant}`, `--ax-text-{color}`, `--ax-border-{color}`. Variants: `soft`, `moderate`, `moderate-hover`, `moderate-pressed`, `strong`, `strong-hover`, `strong-pressed`.
 
 ### Aksel 8 rules
 
 - Always use Aksel spacing tokens — never hardcode pixels.
-- Always provide `aria-label` on icon-only buttons.
+- Always provide `aria-label` on icon-only buttons, or `title` on the icon itself. Not both.
 - Use semantic heading levels (`level` prop on `Heading`).
 - Check the Aksel component library before creating custom components.
 - Never use Tailwind `p-`, `m-`, `px-`, `py-` utilities for spacing.
+- Use semantic color tokens (`--ax-bg-neutral-soft`) — never raw palette tokens (`--ax-neutral-400`).
+- Design mobile-first with responsive breakpoints.
+- Avoid mixing `Box` and `Box.New` in the same codebase.
 
 ## Backend patterns
 
