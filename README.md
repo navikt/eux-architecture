@@ -4,7 +4,7 @@ This repository documents the architecture of the **EUX (EESSI) platform** — N
 
 ## What is EESSI?
 
-**EESSI** (Electronic Exchange of Social Security Information) is the EU system for cross-border coordination of social security benefits. NAV's EUX platform enables Norwegian caseworkers to exchange **SEDs** (Structured European Documents) with other EU/EEA countries through the **RINA** (Records, Information and Notification Application) system.
+**EESSI** (Electronic Exchange of Social Security Information) is the EU system for cross-border coordination of social security benefits. NAV's EUX platform enables Norwegian caseworkers to exchange **SEDs** (Structured Electronic Documents) with other EU/EEA countries through the **RINA** (Reference Implementation of a National Application) system. Cases are organized into **BUCs** (Business Use Cases), each defining which SEDs are exchanged for a given scenario (e.g. pension claim, family benefits).
 
 ## Applications
 
