@@ -55,3 +55,17 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 - **Fagsak**: Case in a NAV benefit system
 - **Journalpost**: Document entry in Dokarkiv
 - **Oppgave**: Task/work item in NAV's task system
+
+## Architecture reference
+
+For higher-level architecture, cross-service flows, and platform-wide pitfalls, see the [eux-architecture](https://github.com/navikt/eux-architecture) repository.
+
+## Pitfalls to know
+
+- OpenAPI-generated code is the source of truth for API contracts — don't modify generated files, update the spec instead.
+- Database connection pools are very small (max 2). Long queries block other requests.
+- Some NAIS job cron schedules use impossible dates (Feb 31st) to disable per environment.
+- Kafka consumers can get stuck on a single message if processing fails repeatedly.
+- SED journal status (in eux-nav-rinasak) can get out of sync with actual journal posts in Dokarkiv.
+- RINA CPI auth varies by service — check how the specific app authenticates before adding new CPI calls.
+- The "ACL" in eux-rina-api is SED format transformation, NOT access control.

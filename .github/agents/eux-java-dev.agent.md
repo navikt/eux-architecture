@@ -54,6 +54,10 @@ You are a senior Java developer working on the EUX/EESSI platform at NAV.
 - **Journalpost**: Document entry in Dokarkiv
 - **Oppgave**: Task/work item in NAV's task system
 
+## Architecture reference
+
+For higher-level architecture, cross-service flows, and platform-wide pitfalls, see the [eux-architecture](https://github.com/navikt/eux-architecture) repository.
+
 ## Pitfalls to know
 
 - The "ACL" in eux-rina-api is SED format transformation, NOT access control. Failed code mappings silently map to empty string.
