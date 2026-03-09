@@ -7,21 +7,22 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 
 ## Coding principles
 
-- **ALWAYS follow the app's existing coding style.** Before writing any code, examine nearby files for naming conventions, class structure, formatting, and patterns. Match them exactly.
-- **Double-check every change** against the app's existing patterns. If unsure, search the codebase for similar implementations before writing new code.
-- Write readable, idiomatic Kotlin. Clarity over cleverness.
-- Prefer **data classes** for DTOs and value objects. Favor immutability: `val` over `var`, immutable collections by default.
-- Use Kotlin idioms: extension functions, scope functions (`let`, `also`, `apply`), null-safe operators, sealed classes.
-- Never introduce a new pattern if the app already has an established way of doing the same thing.
+- **ALWAYS follow the app's existing coding style.** Examine nearby files for naming, structure, formatting. Match them exactly.
+- **Double-check every change** against existing patterns. Search the codebase for similar implementations before writing new code.
+- Readable, idiomatic Kotlin. Clarity over cleverness.
+- **Data classes** for DTOs and value objects. `val` over `var`, immutable collections by default.
+- Kotlin idioms: extension functions, scope functions (`let`, `also`, `apply`), null-safe operators, sealed classes.
+- Never introduce a new pattern if the app already has an established way.
 
 ## Tech stack
 
-- **Kotlin 2.2.x**, **Java**, **Spring Boot 4**, **Maven**
-- Most services inherit from **eux-parent-pom** (pins Spring Boot, Kotlin, and shared dependency versions)
-- Multi-module Maven structure: `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp` (not every service has all modules)
-- Services use **Azure AD** (OAuth2 client credentials / on-behalf-of) for auth
-- Deployed on **NAIS** (NAV's Kubernetes platform on GCP)
-- Health: `/actuator/health`, `/actuator/prometheus`
+- **Kotlin 2.2.x**, **Java 25**, **Spring Boot 4**, **Maven**.
+- Services inherit from **eux-parent-pom** (pins Spring Boot, Kotlin, shared deps).
+- Multi-module Maven: `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp`.
+- Auth: **Azure AD** (OAuth2 client credentials / on-behalf-of).
+- Deployed on **NAIS** (Kubernetes on GCP). Health: `/actuator/health`, `/actuator/prometheus`.
+- Testing: Kotest 6.x assertions, JUnit Jupiter, MockWebServer, `token-validation-spring-test`.
+- Logging: `kotlin-logging-jvm` (SLF4J facade).
 
 ## Kotlin projects in EUX
 
@@ -31,18 +32,18 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 - **eux-saksbehandler** — Caseworker preferences. PostgreSQL, OpenAPI codegen.
 - **eux-rina-terminator-api** — Closes, archives, deletes RINA cases. Stateless, Caffeine caching.
 - **eux-journalarkivar** — Journal post finalization/error-registration. Triggered by NAIS jobs.
-- **eux-avslutt-rinasaker** — RINA case closure lifecycle (state machine). PostgreSQL, Kafka consumer, OpenAPI codegen.
-- **eux-slett-usendte-rinasaker** — Deletes orphan RINA cases. PostgreSQL, Kafka consumer, OpenAPI codegen.
+- **eux-avslutt-rinasaker** — RINA case closure lifecycle (state machine). PostgreSQL, Kafka, OpenAPI codegen.
+- **eux-slett-usendte-rinasaker** — Deletes orphan RINA cases. PostgreSQL, Kafka, OpenAPI codegen.
 - **eux-adresse-oppdatering** — Updates addresses in PDL from incoming SEDs. Kafka consumer, GraphQL.
 - **eux-logging** — Shared library. MDC filter for request ID tracking and EUX logging context.
 
-## Key patterns to follow
+## Key patterns
 
-- **REST clients**: use `RestClient` with token exchange via `no.nav.security` token-validation.
+- **REST clients**: `RestClient` with `no.nav.security` token-validation for token exchange.
 - **OpenAPI**: most Kotlin services generate controllers/models from spec — check for `-openapi` module before creating endpoints manually.
-- **Database**: PostgreSQL via Cloud SQL, Flyway migrations, Spring Data JPA with small connection pools (max 2).
-- **Kafka**: consumers use `@KafkaListener` with manual commits.
-- **GraphQL**: used for PDL and SAF calls (not all services).
+- **Database**: PostgreSQL via Cloud SQL, Flyway migrations, Spring Data JPA, small connection pools (max 2).
+- **Kafka**: `@KafkaListener` with manual commits.
+- **GraphQL**: for PDL and SAF calls (not all services).
 
 ## Domain terminology
 
@@ -51,18 +52,18 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 - **RINA**: Reference Implementation of a National Application
 - **BUC**: Business Use Case
 - **CPI**: Case Processing Interface (RINA's REST API)
-- **NIE**: National Interface Endpoint (RINA pushes events to national systems)
+- **NIE**: National Interface Endpoint (RINA → national systems)
 - **Fagsak**: Case in a NAV benefit system
 - **Journalpost**: Document entry in Dokarkiv
 - **Oppgave**: Task/work item in NAV's task system
 
 ## Architecture reference
 
-For higher-level architecture, cross-service flows, and platform-wide pitfalls, see the [eux-architecture](https://github.com/navikt/eux-architecture) repository.
+For cross-service architecture, event flows, and platform-wide pitfalls, see the [eux-architecture](https://github.com/navikt/eux-architecture) repository.
 
-## Pitfalls to know
+## Pitfalls
 
-- OpenAPI-generated code is the source of truth for API contracts — don't modify generated files, update the spec instead.
+- OpenAPI-generated code is the source of truth — don't modify generated files, update the spec instead.
 - Database connection pools are very small (max 2). Long queries block other requests.
 - Some NAIS job cron schedules use impossible dates (Feb 31st) to disable per environment.
 - Kafka consumers can get stuck on a single message if processing fails repeatedly.

@@ -39,6 +39,9 @@ Read README.md before making any changes — it is the single source of truth fo
 - `.github/agents/eux-java-dev.agent.md` — Copilot agent for Java EUX projects.
 - `.github/agents/eux-kotlin-dev.agent.md` — Copilot agent for Kotlin EUX projects.
 - `.github/agents/eux-full-stack-dev.agent.md` — Copilot agent for full-stack EUX work (React + Java/Kotlin).
+- `.github/skills/update-java-dev/` — Skill to sync Java agent with current repo state.
+- `.github/skills/update-kotlin-dev/` — Skill to sync Kotlin agent with current repo state.
+- `.github/skills/update-full-stack-dev/` — Skill to sync full-stack agent with current repo state.
 - `install-agents.sh` — Creates symlinks from `~/.copilot/agents/` to the agent files above.
 
 ## EUX platform overview

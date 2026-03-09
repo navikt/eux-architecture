@@ -9,53 +9,49 @@ You are a senior full-stack developer working on the EUX/EESSI platform at NAV.
 
 ### General
 
-- Write readable, self-documenting code.
-- Follow the app's existing patterns. Before writing code, examine nearby files for conventions and match them.
+- Readable, self-documenting code. Follow existing patterns — examine nearby files before writing code.
 
 ### Frontend (TypeScript / React)
 
-- Write strict TypeScript. No `any` types.
-- Use functional components with hooks. No class components.
-- Use **Redux Toolkit** for state management (slices, thunks, `useAppSelector`, `useAppDispatch`).
-- Use **CSS Modules** (`.module.css`) for component styles. Use Aksel CSS variables for colors and spacing.
-- Use **NAV Aksel 8** (`@navikt/ds-react`) components for all UI. Do not use raw HTML elements when an Aksel component exists.
-- Use Aksel 8 spacing tokens (`space-4`, `space-8`, etc.) — never hardcode pixel values. Token names reflect pixels (e.g. `space-4` = 4px), not the legacy `spacing-*` scale.
-- Use `Box`, `VStack`, `HStack`, `HGrid` for layout. Do not use Tailwind spacing utilities (`p-`, `m-`, `px-`, `py-`).
-- Use `useTranslation()` from i18next for all user-facing text.
+- Strict TypeScript. No `any` types.
+- Functional components with hooks. No class components.
+- **Redux Toolkit** for state (slices, thunks, `useAppSelector`, `useAppDispatch`).
+- **CSS Modules** (`.module.css`) with Aksel CSS variables for colors and spacing.
+- **NAV Aksel 8** (`@navikt/ds-react`) for all UI. Never use raw HTML when an Aksel component exists.
+- Aksel 8 spacing tokens (`space-4`, `space-8`, etc.) — never hardcode pixels. Token names reflect pixels (e.g. `space-4` = 4px), not legacy `spacing-*`.
+- Layout: `Box`, `VStack`, `HStack`, `HGrid`. No Tailwind spacing utilities.
+- `useTranslation()` from i18next for all user-facing text.
 
 ### Backend (Java)
 
-- Prefer **Java Records** for DTOs and value objects. Use Records by default unless mutability is needed.
-- Use **JSpecify** annotations (`@Nullable`, `@NonNull`) for nullability instead of `Optional` on fields/parameters.
-- Use modern Java features: pattern matching, sealed classes, switch expressions.
-- No Lombok — use Records instead.
+- **Java Records** for DTOs and value objects. **JSpecify** (`@Nullable`, `@NonNull`) for nullability.
+- Modern Java: pattern matching, sealed classes, switch expressions.
+- Existing Lombok code: keep as-is. Prefer Records for new code.
 
 ### Backend (Kotlin)
 
-- Prefer **data classes** for DTOs and value objects. Favor `val` over `var`, immutable collections by default.
-- Use Kotlin idioms: extension functions, scope functions, null-safe operators, sealed classes.
-- **Strictly follow** the app's existing coding style. Double-check every change against existing patterns.
+- **Data classes** for DTOs. `val` over `var`, immutable collections.
+- Kotlin idioms: extension functions, scope functions, null-safe operators, sealed classes.
+- **Strictly follow** the app's existing coding style.
 
 ## Tech stack
 
 ### Frontend (eux-web-app)
 
-- **React 18**, **TypeScript**, **Vite**, **Redux Toolkit**.
-- **NAV Aksel 8** (`@navikt/ds-react`) — design system with layout primitives, form components, typography. Uses pixel-based spacing tokens (`space-*`) and semantic color tokens (`--ax-*`).
-- **CSS Modules** + Aksel CSS variables for styling. Dark mode via `.dark` class toggle.
-- **React Router v7** for routing.
-- **i18next** for internationalization.
-- **Jest** + **React Testing Library** for tests (90% coverage target, 100% for actions).
-- **Node.js Express BFF** (`server.mjs`) — proxies `/api`, `/v2`–`/v5` to eux-neessi with OAuth2 on-behalf-of tokens.
-- Auth: Azure AD via **Wonderwall** sidecar. BFF exchanges user tokens for OBO tokens.
+- **React 18**, **TypeScript 5.9**, **Vite 7**, **Redux Toolkit 1.9**.
+- **NAV Aksel 8** (`@navikt/ds-react` 8.6) — pixel-based spacing tokens (`space-*`), semantic color tokens (`--ax-*`).
+- **CSS Modules** + Aksel CSS variables. Dark mode via `.dark` class toggle.
+- **React Router v7**, **i18next** for i18n.
+- **Jest 29** + **React Testing Library** (90% coverage target, 100% for actions).
+- **Node 22 Express 5 BFF** (`server.mjs`) — proxies `/api`, `/v2`–`/v5` to eux-neessi with OBO tokens.
+- Auth: Azure AD via **Wonderwall** sidecar.
 
 ### Backend
 
 - **Java 25** or **Kotlin 2.2.x**, **Spring Boot 4**, **Maven**.
-- Most services inherit from **eux-parent-pom**.
+- Services inherit from **eux-parent-pom**.
 - Multi-module Maven: `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp`.
-- **Azure AD** (OAuth2) for service-to-service auth.
-- Deployed on **NAIS** (Kubernetes on GCP).
+- **Azure AD** (OAuth2) for service-to-service auth. NAIS (Kubernetes on GCP).
 
 ## Frontend patterns
 
@@ -63,9 +59,9 @@ You are a senior full-stack developer working on the EUX/EESSI platform at NAV.
 
 ```
 src/
-├── actions/         # Redux thunks (async) and action payloads
+├── actions/         # Redux thunks and action payloads
 ├── reducers/        # Redux Toolkit slices
-├── components/      # Reusable UI components (PascalCase.tsx + .module.css)
+├── components/      # Reusable UI (PascalCase.tsx + .module.css)
 ├── pages/           # Page-level route components
 ├── hooks/           # Custom hooks (use*.ts)
 ├── utils/           # Validation, formatting, helpers
@@ -85,7 +81,6 @@ const MyComponent: React.FC<Props> = ({ title }) => {
   const { data } = useAppSelector(mapState)
   const dispatch = useAppDispatch()
   const { t } = useTranslation()
-
   return <Heading size="medium">{t(title)}</Heading>
 }
 ```
@@ -93,7 +88,6 @@ const MyComponent: React.FC<Props> = ({ title }) => {
 ### Redux pattern
 
 ```typescript
-// Reducer (slice)
 const featureSlice = createSlice({
   name: 'feature',
   initialState,
@@ -103,7 +97,6 @@ const featureSlice = createSlice({
   }
 })
 
-// Action (thunk)
 export const fetchData = (): AppThunk => async (dispatch) => {
   dispatch(setLoading(true))
   try {
@@ -117,22 +110,19 @@ export const fetchData = (): AppThunk => async (dispatch) => {
 }
 ```
 
-### Aksel 8 layout essentials
+### Aksel 8 layout
 
 ```typescript
-// Vertical stack with gap
 <VStack gap="space-8">
   <Heading size="large">Title</Heading>
   <BodyShort>Content</BodyShort>
 </VStack>
 
-// Horizontal stack
 <HStack gap="space-4" align="center" justify="space-between">
   <Button variant="secondary">Cancel</Button>
   <Button variant="primary">Submit</Button>
 </HStack>
 
-// Responsive box with directional spacing
 <Box
   padding={{ xs: "space-4", md: "space-8" }}
   paddingBlock="space-6"          // top + bottom
@@ -144,12 +134,10 @@ export const fetchData = (): AppThunk => async (dispatch) => {
   {children}
 </Box>
 
-// Responsive grid
 <HGrid gap="space-4" columns={{ xs: 1, md: 2, lg: 3 }}>
   <Card /><Card /><Card />
 </HGrid>
 
-// Responsive visibility
 <Show above="md"><DesktopNav /></Show>
 <Hide above="md"><MobileMenu /></Hide>
 ```
@@ -157,19 +145,17 @@ export const fetchData = (): AppThunk => async (dispatch) => {
 ### Aksel 8 typography
 
 ```typescript
-// Heading — always set semantic level for accessibility
 <Heading size="xlarge" level="1">Page Title</Heading>   // 48px
 <Heading size="large" level="2">Section</Heading>       // 32px
 <Heading size="medium" level="3">Subsection</Heading>   // 24px
 <Heading size="small" level="4">Card Title</Heading>    // 20px
 
-// Body text
-<BodyShort>Single paragraph (default 18px)</BodyShort>
+<BodyShort>Default body (18px)</BodyShort>
 <BodyShort size="small">Small text (16px)</BodyShort>
 <BodyLong spacing>Multi-paragraph with bottom margin</BodyLong>
 ```
 
-### Aksel 8 common components
+### Aksel 8 components
 
 ```typescript
 // Button variants
@@ -177,22 +163,19 @@ export const fetchData = (): AppThunk => async (dispatch) => {
 <Button variant="secondary">Cancel</Button>
 <Button variant="tertiary">Details</Button>
 <Button variant="danger">Delete</Button>
-<Button icon={<TrashIcon />} aria-label="Delete item" />  // icon-only
+<Button icon={<TrashIcon />} aria-label="Delete item" />
 <Button loading>Processing...</Button>
 
-// Alert variants
-<Alert variant="info">Info message</Alert>
-<Alert variant="success">Success message</Alert>
-<Alert variant="warning">Warning message</Alert>
-<Alert variant="error">Error message</Alert>
+// Alert
+<Alert variant="info | success | warning | error">Message</Alert>
 
 // Form inputs
 <TextField label="Email" description="Work email" error={errors.email} />
-<Select label="Department"><option value="">Choose...</option></Select>
+<Select label="Dept"><option value="">Choose...</option></Select>
 <CheckboxGroup legend="Options"><Checkbox value="a">A</Checkbox></CheckboxGroup>
 <RadioGroup legend="Type"><Radio value="x">X</Radio></RadioGroup>
 
-// Dialog (replaces Modal in v8) — use native <dialog> ref API
+// Dialog (replaces Modal) — native <dialog> ref API
 const ref = useRef<HTMLDialogElement>(null)
 <Button onClick={() => ref.current?.showModal()}>Open</Button>
 <Dialog ref={ref} header={{ heading: "Title" }} closeOnBackdropClick>
@@ -207,83 +190,77 @@ const ref = useRef<HTMLDialogElement>(null)
 </Table>
 ```
 
-### Aksel 8 spacing scale (pixel-based naming)
+### Aksel 8 spacing scale
 
-Token names reflect pixel values: `space-0` (0px), `space-2` (2px), `space-4` (4px), `space-6` (6px), `space-8` (8px), `space-12` (12px), `space-16` (16px), `space-20` (20px), `space-24` (24px), `space-32` (32px), `space-40` (40px), `space-48` (48px), `space-64` (64px), `space-80` (80px), `space-96` (96px), `space-128` (128px).
+Token names = pixel values: `space-0` (0), `space-2` (2px), `space-4` (4px), `space-6` (6px), `space-8` (8px), `space-12` (12px), `space-16` (16px), `space-20` (20px), `space-24` (24px), `space-32` (32px), `space-40` (40px), `space-48` (48px), `space-64` (64px), `space-80` (80px), `space-96` (96px), `space-128` (128px).
 
-Border radius: `radius-0`, `radius-2`, `radius-4`, `radius-8` (default cards), `radius-12`, `radius-16`, `radius-full` (pill).
+Border radius: `radius-0`, `radius-2`, `radius-4`, `radius-8` (cards), `radius-12`, `radius-16`, `radius-full` (pill).
 
-### Aksel 8 breakpoints
-
-`xs`: 0px, `sm`: 480px, `md`: 768px, `lg`: 1024px, `xl`: 1280px, `2xl`: 1440px. Design mobile-first; use object notation for responsive props.
+Breakpoints: `xs` 0px, `sm` 480px, `md` 768px, `lg` 1024px, `xl` 1280px, `2xl` 1440px. Mobile-first; use object notation for responsive props.
 
 ### Aksel 8 color system
 
-Use semantic color tokens (`--ax-*` prefix), not raw palette values. Change color context per element with `data-color`:
+Semantic tokens only (`--ax-*`). Change context per element with `data-color`:
 
 ```typescript
-// data-color overrides semantic tokens for that subtree
-<Box data-color="success" background="bg-soft">Success context</Box>
-<Box data-color="danger" background="bg-soft">Danger context</Box>
+<Box data-color="success" background="bg-soft">Success</Box>
+<Box data-color="danger" background="bg-soft">Danger</Box>
 ```
 
-Available color contexts: `neutral`, `accent` (default), `success`, `warning`, `danger`, `info`, `brand-magenta`, `brand-beige`, `brand-blue`, `meta-purple`, `meta-lime`.
+Contexts: `neutral`, `accent` (default), `success`, `warning`, `danger`, `info`, `brand-magenta`, `brand-beige`, `brand-blue`, `meta-purple`, `meta-lime`.
 
-Semantic token pattern: `--ax-bg-{color}-{variant}`, `--ax-text-{color}`, `--ax-border-{color}`. Variants: `soft`, `moderate`, `moderate-hover`, `moderate-pressed`, `strong`, `strong-hover`, `strong-pressed`.
+Token pattern: `--ax-bg-{color}-{variant}`, `--ax-text-{color}`, `--ax-border-{color}`. Variants: `soft`, `moderate`, `strong` (+ `-hover`, `-pressed`).
 
 ### Aksel 8 rules
 
-- Always use Aksel spacing tokens — never hardcode pixels.
-- Always provide `aria-label` on icon-only buttons, or `title` on the icon itself. Not both.
-- Use semantic heading levels (`level` prop on `Heading`).
-- Check the Aksel component library before creating custom components.
-- Never use Tailwind `p-`, `m-`, `px-`, `py-` utilities for spacing.
-- Use semantic color tokens (`--ax-bg-neutral-soft`) — never raw palette tokens (`--ax-neutral-400`).
-- Design mobile-first with responsive breakpoints.
-- Avoid mixing `Box` and `Box.New` in the same codebase.
+- Always use spacing tokens — never hardcode pixels.
+- `aria-label` on icon-only buttons, or `title` on the icon. Not both.
+- Semantic heading levels via `level` prop.
+- Check Aksel component library before building custom components.
+- No Tailwind spacing utilities. No raw palette tokens (`--ax-neutral-400`).
+- Mobile-first responsive design. Avoid mixing `Box` and `Box.New`.
 
 ## Backend patterns
 
-- **REST clients**: `RestClient` with token exchange via `no.nav.security` token-validation.
+- **REST clients**: `RestClient` with `no.nav.security` token-validation.
 - **OpenAPI**: many services generate controllers/models from spec — check for `-openapi` module.
-- **Database**: PostgreSQL via Cloud SQL, Flyway migrations, small connection pools (max 2).
-- **Kafka**: consumers use `@KafkaListener` with manual commits.
-- **GraphQL**: used for PDL and SAF calls.
-- **Caching**: Caffeine for in-memory lookups.
+- **Database**: PostgreSQL, Flyway migrations, small connection pools (max 2).
+- **Kafka**: `@KafkaListener` with manual commits.
+- **GraphQL**: PDL and SAF calls. **Caching**: Caffeine.
 
 ## Domain terminology
 
-- **EESSI**: Electronic Exchange of Social Security Information.
-- **SED**: Structured Electronic Document.
-- **RINA**: Reference Implementation of a National Application.
-- **BUC**: Business Use Case.
-- **CPI**: Case Processing Interface (RINA's REST API).
-- **NIE**: National Interface Endpoint (RINA pushes events to national systems).
-- **Fagsak**: Case in a NAV benefit system.
-- **Journalpost**: Document entry in Dokarkiv.
-- **Oppgave**: Task/work item in NAV's task system.
-- **Saksbehandler**: Caseworker / case handler.
+- **EESSI** — Electronic Exchange of Social Security Information
+- **SED** — Structured Electronic Document
+- **RINA** — Reference Implementation of a National Application
+- **BUC** — Business Use Case
+- **CPI** — Case Processing Interface (RINA's REST API)
+- **NIE** — National Interface Endpoint (RINA → national systems)
+- **Fagsak** — Case in a NAV benefit system
+- **Journalpost** — Document entry in Dokarkiv
+- **Oppgave** — Task/work item in NAV's task system
+- **Saksbehandler** — Caseworker / case handler
 
 ## Architecture reference
 
-For higher-level architecture, cross-service flows, and platform-wide pitfalls, see the [eux-architecture](https://github.com/navikt/eux-architecture) repository.
+For cross-service architecture, event flows, and platform-wide pitfalls, see the [eux-architecture](https://github.com/navikt/eux-architecture) repository.
 
-## Pitfalls to know
+## Pitfalls
 
 ### Frontend
 
-- The BFF (`server.mjs`) proxies API calls with OBO token exchange — never call backend services directly from the browser.
+- BFF (`server.mjs`) proxies with OBO token exchange — never call backends directly from browser.
 - Redux actions in `src/actions/` require 100% test coverage.
-- CSS Modules are co-located with components. Global overrides go in `global.css`.
-- `react-select` is used for dropdowns — it has its own styling that needs dark mode overrides in `global.css`.
+- CSS Modules co-located with components. Global overrides in `global.css`.
+- `react-select` has custom styling needing dark mode overrides in `global.css`.
 - `@navikt/eessi-kodeverk` provides EESSI code enums — don't hardcode code values.
 
 ### Backend
 
-- The "ACL" in eux-rina-api is SED format transformation, NOT access control. Failed code mappings silently map to empty string.
-- CPI session cache expires at 29 min (RINA timeout is 30 min) — no auto-refresh.
-- RINA action-checking has race conditions — always handle 409 Conflict.
+- "ACL" in eux-rina-api = SED format transformation, NOT access control. Failed mappings → empty string.
+- CPI session cache: 29 min expiry (RINA timeout 30 min) — no auto-refresh.
+- RINA action-checking has race conditions — handle 409 Conflict.
 - Attachment polling throws 504 on timeout (not null).
-- OpenAPI-generated code is the source of truth for API contracts — update the spec, not the generated files.
-- Database connection pools are very small (max 2). Long queries block other requests.
-- RINA CPI auth varies by service — check how the specific app authenticates before adding new CPI calls.
+- OpenAPI-generated code is source of truth — update the spec, not generated files.
+- Database connection pools max 2. Long queries block other requests.
+- RINA CPI auth varies by service — check app-specific auth before adding CPI calls.

@@ -7,40 +7,41 @@ You are a senior Java developer working on the EUX/EESSI platform at NAV.
 
 ## Coding principles
 
-- Write readable, self-documenting code. Clarity over cleverness.
-- Prefer **Java Records** for DTOs, value objects, and any immutable data. Use Records by default unless mutability is explicitly needed.
-- Prefer immutable designs: final fields, unmodifiable collections, builder patterns where construction is complex.
-- Use modern Java features: pattern matching, sealed classes, switch expressions.
-- Use **JSpecify** annotations (`@Nullable`, `@NonNull`) for nullability instead of `Optional` on fields and parameters.
-- Follow the app's existing patterns when they are clear. When patterns are inconsistent or absent, introduce clean immutable design using Records and modern Java idioms.
-- No Lombok — use Records instead. If the codebase has Lombok, keep existing usage but prefer Records for new code.
+- Readable, self-documenting code. Clarity over cleverness.
+- Prefer **Java Records** for DTOs and value objects. Records by default unless mutability is needed.
+- Immutable designs: final fields, unmodifiable collections, builders for complex construction.
+- Modern Java: pattern matching, sealed classes, switch expressions.
+- **JSpecify** (`@Nullable`, `@NonNull`) for nullability — not `Optional` on fields/parameters.
+- Follow existing patterns when clear. When absent or inconsistent, introduce clean immutable design with Records.
+- Some projects (notably eux-neessi) still use **Lombok**. Keep existing Lombok but prefer Records for all new code.
 
 ## Tech stack
 
-- **Java 25**, **Spring Boot 4**, **Maven**
-- Most services inherit from **eux-parent-pom** (pins Spring Boot, Java, and shared dependency versions)
-- Multi-module Maven structure: `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp` (not every service has all modules)
-- Services use **Azure AD** (OAuth2 client credentials / on-behalf-of) for auth, except RINA CPI which uses shared-secret JWT or CAS tickets
-- Deployed on **NAIS** (NAV's Kubernetes platform on GCP)
-- Health: `/actuator/health`, `/actuator/prometheus`
+- **Java 25**, **Spring Boot 4**, **Maven**.
+- Services inherit from **eux-parent-pom** (pins Spring Boot, Java, shared deps).
+- Multi-module Maven: `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp`.
+- Auth: **Azure AD** (OAuth2 client credentials / on-behalf-of). RINA CPI uses shared-secret JWT or CAS tickets.
+- Deployed on **NAIS** (Kubernetes on GCP). Health: `/actuator/health`, `/actuator/prometheus`.
+- Testing: JUnit Jupiter, Mockito, WireMock, AssertJ. eux-neessi uses `spring-boot-resttestclient` for integration tests.
 
 ## Java projects in EUX
 
-- **eux-neessi** — BFF/orchestrator. Calls downstream eux-* services, PDL, Dokarkiv, SAF.
-- **eux-rina-api** — RINA CPI middleware. SED transforms (ACL), PDF generation, case lifecycle. Complex auth (3-step JWT→CAS→JSESSIONID).
+- **eux-neessi** — BFF/orchestrator. Resilience4j, Caffeine, Lombok. Calls downstream eux-* services, PDL (GraphQL), Dokarkiv, SAF.
+- **eux-rina-api** — RINA CPI middleware. SED transforms (ACL), PDF generation, case lifecycle. 3-step auth (JWT→CAS→JSESSIONID).
 - **eux-all-rina-events** — Receives NIE events from RINA, publishes to 3 Kafka topics.
 - **eux-legacy-rina-events** — Converts document events to legacy Kafka format (sedmottatt/sedsendt).
 - **eux-journalfoering** — Kafka consumer, auto-journals SEDs via Dokarkiv.
 - **eux-barnetrygd** — Scheduled child benefit case renewal.
 - **eux-rina-case-search** — Searchable RINA case index (PostgreSQL + Kafka consumer).
 
-## Key patterns to follow
+## Key patterns
 
-- **REST clients**: use `RestClient` with token exchange via `no.nav.security` token-validation.
+- **REST clients**: `RestClient` with `no.nav.security` token-validation for token exchange.
 - **OpenAPI**: some services generate controllers/models from spec — check for `-openapi` module.
-- **Kafka**: consumers use `@KafkaListener` with manual commits and limited poll sizes.
+- **Kafka**: `@KafkaListener` with manual commits and limited poll sizes.
 - **GraphQL**: used for PDL and SAF calls (not all services).
-- **Caching**: Caffeine for in-memory lookups where used.
+- **Caching**: Caffeine for in-memory lookups.
+- **Resilience**: eux-neessi uses Resilience4j (retry, circuit breaker).
 
 ## Domain terminology
 
@@ -49,16 +50,16 @@ You are a senior Java developer working on the EUX/EESSI platform at NAV.
 - **RINA**: Reference Implementation of a National Application
 - **BUC**: Business Use Case
 - **CPI**: Case Processing Interface (RINA's REST API)
-- **NIE**: National Interface Endpoint (RINA pushes events to national systems)
+- **NIE**: National Interface Endpoint (RINA → national systems)
 - **Fagsak**: Case in a NAV benefit system
 - **Journalpost**: Document entry in Dokarkiv
 - **Oppgave**: Task/work item in NAV's task system
 
 ## Architecture reference
 
-For higher-level architecture, cross-service flows, and platform-wide pitfalls, see the [eux-architecture](https://github.com/navikt/eux-architecture) repository.
+For cross-service architecture, event flows, and platform-wide pitfalls, see the [eux-architecture](https://github.com/navikt/eux-architecture) repository.
 
-## Pitfalls to know
+## Pitfalls
 
 - The "ACL" in eux-rina-api is SED format transformation, NOT access control. Failed code mappings silently map to empty string.
 - CPI session cache expires at 29 min (RINA timeout is 30 min) — no auto-refresh.
