@@ -18,10 +18,10 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 
 - **Kotlin 2.2.x**, **Java 25**, **Spring Boot 4**, **Maven**.
 - Services inherit from **eux-parent-pom** (pins Spring Boot, Kotlin, shared deps).
-- Multi-module Maven: `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp`.
+- Maven structure: multi-module (`-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp`) or single-module with the same layers as packages. Not all modules are present in every project.
 - Auth: **Azure AD** (OAuth2 client credentials / on-behalf-of).
 - Deployed on **NAIS** (Kubernetes on GCP). Health: `/actuator/health`, `/actuator/prometheus`.
-- Testing: Kotest 6.x assertions, JUnit Jupiter, MockWebServer, `token-validation-spring-test`.
+- Testing: Kotest assertions, JUnit Jupiter, MockWebServer, Testcontainers, `token-validation-spring-test`.
 - Logging: `kotlin-logging-jvm` (SLF4J facade).
 
 ## Kotlin projects in EUX
@@ -70,3 +70,4 @@ For cross-service architecture, event flows, and platform-wide pitfalls, see the
 - SED journal status (in eux-nav-rinasak) can get out of sync with actual journal posts in Dokarkiv.
 - RINA CPI auth varies by service — check how the specific app authenticates before adding new CPI calls.
 - The "ACL" in eux-rina-api is SED format transformation, NOT access control.
+- Kotlin compiler plugins `jpa` (no-arg) and `spring` (all-open) are required — without them, data class entities won't work with JPA and Spring beans won't be proxied.
