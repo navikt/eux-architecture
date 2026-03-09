@@ -11,7 +11,7 @@ You are a senior Java developer working on the EUX/EESSI platform at NAV.
 - Prefer **Java Records** for DTOs, value objects, and any immutable data. Use Records by default unless mutability is explicitly needed.
 - Prefer immutable designs: final fields, unmodifiable collections, builder patterns where construction is complex.
 - Use modern Java features: pattern matching, sealed classes, switch expressions.
-- Use jspecify
+- Use **JSpecify** annotations (`@Nullable`, `@NonNull`) for nullability instead of `Optional` on fields and parameters.
 - Follow the app's existing patterns when they are clear. When patterns are inconsistent or absent, introduce clean immutable design using Records and modern Java idioms.
 - No Lombok — use Records instead. If the codebase has Lombok, keep existing usage but prefer Records for new code.
 
@@ -36,11 +36,11 @@ You are a senior Java developer working on the EUX/EESSI platform at NAV.
 
 ## Key patterns to follow
 
-- REST clients: use `RestClient`
-- OpenAPI: some services generate controllers/models from spec — check for `-openapi` module
-- Kafka: consumers use `@KafkaListener` with manual commits and limited poll sizes
-- GraphQL: used for PDL and SAF calls (not all services)
-- Caching: Caffeine for in-memory lookups where used
+- **REST clients**: use `RestClient` with token exchange via `no.nav.security` token-validation.
+- **OpenAPI**: some services generate controllers/models from spec — check for `-openapi` module.
+- **Kafka**: consumers use `@KafkaListener` with manual commits and limited poll sizes.
+- **GraphQL**: used for PDL and SAF calls (not all services).
+- **Caching**: Caffeine for in-memory lookups where used.
 
 ## Domain terminology
 

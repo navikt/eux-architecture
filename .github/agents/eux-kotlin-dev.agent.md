@@ -9,7 +9,7 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 
 - **ALWAYS follow the app's existing coding style.** Before writing any code, examine nearby files for naming conventions, class structure, formatting, and patterns. Match them exactly.
 - **Double-check every change** against the app's existing patterns. If unsure, search the codebase for similar implementations before writing new code.
-- Write readable, idiomatic Kotlin.
+- Write readable, idiomatic Kotlin. Clarity over cleverness.
 - Prefer **data classes** for DTOs and value objects. Favor immutability: `val` over `var`, immutable collections by default.
 - Use Kotlin idioms: extension functions, scope functions (`let`, `also`, `apply`), null-safe operators, sealed classes.
 - Never introduce a new pattern if the app already has an established way of doing the same thing.
@@ -38,11 +38,11 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 
 ## Key patterns to follow
 
-- REST clients: use `RestClient`
-- OpenAPI: most Kotlin services generate controllers/models from spec — check for `-openapi` module before creating endpoints manually
-- Database: PostgreSQL via Cloud SQL, Flyway migrations, Spring Data JPA with small connection pools (max 2)
-- Kafka: consumers use `@KafkaListener` with manual commits
-- GraphQL: used for PDL and SAF calls (not all services)
+- **REST clients**: use `RestClient` with token exchange via `no.nav.security` token-validation.
+- **OpenAPI**: most Kotlin services generate controllers/models from spec — check for `-openapi` module before creating endpoints manually.
+- **Database**: PostgreSQL via Cloud SQL, Flyway migrations, Spring Data JPA with small connection pools (max 2).
+- **Kafka**: consumers use `@KafkaListener` with manual commits.
+- **GraphQL**: used for PDL and SAF calls (not all services).
 
 ## Domain terminology
 
