@@ -106,12 +106,23 @@ This repository documents the architecture of the **EUX (EESSI) platform** — N
 
 ## Common Patterns
 
-- **Authentication**: All services use **Azure AD** for service-to-service auth (OAuth2 client credentials / on-behalf-of). The frontend uses Azure AD via the **Wonderwall** sidecar.
-- **API-first**: Most services use **OpenAPI 3.0** specs with code generation for controllers and clients.
-- **Multi-module Maven**: Backend services are structured as Maven multi-module projects (`-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp`).
-- **NAIS deployment**: All apps deploy to **NAIS** (NAV's Kubernetes platform) on GCP, with Cloud SQL for PostgreSQL where needed.
-- **Health/metrics**: All services expose `/actuator/health` and `/actuator/prometheus`.
-- **Distroless containers**: Backend JVM services use `gcr.io/distroless/java25` base images.
+- **Authentication**: All services use **Azure AD** for service-to-service auth (OAuth2 client credentials / on-behalf-of). The frontend (eux-web-app) uses Azure AD via the **Wonderwall** sidecar. The one exception is eux-rina-api's connection to RINA CPI, which uses a shared-secret JWT.
+- **NAIS deployment**: All apps deploy to **NAIS** (NAV's Kubernetes platform) on GCP.
+- **Health/metrics**: All JVM backend services expose `/actuator/health` and `/actuator/prometheus`. The frontend (eux-web-app) uses custom `/internal/isAlive` and `/internal/isReady` endpoints instead.
+
+### Patterns that vary by project
+
+| Pattern | Applies to | Notes |
+|---|---|---|
+| **OpenAPI 3.0 code generation** | eux-nav-rinasak, eux-journal, eux-oppgave | These generate controllers/models from an OpenAPI spec. The other backends wire endpoints manually. |
+| **Multi-module Maven** | All JVM services | Typically split into `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp` modules — but not all services have every module (stateless services skip `-persistence`). |
+| **PostgreSQL (Cloud SQL)** | eux-nav-rinasak, eux-journal, eux-oppgave | Only these three have their own database. The other backends are stateless. |
+| **Flyway migrations** | eux-nav-rinasak, eux-journal, eux-oppgave | Follows from having a database. |
+| **Kafka** | eux-journalfoering (consumer only) | Consumes `eessibasis.sedmottatt-v1` and `eessibasis.sedsendt-v1`. No other EUX service produces or consumes Kafka messages directly. |
+| **GraphQL clients** | eux-neessi, eux-journalfoering, eux-journal, eux-rina-api | Used to call PDL and/or SAF. The others use REST only. |
+| **Distroless Java 25 container** | eux-nav-rinasak, eux-neessi, eux-journalfoering, eux-journal, eux-oppgave | eux-rina-api uses a standard OpenJDK 25 image. eux-web-app uses `node:22-slim`. |
+| **Caffeine caching** | eux-neessi, eux-journalfoering, eux-rina-api | In-memory caching for lookups (org units, codes, etc.). The other services don't cache. |
+| **Spring Retry / Resilience4j** | eux-neessi (Resilience4j), eux-oppgave (Spring Retry) | Explicit retry logic for flaky downstream calls. Other services don't have retry wrappers. |
 
 ## Pitfalls and Things to Watch Out For
 
