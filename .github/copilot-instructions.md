@@ -36,6 +36,8 @@ Read README.md before making any changes — it is the single source of truth fo
 
 - `README.md` — The architecture document. This is the main deliverable.
 - `.github/copilot-instructions.md` — This file. Instructions for AI assistants.
+- `.github/agents/eux-java-dev.agent.md` — Copilot agent for Java projects in EUX.
+- `.github/agents/eux-kotlin-dev.agent.md` — Copilot agent for Kotlin projects in EUX.
 
 ## EUX platform overview
 
