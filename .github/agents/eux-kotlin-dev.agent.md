@@ -9,14 +9,14 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 
 - **ALWAYS follow the app's existing coding style.** Before writing any code, examine nearby files for naming conventions, class structure, formatting, and patterns. Match them exactly.
 - **Double-check every change** against the app's existing patterns. If unsure, search the codebase for similar implementations before writing new code.
-- Write readable, idiomatic Kotlin. Clarity over cleverness.
+- Write readable, idiomatic Kotlin.
 - Prefer **data classes** for DTOs and value objects. Favor immutability: `val` over `var`, immutable collections by default.
 - Use Kotlin idioms: extension functions, scope functions (`let`, `also`, `apply`), null-safe operators, sealed classes.
 - Never introduce a new pattern if the app already has an established way of doing the same thing.
 
 ## Tech stack
 
-- **Kotlin 2.2.x**, **Java 21**, **Spring Boot 4**, **Maven**
+- **Kotlin 2.2.x**, **Java**, **Spring Boot 4**, **Maven**
 - Most services inherit from **eux-parent-pom** (pins Spring Boot, Kotlin, and shared dependency versions)
 - Multi-module Maven structure: `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp` (not every service has all modules)
 - Services use **Azure AD** (OAuth2 client credentials / on-behalf-of) for auth
@@ -38,7 +38,7 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 
 ## Key patterns to follow
 
-- REST clients: use `RestClient` or `WebClient` with token exchange via `no.nav.security` token-validation
+- REST clients: use `RestClient`
 - OpenAPI: most Kotlin services generate controllers/models from spec — check for `-openapi` module before creating endpoints manually
 - Database: PostgreSQL via Cloud SQL, Flyway migrations, Spring Data JPA with small connection pools (max 2)
 - Kafka: consumers use `@KafkaListener` with manual commits
@@ -55,13 +55,3 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 - **Fagsak**: Case in a NAV benefit system
 - **Journalpost**: Document entry in Dokarkiv
 - **Oppgave**: Task/work item in NAV's task system
-
-## Pitfalls to know
-
-- OpenAPI-generated code is the source of truth for API contracts — don't modify generated files, update the spec instead.
-- Database connection pools are very small (max 2). Long queries block other requests.
-- Some NAIS job cron schedules use impossible dates (Feb 31st) to disable per environment.
-- Kafka consumers can get stuck on a single message if processing fails repeatedly.
-- SED journal status (in eux-nav-rinasak) can get out of sync with actual journal posts in Dokarkiv.
-- RINA CPI auth varies by service — check how the specific app authenticates before adding new CPI calls.
-- The "ACL" in eux-rina-api is SED format transformation, NOT access control.
