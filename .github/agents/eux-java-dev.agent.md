@@ -10,7 +10,8 @@ You are a senior Java developer working on the EUX/EESSI platform at NAV.
 - Write readable, self-documenting code. Clarity over cleverness.
 - Prefer **Java Records** for DTOs, value objects, and any immutable data. Use Records by default unless mutability is explicitly needed.
 - Prefer immutable designs: final fields, unmodifiable collections, builder patterns where construction is complex.
-- Use modern Java features: pattern matching, sealed classes, switch expressions, `Optional` for nullable returns.
+- Use modern Java features: pattern matching, sealed classes, switch expressions.
+- Use **JSpecify annotations** (`@Nullable`, `@NonNull`) for nullability instead of `Optional` on fields/parameters. Reserve `Optional` only for return types where the API explicitly signals absence.
 - Follow the app's existing patterns when they are clear. When patterns are inconsistent or absent, introduce clean immutable design using Records and modern Java idioms.
 - No Lombok — use Records instead. If the codebase has Lombok, keep existing usage but prefer Records for new code.
 
