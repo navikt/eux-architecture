@@ -8,6 +8,7 @@ AGENTS_TARGET="$HOME/.copilot/agents"
 agents=(
   "eux-java-dev.agent.md"
   "eux-kotlin-dev.agent.md"
+  "eux-full-stack-dev.agent.md"
 )
 
 # Verify source files exist

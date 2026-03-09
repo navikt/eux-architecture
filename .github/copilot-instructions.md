@@ -38,6 +38,7 @@ Read README.md before making any changes — it is the single source of truth fo
 - `.github/copilot-instructions.md` — This file. Instructions for AI assistants.
 - `.github/agents/eux-java-dev.agent.md` — Copilot agent for Java EUX projects.
 - `.github/agents/eux-kotlin-dev.agent.md` — Copilot agent for Kotlin EUX projects.
+- `.github/agents/eux-full-stack-dev.agent.md` — Copilot agent for full-stack EUX work (React + Java/Kotlin).
 - `install-agents.sh` — Creates symlinks from `~/.copilot/agents/` to the agent files above.
 
 ## EUX platform overview
