@@ -46,7 +46,7 @@ Read README.md before making any changes — it is the single source of truth fo
 
 ## EUX platform overview
 
-The platform consists of ~23 repositories under github.com/navikt/, all in the eessibasis team/namespace:
+The platform consists of ~24 repositories under github.com/navikt/, all in the eessibasis team/namespace:
 
 **Core services**: eux-web-app (React frontend), eux-neessi (BFF/orchestrator), eux-rina-api (RINA middleware),
 eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler (all Kotlin/Spring Boot with PostgreSQL),
@@ -56,7 +56,8 @@ eux-rina-terminator-api (case termination), eux-rina-case-search (search index).
 
 **Background workers**: eux-journalfoering (auto-journaling), eux-journalarkivar (journal cleanup),
 eux-avslutt-rinasaker (case closure), eux-slett-usendte-rinasaker (orphan deletion),
-eux-adresse-oppdatering (address sync), eux-barnetrygd (child benefit renewal).
+eux-adresse-oppdatering (address sync), eux-person-oppdatering (foreign ID sync to PDL),
+eux-barnetrygd (child benefit renewal).
 
 **NAIS jobs**: eux-avslutt-rinasaker-naisjob, eux-journalarkivar-naisjob, eux-slett-usendte-rinasaker-naisjob.
 These are cron triggers with no business logic — they just call REST endpoints on the corresponding services.

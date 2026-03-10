@@ -38,6 +38,7 @@ This repository documents the architecture of the **EUX (EESSI) platform** — N
 | [eux-avslutt-rinasaker](https://github.com/navikt/eux-avslutt-rinasaker) | Kotlin / Spring Boot | PostgreSQL | Manages RINA case closure/archival lifecycle (state machine). Consumes case and document events from Kafka. Calls eux-rina-terminator-api. Triggered by NAIS jobs. |
 | [eux-slett-usendte-rinasaker](https://github.com/navikt/eux-slett-usendte-rinasaker) | Kotlin / Spring Boot | PostgreSQL | Deletes RINA cases that never received a SED. Consumes case/document events from Kafka. Calls eux-rina-terminator-api. Triggered by NAIS jobs. |
 | [eux-adresse-oppdatering](https://github.com/navikt/eux-adresse-oppdatering) | Kotlin / Spring Boot | — | Consumes `eux-rina-document-events-v1` from Kafka. Updates addresses in PDL when address data is found in incoming SEDs. |
+| [eux-person-oppdatering](https://github.com/navikt/eux-person-oppdatering) | Java / Spring Boot | PostgreSQL | Consumes `sedmottatt-v1` from Kafka. Extracts foreign ID numbers from incoming SEDs and sends updates to PDL via PDL-Mottak. Calls eux-rina-api to fetch full SED documents. Tracks update status in database. |
 | [eux-barnetrygd](https://github.com/navikt/eux-barnetrygd) | Java / Spring Boot | — | Scheduled worker for annual child benefit (barnetrygd) case renewal. Calls eux-oppgave, eux-rina-api, eux-nav-rinasak, PDL, SAF. |
 
 ### NAIS Jobs (Scheduled Triggers)
@@ -111,6 +112,7 @@ These are not deployed applications. They are dependencies used at build time or
                     │     │
                     │     ▼
                     │  eux-journalfoering
+                    │  eux-person-oppdatering
                     │
                     └──▶ eux-rina-case-search
 ```
@@ -145,6 +147,7 @@ These are not deployed applications. They are dependencies used at build time or
 
 4. Multiple services consume these events:
    - **eux-journalfoering** — auto-journals SEDs (via the legacy topics)
+   - **eux-person-oppdatering** — extracts foreign ID numbers from incoming SEDs and updates PDL (via the legacy topics)
    - **eux-adresse-oppdatering** — updates addresses in PDL from incoming SEDs
    - **eux-rina-case-search** — maintains a searchable case index
    - **eux-avslutt-rinasaker** — tracks case lifecycle for closure
@@ -165,7 +168,7 @@ Several cleanup and maintenance tasks run on cron schedules via NAIS jobs:
 |---|---|---|
 | **RINA CPI** | EU case management system | REST via eux-rina-api (shared-secret JWT) and eux-rina-terminator-api (service user credentials) |
 | **PDL** | Person data (Folkeregisteret) | GraphQL (Azure AD) |
-| **PDL-Mottak** | Write updates to PDL | REST (Azure AD), used by eux-adresse-oppdatering |
+| **PDL-Mottak** | Write updates to PDL | REST (Azure AD), used by eux-adresse-oppdatering and eux-person-oppdatering |
 | **Dokarkiv** | Create/update journal posts | REST (Azure AD) |
 | **SAF** | Query journal posts and documents | GraphQL (Azure AD) |
 | **NAV Oppgave** | Task management | REST (Azure AD) via eux-oppgave |
@@ -185,13 +188,13 @@ Several cleanup and maintenance tasks run on cron schedules via NAIS jobs:
 
 | Pattern | Applies to | Notes |
 |---|---|---|
-| **PostgreSQL (Cloud SQL)** | eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler, eux-rina-case-search, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker | The remaining services are stateless. |
+| **PostgreSQL (Cloud SQL)** | eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler, eux-rina-case-search, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-person-oppdatering | The remaining services are stateless. |
 | **Flyway migrations** | Same as PostgreSQL list above | Follows from having a database. |
 | **OpenAPI code generation** | eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker | Generate controllers/models from an OpenAPI spec. Other services wire endpoints manually. |
 | **Multi-module Maven** | Most JVM services | Split into `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp` — but not every service has all modules. NAIS jobs and smaller services are single-module. |
-| **Kafka consumer** | eux-journalfoering, eux-adresse-oppdatering, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-rina-case-search, eux-legacy-rina-events | Each consumes different topics (see Event Flow). |
+| **Kafka consumer** | eux-journalfoering, eux-person-oppdatering, eux-adresse-oppdatering, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-rina-case-search, eux-legacy-rina-events | Each consumes different topics (see Event Flow). |
 | **Kafka producer** | eux-all-rina-events | The only service that publishes to Kafka. eux-legacy-rina-events also publishes (converts and re-publishes). |
-| **GraphQL clients** | eux-neessi, eux-journalfoering, eux-journal, eux-rina-api, eux-barnetrygd, eux-adresse-oppdatering | Used to call PDL and/or SAF. Others use REST only. |
+| **GraphQL clients** | eux-neessi, eux-journalfoering, eux-journal, eux-rina-api, eux-barnetrygd, eux-adresse-oppdatering, eux-person-oppdatering | Used to call PDL and/or SAF. Others use REST only. |
 | **Caffeine caching** | eux-neessi, eux-journalfoering, eux-rina-api, eux-rina-terminator-api | In-memory caching for lookups. |
 | **Spring Retry / Resilience4j** | eux-neessi (Resilience4j), eux-oppgave (Spring Retry), eux-rina-case-search (custom retry) | Explicit retry logic for flaky downstream calls. |
 
