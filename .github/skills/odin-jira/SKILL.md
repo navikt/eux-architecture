@@ -14,27 +14,32 @@ Takes a TEN JIRA issue key (e.g. `TEN-742`), analyzes the problem, implements a 
 1. **Project scope**: Only operate on project `TEN`. Never create or modify issues in other projects.
 2. **NEVER commit to `main`**: Always create a feature branch. Never push directly to `main`.
 3. **Always use `--yes`** on acli edit, transition, and assign commands to avoid interactive prompts.
-4. **Be concise** in JIRA comments and PR descriptions. No filler text.
-5. **Verify before PR**: Always verify that changes compile/build and are correct before creating pull requests.
-6. **One branch per repo**: Use the same branch naming convention across all affected repos: `fix/<ISSUE-KEY>-<short-description>`.
+4. **Write Norwegian**: All JIRA comments must be written in concise Norwegian (bokmål). PR titles and descriptions remain in English.
+5. **Be concise** in JIRA comments and PR descriptions. No filler text.
+6. **Verify before PR**: Always verify that changes compile/build and are correct before creating pull requests.
+7. **One branch per repo**: Use the same branch naming convention across all affected repos: `fix/<ISSUE-KEY>-<short-description>`.
 
 ## Reviewer tagging rules
 
-When commenting on JIRA after creating PRs, tag the following people based on which repositories were changed:
+When commenting on JIRA after creating PRs, **use proper ADF `mention` nodes** so reviewers receive JIRA notifications. Plain text names do NOT trigger notifications.
 
-| Repository | Tag in JIRA |
-|---|---|
-| `eux-web-app` | Dey Rittik |
-| `eux-rina-api` | Arild Spikkeland |
-| `eux-fagmodul-journalfoering` | Arild Spikkeland |
-| `eux-nav-rinasak` | Vegard Hillestad |
-| `eux-neessi` | Vegard Hillestad |
-| `eux-person-oppdatering` | Knut Bjørnar Wålberg |
-| `eux-barnetrygd` | Knut Bjørnar Wålberg |
-| `eux-legacy-rina-events` | Torsten Kirschner |
-| `eux-all-rina-events` | Torsten Kirschner |
+### Reviewer account IDs
 
-Multiple repos may be changed — tag all relevant people.
+Use these Atlassian account IDs to build ADF mention nodes:
+
+| Repository | Reviewer | Atlassian Account ID |
+|---|---|---|
+| `eux-web-app` | Dey Rittik | `62f25d6ef15eecaf500fbbe8` |
+| `eux-rina-api` | Arild Spikkeland | `557058:db5de1a2-5606-4749-8a0e-03d7f89682a3` |
+| `eux-fagmodul-journalfoering` | Arild Spikkeland | `557058:db5de1a2-5606-4749-8a0e-03d7f89682a3` |
+| `eux-nav-rinasak` | Vegard Hillestad | `712020:9222ebea-ab05-497c-81f6-38a689b6d0f4` |
+| `eux-neessi` | Vegard Hillestad | `712020:9222ebea-ab05-497c-81f6-38a689b6d0f4` |
+| `eux-person-oppdatering` | Knut Bjørnar Wålberg | `62b035ab673f2103622cb2a9` |
+| `eux-barnetrygd` | Knut Bjørnar Wålberg | `62b035ab673f2103622cb2a9` |
+| `eux-legacy-rina-events` | Torsten Kirschner | `557058:941fd5b5-9b73-45a6-b54a-cc95bd6bf555` |
+| `eux-all-rina-events` | Torsten Kirschner | `557058:941fd5b5-9b73-45a6-b54a-cc95bd6bf555` |
+
+Multiple repos may be changed — mention all relevant people.
 
 ## ADF (Atlassian Document Format)
 
@@ -75,6 +80,15 @@ Always use ADF JSON for `--body` flags when creating JIRA comments. acli accepts
 {"type":"text","text":"click here","marks":[{"type":"link","attrs":{"href":"https://example.com"}}]}
 ```
 
+**Mention (triggers JIRA notification):**
+```json
+{"type":"mention","attrs":{"id":"<accountId>","text":"@Display Name","accessLevel":""}}
+```
+
+Example — mention Vegard Hillestad:
+```json
+{"type":"mention","attrs":{"id":"712020:9222ebea-ab05-497c-81f6-38a689b6d0f4","text":"@Vegard Hillestad","accessLevel":""}}
+
 ### ADF guidelines
 
 - Keep ADF compact — single-line JSON, no pretty-printing, when passing via `--body`.
@@ -113,7 +127,7 @@ Add a comment to the JIRA issue announcing that automated analysis and fix is in
 
 ```bash
 acli jira workitem comment create --key TEN-742 \
-  --body '{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"🤖 Odin is analyzing this issue and working on a fix. Stand by for updates."}]}]}'
+  --body '{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"🤖 Odin analyserer denne saken og jobber med en fiks. Oppdatering kommer."}]}]}'
 ```
 
 ### Step 2 — Analyze the JIRA issue
@@ -130,7 +144,34 @@ Read the summary, description, and comments carefully. Understand:
 - Are there stack traces, error messages, or specific SED/BUC types mentioned?
 - Are there any comments with additional context?
 
-### Step 3 — Determine which repositories need changes
+### Step 3 — Evaluate description quality
+
+Before attempting implementation, evaluate whether the issue description contains enough information to act on. A description is **sufficient** if you can answer **all** of these:
+
+1. **What** is the problem or desired change?
+2. **Where** in the system does it occur? (which service, screen, flow, SED/BUC type, etc.)
+3. **How** to reproduce or verify it? (steps, example data, error messages, screenshots, or expected vs actual behavior)
+
+**If the description is sufficient** → proceed to Step 4.
+
+**If the description is insufficient** → comment on the JIRA issue explaining what is missing, then **stop**. Do not attempt implementation. Example:
+
+```bash
+acli jira workitem comment create --key TEN-742 \
+  --body '{"version":1,"type":"doc","content":[
+    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"🤖 Odin — Trenger mer informasjon"}]},
+    {"type":"paragraph","content":[{"type":"text","text":"Kunne ikke starte automatisk fiks fordi beskrivelsen mangler nødvendige detaljer."}]},
+    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Hva mangler"}]},
+    {"type":"bulletList","content":[
+      {"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"<konkret detalj som mangler, f.eks. hvilken SED-type, feilmelding, steg for å reprodusere>"}]}]}
+    ]},
+    {"type":"paragraph","content":[{"type":"text","text":"Oppdater beskrivelsen med de manglende detaljene, og kjør Odin på nytt."}]}
+  ]}'
+```
+
+Tailor the "What is missing" bullets to the specific gaps. Be concrete — say exactly what information would unblock implementation.
+
+### Step 4 — Determine which repositories need changes
 
 Use the EUX Architecture document (`navikt/eux-architecture` README.md) to understand the platform and identify which repositories are involved.
 
@@ -151,7 +192,7 @@ Based on the issue analysis:
 - Clone or navigate to the relevant repositories.
 - Search the code to confirm where the fix needs to go.
 
-### Step 4 — Create feature branches
+### Step 5 — Create feature branches
 
 For each repository that needs changes, determine the default branch (`main` or `master`), ensure it is up to date with GitHub, then create the feature branch from it:
 
@@ -169,14 +210,14 @@ Use the **same branch name pattern** across all repos: `fix/<ISSUE-KEY>-<short-d
 - **NEVER make changes directly on the default branch (`main`/`master`).**
 - **ALWAYS `git pull` before branching** to ensure you branch from the latest remote state.
 
-### Step 5 — Implement the fix
+### Step 6 — Implement the fix
 
 Make the necessary code changes in each repository. Follow the coding patterns and conventions already established in each repo. Use the appropriate developer agent if available:
 - For Java repos → use `eux-java-dev` agent patterns
 - For Kotlin repos → use `eux-kotlin-dev` agent patterns
 - For frontend (eux-web-app) → use `eux-full-stack-dev` agent patterns
 
-### Step 6 — Verify changes
+### Step 7 — Verify changes
 
 For each repository with changes:
 
@@ -202,7 +243,7 @@ For each repository with changes:
 
 4. Verify no unintended files were changed.
 
-### Step 7 — Commit and push
+### Step 8 — Commit and push
 
 For each repository:
 
@@ -216,7 +257,7 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 git push -u origin fix/TEN-742-short-description
 ```
 
-### Step 8 — Create pull requests
+### Step 9 — Create pull requests
 
 For each repository, create a PR using the GitHub CLI:
 
@@ -235,7 +276,7 @@ gh pr create \
 
 Collect all PR URLs for the JIRA comment.
 
-### Step 9 — Comment on JIRA with results
+### Step 10 — Comment on JIRA with results
 
 Create a detailed comment on the JIRA issue summarizing what was done. The comment MUST include:
 
@@ -244,15 +285,15 @@ Create a detailed comment on the JIRA issue summarizing what was done. The comme
 3. **Links to all open Pull Requests**
 4. **Tags for reviewers** based on the reviewer tagging rules above
 
-Build the ADF comment dynamically. Example structure:
+Build the ADF comment dynamically. Use `mention` nodes (not plain text) for reviewer tags. Example structure:
 
 ```bash
 acli jira workitem comment create --key TEN-742 \
   --body '{"version":1,"type":"doc","content":[
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"🤖 Odin — Fix implemented"}]},
-    {"type":"paragraph","content":[{"type":"text","text":"Changes have been implemented for TEN-742."}]},
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Summary"}]},
-    {"type":"paragraph","content":[{"type":"text","text":"<description of what was changed>"}]},
+    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"🤖 Odin — Fiks implementert"}]},
+    {"type":"paragraph","content":[{"type":"text","text":"Endringer er implementert for TEN-742."}]},
+    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Oppsummering"}]},
+    {"type":"paragraph","content":[{"type":"text","text":"<beskrivelse av hva som ble endret>"}]},
     {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Pull Requests"}]},
     {"type":"bulletList","content":[
       {"type":"listItem","content":[{"type":"paragraph","content":[
@@ -260,15 +301,18 @@ acli jira workitem comment create --key TEN-742 \
         {"type":"text","text":"PR #123","marks":[{"type":"link","attrs":{"href":"https://github.com/navikt/eux-neessi/pull/123"}}]}
       ]}]}
     ]},
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Reviewers"}]},
-    {"type":"paragraph","content":[{"type":"text","text":"Tagging for review: Vegard Hillestad"}]}
+    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Reviewer"}]},
+    {"type":"paragraph","content":[
+      {"type":"text","text":"Ber om review: "},
+      {"type":"mention","attrs":{"id":"712020:9222ebea-ab05-497c-81f6-38a689b6d0f4","text":"@Vegard Hillestad","accessLevel":""}}
+    ]}
   ]}'
 ```
 
 **Important**: Always include working links to every PR that was created. Use the actual PR URLs returned by `gh pr create`.
 
-### Step 10 — Final check
+### Step 11 — Final check
 
 - Verify all PRs are open and have the correct base branch (`main`).
 - Verify the JIRA comment was created successfully.
-- If any step failed, comment on the JIRA issue explaining what went wrong and what was completed.
+- If any step failed, comment on the JIRA issue (in Norwegian) explaining what went wrong and what was completed.
