@@ -137,7 +137,7 @@ Use the EUX Architecture document (`navikt/eux-architecture` README.md) to under
 To read the architecture overview:
 
 ```bash
-cat /Users/vegard/workspace/eux-architecture/README.md
+cat eux-architecture/README.md
 ```
 
 Or if not locally available:
