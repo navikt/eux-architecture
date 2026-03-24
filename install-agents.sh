@@ -15,6 +15,7 @@ agents=(
 
 skills=(
   "jira-ten"
+  "odin-jira"
 )
 
 # Verify source files exist
