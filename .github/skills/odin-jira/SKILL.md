@@ -153,18 +153,21 @@ Based on the issue analysis:
 
 ### Step 4 — Create feature branches
 
-For each repository that needs changes, create a branch from `main`:
+For each repository that needs changes, determine the default branch (`main` or `master`), ensure it is up to date with GitHub, then create the feature branch from it:
 
 ```bash
 cd <repo-directory>
-git checkout main
-git pull
+DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | awk '{print $NF}')
+git checkout "$DEFAULT_BRANCH"
+git pull origin "$DEFAULT_BRANCH"
 git checkout -b fix/TEN-742-short-description
 ```
 
 Use the **same branch name pattern** across all repos: `fix/<ISSUE-KEY>-<short-description>`.
 
-**CRITICAL: NEVER make changes directly on the `main` branch.**
+**CRITICAL:**
+- **NEVER make changes directly on the default branch (`main`/`master`).**
+- **ALWAYS `git pull` before branching** to ensure you branch from the latest remote state.
 
 ### Step 5 — Implement the fix
 
