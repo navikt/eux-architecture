@@ -12,12 +12,13 @@ Takes a TEN JIRA issue key (e.g. `TEN-742`), analyzes the problem, implements a 
 ## Safety rules — ALWAYS follow these
 
 1. **Project scope**: Only operate on project `TEN`. Never create or modify issues in other projects.
-2. **NEVER commit to `main`**: Always create a feature branch. Never push directly to `main`.
-3. **Always use `--yes`** on acli edit, transition, and assign commands to avoid interactive prompts.
-4. **Write Norwegian**: All JIRA comments must be written in concise Norwegian (bokmål). PR titles and descriptions remain in English.
+2. **NEVER commit to `main` or `master`**: Always create a feature branch. Never push directly to `main` or `master`.
+3. **NEVER deploy backends**: Only deploy eux-web-app (frontend) to odin environments. Never trigger backend deploy workflows.
+4. **Always use `--yes`** on acli edit, transition, and assign commands to avoid interactive prompts.
 5. **Be concise** in JIRA comments and PR descriptions. No filler text.
 6. **Verify before PR**: Always verify that changes compile/build and are correct before creating pull requests.
 7. **One branch per repo**: Use the same branch naming convention across all affected repos: `fix/<ISSUE-KEY>-<short-description>`.
+8. **Write Norwegian**: All JIRA comments must be written in concise Norwegian (bokmål). PR titles and descriptions remain in English.
 
 ## Reviewer tagging rules
 
@@ -121,9 +122,22 @@ acli jira workitem search --jql "project = TEN AND key = TEN-123" --limit 1
 
 When invoked with a JIRA issue key (e.g. `/odin-jira TEN-742`):
 
-### Step 1 — Comment that work has started
+### Step 1 — Assign, transition, and comment that work has started
 
-Add a comment to the JIRA issue announcing that automated analysis and fix is in progress:
+First, determine the current user's identity:
+
+```bash
+acli jira auth status
+```
+
+Assign the issue to the person who initiated the skill, and transition it to "Under arbeid":
+
+```bash
+acli jira workitem assign --key TEN-742 --assignee "@me" --yes
+acli jira workitem transition --key TEN-742 --status "Under arbeid" --yes
+```
+
+Then add a comment announcing that work is in progress:
 
 ```bash
 acli jira workitem comment create --key TEN-742 \
@@ -276,7 +290,31 @@ gh pr create \
 
 Collect all PR URLs for the JIRA comment.
 
-### Step 10 — Comment on JIRA with results
+### Step 8.5 — Deploy branch to odin test environments
+
+After pushing (both on initial PR creation and after subsequent updates), deploy the eux-web-app feature branch to the odin test environments so changes can be verified before merge.
+
+**Only for eux-web-app changes** (never deploy backends from this skill):
+
+```bash
+gh workflow run build-and-deploy-to-q.yaml \
+  --repo navikt/eux-web-app \
+  --ref fix/TEN-742-short-description \
+  -f environment=q2-odin
+
+gh workflow run build-and-deploy-to-q.yaml \
+  --repo navikt/eux-web-app \
+  --ref fix/TEN-742-short-description \
+  -f environment=q1-odin
+```
+
+After triggering, verify the workflows started:
+
+```bash
+gh run list --repo navikt/eux-web-app --branch fix/TEN-742-short-description --limit 2
+```
+
+### Step 9 — Comment on JIRA with results
 
 Create a detailed comment on the JIRA issue summarizing what was done. The comment MUST include:
 
@@ -315,4 +353,72 @@ acli jira workitem comment create --key TEN-742 \
 
 - Verify all PRs are open and have the correct base branch (`main`).
 - Verify the JIRA comment was created successfully.
-- If any step failed, comment on the JIRA issue (in Norwegian) explaining what went wrong and what was completed.
+- Verify odin deploy workflows were triggered successfully.
+- If any step failed, comment on the JIRA issue explaining what went wrong and what was completed.
+
+---
+
+## Re-implementation after feedback
+
+These steps apply **every time** changes are requested — whether from a GitHub PR review, from the user in the same conversation after the initial implementation, or from a subsequent `/odin-jira` invocation. Any push of updated code to a PR MUST be followed by a JIRA comment and an odin deploy.
+
+### Step R1 — Understand the feedback
+
+If feedback comes from a PR review, read the review comments:
+
+```bash
+gh pr view <PR-NUMBER> --repo navikt/<repo> --comments
+gh api repos/navikt/<repo>/pulls/<PR-NUMBER>/reviews --jq '.[].body'
+```
+
+If feedback comes from the user in the current conversation, use what they said directly.
+
+### Step R2 — Implement the requested changes
+
+Check out the existing feature branch, make the changes, and verify:
+
+```bash
+cd <repo-directory>
+git checkout fix/TEN-742-short-description
+git pull
+```
+
+Make the code changes, then verify (build/test as in Step 6).
+
+### Step R3 — Commit and push
+
+```bash
+git add -A
+git commit -m "fix: <concise summary of what changed>
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+git push
+```
+
+### Step R4 — Deploy to odin environments
+
+If eux-web-app was changed, trigger builds to the odin test environments (same as Step 8.5).
+
+### Step R5 — Comment on JIRA with update
+
+Add a JIRA comment summarizing what was modified. Do this after **every** push — not just the first one. The comment MUST include:
+
+1. What feedback was addressed
+2. A summary of the code modifications made
+3. Confirmation that the branch was redeployed to odin environments (if eux-web-app)
+
+Example:
+
+```bash
+acli jira workitem comment create --key TEN-742 \
+  --body '{"version":1,"type":"doc","content":[
+    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"🤖 Odin — Update pushed"}]},
+    {"type":"paragraph","content":[{"type":"text","text":"Updated PR based on feedback:"}]},
+    {"type":"bulletList","content":[
+      {"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"<summary of each modification made>"}]}]}
+    ]},
+    {"type":"paragraph","content":[{"type":"text","text":"Branch redeployed to q2-odin and q1-odin for verification."}]}
+  ]}'
+```
+
+**Repeat steps R1–R5 for every round of feedback** within the same conversation or across invocations.
