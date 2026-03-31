@@ -18,7 +18,22 @@ Takes a TEN JIRA issue key (e.g. `TEN-742`), analyzes the problem, determines wh
 
 ## ADF (Atlassian Document Format)
 
-Always use ADF JSON for `--body` flags when creating JIRA comments. acli accepts ADF inline.
+Always use ADF JSON for JIRA comments. **Always use `--body-file`** to pass ADF — never pass ADF inline via `--body` (shell escaping will mangle the JSON and acli will post it as raw text).
+
+### Workflow for ADF comments
+
+1. Build the ADF JSON object in memory.
+2. Write it to a temp file (e.g. `/tmp/odin-comment.json`).
+3. Pass the file via `--body-file`.
+4. Delete the temp file.
+
+```bash
+cat > /tmp/odin-comment.json << 'ENDOFJSON'
+{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Comment text"}]}]}
+ENDOFJSON
+acli jira workitem comment create --key TEN-123 --body-file /tmp/odin-comment.json
+rm -f /tmp/odin-comment.json
+```
 
 ### ADF structure
 
@@ -57,8 +72,9 @@ Always use ADF JSON for `--body` flags when creating JIRA comments. acli accepts
 
 ### ADF guidelines
 
-- Keep ADF compact — single-line JSON, no pretty-printing, when passing via `--body`.
-- Wrap the entire JSON in single quotes on the command line to avoid shell escaping issues.
+- **NEVER pass ADF inline via `--body`** — always write to a temp file and use `--body-file`.
+- Keep ADF as single-line JSON (no pretty-printing) inside the file.
+- Use heredoc with single-quoted delimiter (`<< 'ENDOFJSON'`) to prevent shell variable expansion.
 
 ## Command reference (acli)
 
@@ -73,8 +89,11 @@ acli jira workitem view TEN-123 --fields "summary,status,comment,assignee,report
 ### Add a comment
 
 ```bash
-acli jira workitem comment create --key TEN-123 \
-  --body '{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Comment text"}]}]}'
+cat > /tmp/odin-comment.json << 'ENDOFJSON'
+{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Comment text"}]}]}
+ENDOFJSON
+acli jira workitem comment create --key TEN-123 --body-file /tmp/odin-comment.json
+rm -f /tmp/odin-comment.json
 ```
 
 ## Steps
@@ -138,28 +157,11 @@ Add a comment with the heading **"Odin's plan"**. The plan MUST start with an AD
 Example structure:
 
 ```bash
-acli jira workitem comment create --key TEN-742 \
-  --body '{"version":1,"type":"doc","content":[
-    {"type":"heading","attrs":{"level":2},"content":[{"type":"text","text":"Odin's plan"}]},
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Problem"}]},
-    {"type":"paragraph","content":[{"type":"text","text":"<concise problem summary>"}]},
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Affected repositories"}]},
-    {"type":"bulletList","content":[
-      {"type":"listItem","content":[{"type":"paragraph","content":[
-        {"type":"text","text":"eux-neessi","marks":[{"type":"strong"}]},
-        {"type":"text","text":" — <why this repo needs changes>"}
-      ]}]}
-    ]},
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Changes"}]},
-    {"type":"heading","attrs":{"level":4},"content":[{"type":"text","text":"eux-neessi"}]},
-    {"type":"bulletList","content":[
-      {"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"<specific file and what to change>"}]}]}
-    ]},
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Risks and considerations"}]},
-    {"type":"bulletList","content":[
-      {"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"<edge case or concern>"}]}]}
-    ]}
-  ]}'
+cat > /tmp/odin-plan-comment.json << 'ENDOFJSON'
+{"version":1,"type":"doc","content":[{"type":"heading","attrs":{"level":2},"content":[{"type":"text","text":"Odin's plan"}]},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Problem"}]},{"type":"paragraph","content":[{"type":"text","text":"<concise problem summary>"}]},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Affected repositories"}]},{"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"eux-neessi","marks":[{"type":"strong"}]},{"type":"text","text":" — <why this repo needs changes>"}]}]}]},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Changes"}]},{"type":"heading","attrs":{"level":4},"content":[{"type":"text","text":"eux-neessi"}]},{"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"<specific file and what to change>"}]}]}]},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Risks and considerations"}]},{"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"<edge case or concern>"}]}]}]}]}
+ENDOFJSON
+acli jira workitem comment create --key TEN-742 --body-file /tmp/odin-plan-comment.json
+rm -f /tmp/odin-plan-comment.json
 ```
 
 ### Step 5 — Final check

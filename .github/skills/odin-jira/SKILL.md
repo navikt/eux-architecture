@@ -44,7 +44,22 @@ Multiple repos may be changed — mention all relevant people.
 
 ## ADF (Atlassian Document Format)
 
-Always use ADF JSON for `--body` flags when creating JIRA comments. acli accepts ADF inline.
+Always use ADF JSON for JIRA comments. **Always use `--body-file`** to pass ADF — never pass ADF inline via `--body` (shell escaping will mangle the JSON and acli will post it as raw text).
+
+### Workflow for ADF comments
+
+1. Build the ADF JSON object in memory.
+2. Write it to a temp file (e.g. `/tmp/odin-comment.json`).
+3. Pass the file via `--body-file`.
+4. Delete the temp file.
+
+```bash
+cat > /tmp/odin-comment.json << 'ENDOFJSON'
+{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Comment text"}]}]}
+ENDOFJSON
+acli jira workitem comment create --key TEN-123 --body-file /tmp/odin-comment.json
+rm -f /tmp/odin-comment.json
+```
 
 ### ADF structure
 
@@ -92,8 +107,9 @@ Example — mention Vegard Hillestad:
 
 ### ADF guidelines
 
-- Keep ADF compact — single-line JSON, no pretty-printing, when passing via `--body`.
-- Wrap the entire JSON in single quotes on the command line to avoid shell escaping issues.
+- **NEVER pass ADF inline via `--body`** — always write to a temp file and use `--body-file`.
+- Keep ADF as single-line JSON (no pretty-printing) inside the file.
+- Use heredoc with single-quoted delimiter (`<< 'ENDOFJSON'`) to prevent shell variable expansion.
 
 ## Command reference (acli)
 
@@ -108,8 +124,11 @@ acli jira workitem view TEN-123 --fields "summary,status,comment,assignee,report
 ### Add a comment
 
 ```bash
-acli jira workitem comment create --key TEN-123 \
-  --body '{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Comment text"}]}]}'
+cat > /tmp/odin-comment.json << 'ENDOFJSON'
+{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Comment text"}]}]}
+ENDOFJSON
+acli jira workitem comment create --key TEN-123 --body-file /tmp/odin-comment.json
+rm -f /tmp/odin-comment.json
 ```
 
 ### Search issues
@@ -140,8 +159,11 @@ acli jira workitem transition --key TEN-742 --status "Under arbeid" --yes
 Then add a comment announcing that work is in progress:
 
 ```bash
-acli jira workitem comment create --key TEN-742 \
-  --body '{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"🤖 Odin analyserer denne saken og jobber med en fiks. Oppdatering kommer."}]}]}'
+cat > /tmp/odin-comment.json << 'ENDOFJSON'
+{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"🤖 Odin is analyzing this issue and working on a fix. Stand by for updates."}]}]}
+ENDOFJSON
+acli jira workitem comment create --key TEN-742 --body-file /tmp/odin-comment.json
+rm -f /tmp/odin-comment.json
 ```
 
 ### Step 2 — Analyze the JIRA issue
@@ -328,25 +350,11 @@ Create a detailed comment on the JIRA issue summarizing what was done. The comme
 Build the ADF comment dynamically. Use `mention` nodes (not plain text) for reviewer tags. Example structure:
 
 ```bash
-acli jira workitem comment create --key TEN-742 \
-  --body '{"version":1,"type":"doc","content":[
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"🤖 Odin — Fiks implementert"}]},
-    {"type":"paragraph","content":[{"type":"text","text":"Endringer er implementert for TEN-742."}]},
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Oppsummering"}]},
-    {"type":"paragraph","content":[{"type":"text","text":"<beskrivelse av hva som ble endret>"}]},
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Pull Requests"}]},
-    {"type":"bulletList","content":[
-      {"type":"listItem","content":[{"type":"paragraph","content":[
-        {"type":"text","text":"eux-neessi: ","marks":[{"type":"strong"}]},
-        {"type":"text","text":"PR #123","marks":[{"type":"link","attrs":{"href":"https://github.com/navikt/eux-neessi/pull/123"}}]}
-      ]}]}
-    ]},
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Reviewer"}]},
-    {"type":"paragraph","content":[
-      {"type":"text","text":"Ber om review: "},
-      {"type":"mention","attrs":{"id":"712020:9222ebea-ab05-497c-81f6-38a689b6d0f4","text":"@Vegard Hillestad","accessLevel":""}}
-    ]}
-  ]}'
+cat > /tmp/odin-result-comment.json << 'ENDOFJSON'
+{"version":1,"type":"doc","content":[{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"🤖 Odin — Fix implemented"}]},{"type":"paragraph","content":[{"type":"text","text":"Changes have been implemented for TEN-742."}]},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Summary"}]},{"type":"paragraph","content":[{"type":"text","text":"<description of what was changed>"}]},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Pull Requests"}]},{"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"eux-neessi: ","marks":[{"type":"strong"}]},{"type":"text","text":"PR #123","marks":[{"type":"link","attrs":{"href":"https://github.com/navikt/eux-neessi/pull/123"}}]}]}]}]},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"Reviewers"}]},{"type":"paragraph","content":[{"type":"text","text":"Tagging for review: Vegard Hillestad"}]}]}
+ENDOFJSON
+acli jira workitem comment create --key TEN-742 --body-file /tmp/odin-result-comment.json
+rm -f /tmp/odin-result-comment.json
 ```
 
 **Important**: Always include working links to every PR that was created. Use the actual PR URLs returned by `gh pr create`.
@@ -412,15 +420,11 @@ Add a JIRA comment summarizing what was modified. Do this after **every** push �
 Example:
 
 ```bash
-acli jira workitem comment create --key TEN-742 \
-  --body '{"version":1,"type":"doc","content":[
-    {"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"🤖 Odin — Update pushed"}]},
-    {"type":"paragraph","content":[{"type":"text","text":"Updated PR based on feedback:"}]},
-    {"type":"bulletList","content":[
-      {"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"<summary of each modification made>"}]}]}
-    ]},
-    {"type":"paragraph","content":[{"type":"text","text":"Branch redeployed to q2-odin and q1-odin for verification."}]}
-  ]}'
+cat > /tmp/odin-update-comment.json << 'ENDOFJSON'
+{"version":1,"type":"doc","content":[{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"🤖 Odin — Update pushed"}]},{"type":"paragraph","content":[{"type":"text","text":"Updated PR based on feedback:"}]},{"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"<summary of each modification made>"}]}]}]},{"type":"paragraph","content":[{"type":"text","text":"Branch redeployed to q2-odin and q1-odin for verification."}]}]}
+ENDOFJSON
+acli jira workitem comment create --key TEN-742 --body-file /tmp/odin-update-comment.json
+rm -f /tmp/odin-update-comment.json
 ```
 
 **Repeat steps R1–R5 for every round of feedback** within the same conversation or across invocations.

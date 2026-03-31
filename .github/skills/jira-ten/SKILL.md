@@ -26,8 +26,22 @@ Work with JIRA issues in the **TEN** project using the `acli` CLI tool.
 
 ## ADF (Atlassian Document Format)
 
-Always use ADF JSON for `--description` and `--body` flags. acli accepts ADF inline.
-Plain text also works (auto-wrapped in ADF), but use ADF when you need any formatting.
+Always use ADF JSON for `--description` and `--body` flags. **For comments, always use `--body-file`** to pass ADF — never pass ADF inline via `--body` (shell escaping will mangle the JSON and acli will post it as raw text). For `--description` on create/edit, inline `--body` is OK for short descriptions, but prefer `--body-file` for anything complex.
+
+### Workflow for ADF comments
+
+1. Build the ADF JSON object in memory.
+2. Write it to a temp file (e.g. `/tmp/jira-comment.json`).
+3. Pass the file via `--body-file`.
+4. Delete the temp file.
+
+```bash
+cat > /tmp/jira-comment.json << 'ENDOFJSON'
+{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Comment text"}]}]}
+ENDOFJSON
+acli jira workitem comment create --key TEN-123 --body-file /tmp/jira-comment.json
+rm -f /tmp/jira-comment.json
+```
 
 ### ADF structure
 
@@ -84,10 +98,12 @@ Plain text also works (auto-wrapped in ADF), but use ADF when you need any forma
 
 ### ADF guidelines
 
-- Keep ADF compact — single-line JSON, no pretty-printing, when passing via `--description` or `--body`.
+- **For comments**: Always write ADF to a temp file and use `--body-file`. Never pass complex ADF inline via `--body`.
+- For `--description` on create/edit, short inline ADF is OK, but prefer `--body-file` for anything with multiple nodes.
+- Keep ADF as single-line JSON (no pretty-printing) inside the file.
 - Use headings + bullet lists for structured descriptions. Avoid walls of text.
 - Use code blocks for stack traces, config snippets, or technical details.
-- Wrap the entire JSON in single quotes on the command line to avoid shell escaping issues with double quotes inside.
+- Use heredoc with single-quoted delimiter (`<< 'ENDOFJSON'`) to prevent shell variable expansion.
 
 ## Command reference
 
@@ -181,9 +197,12 @@ acli jira workitem transition --key TEN-123 --status "Lukket" --yes
 ### Comments
 
 ```bash
-# Add comment with ADF
-acli jira workitem comment create --key TEN-123 \
-  --body '{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Comment text"}]}]}'
+# Add comment with ADF (always use --body-file for formatted comments)
+cat > /tmp/jira-comment.json << 'ENDOFJSON'
+{"version":1,"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Comment text"}]}]}
+ENDOFJSON
+acli jira workitem comment create --key TEN-123 --body-file /tmp/jira-comment.json
+rm -f /tmp/jira-comment.json
 
 # Plain text comment (auto-wrapped in ADF) — fine for simple comments
 acli jira workitem comment create --key TEN-123 --body "Simple comment"
