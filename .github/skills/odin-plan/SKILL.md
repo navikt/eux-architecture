@@ -100,7 +100,16 @@ rm -f /tmp/odin-comment.json
 
 When invoked with a JIRA issue key (e.g. `/odin-plan TEN-742`):
 
-### Step 1 — Analyze the JIRA issue
+### Step 1 — Assign and transition the issue
+
+Assign the issue to the person who invoked the skill and move it to "Under arbeid":
+
+```bash
+acli jira workitem assign --key TEN-742 --assignee "@me" --yes
+acli jira workitem transition --key TEN-742 --status "Under arbeid" --yes
+```
+
+### Step 2 — Analyze the JIRA issue
 
 Fetch the full issue details to understand what needs to be done:
 
@@ -114,7 +123,7 @@ Read the summary, description, and comments carefully. Understand:
 - Are there stack traces, error messages, or specific SED/BUC types mentioned?
 - Are there any comments with additional context?
 
-### Step 2 — Determine which repositories need changes
+### Step 3 — Determine which repositories need changes
 
 Use the EUX Architecture document (`navikt/eux-architecture` README.md) to understand the platform and identify which repositories are involved.
 
@@ -135,7 +144,7 @@ Based on the issue analysis:
 - Clone or navigate to the relevant repositories.
 - Search the code to find the exact files and functions that need changes.
 
-### Step 3 — Build the implementation plan
+### Step 4 — Build the implementation plan
 
 Create a detailed plan that covers:
 
@@ -150,7 +159,7 @@ Create a detailed plan that covers:
 
 Be specific enough that someone (or odin-jira) can implement the plan without re-analyzing the issue.
 
-### Step 4 — Post the plan as a JIRA comment
+### Step 5 — Post the plan as a JIRA comment
 
 Add a comment with the heading **"Odin's plan"**. The plan MUST start with an ADF heading node with text "Odin's plan" so that odin-jira can find it.
 
@@ -164,7 +173,7 @@ acli jira workitem comment create --key TEN-742 --body-file /tmp/odin-plan-comme
 rm -f /tmp/odin-plan-comment.json
 ```
 
-### Step 5 — Final check
+### Step 6 — Final check
 
 - Verify the JIRA comment was created successfully.
 - If any step failed, comment on the JIRA issue explaining what went wrong.
