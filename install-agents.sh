@@ -16,7 +16,11 @@ agents=(
 skills=(
   "jira-ten"
   "odin-jira"
+<<<<<<< HEAD
   "deploy-branch"
+=======
+  "odin-plan"
+>>>>>>> 6afb775 (Add odin-plan skill and link it to odin-jira)
 )
 
 # Verify source files exist

@@ -44,6 +44,7 @@ Read README.md before making any changes — it is the single source of truth fo
 - `.github/skills/update-full-stack-dev/` — Skill to sync full-stack agent with current repo state.
 - `.github/skills/jira-ten/` — Skill for interacting with JIRA issues in the TEN project via acli.
 - `.github/skills/odin-jira/` — Skill that analyzes a TEN JIRA issue, implements fixes across EUX repos, creates PRs, and reports back to JIRA.
+- `.github/skills/odin-plan/` — Skill that analyzes a TEN JIRA issue and posts an implementation plan as a JIRA comment. Planning only — no code changes.
 - `install-agents.sh` — Creates symlinks from `~/.copilot/agents/` to the agent files above.
 
 ## EUX platform overview

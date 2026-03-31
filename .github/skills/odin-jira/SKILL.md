@@ -160,7 +160,9 @@ Read the summary, description, and comments carefully. Understand:
 
 ### Step 3 — Evaluate description quality
 
-Before attempting implementation, evaluate whether the issue description contains enough information to act on. A description is **sufficient** if you can answer **all** of these:
+**Check for an existing plan**: Look through the comments for one with the heading **"Odin's plan"** (posted by odin-plan). If a plan comment exists, use it as the primary guide for which repositories to change, which files to modify, and what the changes should be. Still verify the plan against the code, but follow its structure and intent.
+
+Before attempting implementation, evaluate whether the issue description or the plan  contains enough information to act on. A description is **sufficient** if you can answer **all** of these:
 
 1. **What** is the problem or desired change?
 2. **Where** in the system does it occur? (which service, screen, flow, SED/BUC type, etc.)
