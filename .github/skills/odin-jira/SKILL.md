@@ -248,6 +248,49 @@ Use the **same branch name pattern** across all repos: `fix/<ISSUE-KEY>-<short-d
 - **NEVER make changes directly on the default branch (`main`/`master`).**
 - **ALWAYS `git pull` before branching** to ensure you branch from the latest remote state.
 
+### Step 5.5 — Bump package.json version
+
+After creating the feature branch, if the repository contains a `package.json` with a `version` field, bump it:
+
+1. **Determine bump type** based on the scope of the change:
+   - **Minor bump** (e.g. `1.2.3` → `1.3.0`) — for feature-level changes, new behavior, or significant fixes.
+   - **Patch bump** (e.g. `1.2.3` → `1.2.4`) — for small bugfixes, typo corrections, or trivial changes.
+
+2. **Append a prerelease suffix** derived from the branch name, converted to **UPPERCASE**:
+   - Pattern: `<bumped-version>-FIX-<ISSUE-KEY>-<SHORT-DESCRIPTION>`
+   - Example: branch `fix/TEN-742-missing-sed-type` → version `1.3.0-FIX-TEN-742-MISSING-SED-TYPE`
+
+3. **Apply the change** using `npm version` (or edit `package.json` directly if npm is not available):
+
+```bash
+# Read current version
+CURRENT=$(node -p "require('./package.json').version")
+
+# Decide bump type (minor or patch) based on your analysis
+# For a significant fix:
+BUMPED=$(node -p "const [ma,mi,pa] = '${CURRENT}'.replace(/-.*/, '').split('.').map(Number); \`\${ma}.\${mi+1}.0\`")
+# For a small bugfix:
+# BUMPED=$(node -p "const [ma,mi,pa] = '${CURRENT}'.replace(/-.*/, '').split('.').map(Number); \`\${ma}.\${mi}.\${pa+1}\`")
+
+# Build the suffix from the branch name (strip 'fix/' prefix, uppercase everything)
+SUFFIX=$(git branch --show-current | sed 's|^fix/||' | tr '[:lower:]' '[:upper:]' | tr '/' '-')
+
+# Set the new version
+NEW_VERSION="${BUMPED}-${SUFFIX}"
+npm version "$NEW_VERSION" --no-git-tag-version --allow-same-version
+```
+
+4. **Commit the version bump** as a separate commit before making functional changes:
+
+```bash
+git add package.json package-lock.json 2>/dev/null
+git commit -m "chore: bump version to ${NEW_VERSION}
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+```
+
+**Note:** The version bump commit must come **before** any functional code changes so the version is set from the start of the branch.
+
 ### Step 6 — Implement the fix
 
 Make the necessary code changes in each repository. Follow the coding patterns and conventions already established in each repo. Use the appropriate developer agent if available:
