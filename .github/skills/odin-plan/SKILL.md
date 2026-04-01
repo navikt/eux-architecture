@@ -96,6 +96,16 @@ acli jira workitem comment create --key TEN-123 --body-file /tmp/odin-comment.js
 rm -f /tmp/odin-comment.json
 ```
 
+### List and delete comments
+
+```bash
+# List comments as JSON (for finding comment IDs)
+acli jira workitem comment list --key TEN-123 --json --paginate
+
+# Delete a comment by ID
+acli jira workitem comment delete --key TEN-123 --id <comment-id>
+```
+
 ## Steps
 
 When invoked with a JIRA issue key (e.g. `/odin-plan TEN-742`):
@@ -159,7 +169,29 @@ Create a detailed plan that covers:
 
 Be specific enough that someone (or odin-jira) can implement the plan without re-analyzing the issue.
 
-### Step 5 — Post the plan as a JIRA comment
+### Step 5 — Delete any existing plan comment, then post the new one
+
+There must be **at most one** "Odin's plan" comment on an issue. Before posting, find and delete any previous plan comment.
+
+#### 5a — Find and delete the existing plan comment
+
+List all comments as JSON and look for one whose body contains the text "Odin's plan":
+
+```bash
+acli jira workitem comment list --key TEN-742 --json --paginate
+```
+
+Parse the JSON output to find any comment where the rendered body or ADF content contains "Odin's plan". Extract the comment **id** for each match.
+
+If a matching comment is found, delete it:
+
+```bash
+acli jira workitem comment delete --key TEN-742 --id <comment-id>
+```
+
+If multiple matching comments exist (shouldn't happen, but be safe), delete **all** of them so only the new one remains.
+
+#### 5b — Post the new plan comment
 
 Add a comment with the heading **"Odin's plan"**. The plan MUST start with an ADF heading node with text "Odin's plan" so that odin-jira can find it.
 
