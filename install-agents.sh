@@ -16,6 +16,7 @@ agents=(
 skills=(
   "jira-ten"
   "odin-jira"
+  "deploy-branch"
 )
 
 # Verify source files exist
