@@ -15,6 +15,7 @@ agents=(
 
 skills=(
   "jira-ten"
+  "jira-ten-qa"
   "odin-plan"
   "odin-jira"
   "deploy-branch"
