@@ -1,0 +1,14 @@
+Rutinemessig sletting av arkivert EESSI-dokumentasjon håndteres i Nav sitt felles saks- og dokumentarkiv, i tråd med lagringstidene som er fastsatt for den aktuelle ytelsen.
+
+Arkivdokumenter:
+- Dokumenter som er journalført i Nav sitt arkiv kasseres sentralt av arkivet når lagringstiden er nådd, basert på opplysninger fra fagsystemene om når en sak er avsluttet og hvilken type sak det er. Dokumenter som skal bevares, kasseres ikke, men avleveres til Arkivverket når det er aktuelt.
+- nEESSI er avhengig av at riktig fagsak, sakstype og avslutningsstatus registreres i arkivet, slik at arkivet kan bruke dette som grunnlag for kassering.
+
+Driftsdata i nEESSI:
+- Driftsdata i nEESSI som ikke er arkivpliktig, men som inneholder personopplysninger (for eksempel status på saksflyt og mellomlagrede SED-er) slettes i tråd med Nav sine generelle krav til sletting av personopplysninger når de ikke lenger er nødvendige.
+- For saker som avsluttes eller usendte utkast som ikke lenger er aktuelle, finnes det jobber i nEESSI som rydder opp i driftsdata (for eksempel avslutning og sletting av usendte RINA-saker). Disse følger fagområdets rutiner for når en sak skal avsluttes.
+
+Ansvar:
+- Fagansvarlig for hver ytelse har ansvar for at lagringstider er riktig fastsatt og at saker avsluttes i tide.
+- Team eessibasis har ansvar for at nEESSI teknisk støtter avslutning og opprydning av driftsdata.
+- Arkivet og team dokumentløsninger har ansvar for selve kassasjonen av arkiverte dokumenter.

@@ -1,0 +1,28 @@
+Personvern
+Personvern handler om retten til et privatliv og retten til å bestemme over egne personopplysninger. Norge fikk ny personopplysningslov i 2018, som implementerer EUs personvernforordning (GDPR) i norsk rett.  Alle som behandler personopplysninger må opptre i samsvar med personopplysningsloven.
+
+
+
+Følgende grunnleggende prinsipper skal alltid være oppfylt ved behandling av personopplysninger:
+
+Lovlig, rettferdig og gjennomsiktig
+
+Formålsbegrensning
+
+Dataminimering
+
+Riktighet
+
+Lagringsbegrensning/sletting
+
+Integritet, konfidensialitet og tilgjengelighet
+
+Ansvarlighet
+
+
+
+Nav behandler store mengder personopplysninger. Manglende etterlevelse kan resultere i tap av tillit i samfunnet og sanksjoner, for eksempel advarsler, bøter, forbud og pålegg.  Nav må derfor opptre proaktivt og etablere alle nødvendige organisatoriske og tekniske tiltak, for å sikre at regelverket etterleves til enhver tid. Innebygd personvern er et sentralt krav i personopplysningsloven og betyr at det tas hensyn til personvern i alle utviklingsfaser av et system eller en løsning.
+
+ 
+
+Nav er dessuten forpliktet til å dokumentere at personvernregelverket etterleves.

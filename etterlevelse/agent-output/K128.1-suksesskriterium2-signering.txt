@@ -1,0 +1,14 @@
+Strukturerte elektroniske dokumenter (SED) som utveksles gjennom EESSI, autentiseres på to nivåer:
+
+Meldingsnivå (automatisk):
+- Utvekslingen mellom Nav og andre europeiske trygdemyndigheter foregår gjennom EESSI-nettverket, hvor integritet og avsenderautentisering håndteres av plattformen på europeisk nivå. Dette gjelder alle SED-er som sendes og mottas.
+
+Saksbehandlernivå (manuelt / godkjenningsflyt):
+- Før en SED kan sendes, må den ferdigstilles og godkjennes av en autorisert saksbehandler i nEESSI. Handlingen registreres med saksbehandlerens identitet og tidspunkt, og fungerer som en logisk godkjenning av innholdet.
+- For enkelte sakstyper kreves det at ytterligere saksbehandler eller leder godkjenner før forsendelse, i tråd med fagområdets rutiner.
+
+Vedtak og fullmakter:
+- Selve vedtakene i saken fattes og signeres i Nav sine fagsystemer (for eksempel pensjonssystemet), ikke i nEESSI. Fullmakter til å fatte vedtak følger Nav sitt årlige fullmaktsdokument og fagområdenes egne rutiner.
+- Dokumenter med manuell signatur (for eksempel innsendte søknader eller klager med signatur) arkiveres i Nav sitt felles saks- og dokumentarkiv slik de er mottatt, slik at signaturen følger dokumentet.
+
+Oversikt over hvilke SED-er som krever godkjenning før forsendelse følger av EESSI-spesifikasjonene og av fagområdenes egne rutiner for EESSI-saksbehandling.

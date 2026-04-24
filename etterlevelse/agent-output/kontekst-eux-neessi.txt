@@ -1,0 +1,27 @@
+Løsning og formål
+
+EUX er Nav sin plattform for elektronisk utveksling av trygdeinformasjon med øvrige EU/EØS-land. Plattformen realiserer Norges tilknytning til EESSI (Electronic Exchange of Social Security Information) — det felles europeiske systemet for grenseoverskridende koordinering av trygdeytelser, hjemlet i EU-forordning 883/2004 og 987/2009.
+
+Gjennom EUX sender og mottar Nav strukturerte elektroniske dokumenter (SED-er) til og fra tilsvarende trygdemyndigheter i andre medlemsland. Dokumentene inngår i definerte saksforløp (Business Use Cases) som dekker blant annet alderspensjon, uføretrygd, sykepenger, familieytelser, arbeidsledighet og lovvalg. Utvekslingen skjer via det EU-leverte systemet RINA (Reference Implementation of a National Application), som Nav har tilpasset og integrert mot interne fagsystemer.
+
+nEESSI (Nav-EESSI) er Nav sin saksbehandlerløsning for denne utvekslingen. Den gir saksbehandlere et samlet grensesnitt for å opprette, fylle ut, sende, motta og følge opp SED-er, koble dem mot tilhørende norske fagsaker, og sikre at innkommende og utgående dokumenter blir arkivert, journalført og fulgt opp som oppgaver i Nav sine ordinære saksbehandlingsverktøy.
+
+Arbeid og funksjonalitet som omfattes
+
+- Mottak og sending av SED-er mellom Nav og trygdemyndigheter i EU/EØS.
+- Saksbehandlerstøtte for utfylling, kvalitetssikring og oppfølging av utgående dokumenter.
+- Automatisk journalføring og arkivering av innkommende og utgående SED-er i Nav sitt dokumentarkiv.
+- Opprettelse av oppgaver til riktig saksbehandlende enhet når det kommer inn dokumenter som krever behandling.
+- Kobling mellom utenlandssaker (RINA) og tilhørende norske fagsaker, slik at hele saksbildet er tilgjengelig for saksbehandler.
+- Oppdatering av personopplysninger i Nav sine registre (f.eks. utenlandske identifikasjonsnumre og adresser) basert på informasjon i innkommende SED-er.
+- Avslutning, arkivering og sletting av utenlandssaker i henhold til regelverk og interne retningslinjer.
+
+Målgruppe
+
+- Primærbrukere: Saksbehandlere i Nav som behandler saker med tilknytning til EU/EØS — i praksis på tvers av de fleste ytelsesområder (pensjon, uføre, sykepenger, familieytelser, arbeidsavklaring, medlemskap/lovvalg m.fl.).
+- Indirekte brukere: Personer bosatt i eller med tilknytning til EU/EØS som har rettigheter eller plikter i norsk trygdesystem, og hvis saker behandles via plattformen.
+- Eksterne parter: Trygdemyndigheter i øvrige EU/EØS-land, som Nav utveksler dokumenter med gjennom EESSI.
+
+Avgrensning
+
+Etterlevelsen dokumentert her omfatter EUX-plattformens egne komponenter — det vil si Nav sin tilpasning, integrasjon og saksbehandlerløsning rundt RINA. Selve RINA-systemet er levert av EU-kommisjonen og driftes i Nav, men den interne funksjonaliteten i RINA er ikke en del av denne etterlevelsen. Integrasjoner mot andre Nav-systemer (persondataløsningen, dokumentarkivet, oppgavesystemet, fagsystemer for de enkelte ytelsene) inngår i den grad EUX henter fra eller leverer data til dem.

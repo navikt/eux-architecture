@@ -1,0 +1,14 @@
+Kvalitetssikring av dokumentasjon i nEESSI skjer på flere nivåer, både maskinelt og manuelt.
+
+Maskinell kontroll:
+- Strukturerte elektroniske dokumenter (SED) følger felles europeiske datamodeller. nEESSI og EESSI-plattformen validerer at de obligatoriske feltene er fylt ut og at verdiene er i riktig format før en SED kan sendes.
+- Ved journalføring i Nav sitt felles saks- og dokumentarkiv kontrolleres det at nødvendige metadata (avsender/mottaker, dato, saks-ID, dokumenttype) er registrert før dokumentet ferdigstilles.
+
+Manuell kontroll:
+- Saksbehandler er ansvarlig for at innholdet i det enkelte dokumentet er korrekt før det ferdigstilles og sendes. Dette er en del av den ordinære saksbehandlingen på det aktuelle fagområdet.
+- Hvis en SED mottatt fra utlandet eller registrerte opplysninger er uriktige, følges fagområdets egne rutiner for retting eller avklaring med avsenderland.
+
+Ansvarsfordeling:
+- Saksbehandler har ansvar for kvalitetssikring av innholdet i den enkelte sak.
+- Fagansvarlig på det aktuelle Nav-området har ansvar for at det finnes rutiner for kontroll på fagområdet.
+- Team eessibasis har ansvar for at nEESSI teknisk støtter den nødvendige valideringen, og at integrasjonen mot Nav sitt arkiv fungerer slik at registrerte data er identiske med det som er mottatt eller sendt.

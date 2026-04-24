@@ -1,0 +1,8 @@
+Når dokumenter i nEESSI ferdigstilles og lagres i Nav sitt felles saks- og dokumentarkiv, konverteres de til godkjent arkivformat (PDF/A) som en del av arkivløsningens ordinære journalføringsflyt.
+
+Det betyr at:
+- Inngående og utgående dokumenter (SED-er og vedlegg) som ferdigstilles, lagres i arkivgodkjent format.
+- Notater som journalføres, lagres tilsvarende i arkivgodkjent format.
+- Selve formatkonverteringen håndteres av Nav sitt sentrale arkiv, slik at nEESSI arver de samme formatkravene som gjelder for resten av Nav sin journalførte dokumentasjon.
+
+Dermed er alle ferdigstilte dokumenter og notater fra EESSI-saker lagret i godkjent arkivformat i Nav sine journalføringssystemer.

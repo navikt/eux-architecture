@@ -1,0 +1,8 @@
+Dokumentasjon fra EESSI-saker lagres ikke i nEESSI over tid – den arkiveres i Nav sitt felles saks- og dokumentarkiv, som er den langsiktige lagringsløsningen.
+
+Dette ivaretar uendrethet over tid på følgende måte:
+- Ved journalføring konverteres dokumentene til godkjent arkivformat (PDF/A), som er egnet for langtidsbevaring og uavhengig av hvilket system som opprinnelig skapte dokumentet.
+- Dokumentene og tilhørende metadata (avsender, mottaker, tidspunkt, saks-ID, dokumenttype) bevares i Nav sitt arkiv uavhengig av nEESSI. Dersom nEESSI byttes ut eller videreutvikles, påvirker ikke det den arkiverte dokumentasjonen.
+- Bevaring og eventuell kassasjon følger Nav sine sentrale bevarings- og kassasjonsregler, ikke rutiner som er særegne for nEESSI.
+
+Dermed forblir dokumentasjonen uendret og tilgjengelig som bevis, også gjennom systemskifter og teknologisk utvikling.

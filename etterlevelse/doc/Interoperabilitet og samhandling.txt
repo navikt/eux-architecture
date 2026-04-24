@@ -1,0 +1,26 @@
+Interoperabilitet og samhandling
+Interoperabilitet er et nøkkelord for elektronisk samhandling. Interoperabilitet er ofte oversatt til samhandlingsevne, og sier noe om evnen til å virke sammen, utveksle informasjon og til å bruke informasjonen som er utvekslet.
+
+
+
+Det kan være organisasjoner, personer, systemer eller kombinasjoner av disse som virker sammen. Nav følger EUs rammeverk for interoperabilitet, EIF, som deler interoperabilitet i fire lag, juridisk interoperabilitet, organisatorisk interoperabilitet, semantisk interoperabilitet og teknisk interoperabilitet.
+
+
+
+I EUs interoperabilitetsmodell i inngår også et tverrgående lag kalt "integrert offentlig forvaltning" og styring- og forvaltningsdelen av interoperabilitet, kalt interoperabilitetsstyring.
+
+
+
+Digitaliseringsrundskrivet er en sammenstilling av pålegg og anbefalinger om digitalisering i offentlig sektor. Rundskrivet gjelder for departementene, statens ordinære forvaltningsorganer, forvaltningsorganer med særskilte fullmakter og forvaltningsbedrifter.
+
+
+
+Målet med rundskrivet er å understøtte at forvaltningen tilbyr bedre tjenester til innbyggere, næringsdrivende og frivillig sektor. Det handler om å tilby digitale tjenester som er enkle å bruke, effektive og pålitelige. Det handler også om å forenkle hverdagen for offentlig ansatte. Digitalisering og innovasjon kan understøtte digital transformasjon i hver enkelt virksomhet, og i offentlig sektor som helhet.
+
+
+
+Fremtidens digitale Norge – Nasjonal digitaliseringsstrategi 2024–2030 setter retning for digitaliseringspolitikken, og har et høyt ambisjonsnivå med tydelige mål. Det overordnede målet med digitaliseringsstrategien er å gjøre Norge til det mest digitaliserte landet i verden innen 2030.
+
+
+
+I strategien beskrives flere forutsetninger som må være på plass for å lykkes med digitaliseringen i samfunnet, samt noen prioriterte områder der innsatsen må styrkes gjennom bl.a. å øke datadelingen og utnytte mulighetene i data og datadrevet innovasjon herunder utnytte mulighetene i kunstig intelligens.

@@ -1,0 +1,15 @@
+Dokumentasjonen i EESSI-saker er beskyttet mot uberettiget endring, tilgang og innsyn gjennom flere mekanismer i nEESSI og i Nav sitt felles saks- og dokumentarkiv.
+
+Beskyttelse mot endring:
+- Når en journalpost er ferdigstilt, er den låst i Nav sitt arkiv og kan ikke endres av saksbehandler.
+- nEESSI følger EESSI-plattformens regler for hvilke strukturerte elektroniske dokumenter (SED) som kan opprettes, sendes, oppdateres eller svares på, slik at endringer bare kan skje på definerte måter og i definerte steg av saksflyten.
+
+Tilgangsstyring:
+- Saksbehandlere må være pålogget med personlig Nav-konto (Azure AD) for å bruke nEESSI, og tilgang tildeles ut fra rolle og tjenstlig behov.
+- Tilgang til dokumentene i Nav sitt arkiv styres av arkivets egen tilgangsmodell, der tilgang gis basert på rolle, sakstype og eventuelle skjermingshjemler.
+- Skjerming av dokumenter (for eksempel sensitive opplysninger unntatt offentlighet) registreres i arkivet med tilhørende lovhjemmel, slik at det fremgår hvilke deler som er skjermet og på hvilket grunnlag.
+
+Logging:
+- Pålogging, oppslag og handlinger i nEESSI logges, slik at det i ettertid kan undersøkes hvem som har hatt tilgang til hvilke opplysninger.
+
+Samlet sikrer dette at bare autoriserte personer kan endre, se eller handle på dokumentasjonen, og at skjerming er tydelig dokumentert.

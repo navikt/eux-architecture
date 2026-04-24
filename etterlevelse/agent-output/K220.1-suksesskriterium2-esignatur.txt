@@ -1,0 +1,5 @@
+Utveksling av dokumenter (SED-er) mellom Nav og andre europeiske trygdemyndigheter skjer gjennom EESSI-nettverket. Integriteten og autentisiteten til selve meldingene ivaretas av EESSI-infrastrukturen på europeisk nivå – nEESSI gjør ikke egen elektronisk signering eller verifisering av SED-ene ut over det som ligger i plattformen.
+
+Dersom det legges ved vedlegg som inneholder elektroniske signaturer (for eksempel PDF-er med signatur fra et annet lands myndighet eller fra en part i saken), arkiveres vedlegget i Nav sitt felles saks- og dokumentarkiv slik det ble mottatt, uten at signaturen fjernes eller endres. Eventuell signatur og tilhørende metadata er dermed bevart sammen med dokumentet.
+
+nEESSI foretar i dag ikke egen verifisering av elektroniske signaturer på vedlegg, og produserer derfor ikke egne verifiseringsmetadata som må lagres. Hvis slik verifisering innføres, vil metadata om verifiseringen bli lagret sammen med dokumentet i arkivet på linje med øvrig kontekstuell informasjon.

@@ -1,0 +1,82 @@
+Etterlevelseskrav for arkiv og arkivdokumentasjon
+/
+Arkiv og lagring av dokumentasjon
+/
+Etterlevelskrav for arkiv omfatter all dokumentasjon, enten den er arkivert i tradisjonelle arkiv eller er lagret i databaser, saksbehandlingsløsninger eller samhandlingsløsninger.
+
+Oppdatert 8. mai 2025
+Skal du forstå etterlevelseskravene for arkiv, må du først forstå hva som er arkiv og hva som skal behandles som arkiv. Arkiv oppfattes av mange som samlinger av saksmapper i papir eller i digitale varianter av dette. Dette er en altfor snever tilnærming.
+
+Etter legaldefinisjonen er arkiv all dokumentasjon som er skapt som ledd i en virksomhet.
+
+Moderne arkivforvaltning omfatter i utgangspunktet alle data, all informasjon og all dokumentasjon, som er saksbehandlet eller som har vært brukt som dokumentasjon i virksomheten.
+
+Arkivformål står på egne ben og kan overstyre både GDPR og annen lovgivning når det gjelder plikt til å ta vare på dataene, dokumentasjonen og informasjonen. Men spesiallover kan styre hvordan arkivet skal lagre, beskytte og tilgangsbegrense dokumentasjonen, samt om dokumenter skal kasseres etter endt bruk.
+
+
+
+Hva er et arkiv
+NAV skal arkivere dokumenter som er skapt eller mottatt som ledd i virksomheten, og som har inngått i saksbehandlingen, eller som dokumenterer saksbehandling eller oppgaveløsning.
+
+Alle systemer og databaser som inneholder data, dokumentasjon eller informasjon som har vært brukt til saksbehandling, kan være et arkiv eller ha innhold som skal håndteres som arkiv.
+Strukturert informasjon i databaser, saksbehandlingsløsninger, dialog- og samhandlingsløsninger o.l. skal arkiveres når den har verdi som dokumentasjon
+Dokumenter i saksarkiv (Joark, WebSak o.l.)
+Gå til veileder for systemoversikt med beskrivelser (arkivverket.no)
+Gå til Vvileder for dokumentasjonskrav for fullelektroniske arkivsystemer (arkivverket.no)
+
+
+Overordnede arkivprinsipper
+Det er fire prinsipper som må være til stede for at lagret dokumentasjon eller en database oppfyller krav til arkiv:
+
+Arkivdokumentasjon skal dokumentere at den er ekte
+Arkivdokumentasjon skal dokumentere at den er pålitelig
+Arkivdokumentasjonen skal være integritetssikret
+Arkivdokumentasjon skal være gjenbrukbar
+Hvis man skal tenke på innebygget arkivering, er det et prinsipp til man må ta hensyn til. Dette kravet er en videreføring av kravene til at dokumentasjonen skal være ekte og pålitelig ovenfor:
+
+Arkivdokumentasjon skal tas vare på i riktig kontekst
+
+
+Arkivforskriften § 12 (Lovdata)
+
+
+
+All informasjon som er brukt under saksbehandling eller som dokumentasjon skal arkiveres
+Informasjon: «Data som er tilført mening. Data som er prosessert, organisert og satt i sammenheng for å gi mening» (ISO 30300).
+
+Arkivering er ikke begrenset til å legge dokumenter i en arkivbase, slik som f.eks. Joark.
+Strukturert informasjon i databaser og behandlingssystemer er også arkivdokumentasjon og kan lagres i databasen eller systemet de er skapt i.
+Lagret arkivdokumentasjon skal håndteres etter arkivloven, og et viktig krav er at ingen ting kan slettes før det er avklart om dokumentasjonen skal avleveres til Arkivverket eller skal kasseres etter endt bruk. Det siste, kasseringen/slettingen, krever et vedtak fra Arkivverket, men det kan gjøres innledningsvis når fagområdet/systemet etableres. På egenforvaltningssaker regulerer Riksarkivarens forskrift kapittel 7 del II (Lovdata) bevarings og kassasjonsspørsmålet.
+Det er et krav at arkiv skal lagres i Norge, jfr. arkivlova § 9 b) (Lovdata)
+
+
+Hvordan sikrer vi at arkivpliktig dokumentasjon blir arkivert
+Kartlegge eksisterende arbeidsprosesser for å identifisere arkivkrav og arkivbehov i prosessene
+Ved etablering av nye arbeidsprosesser identifiseres dokumentasjon som skal arkiveres og sikrer at arkiveringen av dokumentasjonen blir ivaretatt under utvikling av arbeidsprosessen og eventuelle nye digitale løsninger
+Arkivverkets veileder for identifisering og sikring av dokumentasjon (Arkivverket)
+
+
+
+Arkivene skal være lagret i Norge
+Arkivloven § 9b) krever at arkivene skal være lagret i Norge. Arkivene skal være undergitt norsk jurisdiksjon, dvs. norsk arkivlov, offenlighetsloven, forvaltningsloven, personopplysningelov etc. samt norske myndigheters kontroll.
+
+Ved bruk av skytjenester må man sørge for at arkivet er lagret i Norge. En kopi av arkivet kan være i skyen, men krav etter GDPR må være ivaretatt.
+
+Arkivverket kan gi dispenasjon fra kravet om lagring i Norge, men slik dispensasjon blir bare gitt for kortvarig lagring i utlandet i forbindelse med mediekonvertering (skanning av papir).
+
+"Bruk av utenlandske skytjenester for kontorstøtte, kommunikasjon og samhandling som behandler arkivmateriale, er ikke i strid med arkivloven § 9 b så lenge arkivmaterialet lagres fortløpende på en server i Norge. Det er ikke nødvendig å søke dispensasjon fra arkivloven for slik bruk." (Fra Arkivverkets hjemmesider)
+
+
+
+
+
+Bevaring og kassasjon - lagringstid
+All arkivdokumentasjon skal bevarings- og kassasjonvurderes
+NAV skal ha oversikt over den dokumentasjon som skal avleveres til Arkivverket etter endt bruk og hva som skal kasseres (slettes) etter endt bruk
+For dokumentasjon som skal avleveres skal det foreligge en avleveringsplan som er avtalt med Arkivverket
+For dokumentasjon som skal kasseres, skal det foreligge en plan for hvordan og når dokumentasjonen skal slettes
+Oversikt over bevarings- og kassasjonsvedtak for elektronisk arkivdokumentasjon fra 2019 og fremover. Se også samlesak for bevarings- og kassasjonsvedtak i Websak 19/7634
+Veiledning og maler for bevarings- og kassasjonvurderinger ligger i Websak 22/12425
+All arkivdokumentasjon skal ha fastsatt lagringstid
+Arkivdokumentasjonen skal være kartlagt i forhold til NAVs behov, både på det området dokumentasjonen ble innhentet eller skapt for, og på områder som senere i en verdikjede bygger på samme dokumentasjon. Lagringstid skal være fastsatt ut fra behovet i den lengste/seneste behandlingen. Det ligger veiledning og skjema som skal fylles ut i forbindelse med vurdering av lagringstid på Confluence.
+Dokumentasjon som ønskes rettet eller slettet før fastsatt lagringstid er ute, skal behandles i samsvar med personopplysningsloven, GDPR og arkivloven. NAV har rutiner for hvordan dette skal gjennomføres, se bl.a Fagarkivrutinene del 3.

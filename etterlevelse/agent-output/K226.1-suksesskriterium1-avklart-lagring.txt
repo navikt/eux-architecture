@@ -1,0 +1,8 @@
+nEESSI håndterer dokumentasjon som utveksles mellom Nav og andre europeiske trygdemyndigheter som del av saksbehandlingen, og som er journalføringspliktig.
+
+Dette omfatter:
+- Strukturerte elektroniske dokumenter (SED) som sendes og mottas gjennom EESSI.
+- Vedlegg til disse dokumentene.
+- Notater og annen saksdokumentasjon som oppstår som del av saksbehandlingen.
+
+All slik dokumentasjon journalføres i Nav sitt felles saks- og dokumentarkiv. nEESSI fungerer ikke selv som arkiv – dokumentene forvaltes i Nav sitt sentrale arkiv på linje med øvrig saksdokumentasjon.

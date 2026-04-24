@@ -1,0 +1,16 @@
+nEESSI bruker Nav sitt felles saks- og dokumentarkiv (Joark) for registrering, journalføring og arkivering av dokumentasjon, og følger arkivets rutiner for dette.
+
+Rutine for registrering og journalføring:
+- Når en strukturert elektronisk dokumentasjon (SED) eller tilhørende vedlegg sendes eller mottas, journalføres den automatisk i Nav sitt arkiv. Journalposten knyttes til riktig bruker, fagsak og sakstype.
+- Saksbehandler kan ved behov journalføre, korrigere tittel og ferdigstille journalposter manuelt fra nEESSI.
+- Ved ferdigstilling konverteres dokumentene til godkjent arkivformat (PDF/A) av arkivet.
+
+Integrasjon mot Joark:
+- nEESSI skriver journalposter til arkivet gjennom Dokarkiv (skrive-API) og henter opplysninger gjennom SAF (lese-API) – begge er Nav sine offisielle grensesnitt mot arkivet.
+- Integrasjonen er dokumentert i EUX-arkitekturdokumentasjonen (README.md i `navikt/eux-architecture`), som beskriver dataflyten mellom nEESSI, RINA/EESSI og Nav sitt arkiv.
+
+Ansvar:
+- Saksbehandler har ansvar for at dokumentasjon i den enkelte sak blir riktig registrert og ferdigstilt.
+- Fagansvarlig har ansvar for fagområdets rutiner for journalføring i EESSI-saker.
+- Team eessibasis har ansvar for at nEESSI teknisk støtter journalføring mot Nav sitt arkiv, og at integrasjonen fungerer som dokumentert.
+- Ansvaret for arkivets egne rutiner og forvaltning ligger hos eier av Nav sitt felles saks- og dokumentarkiv.

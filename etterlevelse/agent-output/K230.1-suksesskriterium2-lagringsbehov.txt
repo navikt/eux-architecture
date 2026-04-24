@@ -1,0 +1,9 @@
+Lagringsbehovet for dokumentasjon i EESSI-saker følger lagringstidene Nav har fastsatt for de underliggende ytelsene.
+
+Hovedprinsipp:
+- En EESSI-sak inngår som regel i behandlingen av en konkret trygdeytelse (for eksempel alderspensjon, uføretrygd, sykepenger eller familieytelser). Lagringsbehovet og lagringstiden for dokumentasjonen styres av fagområdet for ytelsen – ikke av nEESSI som system.
+- Lagringstidene er fastsatt sentralt i Nav og er dokumentert i Behandlingskatalogen for de aktuelle behandlingene. Dette omfatter vurderinger av administrative, juridiske og dokumentasjonsmessige behov slik kravet beskriver.
+
+nEESSI sin rolle:
+- nEESSI utveksler og journalfører dokumentasjonen, men styrer ikke selv lagringstiden. Fagansvarlig for hver ytelse har ansvaret for å fastsette og oppdatere lagringstid for sin dokumentasjon, inkludert SED-er og vedlegg som utveksles gjennom EESSI.
+- Driftsdata i nEESSI (statusinformasjon, tekniske hendelser) lagres bare så lenge det er nødvendig for å støtte saksbehandlingen og EESSI-utvekslingen. Dette er ikke arkivpliktig dokumentasjon – den ligger i Nav sitt arkiv.

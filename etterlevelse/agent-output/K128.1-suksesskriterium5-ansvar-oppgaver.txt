@@ -1,0 +1,15 @@
+Ansvaret for de ulike oppgavene knyttet til bruk av nEESSI er fordelt som følger:
+
+At all dokumentasjon kommer til behandling:
+- Mottak av strukturerte elektroniske dokumenter (SED) fra andre europeiske trygdemyndigheter skjer automatisk via EESSI-nettverket. Mottatte dokumenter gjøres tilgjengelig for riktig fagområde i nEESSI.
+- Fagansvarlig på det enkelte Nav-område har ansvar for at innkomne saker fordeles til saksbehandler og blir behandlet innen gjeldende frister.
+- Saksbehandler har ansvar for å behandle saker som er tildelt dem.
+
+Retting av registrerte opplysninger:
+- Saksbehandler kan rette opp i opplysninger i en SED før den er ferdigstilt og sendt. Når SED er sendt, følger man EESSI-plattformens egne regler for å oppdatere eller erstatte tidligere utsendte dokumenter.
+- Retting av metadata på journalposter (for eksempel tittel eller sakstilknytning) skjer i nEESSI eller direkte i Nav sitt felles saks- og dokumentarkiv, innenfor de rammene arkivet tillater.
+- Retting av selve arkivert innhold skjer kun gjennom arkivets autoriserte rutiner, med hjemmel, logging og sporbarhet.
+
+Ferdigstilling av lagringen:
+- Saksbehandler ferdigstiller journalpostene i nEESSI. Ved ferdigstilling låses journalposten i arkivet og dokumentet lagres i godkjent arkivformat.
+- Team eessibasis har ansvar for at ferdigstillingsflyten fungerer teknisk, og at det finnes fallback- og overvåkingsrutiner slik at journalføringen faktisk blir gjennomført.

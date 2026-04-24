@@ -1,0 +1,13 @@
+Dokumentasjon fra EESSI-saker lagres i løsninger som oppfyller kravet om lagring i Norge.
+
+Arkivlagring:
+- All journalpliktig dokumentasjon (strukturerte elektroniske dokumenter, vedlegg og notater) arkiveres i Nav sitt felles saks- og dokumentarkiv. Dette er samme løsning som resten av etaten bruker, og den oppfyller kravet til lagring i Norge. nEESSI kan basere seg på at denne delen av dokumentasjonen dekkes gjennom arkivet.
+
+Driftsdata i nEESSI:
+- Driftsdata som nEESSI trenger for å vise og behandle sakene (statusinformasjon, tekniske hendelser, mellomlagring), ligger i Nav sin skyplattform (NAIS på Google Cloud). Dette er ikke arkivlagring – det er driftslagring.
+- Nav sin felles backup-løsning sikrer at data tas vare på i Norge, i tråd med Nav sine sentrale rutiner for backup av skybaserte tjenester. nEESSI bruker disse fellesløsningene og etablerer ikke egne, parallelle backup-løsninger.
+
+EESSI-plattformen:
+- Selve utvekslingen av SED-er mellom Nav og andre europeiske trygdemyndigheter skjer gjennom EESSI-nettverket, som driftes av EU-kommisjonen / Nav sentralt. Dette er en ren transportkanal – den arkivpliktige dokumentasjonen lagres ikke i EESSI-plattformen, men i Nav sitt arkiv.
+
+Samlet betyr det at den arkivpliktige dokumentasjonen er lagret i Norge gjennom Nav sitt felles arkiv, og at driftsdata i nEESSI er dekket av Nav sine fellesrutiner for backup til Norge.

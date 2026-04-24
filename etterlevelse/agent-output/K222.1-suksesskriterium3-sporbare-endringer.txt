@@ -1,0 +1,9 @@
+Endringer i dokumentasjon fra EESSI-saker er sporbare, slik at det i ettertid kan ses hva som er gjort, av hvem og når.
+
+Dette ivaretas ved:
+- Journalposter i Nav sitt felles saks- og dokumentarkiv er låst for endring når de er ferdigstilt. Dokumenter slettes ikke som del av ordinær saksbehandling.
+- Når saksbehandler utfører handlinger i nEESSI som påvirker dokumentasjonen (for eksempel ferdigstiller en journalpost, oppretter eller sender et strukturert elektronisk dokument), registreres det hvem som utførte handlingen og når.
+- Dersom dokumentasjon unntaksvis må slettes eller endres (for eksempel ved feilregistrering eller etter lovpålagt krav), håndteres dette gjennom Nav sitt arkiv sine rutiner for autoriserte endringer. Det lagres informasjon om hva som er endret eller slettet, hvem som utførte det, tidspunkt og hvilken hjemmel som ligger til grunn.
+- Når nye versjoner av et dokument oppstår (for eksempel en versjon med skjermet innhold), bevares de opprinnelige versjonene som egne versjoner i arkivet, slik at historikken er intakt.
+
+På den måten kan man i ettertid rekonstruere hva som har skjedd med dokumentasjonen, også i de få tilfellene hvor endringer eller slettinger har vært nødvendige.

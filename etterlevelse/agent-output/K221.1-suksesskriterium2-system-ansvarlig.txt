@@ -1,0 +1,8 @@
+Journalføringen i nEESSI er innebygd i saksbehandlingsflyten, ikke en manuell oppgave som gjøres ved siden av.
+
+Dette betyr at:
+- Når Nav sender eller mottar et strukturert elektronisk dokument (SED) gjennom EESSI, utløser selve behandlingen automatisk journalføring i Nav sitt felles saks- og dokumentarkiv.
+- Saksbehandler trenger ikke huske å arkivere i etterkant – lagringen skjer direkte som del av den aktuelle behandlingen.
+- Der saksbehandler likevel må ta et aktivt valg (for eksempel ved manuell journalføring eller ferdigstilling), skjer dette fra nEESSI, og handlingen logges med tidspunkt og hvem som utførte den.
+
+Ved å koble lagringen direkte til behandlingen reduseres risikoen for menneskelige feil, og dokumentasjonen beholder sin bevisverdi.

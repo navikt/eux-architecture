@@ -1,0 +1,9 @@
+Brukertesting av nEESSI skjer primært med saksbehandlere som bruker løsningen i sitt daglige arbeid.
+
+Hvordan vi tester:
+- Teamet har tett dialog med saksbehandlere og fagansvarlige på de fagområdene som behandler EESSI-saker. Ny funksjonalitet og endringer i skjermbilder prøves ut og justeres basert på tilbakemeldinger.
+- Støttemateriell og opplæringsrutiner for nEESSI forvaltes sammen med fagmiljøene, slik at språket i løsningen og i opplæringen henger sammen med det saksbehandlerne faktisk gjør.
+
+Avgrensning mot sluttbruker:
+- nEESSI er ikke en selvbetjeningsløsning for innbyggere. Søkere og ytelsesmottakere møter Nav gjennom nav.no og fagsystemenes brevløsninger, som har sine egne klarspråks- og brukertestrutiner.
+- Brukertesting av språk mot innbyggere gjøres derfor ikke i nEESSI, men i de publikumsrettede løsningene der informasjonen faktisk presenteres.

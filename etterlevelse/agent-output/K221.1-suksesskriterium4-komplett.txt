@@ -1,0 +1,9 @@
+Dokumentasjonen som nEESSI håndterer, skal gi et fullstendig bilde av informasjonsutvekslingen i EESSI-saker.
+
+Dette ivaretas ved:
+- Alle strukturerte elektroniske dokumenter (SED) og vedlegg som sendes eller mottas, journalføres i Nav sitt felles saks- og dokumentarkiv. Det finnes ikke en parallell kanal hvor dokumenter utveksles uten å bli arkivert.
+- Tidspunkt for når dokumentene ble mottatt, sendt eller produsert registreres, slik at kronologien i saksgangen er etterprøvbar.
+- Hvem som utførte handlingen (saksbehandler eller automatisk behandling) fremgår av journalposten.
+- Dokumenter slettes ikke fra arkivet. Når en journalpost er ferdigstilt, er den låst, og dokumentasjonen beholdes i henhold til Nav sine bevarings- og kassasjonsregler.
+
+Det er viktig å merke seg at selve vedtaksbehandlingen – herunder vilkårsvurderinger, regelkjøringer og resultat av vedtak – skjer i Nav sine fagsystemer (for eksempel pensjonssystemet), ikke i nEESSI. nEESSI dokumenterer informasjonsutvekslingen med utlandet som inngår i grunnlaget for slike vedtak. Dokumentasjon av selve vedtaksregler og utfall ivaretas av det fagsystemet som fatter vedtaket.

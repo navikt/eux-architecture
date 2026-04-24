@@ -1,0 +1,8 @@
+Dokumentasjonen i EESSI-saker journalføres fortløpende, i tett tilknytning til selve behandlingen.
+
+Konkret betyr det:
+- Når et strukturert elektronisk dokument (SED) sendes til eller mottas fra en annen europeisk trygdemyndighet, journalføres det automatisk i Nav sitt felles saks- og dokumentarkiv som en del av den ordinære saksflyten.
+- Journalføringen skjer samtidig med, eller umiddelbart etter, at dokumentet sendes eller mottas – ikke som en etterarbeidsoppgave.
+- Når en journalpost er ferdigstilt, er den låst for endring i arkivet.
+
+Dermed blir dokumentasjonen arkivert og låst i nær tilknytning til hendelsen den skal dokumentere, og bevisverdien ivaretas.

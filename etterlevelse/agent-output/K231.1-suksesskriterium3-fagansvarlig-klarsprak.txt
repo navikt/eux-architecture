@@ -1,0 +1,5 @@
+Teamet bruker Nav sine fellesressurser for klarspråk når det oppstår konkrete språkspørsmål.
+
+- Ved usikkerhet om formuleringer, begrepsbruk eller rettskrivning konsulterer vi fagansvarlig for klarspråk i Nav.
+- For begreper som er etablerte i EESSI-domenet (for eksempel SED, BUC, RINA) følger vi den offisielle terminologien fra EU-kommisjonen, og gir norske forklaringer der det gir mening for saksbehandler.
+- Vi bruker Nav sin begrepskatalog som kilde for fagbegrep som også brukes i andre deler av etaten, slik at språket henger sammen på tvers av løsningene.

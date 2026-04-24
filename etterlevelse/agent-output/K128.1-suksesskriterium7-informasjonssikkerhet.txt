@@ -1,0 +1,18 @@
+Informasjonssikkerheten rundt dokumentasjon i nEESSI ivaretas hovedsakelig gjennom Nav sine fellesløsninger.
+
+Driftsplattform:
+- nEESSI driftes på Nav sin fellesplattform (NAIS) i skyen. Plattformen håndterer kryptering av data under transport, nettverksbegrensninger, oppdateringer og sikkerhetsovervåking.
+- Backup av driftsdata håndteres av Nav sine fellesløsninger for databasetjenester, slik at data kan gjenopprettes ved driftsstans.
+
+Arkivlagring og skjerming:
+- All journalpliktig dokumentasjon lagres i Nav sitt felles saks- og dokumentarkiv. Backup, kryptering i hvile og ivaretakelse av skjerming er en del av arkivets egen informasjonssikkerhet og følger Nav sine sentrale rutiner.
+- Skjerming av dokumenter – for eksempel for personer med kode 6 og 7 (strengt/fortrolig adresse), egne ansatte og fortrolig dokumentasjon etter sikkerhetslovgivningen – håndteres gjennom arkivets egne skjermings- og tilgangsmekanismer. nEESSI bruker arkivets skjermingsfunksjonalitet og innfører ikke egne, parallelle løsninger.
+
+Tilgangskontroll og logging:
+- Saksbehandlere må være pålogget med personlig Nav-konto (Azure AD). Tilgang gis ut fra rolle og tjenstlig behov.
+- Pålogging, oppslag og handlinger i nEESSI logges, slik at det kan gjennomføres uautoriserte-tilgang-kontroller i ettertid.
+
+Utveksling med utlandet:
+- All SED-utveksling mellom Nav og andre europeiske trygdemyndigheter skjer gjennom EESSI-nettverket, hvor kryptering og autentisering mellom land håndteres av EESSI-plattformen.
+
+For de områdene som er dekket av fellesløsninger (plattform, arkiv, identitet), vises det til disse og teamet etablerer ikke egne parallelle tiltak.

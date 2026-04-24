@@ -1,0 +1,3 @@
+nEESSI lagrer ikke selv journalpliktig dokumentasjon som et arkiv – all slik dokumentasjon arkiveres og registreres i Nav sitt felles saks- og dokumentarkiv.
+
+Nav sitt sentrale arkiv er godkjent etter Norsk Arkivstandard (Noark 5), og ved å benytte denne løsningen arver nEESSI den samme Noark 5-etterlevelsen som resten av Nav. Vi har dermed ikke eget ansvar for Noark 5-godkjenning av nEESSI som arkivsystem – ansvaret ligger hos eier av Nav sitt arkiv, og vi sikrer etterlevelse ved å bruke den godkjente løsningen.

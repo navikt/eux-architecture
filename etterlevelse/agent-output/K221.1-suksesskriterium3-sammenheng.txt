@@ -1,0 +1,9 @@
+Dokumentasjonen i EESSI-saker arkiveres ikke som løsrevne dokumenter, men som del av den større saken de tilhører.
+
+For å sikre helhetlig sammenheng:
+- Hver EESSI-sak består av en Business Use Case (BUC) som samler alle strukturerte elektroniske dokumenter (SED) og vedlegg som utveksles for en bestemt type behandling (for eksempel alderspensjon eller sykepenger).
+- Alle dokumenter i en BUC er knyttet sammen med felles saks-ID, og det er tydelig hvilken rekkefølge og rolle det enkelte dokument har.
+- Ved journalføring i Nav sitt felles saks- og dokumentarkiv knyttes dokumentene til riktig bruker, fagsak og sakstype, slik at de finnes igjen sammen med øvrig saksdokumentasjon i den aktuelle Nav-saken.
+- Dokumentene er gjenfinnbare både fra nEESSI og fra Nav sine øvrige saksbehandlingsflater (som Gosys og Modia), og man kan navigere fra et enkeltdokument til hele saken det inngår i.
+
+Slik framstår dokumentasjonen i sin rette sammenheng, og kan leses og tolkes som en helhet både samtidig og i ettertid.

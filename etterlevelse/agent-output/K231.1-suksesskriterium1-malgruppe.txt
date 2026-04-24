@@ -1,0 +1,10 @@
+Målgruppen for nEESSI er i all hovedsak saksbehandlere i Nav som behandler trygdesaker med utlandsdimensjon. Språkvalgene er tilpasset denne målgruppen.
+
+Hva vi har gjort:
+- Grensesnittet bruker begreper saksbehandlere kjenner igjen fra øvrig saksbehandling i Nav, og fra den europeiske utvekslingen (for eksempel SED, BUC, RINA, sakstype). Disse er etablerte fagbegreper innenfor EESSI-domenet.
+- Tekster i skjermbilder og meldinger er skrevet på norsk og er ment å være korte og handlingsrettede, slik at saksbehandler raskt forstår hva som forventes.
+- Faguttrykk som er nødvendige for å gjøre jobben beholdes, men vi unngår unødig teknisk sjargong som er interessant for utviklere, men ikke for saksbehandler.
+
+Avgrensninger:
+- Innholdet i selve de strukturerte elektroniske dokumentene (SED) er definert på europeisk nivå av EU-kommisjonen gjennom felles datamodeller. Feltnavn, kodeverdier og struktur kan nEESSI ikke endre. Der det er mulig gir nEESSI støttende forklaringer på norsk.
+- Brev og meldinger til brukere (søkere og ytelsesmottakere) produseres i Nav sine fagsystemer, ikke i nEESSI. Klarspråk for utgående brev til brukere ivaretas der de opprettes.

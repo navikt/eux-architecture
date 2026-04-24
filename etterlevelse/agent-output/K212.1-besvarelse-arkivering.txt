@@ -1,0 +1,12 @@
+All saksbehandlet informasjon i nEESSI arkiveres i Nav sitt felles saks- og dokumentarkiv (internt omtalt som Joark). Dette er samme arkiv som resten av etaten bruker, og det sikrer at dokumentasjonen blir tatt vare på, er gjenfinnbar og beholder sin bevisverdi – både for samtiden og ettertiden.
+
+Hva arkiveres:
+- Strukturerte elektroniske dokumenter (SED) som sendes og mottas mellom Nav og andre europeiske trygdemyndigheter gjennom EESSI.
+- Vedlegg knyttet til disse dokumentene.
+- Relevante hendelser som dokumenterer saksgangen.
+
+Hvordan det skjer:
+- Dokumentene journalføres automatisk i Nav sitt arkiv etter hvert som de sendes og mottas. Der det trengs kan saksbehandler også journalføre manuelt fra nEESSI.
+- Hver journalpost knyttes til riktig bruker, fagsak og sakstype, slik at dokumentene finnes igjen fra både nEESSI og Nav sine øvrige saksbehandlingsflater (som Gosys og Modia).
+
+Konsekvensen er at nEESSI ikke fungerer som et eget arkiv. Alt som har vært saksbehandlet, eller som har verdi som dokumentasjon, havner i Nav sitt sentrale arkiv og forvaltes etter de samme reglene, sikkerhetskravene og bevaringsreglene som øvrig Nav-dokumentasjon.

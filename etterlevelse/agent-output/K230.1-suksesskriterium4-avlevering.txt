@@ -1,0 +1,12 @@
+Dokumentasjon fra EESSI-saker som skal bevares, avleveres til Arkivverket gjennom Nav sitt felles saks- og dokumentarkiv.
+
+Arkivdokumenter:
+- Strukturerte elektroniske dokumenter (SED), vedlegg og notater er lagret i Nav sitt arkiv, i godkjent arkivformat (PDF/A), med tilhørende metadata om avsender, mottaker, tidspunkt, saks-ID, dokumenttype og BUC-tilhørighet.
+- Når det blir aktuelt å avlevere, tas det ut et arkivuttrekk fra Nav sitt arkiv på samme måte som for øvrig trygdedokumentasjon. nEESSI lager ikke egne, parallelle avleveringsuttrekk.
+
+nEESSI som system:
+- nEESSI er et saksbehandler- og integrasjonssystem, ikke et selvstendig arkiv. Hvis nEESSI på et tidspunkt erstattes eller tas ut av bruk, er all arkivpliktig dokumentasjon allerede lagret i Nav sitt arkiv, og skal avleveres derfra.
+- Driftsdata i nEESSI (status, tekniske hendelser) er ikke bevaringsverdig i seg selv og vil normalt ikke inngå i en avlevering. Hvis Arkivverket vurderer at deler av dette likevel skal bevares, utarbeider teamet arkivuttrekk og beskrivelse i samarbeid med Seksjon informasjonsforvaltning (SIF).
+
+Fremgangsmåte:
+- Ved behov for avlevering kontaktes SIF. Team eessibasis bidrar med systemdokumentasjon (arkitektur, datamodell, integrasjonspunkter mot EESSI og arkivet – se README.md i `navikt/eux-architecture`), og fagansvarlig bidrar med faglig beskrivelse.

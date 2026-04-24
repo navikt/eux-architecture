@@ -1,0 +1,15 @@
+Dokumentasjon fra EESSI-saker er lagret slik at den kan gjenfinnes, tolkes og brukes både i dag og i framtiden – uavhengig av nEESSI.
+
+Gjenfinnbarhet og tilgjengelighet:
+- All journalpliktig dokumentasjon arkiveres i Nav sitt felles saks- og dokumentarkiv, som brukes av hele etaten. Der kan dokumentene søkes opp og hentes fram basert på bruker, sak, dokumenttype, tidspunkt og øvrig metadata.
+- Dokumentene er tilgjengelige fra flere saksbehandlingsflater (som nEESSI, Gosys og Modia), og kan hentes ut som grunnlag for innsynsbegjæringer, partsinnsyn, klagesaker og eventuelle rettslige prosesser på linje med øvrig Nav-dokumentasjon.
+
+Uavhengig av nEESSI:
+- Dokumentene er løskoblet fra nEESSI i den forstand at de ikke er avhengige av nEESSI for å kunne leses. Selv om nEESSI byttes ut eller videreutvikles, ligger dokumentasjonen trygt i Nav sitt arkiv og kan hentes fram derfra.
+- Metadata som beskriver sammenhengen (avsender, mottaker, tidspunkt, saks-ID, dokumenttype, hvilken EESSI-sak / BUC det tilhører) følger med dokumentet, slik at det kan forstås uten å kjenne til nEESSI.
+
+Arkivformat:
+- Ferdigstilte dokumenter lagres i godkjent arkivformat (PDF/A), som er et åpent og standardisert format egnet for langtidsbevaring og fri fra proprietære avhengigheter.
+- De strukturerte elektroniske dokumentene (SED) er basert på felles europeiske datamodeller som er åpent beskrevet av EU-kommisjonen, slik at innholdet kan tolkes også i ettertid.
+
+Samlet betyr dette at dokumentasjonen kan brukes som pålitelig informasjonskilde både i dagens saksbehandling, ved innsyn og partsbegjæringer, i rettslige sammenhenger, og etter en eventuell avlevering til Arkivverket.

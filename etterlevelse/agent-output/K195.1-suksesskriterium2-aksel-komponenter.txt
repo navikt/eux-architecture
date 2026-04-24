@@ -1,0 +1,8 @@
+nEESSI er bygd med Nav sitt designsystem og bruker de ferdige frontend-komponentene fra Aksel direkte.
+
+Konkret betyr det:
+- Saksbehandlerløsningen er en React-basert webapplikasjon som bruker Aksel sine React-komponenter (blant annet `@navikt/ds-react`, `@navikt/ds-css` og `@navikt/aksel-icons`) for knapper, skjemaer, tabeller, modaler, varsler, menyer og øvrige grensesnittelementer.
+- Vi tar i bruk komponentene "rett ut av boksen" der det er mulig, slik at vi automatisk arver universell utforming og tilgjengelighetsegenskaper som allerede er innebygd.
+- Designsystemet holdes oppdatert gjennom normal vedlikeholdssyklus, slik at forbedringer i Aksel (for eksempel uu-forbedringer, oppdaterte mønstre) blir tilgjengelige i nEESSI etter hvert som de rulles ut.
+
+Ved behov for funksjonalitet som ikke dekkes av Aksel, bygger vi egne komponenter oppå Aksel sine primitiver, slik at designspråk, tilgjengelighet og kvalitetsnivå opprettholdes.

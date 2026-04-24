@@ -1,0 +1,10 @@
+Dokumentasjonen som nEESSI håndterer, journalføres i Nav sitt felles saks- og dokumentarkiv med kontekstuell informasjon om opphav, slik at den har bevisverdi i ettertid.
+
+For hvert dokument som arkiveres registreres blant annet:
+- Avsender og mottaker: hvilken nasjonal trygdemyndighet dokumentet er sendt til eller mottatt fra gjennom EESSI, og hvilken Nav-enhet det er knyttet til.
+- Hvem som har skapt dokumentasjonen: saksbehandler som opprettet eller sendte dokumentet, eller informasjon om at det er opprettet automatisk som del av den ordinære saksflyten.
+- Kilde: at dokumentet er utvekslet gjennom EESSI, og hvilken sak (BUC) og sakstype det tilhører.
+- Tidspunkt: når dokumentet ble mottatt, sendt eller produsert.
+- Dokumenttype: hvilken type SED eller vedlegg det er.
+
+Opphavsinformasjonen settes på journalposten i Nav sitt arkiv ved journalføring, slik at den følger dokumentet videre og er synlig både fra nEESSI og fra Nav sine øvrige saksbehandlingsflater. Dermed kan man i ettertid spore hvem som skapte og sendte dokumentasjonen, og når det skjedde.

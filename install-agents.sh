@@ -11,6 +11,7 @@ agents=(
   "eux-java-dev.agent.md"
   "eux-kotlin-dev.agent.md"
   "eux-full-stack-dev.agent.md"
+  "eux-etterlevelse.agent.md"
 )
 
 skills=(

@@ -1,0 +1,12 @@
+nEESSI bruker følgende lagringsløsninger:
+
+Driftsdata i nEESSI:
+- Saksbehandlingsdata, statusinformasjon og tekniske hendelser som trengs for å drifte nEESSI lagres i PostgreSQL-databaser i Nav sin skyløsning (Google Cloud Platform via Nav-plattformen NAIS). Dette er ikke arkivlagring – det er driftslagring for å kunne vise fram og behandle sakene.
+- Hendelser mellom interne nEESSI-tjenester utveksles gjennom Kafka på samme plattform.
+
+Arkivlagring:
+- Journalpliktig dokumentasjon (strukturerte elektroniske dokumenter, vedlegg og eventuelle notater) lagres i Nav sitt felles saks- og dokumentarkiv (Joark). Det er her langtidsbevaringen skjer.
+- nEESSI lagrer ikke selv kopier av arkivert dokumentasjon som erstatning for arkivet.
+
+EESSI-plattformen:
+- Selve utvekslingsplattformen (RINA) driftes av EU-kommisjonen / Nav sentralt. Det europeiske nettverket står for selve transporten av SED-er mellom land.

@@ -1,0 +1,14 @@
+Nav har journalføringsplikt, og i nEESSI journalføres all saksdokumentasjon som mottas, sendes eller produseres under saksbehandlingen. Journalføringen skjer i Nav sitt felles saks- og dokumentarkiv (internt omtalt som Joark), som også resten av etaten bruker.
+
+Hva som journalføres:
+- Strukturerte elektroniske dokumenter (SED) som Nav mottar fra eller sender til andre europeiske trygdemyndigheter gjennom EESSI.
+- Vedlegg knyttet til disse dokumentene.
+- Notater og annen saksdokumentasjon som oppstår som del av saksbehandlingen.
+
+Hvordan journalføringen skjer:
+- Dokumentene journalføres fortløpende – i hovedsak automatisk etter hvert som de sendes og mottas – slik at journalen gir en kronologisk oversikt over saksgangen.
+- Der det trengs kan saksbehandler også journalføre og ferdigstille journalposter manuelt fra nEESSI.
+- Hver journalpost registreres med avsender/mottaker, tittel, dato, dokumenttype og knyttes til riktig bruker, fagsak og sakstype.
+- Journalpostene blir dermed gjenfinnbare både fra nEESSI og fra Nav sine øvrige saksbehandlingsflater (som Gosys og Modia).
+
+På denne måten får vi en pålitelig og kronologisk journal over all saksdokumentasjon i EESSI-saker, på linje med øvrig saksbehandling i Nav, og journalføringsplikten ivaretas.

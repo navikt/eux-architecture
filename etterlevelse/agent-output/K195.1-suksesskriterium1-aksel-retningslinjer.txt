@@ -1,0 +1,8 @@
+nEESSI følger Nav sitt designsystem (Aksel) og de tilhørende retningslinjene for design og brukeropplevelse.
+
+Konkret betyr det:
+- Vi bruker Aksel som utgangspunkt for hvordan skjermbilder er bygd opp, hvordan navigasjon og skjema fungerer, og hvordan vi kommuniserer med saksbehandler gjennom meldinger og tilbakemeldinger.
+- Retningslinjer for språk, farger, typografi, avstander og interaksjonsmønstre følges, slik at nEESSI ser ut og oppfører seg likt som andre Nav-løsninger saksbehandlerne bruker i hverdagen.
+- Universell utforming er en del av Aksel sine retningslinjer, og ved å følge disse sikrer vi at løsningen er tilgjengelig for flest mulig.
+
+Nye skjermbilder og endringer vurderes opp mot Aksel sine retningslinjer før de tas i bruk. Der vi avviker (for eksempel der EESSI-domenet har egne behov som ikke dekkes av standardmønstrene), gjør vi det bevisst og søker råd fra Aksel-miljøet ved behov.

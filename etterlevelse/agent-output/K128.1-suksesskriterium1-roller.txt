@@ -1,0 +1,13 @@
+Tilganger til nEESSI er rollestyrt, og rollene er definert og beskrevet.
+
+Roller som brukes:
+- Saksbehandler: tilgang til å behandle EESSI-saker innenfor det fagområdet saksbehandleren er autorisert for (for eksempel pensjon, sykepenger, familieytelser). Kan opprette, sende og ferdigstille strukturerte elektroniske dokumenter (SED) og journalføre dem.
+- Leder / utvidet saksbehandler: enkelte fagområder har utvidede rettigheter, for eksempel til å behandle saker som krever ekstra autorisasjon.
+- Systemforvalter / team eessibasis: teknisk ansvar for drift og forvaltning av nEESSI, men uten tilgang til å endre saksinnhold i produksjon utover det som er nødvendig for feilretting etter etablerte rutiner.
+
+Tilgangsstyring:
+- Tilgangen til nEESSI tildeles gjennom Nav sine fellesrutiner for identitet og tilgangsstyring (Azure AD-grupper). Det gis ikke tilganger direkte i nEESSI utenom disse fellesrutinene.
+- Tilgangen er knyttet til tjenstlig behov og fagområde. Ved rolleskifte eller sluttet arbeidsforhold fjernes tilgangen gjennom de samme fellesrutinene.
+- Tilgang til selve de arkiverte dokumentene styres av Nav sitt felles saks- og dokumentarkiv sin egen tilgangsmodell.
+
+Retten til å rette eller slette dokumentasjon er begrenset: saksbehandler kan ikke endre ferdigstilte journalposter, og slike endringer skjer kun gjennom arkivets autoriserte rutiner.
