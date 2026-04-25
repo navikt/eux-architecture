@@ -7,10 +7,17 @@ Arbeidskatalog for dokumentering av etterlevelse i Nav sitt verktøy
 
 ```
 etterlevelse/
+├── status.md            Tabell over alle krav vi har dokumentert, med status (Ja / Ja delvis / Nei delvis / Nei)
 ├── apne-sporsmal.md     Oppfølgingsliste for uavklarte antagelser i besvarelsene
 ├── agent-output/        Paste-klare .txt-filer generert for hvert krav
 └── doc/                 Kildemateriale: veiledere, tema-intro, eksempler fra andre team
 ```
+
+### `status.md`
+
+Presentabel oversikt over alle krav teamet har dokumentert, med status,
+antall suksesskriterier og lenke til underlag. Oppdateres automatisk av
+agenten når nye krav besvares eller eksisterende vurderinger endres.
 
 ### `apne-sporsmal.md`
 

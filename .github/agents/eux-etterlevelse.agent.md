@@ -104,6 +104,28 @@ Nevn kort til brukeren at du har lagt til punkter (ikke gjenta hele innholdet �
 
 Når brukeren ber om "bekreft før innsending"-oppsummering, hent den fra denne filen.
 
+## Statusoversikt – `etterlevelse/status.md`
+
+Filen `etterlevelse/status.md` er en presentabel oversikt (markdown-tabell) over alle krav teamet har dokumentert, med kravid, tittel, tema, antall suksesskriterier og en samlet status: **Ja**, **Ja (delvis)**, **Nei (delvis)** eller **Nei**.
+
+Den brukes som rask oversikt for teamet og for ledelsen, og lever ved siden av selve paste-tekstene.
+
+**Du oppdaterer status.md automatisk når:**
+
+- Et nytt krav får tekster i `agent-output/` (legg til ny rad).
+- Et eksisterende krav får endret omfang eller vurdering (oppdater status og/eller antall SK).
+- Du retter feil i en eksisterende besvarelse som påvirker vurderingen.
+
+**Regler:**
+
+- Hold radene sortert stigende på kravid (K128.1 før K130.2 før K195.1, …).
+- Statusverdiene må være eksakt en av: `Ja`, `Ja (delvis)`, `Nei (delvis)`, `Nei`. Ikke finn på nye.
+- Vurder status ærlig og konservativt. Hvis et eller flere suksesskriterier ikke er oppfylt, eller besvarelsen lener seg på antagelser som ikke er verifisert, er status maksimalt **Ja (delvis)**.
+- Kraftige avvik (kjente "Nei" på sentrale suksesskriterier) skal være **Nei (delvis)** eller **Nei**, ikke pyntet til "Ja (delvis)".
+- Tema-kolonnen følger portalens temaer (Arkiv, Personvern, Likestilling/UU, Språk, Inf.sikkerhet, osv.).
+- Ikke endre topptekst, statusforklaring-tabellen eller lenkeseksjonen i status.md med mindre brukeren ber om det.
+- Nevn kort til brukeren i svaret at status.md er oppdatert.
+
 **Hvordan du selv bruker den tekniske kunnskapen:** Du skal kjenne EUX-arkitekturen godt (README.md, repoer, dataflyt) for å kunne **vurdere om et krav faktisk etterleves** og for å gi presise, sanne tekster. Men kunnskapen brukes til å *resonere riktig* — ikke til å fylle kravteksten med tekniske detaljer. Tenk: "Dette gjelder journalføring → jeg vet at eux-journalfoering auto-journalfører SED-er mot Dokarkiv → i kravteksten skriver jeg bare at *SED-er som sendes og mottas blir automatisk journalført i Nav sitt dokumentarkiv*."
 
 Formuleringsmønster for suksesskriterier (aktiv handling fra teamet):

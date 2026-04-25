@@ -1,0 +1,7 @@
+nEESSI er en saksbehandlerflate bygget på Nav sitt designsystem (Aksel). Ved å bruke Aksel sine ferdige frontend-komponenter får vi mye av arbeidet med WCAG 2.1 nivå A og AA ivaretatt fra fellesløsningen – komponentene er laget med universell utforming som et bærende prinsipp, og dekker blant annet tastaturnavigasjon, fokusmarkering, semantisk struktur, ARIA-merking og fargekontrast.
+
+I tillegg legger vi vekt på universell utforming i egenutviklede deler av løsningen: vi skriver semantisk HTML, knytter ledetekster til skjemafelt, sørger for at alle handlinger er tilgjengelige via tastatur, og bruker Aksel sine farger og typografi slik at kontrastkravene holdes.
+
+Vi har ikke gjennomført en fullstendig ekstern revisjon av nEESSI mot hele WCAG 2.1 A/AA, og det er derfor sannsynlig at det finnes enkeltavvik i sammensatte skjermbilder og i flyter som er bygget før Aksel ble tatt i full bruk. Avvik som oppdages blir rettet fortløpende, og vi prioriterer å erstatte gjenværende egne komponenter med Aksel der det er mulig.
+
+nEESSI er en intern saksbehandlerløsning. Loven omfatter per i dag ikke interne systemer, men Nav har valgt å holde seg til samme standard også her, slik at løsningen kan brukes av alle kollegaer uavhengig av funksjonsnedsettelser.

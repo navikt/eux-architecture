@@ -1,0 +1,7 @@
+Dette suksesskriteriet er oppfylt gjennom fellesløsninger i Nav.
+
+nEESSI kjører på NAIS, Nav sin plattform på Google Cloud. Hemmeligheter (servicebrukere, API-nøkler, sertifikater, databasepassord mot EESSI-plattformen) håndteres gjennom Google Secret Manager og NAIS sine mekanismer for å injisere hemmeligheter direkte inn i kjøremiljøet. Hemmeligheter lagres ikke i kode, repo eller lokalt på utvikleres maskiner.
+
+Autentisering mellom nEESSI-tjenester og øvrige Nav-tjenester (PDL, Dokarkiv, SAF, Oppgave) skjer med Azure AD OAuth2-tokens som genereres automatisk per kall og har kort levetid. Mot RINA brukes delte hemmeligheter forvaltet av plattformen.
+
+Rotasjon av sertifikater og tokens som forvaltes av Nav-plattformen følger plattformens rutiner. For de få statiske hemmelighetene vi har selv (for eksempel delt hemmelighet mot RINA), følger vi Nav sine rutiner for jevnlig rotasjon.

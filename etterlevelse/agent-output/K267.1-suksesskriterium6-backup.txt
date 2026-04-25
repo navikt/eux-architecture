@@ -1,0 +1,7 @@
+Dette suksesskriteriet er oppfylt gjennom fellesløsninger, men ikke fullt verifisert gjennom øvelse.
+
+All kode for nEESSI ligger i repoer på GitHub under organisasjonen navikt og er dekket av GitHub sin egen backup og historikk. Databasene kjører på Google Cloud SQL via NAIS, med automatisk backup og point-in-time recovery som en del av plattformen.
+
+Kafka-topics som nEESSI bruker til meldingsutveksling er også driftet på Nav sin fellesplattform, og dekket av plattformens backup- og gjenopprettingsrutiner.
+
+Vi har ikke gjennomført en fullstendig gjenopprettingsøvelse der vi restaurerer en nEESSI-tjeneste og dens data fra backup i sin helhet. En slik øvelse, og en skriftlig gjenopprettingsplan per tjeneste, er ført opp som forbedringspunkt for å kunne svare fullt ut på kravet.

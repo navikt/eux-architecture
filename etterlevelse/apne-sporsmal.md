@@ -140,3 +140,65 @@ Flere krav lener seg på de samme underliggende antagelsene. Disse bør avklares
       skjermingsinformasjonen mot PDL. Bekreft at nEESSI i visning respekterer
       og videreformidler skjerming riktig, slik at sensitive opplysninger
       ikke vises til saksbehandlere uten tilgang. Team eessibasis + sikkerhet.
+
+## K196.6 – WCAG 2.1 A og AA
+
+- [ ] **Full WCAG 2.1 A/AA-revisjon av nEESSI.** Vi bruker Aksel-komponenter
+      som gir baseline, men har ikke gjennomført en systematisk revisjon av
+      hele saksbehandlerløsningen mot alle A- og AA-kriterier. Avklar om det
+      skal bestilles ekstern uu-revisjon, eller gjennomføres internt med
+      fagmiljø for universell utforming i Nav. Team eessibasis + uu-fagmiljø.
+- [ ] **Automatiserte uu-tester i byggeprosessen.** Ingen axe/jest-axe/
+      lighthouse-tester i eux-web-app i dag. Beslutt om vi skal innføre
+      oppsettet fra navikt/uu-testing som del av byggepipelinen, og hvilket
+      nivå av feil som skal blokkere bygg. Team eessibasis.
+- [ ] **Registrering av uu-feil på a11y-statement.nav.no.** Ikke pålagt for
+      interne flater, men avklar om team eessibasis likevel skal registrere
+      kjente uu-feil der, eller om det holder med eget avviksspor.
+      Team eessibasis + uu-fagmiljø.
+- [ ] **Egen tilgjengelighetserklæring (K157).** Relevant dersom nEESSI på
+      sikt eksponeres utenfor interne flater. Følges opp hvis tilgangsmodellen
+      endres. Team eessibasis.
+
+## K197.1 – Testing for flest mulig i praksis
+
+- [ ] **Testing med skjermleser og hjelpemidler.** nEESSI har ikke blitt
+      testet systematisk med skjermleser, forstørrelse eller andre
+      hjelpemidler. Avklar om vi skal kjøre intern testing, eller bestille
+      ekspert-testing fra uu-fagmiljøet i Nav. Team eessibasis + uu-fagmiljø.
+- [ ] **Brukertesting med personer med nedsatt funksjonsevne.** Ordinær
+      brukertesting med saksbehandlere skjer løpende, men ikke med variert
+      funksjonsnivå. Avklar om vi skal ta i bruk "test min løsning" og på
+      hvilke flyter det er mest verdifullt. Team eessibasis + uu-fagmiljø.
+- [ ] **Bekreft omfang av eksisterende brukertesting.** Dokumenter hvilken
+      form for brukertesting teamet faktisk gjør i dag (demoer, superbruker-
+      tilbakemeldinger, observasjon) slik at besvarelsen ikke underselger det
+      vi gjør. Team eessibasis.
+
+## K267.1 – Forsvarlig sikkerhetsnivå
+
+- [ ] **Skriftlig rutine for sårbarhetshåndtering.** Bekreft om teamet har
+      (eller skal etablere) en skriftlig rutine som eksplisitt dekker
+      "neste arbeidsdag for CVSS > 9" og "3 måneder for øvrige". I praksis
+      håndteres kritiske saker raskt, men dokumentasjonen mangler.
+      Team eessibasis.
+- [ ] **Dekning av sikkerhetsskanning.** Bekreft at alle aktive EUX-repoer
+      faktisk er omfattet av Salsa / NAIS sin sårbarhetsskanning, og at
+      teamet mottar og følger opp varslene. Team eessibasis + ISOC.
+- [ ] **Samlet oversikt over input/output-validering.** Vi har ikke en
+      gjennomgått liste over alle integrasjonspunkter med hvilke
+      valideringsregler som gjelder. Team eessibasis.
+- [ ] **Rotasjon av delt hemmelighet mot RINA.** Bekreft hvordan og hvor ofte
+      den delte hemmeligheten mellom nEESSI og RINA roteres. Team eessibasis
+      + domeneansvarlig for EESSI.
+- [ ] **Gjenopprettingsplan og øvelse.** Ingen formell, skriftlig
+      gjenopprettingsplan per nEESSI-tjeneste, og ingen utført
+      gjenopprettingsøvelse. Beslutt omfang og kadens. Team eessibasis.
+- [ ] **Behandling av fødselsnummer i logger.** Bekreft at ingen aktive
+      nEESSI-tjenester logger fødselsnummer i fellesloggene (kun i egne
+      logger teamet kontrollerer), og at fødselsnummer ikke havner i URL
+      eller header-felt. Team eessibasis.
+- [ ] **Compliant device / phishing-resistent MFA.** Bekreft at Nav sin
+      felles identitetsløsning håndhever dette kravet for nEESSI, og at vi
+      kan henvise til fellesløsningen i besvarelsen. Team eessibasis +
+      identitet/plattform.

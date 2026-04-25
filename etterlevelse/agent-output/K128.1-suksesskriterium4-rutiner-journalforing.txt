@@ -7,7 +7,7 @@ Rutine for registrering og journalføring:
 
 Integrasjon mot Joark:
 - nEESSI skriver journalposter til arkivet gjennom Dokarkiv (skrive-API) og henter opplysninger gjennom SAF (lese-API) – begge er Nav sine offisielle grensesnitt mot arkivet.
-- Integrasjonen er dokumentert i EUX-arkitekturdokumentasjonen (README.md i `navikt/eux-architecture`), som beskriver dataflyten mellom nEESSI, RINA/EESSI og Nav sitt arkiv.
+- Integrasjonen er dokumentert i Nav sin interne arkitekturdokumentasjon for nEESSI, som beskriver dataflyten mellom nEESSI, EESSI-plattformen og Nav sitt arkiv.
 
 Ansvar:
 - Saksbehandler har ansvar for at dokumentasjon i den enkelte sak blir riktig registrert og ferdigstilt.

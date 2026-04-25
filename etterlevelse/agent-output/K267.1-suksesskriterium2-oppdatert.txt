@@ -1,0 +1,7 @@
+Dette suksesskriteriet er oppfylt.
+
+nEESSI består av flere baktjenester (Java og Kotlin) og en frontend (React), som alle deler et felles oppsett for versjonshåndtering av biblioteker. Vi har et eget verktøy som bumper tredjepartsversjoner sentralt, slik at oppgraderinger rulles ut konsistent på tvers av plattformen.
+
+Tjenestene bygges og deployeres kontinuerlig ved kodeendringer og ved daglig bruk. I praksis bygges og deployeres alle aktive komponenter i nEESSI langt oftere enn hver tredje måned, noe som sikrer at bygg- og deploypipelinen er varm og klar ved behov for rask sikkerhetsretting.
+
+Når vi vurderer å ta inn nye biblioteker, prioriterer vi komponenter som allerede er i bruk andre steder på Nav-plattformen og som designsystemet (Aksel) eller Nav sin Maven-parent trekker inn, for å holde antall direkte avhengigheter lavt.

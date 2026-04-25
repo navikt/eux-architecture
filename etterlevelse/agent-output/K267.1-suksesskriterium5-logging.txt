@@ -1,0 +1,7 @@
+Dette suksesskriteriet er oppfylt.
+
+Alle nEESSI-tjenester bruker et felles internt logging-bibliotek som legger standardiserte felt på hver logglinje – blant annet tjenestenavn, hvem som kalte (saksbehandlerident eller servicebruker), tidspunkt, og hvilken sak eller SED handlingen gjaldt. Logger strømmes gjennom NAIS sin logginfrastruktur og er tilgjengelige for Team ISOC sammen med øvrige Nav-logger.
+
+Vi logger ikke hemmeligheter som tokens, sesjonsnøkler eller passord. Fødselsnummer og aktørId unngås i URL-er, HTTP-headere og vanlige logger. Når det er nødvendig å spore hendelser knyttet til en person, brukes Nav sine interne identifikatorer eller maskerte verdier, og full personidentifikasjon holdes i logger teamet selv eier.
+
+Sikkerhetsrelevante hendelser – innlogging, feilet autorisasjon, tilgang til saker – logges slik at Team ISOC kan bruke dem ved etterforskning av sikkerhetshendelser.

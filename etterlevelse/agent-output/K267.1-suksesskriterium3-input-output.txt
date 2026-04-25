@@ -1,0 +1,9 @@
+Dette suksesskriteriet er i hovedsak oppfylt.
+
+nEESSI sine baktjenester er bygget på Spring Boot, som gir inputvalidering gjennom typesikre kontrollere, schema-validering av innkommende data og parameteriserte databasespørringer via Spring Data / JPA. Vi konstruerer ikke SQL-spørringer med strengsammensetting.
+
+Data som vises til saksbehandler i nEESSI renderes via React og Nav sitt designsystem (Aksel). React escaper som standard output, og vi bruker ikke dangerouslySetInnerHTML eller tilsvarende i egne komponenter.
+
+Meldinger som kommer fra EESSI-plattformen valideres mot SED-strukturen før de videreformidles til interne systemer. Data som sendes ut til andre Nav-tjenester går gjennom typede klienter mot API-ene til Dokarkiv, PDL, SAF og Oppgave.
+
+Vi har ikke en samlet, skriftlig oversikt over alle integrasjonspunkter og deres valideringsregler. Team eessibasis planlegger å gjennomgå dette som del av oppfølgingen av dette kravet.

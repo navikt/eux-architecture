@@ -1,0 +1,5 @@
+nEESSI er en intern saksbehandlerløsning som ikke er tilgjengelig for Nav sine brukere på nav.no. Dette suksesskriteriet er derfor ikke pålagt for løsningen, slik portalteksten også presiserer.
+
+Vi registrerer likevel alvorlige uu-feil vi blir kjent med i team eessibasis sitt eget avviks-/forbedringsspor, slik at de kan prioriteres og rettes. Vi har ikke etablert rutine for å registrere disse på a11y-statement.nav.no, og det er heller ikke opprettet en egen tilgjengelighetserklæring på uustatus.no, siden løsningen er intern.
+
+Dersom nEESSI på sikt blir eksponert utenfor Nav sine interne flater, må vi ta i bruk a11y-statement-løsningen og eventuelt opprette en tilgjengelighetserklæring etter K157.

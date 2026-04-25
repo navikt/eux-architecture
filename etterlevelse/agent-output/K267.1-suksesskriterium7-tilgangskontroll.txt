@@ -1,0 +1,9 @@
+Dette suksesskriteriet er oppfylt.
+
+Alle endepunkter i nEESSI krever pålogging. Saksbehandler logger inn gjennom Nav sin interne identitetsløsning basert på Entra ID (Azure AD), og tilgangskravet inkluderer de samme kravene til sikker enhet og fler-faktor som gjelder øvrige Nav-interne applikasjoner på samme plattform.
+
+Kall mellom nEESSI sine egne baktjenester, og fra nEESSI til andre Nav-tjenester (PDL, Dokarkiv, SAF, Nav Oppgave), går gjennom Azure AD OAuth2. Der saksbehandler står bak handlingen brukes On-Behalf-Of-tokens, slik at kallet gjøres i saksbehandlerens kontekst og kan autoriseres korrekt hos mottaker.
+
+Mot RINA-plattformen (EESSI) brukes autentiseringsformene som EESSI-plattformen krever – delt hemmelighet, servicebruker eller CAS – og disse er vurdert og dokumentert som nødvendige av hensyn til at RINA driftes av EU og ikke tilbyr OAuth2.
+
+nEESSI har ingen offentlig tilgjengelige endepunkter. All saksbehandling skjer mot interne flater bak Nav sin identitetsløsning.
