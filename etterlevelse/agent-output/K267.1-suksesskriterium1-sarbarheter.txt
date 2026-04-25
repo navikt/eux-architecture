@@ -1,5 +1,3 @@
-Dette suksesskriteriet er i hovedsak oppfylt.
-
 Nav sin plattform (NAIS) skanner kjørende containere og rapporterer kjente sårbarheter til teamet gjennom Salsa / NAV Sikkerhetssenter. I tillegg følger vi med på sårbarheter som meldes via GitHub sine sikkerhetsvarsler i kodebasen vår.
 
 Alle nEESSI-tjenester bruker et felles Maven-parent-oppsett som sentraliserer versjoner av biblioteker. Teamet har et eget verktøy for å bumpe versjoner samlet på tvers av repoene, slik at oppdatering av et sårbart bibliotek kan rulles ut bredt og raskt. Tjenestene deployes kontinuerlig til test- og produksjonsmiljø, og patcher når produksjon samme dag eller dagen etter.

@@ -1,5 +1,3 @@
-Dette suksesskriteriet er i hovedsak oppfylt.
-
 nEESSI sine baktjenester er bygget på Spring Boot, som gir inputvalidering gjennom typesikre kontrollere, schema-validering av innkommende data og parameteriserte databasespørringer via Spring Data / JPA. Vi konstruerer ikke SQL-spørringer med strengsammensetting.
 
 Data som vises til saksbehandler i nEESSI renderes via React og Nav sitt designsystem (Aksel). React escaper som standard output, og vi bruker ikke dangerouslySetInnerHTML eller tilsvarende i egne komponenter.

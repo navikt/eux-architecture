@@ -1,5 +1,3 @@
-Dette suksesskriteriet er ikke oppfylt i dag.
-
 nEESSI er en intern saksbehandlerløsning, og vi har foreløpig ikke kjørt systematisk testing av løsningen med skjermleser, forstørrelsesprogram eller andre hjelpemidler. Vi har heller ikke benyttet Nav sin empatilab eller ekspert-testing fra uu-fagmiljøet.
 
 Vi støtter oss i dag på at Aksel-komponentene vi bruker er testet med hjelpemidler av designsystem-teamet, men det erstatter ikke testing av de sammensatte skjermbildene i nEESSI.

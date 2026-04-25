@@ -1,5 +1,3 @@
-Dette suksesskriteriet er ikke oppfylt i dag.
-
 nEESSI har ikke automatiserte tester for universell utforming som del av byggeprosessen. Vi har enhetstester og ende-til-ende-tester for funksjonalitet, men ingen egne uu-tester (for eksempel basert på axe, jest-axe eller lignende verktøy fra oppsettet i navikt/uu-testing).
 
 Vi støtter oss i stedet på at Aksel-komponentene vi bruker er testet for universell utforming av designsystem-teamet, og på manuell gjennomgang når vi bygger nye skjermbilder.

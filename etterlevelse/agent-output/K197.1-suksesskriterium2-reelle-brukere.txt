@@ -1,5 +1,3 @@
-Dette suksesskriteriet er ikke oppfylt i dag.
-
 Team eessibasis gjør løpende brukertesting av nEESSI med saksbehandlere på EESSI-fagområdene, blant annet gjennom demoer, observasjon i produksjon og tilbakemeldinger fra superbrukere. Vi har imidlertid ikke gjennomført strukturert brukertesting med personer med nedsatt funksjonsevne eller med variert funksjonsnivå, bakgrunn og ferdighetsnivå.
 
 nEESSI er en intern løsning som kun brukes av saksbehandlere i Nav, og målgruppen er dermed begrenset. Det endrer likevel ikke at vi skal sikre at løsningen fungerer for alle kollegaer, inkludert kollegaer som bruker hjelpemidler.
