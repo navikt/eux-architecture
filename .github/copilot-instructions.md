@@ -46,6 +46,7 @@ Read README.md before making any changes — it is the single source of truth fo
 - `.github/skills/odin-jira/` — Skill that analyzes a TEN JIRA issue, implements fixes across EUX repos, creates PRs, and reports back to JIRA.
 - `.github/skills/odin-plan/` — Skill that analyzes a TEN JIRA issue and posts an implementation plan as a JIRA comment. Planning only — no code changes.
 - `.github/skills/jira-ten-qa/` — Skill that QA-reviews a TEN JIRA issue, scores it 1–10, and posts feedback as a comment if the score is 7 or lower.
+- `.github/skills/sedFlyt_NeessiRina/` — Skill that generates a file showing how SED-content is mapped between Neessi-dto, ACL-SED and RINA SED. Input: SED type (e.g. H001).
 - `install-agents.sh` — Creates symlinks from `~/.copilot/agents/` to the agent files above.
 
 ## EUX platform overview
