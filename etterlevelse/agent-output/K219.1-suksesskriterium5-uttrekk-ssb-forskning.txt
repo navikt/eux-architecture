@@ -1,0 +1,9 @@
+Uttrekk til SSB, forskningsinstitutter og andre eksterne for de ytelsene som koordineres via EESSI håndteres gjennom Nav sine etablerte rutiner for ekstern datadeling, basert på data fra fagsystemene og Nav sitt sentrale datavarehus. Pliktene etter statistikkloven og rutinene for utlevering til SSB ivaretas av eier av datavarehuset og av fagavdelingene – ikke av nEESSI direkte.
+
+For nEESSI sine egne metadata (SED- og BUC-volumer, behandlingstider, mottaker-/avsenderland) er det ikke etablert noen ekstern uttrekks- eller utleveringsflyt. SSB har ikke spesifisert et behov for EESSI-utvekslingsdata fra Nav som vi kjenner til, og det finnes ingen avtale om ekstern utlevering av disse metadataene i dag.
+
+Avgrensning:
+- Eksterne uttrekk av personopplysninger fra fagsystemene som inngår i EESSI-saker (f.eks. demografi for forskere) går via Nav sine etablerte rutiner for forskningsutlevering og statistikkloven, ikke gjennom nEESSI.
+- nEESSI utleverer ikke saksopplysninger til SSB eller forskningsinstitutter direkte. Ved et eventuelt behov må det utredes og hjemles, og avlevering må skje gjennom Nav sine fellesrutiner.
+
+Status: Ikke relevant i dag – det er ikke definert et behov for at EESSI-utvekslingsdata fra nEESSI skal leveres til SSB, forskningsinstitutter eller andre eksterne. Skulle et slikt behov dukke opp, må det utredes med Statistikkseksjonen, personvernombud og de aktuelle fagavdelingene.

@@ -1,0 +1,15 @@
+Tydelig markering i nEESSI når en sak omhandler en person med adressebeskyttelse:
+
+- Sakshodet (banneret som vises øverst i saksbildet) viser et eget gult varsel når personen i saken har fortrolig adresse, strengt fortrolig adresse eller strengt fortrolig adresse utland. Varselet inneholder en kort tekst som angir hvilken type adressebeskyttelse personen har, slik at saksbehandler umiddelbart ser at saken må behandles med ekstra varsomhet. Markeringen vises uavhengig av hvilken BUC saken tilhører.
+- Personskjemaene som brukes når saksbehandler oppretter en ny sak eller fyller ut en SED – inkludert skjemaet for hovedperson, lett personregister for ektefelle/barn/annen person, panel for kandidatperson og personskjemaet i PDU1-flyten – viser samme gule varsel når personen har adressebeskyttelse. Varselet vises både rett etter at personen er hentet fra PDL (umiddelbar tilbakemelding) og når en eksisterende sak åpnes på nytt med en allerede registrert person som har adressebeskyttelse.
+- For saker som RINA selv har klassifisert som sensitive vises i tillegg et eget «sensitiv sak»-varsel i banneret. De to varslene supplerer hverandre.
+- Markeringen er bygget på den autoritative klassifiseringen fra PDL (UGRADERT / FORTROLIG / STRENGT_FORTROLIG / STRENGT_FORTROLIG_UTLAND). Hvis flere graderinger finnes på personen, brukes den strengeste.
+
+Når oppslag avvises på grunn av manglende tilgang:
+- Tilgangskontrollen i RINA og i Nav sitt felles saks- og dokumentarkiv hindrer at saken kan åpnes uten riktig tilgangsattributt (se SK1). I dag returneres et generisk «ingen tilgang»-svar fra disse fellesløsningene; nEESSI har ikke en egen, fagspesifikk forklaring som forteller at saken er skjermet på grunn av adressebeskyttelse og hvor saksbehandler bør sende oppgaven videre. Saksbehandler må håndtere dette ut fra rutiner.
+
+Avgrensning: Selve klassifiseringen «fortrolig / strengt fortrolig adresse» er PDL sitt ansvar. nEESSI viser informasjonen, men definerer ikke selv hvem som har adressebeskyttelse.
+
+Åpent punkt: Tydeligere og mer saksbehandlervennlig feilmelding ved avvist tilgang er tatt inn som åpen antagelse i `etterlevelse/apne-sporsmal.md`.
+
+Status: Ja (delvis) – Saker og personer med adressebeskyttelse markeres tydelig med eget varsel i nEESSI, men feilmeldingen ved avvist tilgang er fortsatt generisk og kan gjøres mer informativ.

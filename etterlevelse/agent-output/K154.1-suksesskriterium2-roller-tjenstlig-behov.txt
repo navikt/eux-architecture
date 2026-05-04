@@ -1,0 +1,16 @@
+Tilgang til nEESSI er rollestyrt, og rollene er definert ut fra tjenstlig behov per fagområde.
+
+Hvem får tilgang:
+- Saksbehandler får tilgang til å behandle EESSI-saker innenfor det fagområdet vedkommende er autorisert for (for eksempel pensjon, uføre, sykepenger, foreldrepenger, familieytelser, arbeidsavklaringspenger). En saksbehandler i pensjon ser ikke familieytelsessaker som ikke er knyttet til vedkommendes oppgaver, og omvendt.
+- Veileder/Nav Kontaktsenter har som hovedregel ikke tilgang til nEESSI, fordi løsningen er et saksbehandlerverktøy for konkret EESSI-saksbehandling. Veiledning til innbygger om EØS-saker går gjennom fagsystemenes flater.
+- Ledere og enkelte utvidede roller har rettigheter som kreves for å følge opp og fordele saker innenfor egen enhet.
+- Systemforvalter (team eessibasis) har teknisk drifts- og forvaltningstilgang, men ikke saksbehandlerrettigheter til å endre saksinnhold i produksjon utover det som er nødvendig for feilretting etter etablerte rutiner.
+
+Tildeling og kontroll:
+- Tilgang gis gjennom Nav sine fellesrutiner for identitet og tilgangsstyring. Det gis ikke tilganger direkte i nEESSI utenom disse rutinene.
+- Tilgangen er knyttet til tjenstlig behov og fagområde, og fjernes ved rolleskifte eller når arbeidsforholdet opphører.
+- Tilgang til de underliggende arkiverte dokumentene styres i tillegg av tilgangsmodellen i Nav sitt felles saks- og dokumentarkiv.
+
+Dokumentasjon: Roller og tjenstlig behov for nEESSI er beskrevet i teamets forvaltningsdokumentasjon, og personopplysninger som behandles per rolle er reflektert i Behandlingskatalogen og i personvernkonsekvensvurderingen for EESSI på familieområdet.
+
+Status: Oppfylt – rollestyrt tilgang knyttet til fagområde og tjenstlig behov er etablert, og tildeling skjer via Nav sine fellesrutiner for identitet.

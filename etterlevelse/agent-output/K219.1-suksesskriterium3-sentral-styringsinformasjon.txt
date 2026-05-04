@@ -1,0 +1,7 @@
+Sentral styringsinformasjon for ytelsene som koordineres via EESSI lages av fagavdelingene basert på data fra fagsystemene gjennom Nav sitt sentrale datavarehus, og er tilgjengelig for relevante målgrupper i Nav gjennom de etablerte styringsinformasjonsløsningene. Det er fagsystemene, ikke nEESSI, som er kilde for utbetalings-, vedtaks- og volumstall i denne styringsinformasjonen.
+
+For nEESSI som plattform finnes det per i dag ikke en publisert sentral styringsinformasjon basert på EESSI-spesifikke metadata (antall SED-er per BUC, gjennomstrømmingstid, fordeling per land m.m.). Slik styringsinformasjon kan være relevant for fagavdelingene som følger opp EØS-saker, men er ikke avtalt eller etablert.
+
+Avgrensning: Vurdering av om EESSI-spesifikke volum- og gjennomstrømmingsmål skal inngå i sentral styringsinformasjon i Nav er en avklaring mellom Styringsinformasjon, Statistikkseksjonen og de berørte fagavdelingene. nEESSI vil avlevere data dersom et slikt behov defineres og prioriteres.
+
+Status: Ikke oppfylt for nEESSI-data spesifikt – det finnes ikke en EESSI-basert sentral styringsinformasjon i Nav i dag. For ytelsene som behandles via EESSI er styringsinformasjonen dekket gjennom fagsystemenes egne avleveringer.

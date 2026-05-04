@@ -1,0 +1,11 @@
+nEESSI er en intern saksbehandlerløsning. Innbyggere og fullmektiger logger ikke inn i nEESSI, og løsningen er derfor ikke en kanal hvor en innbygger eller en fullmektig kommuniserer direkte med Nav. Tilrettelegging for elektronisk kommunikasjon mellom part, fullmektig og Nav skjer i Nav sine ordinære innbyggerflater på nav.no, ikke i nEESSI.
+
+Når en part i en EESSI-sak er representert av en fullmektig, blir dette håndtert på samme måte som i øvrige Nav-saker:
+
+- Fullmaktsforholdet registreres i Nav sine fellesløsninger for fullmakt og partsforhold, og blir styrende for hvem Nav kommuniserer med ut mot innbygger.
+- Henvendelser fra fullmektig kommer inn via nav.no eller andre etablerte kanaler, der fullmektigen identifiserer seg i eget navn (ikke med partens identitetsbevis), og blir arkivert som journalpost i Nav sitt felles saks- og dokumentarkiv.
+- Saksbehandler ser dokumentasjonen i nEESSI på linje med øvrige journalposter i saken, og kan dermed se at parten er representert ved fullmektig.
+
+I selve EESSI-utvekslingen mellom Nav og andre lands trygdemyndigheter brukes strukturerte felter for å oppgi part og eventuell representant der fagområdet og SED-typen tilsier det. Disse feltene fylles ut av saksbehandler i tråd med fagområdets rutiner, slik at det fremgår av dokumentasjonen at parten er representert.
+
+Tilrettelegging av selve fullmektigfunksjonaliteten – at en fullmektig kan logge inn, se sak, motta vedtak og kommunisere elektronisk på vegne av parten – er ansvar for de innbyggerflatene og fellesløsningene som håndterer dette i Nav, ikke for nEESSI.

@@ -1,0 +1,5 @@
+Re-varsling til innbygger som ikke har lest en melding håndteres av Nav sine fellesløsninger for brev og varsling, ikke av nEESSI. Det er disse løsningene som vet om en melding er åpnet, og som sender ny påminnelse innenfor de fastsatte fristene.
+
+For meldinger som oppstår i forbindelse med en EESSI-sak, går varslingen og eventuell re-varsling via fagsystemet og brevtjenesten på samme måte som for andre Nav-saker. nEESSI har ingen funksjon for å overvåke om innbygger har lest en melding eller for å sende påminnelser, og bygger heller ikke parallelle løsninger for dette.
+
+Ansvaret for at re-varsling faktisk skjer ligger derfor hos teamene som forvalter Nav sine varslings- og brevtjenester.

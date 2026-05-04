@@ -1,0 +1,5 @@
+nEESSI sender ikke meldinger eller varsler til innbyggere og kommuniserer ikke direkte med parter. Løsningen er en intern saksbehandlerflate for elektronisk utveksling av strukturerte trygdedokumenter (SED) mellom Nav og trygdemyndigheter i andre EU/EØS-land.
+
+Når en EESSI-sak fører til en melding til innbygger som krever varsling – for eksempel en orientering eller veiledning som hører hjemme i innbyggerens digitale postkasse – produseres og sendes meldingen fra det aktuelle fagsystemet (pensjon, uføre, sykepenger, familieytelser m.fl.) gjennom Nav sine ordinære brevtjenester. Disse fellesløsningene henter varslingsadresse fra Kontakt- og reservasjonsregisteret eller Enhetsregisteret og håndterer adressering av varselet.
+
+Ansvaret for at varselet faktisk sendes til adressen i KRR eller Enhetsregisteret ligger derfor hos teamene som forvalter Nav sine brev- og varslingstjenester, ikke hos nEESSI.

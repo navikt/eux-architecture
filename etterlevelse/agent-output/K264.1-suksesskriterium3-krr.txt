@@ -1,0 +1,6 @@
+nEESSI sender ikke vedtak eller direkte varsler til innbyggere, og slår derfor ikke opp Kontakt- og reservasjonsregisteret (KRR) selv. Slike utsendelser skjer fra fagsystemene gjennom Nav sin felles dokumentdistribusjonsløsning, som henter kontaktinformasjon og reservasjonsstatus fra KRR og velger riktig kanal etter regelverket (digital postkasse, Altinn meldingsboks eller fysisk post).
+
+I de tilfellene saksbehandler i nEESSI selv skal sende et EESSI-dokument direkte til innbygger – typisk PDU1 (Portable Document U1, bekreftelse på arbeids- og trygdeperioder ved arbeidssøking i et annet EØS-land) – bestiller nEESSI distribusjon av journalposten gjennom Nav sin felles dokumentdistribusjonsløsning. Den løsningen ivaretar oppslag mot KRR og valg av kanal sentralt, slik at vi ikke etablerer en egen, parallell bruk av KRR i nEESSI.
+
+Avvik:
+- Ingen kjente avvik. Vi gjør ingen direkte oppslag mot KRR fra nEESSI, fordi behovet dekkes av fellesdistribusjonen.

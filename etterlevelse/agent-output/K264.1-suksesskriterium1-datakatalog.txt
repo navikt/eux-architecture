@@ -1,0 +1,9 @@
+nEESSI henter persondata fra Persondataløsningen (PDL), som er Nav sin felles autoritative kilde for personopplysninger og som igjen er bygget på Folkeregisteret. PDL brukes hver gang nEESSI trenger navn, adresse, fødselsnummer, statsborgerskap, sivilstand, familierelasjoner og lignende på en sak – for eksempel ved utfylling av strukturerte elektroniske dokumenter (SED), ved journalføring og ved generering av PDU1.
+
+For SED-er som krever inntekts- og arbeidsforholdsopplysninger (typisk U-SED-er ved arbeidssøking i annet EØS-land) henter nEESSI inntektsdata fra Inntektskomponenten, som er Nav sin felles tjeneste over a-ordningen. a-ordningen er den autoritative kilden for inntekts- og arbeidsforholdsopplysninger i Norge, forvaltet av Skatteetaten, Nav og SSB. nEESSI bruker disse dataene til å forhåndsutfylle inntektsfeltene i SED-en slik at saksbehandler ikke må taste inn opplysninger som allerede finnes hos en autoritativ kilde.
+
+Dokumenter og journalposter hentes fra og lagres i Nav sitt felles saks- og dokumentarkiv, som er den autoritative kilden for arkivert saksdokumentasjon i Nav.
+
+I tillegg utveksler nEESSI strukturerte trygdeopplysninger med trygdemyndigheter i andre EU/EØS-land via EESSI-nettverket, som er den autoritative kanalen for trygdeinformasjon på tvers av landegrenser. nEESSI lagrer ikke egne kopier av personopplysninger som finnes hos disse autoritative kildene, ut over det som er nødvendig for å journalføre og spore en konkret sak.
+
+Andre autoritative kilder, som Enhetsregisteret og matrikkelen, er ikke aktuelle å hente fra i nEESSI fordi disse datatypene ikke inngår i EESSI-utvekslingen vi støtter. Vi har vurdert at nEESSI har tilstrekkelig rettslig grunnlag til å bruke PDL, Inntektskomponenten og det felles arkivet i de aktuelle saksbehandlingsoppgavene.

@@ -1,0 +1,3 @@
+nEESSI produserer ikke varsler til innbyggere og bestemmer ikke teksten i slike varsler. Innholdet i et varsel – inkludert informasjon om hvilken kanal meldingen er sendt til og hvordan parten skal gå fram for å lese den – formes og sendes av Nav sine ordinære brev- og varslingstjenester på vegne av det aktuelle fagsystemet.
+
+For meldinger som oppstår som følge av en EESSI-sak, er det fagsystemet og brevtjenesten som har ansvar for at varselet er forståelig og viser hvor parten kan finne meldingen (for eksempel "logg inn på nav.no" eller "se din digitale postkasse"). nEESSI bidrar ikke i utforming eller utsendelse av disse varslene.

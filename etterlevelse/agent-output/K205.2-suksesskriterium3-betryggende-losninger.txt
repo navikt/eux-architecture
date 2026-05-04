@@ -1,0 +1,11 @@
+EUX-tjenestene kjører på **NAIS** (Nav sin Kubernetes-plattform på GCP), som leverer plattformnivå-sikkerhet: nettverksisolasjon, automatisk patching av runtime og baseimager, secrets via Google Secret Manager, sentralisert logging og overvåking, samt automatiske sikkerhetsoppdateringer av plattformkomponenter.
+
+Tjeneste-til-tjeneste-kommunikasjon mellom EUX-applikasjonene og mot andre Nav-tjenester (PDL, Dokarkiv, SAF, NAV Oppgave m.fl.) er beskyttet av OAuth2 / Azure AD med tokens utstedt av Nav sin felles identitetsløsning. Mot RINA CPI brukes shared-secret JWT (eux-rina-api) eller service-user/CAS-tickets (eux-rina-terminator-api). Ingen interne endepunkt eksponeres åpent på Internett.
+
+Saksbehandlerflaten (eux-web-app + eux-neessi BFF) eksponeres bak Nav sin felles ingress og krever Azure AD med MFA og godkjent enhet. PDU1 og andre dokumenter lagres i Joark (Dokarkiv/SAF), ikke i egne lager i EUX – plattformens egne PostgreSQL-databaser (i eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler, eux-rina-terminator-api, eux-rina-case-search, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-person-oppdatering) inneholder metadata og prosesstilstand, ikke vedtakstekster eller forhåndsvarsler.
+
+Avhengigheter holdes oppdatert via `eux-versions-maven-plugin` og automatiserte versjonsbump-PRer, og det kjøres regelmessig sårbarhetsscanning via NAIS sin felles infrastruktur. Risikovurdering, ROS og PVK gjennomføres som en del av Nav sin felles sikkerhetsstyring (jf. K245.1 og K267.1).
+
+eux-rina-api og eux-adresse-oppdatering deler den samme NAIS-baserte sikkerhetsmodellen som resten av plattformen og introduserer ingen avvik.
+
+Status: Oppfylt

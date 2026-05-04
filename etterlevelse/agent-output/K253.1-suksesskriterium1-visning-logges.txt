@@ -1,0 +1,14 @@
+Visning av personopplysninger i nEESSI skrives til oppslagsloggen (Arcsight). Loggingen er sentralisert i `AuditService` i eux-neessi (BFF), som er det laget som leverer persondata til saksbehandlerflaten i eux-web-app. Loggen sendes på CEF-format via TCP syslog til `audit.nais:6514`, med deviceVendor=`EESSI`, deviceProduct=`nEESSI` og deviceEvent=`audit:access`. Hver logglinje inneholder saksbehandlers Nav-ident (suid), fødselsnummer det er gjort oppslag på (duid), tidspunkt (end) og en meldingstekst som beskriver hva som ble vist.
+
+Logging utløses i de flytene der saksbehandler får tilgang til personopplysninger:
+
+- Oppslag på borger fra saksbehandlerflaten (`OPPSLAG_PÅ_BORGER`).
+- Oppslag på personer som er knyttet til hovedbruker via brukerrelasjon (`OPPSLAG_VIA_BRUKERRELASJON`).
+- Åpning av en internasjonal sak fra saksoversikten (`ÅPNET_SAK`).
+- Åpning av et SED-dokument (Structured Electronic Document) der person-identer fremkommer, inkludert H001/H002/H065, F-SED-er (familie) og U-SED-er (`OPPSLAG_SED`).
+- Henting av brukerens journalførte dokumenter (`HENTET_DOKUMENTER`).
+- Oppstart av ny PD U1 (`NY_PDU1`).
+
+eux-rina-api (middleware mot RINA CPI) og eux-adresse-oppdatering (Kafka-konsument som oppdaterer PDL maskinelt) skriver bevisst ikke til oppslagsloggen. eux-rina-api proxyer kall fra både saksbehandlerflyt og maskinelle flyter og er ikke punktet der visning skjer; eux-adresse-oppdatering har ingen saksbehandler i konteksten. Loggingen plasseres derfor i nEESSI, der saksbehandler-konteksten er kjent.
+
+Status: Oppfylt

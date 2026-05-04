@@ -1,0 +1,10 @@
+For hver SED og hvert vedlegg som utveksles gjennom nEESSI, dokumenteres følgende slik at innholdet kan knyttes til en bestemt identitet i ettertid:
+
+- Innhold: Selve dokumentet (SED eller vedlegg) bevares i Nav sitt felles saks- og dokumentarkiv i godkjent arkivformat. Journalposten låses for endring ved ferdigstilling.
+- Avsender og mottaker: Hvilken nasjonal trygdemyndighet som har sendt eller mottatt dokumentet (institusjonskode), hvilken Nav-enhet det er knyttet til, og hvilken saksbehandler som har opprettet eller ferdigstilt det.
+- Godkjenning: Saksbehandler ferdigstiller en SED i nEESSI før den kan sendes. Handlingen registreres med saksbehandlerens identitet og tidspunkt og fungerer som en logisk godkjenning av innholdet. Saksbehandler får bare ferdigstille og sende SED-er innenfor de sakstypene vedkommende har rolle for.
+- Meldingens unike identifikator: Hver SED og BUC har egne identifikatorer som tildeles av EESSI-plattformen og følger dokumentet i hele utvekslingen. Identifikatorene lagres på journalposten i arkivet og i nEESSI sine egne datalagre.
+- Tidspunkt: Når dokumentet ble sendt, mottatt og journalført, registreres som metadata på journalposten og i hendelsene fra EESSI.
+- Verifisering av signatur: For SED-er ligger meldingsintegritet og avsenderautentisering i selve EESSI-plattformen, og det produseres ikke egne verifiseringsmetadata i nEESSI. Dersom et vedlegg inneholder en elektronisk signatur, arkiveres vedlegget uendret slik at signaturen og tilhørende informasjon er bevart sammen med dokumentet.
+
+Sammen gir dette grunnlag for å dokumentere hvem som sendte eller utførte en elektronisk handling, hva innholdet var og når det skjedde.

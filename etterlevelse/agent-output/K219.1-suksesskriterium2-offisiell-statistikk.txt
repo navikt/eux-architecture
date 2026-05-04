@@ -1,0 +1,7 @@
+Offisiell statistikk på nav.no for ytelsene som behandles via EESSI (pensjon, uføre, sykepenger, foreldrepenger, barnetrygd, kontantstøtte, AAP m.fl.) publiseres av fagavdelingene basert på tall fra fagsystemene (Pesys, Infotrygd, Arena) og Nav sitt sentrale datavarehus. Det er fagsystemene som er kilde for vedtaks- og utbetalingstall i den offisielle statistikken, ikke nEESSI.
+
+nEESSI publiserer ikke egen offisiell statistikk på nav.no. EESSI-spesifikke volumtall (antall SED-er sendt/mottatt, antall saker per land og BUC) inngår i dag ikke i listen over offisiell statistikk fra Nav.
+
+Avgrensning: Hvorvidt EESSI-spesifikk volumstatistikk skal være en egen del av Nav sin offisielle statistikk er en avklaring mellom Statistikkseksjonen, Styringsinformasjon og fagavdelingene som forvalter EØS-koordineringen. nEESSI som plattform vil avlevere data dersom et slikt behov defineres og besluttes.
+
+Status: Ikke relevant for nEESSI som plattform i dag – offisiell statistikk om ytelsene leveres fra fagsystemene. Skulle det bli besluttet at EESSI-utvekslingsdata skal inngå som egen offisiell statistikk, vil suksesskriteriet flyttes til "Under arbeid" og en avlevering må etableres.

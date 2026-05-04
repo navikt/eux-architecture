@@ -1,0 +1,14 @@
+Avgrensning mot fagsystemene: Den materielle barnets beste-vurderingen i den enkelte sak (vilkår, vedtak, vekting mot andre hensyn) skjer i fagsystemene som behandler ytelser for barn (Pesys for pensjon med barnetillegg, Infotrygd for barnetrygd og kontantstøtte, Arena for familieytelser i arbeidsrettede ytelser, m.fl.). Disse fagavdelingene og deres styringsseksjoner eier også dokumentasjonen av barnets beste-vurderingene på regelverks- og saksnivå. nEESSI fatter ikke vedtak og gjør ikke selvstendige skjønnsmessige vurderinger av barnets beste.
+
+Hvordan nEESSI legger til rette for barnets beste-vurderinger:
+- Saksbehandler ser informasjonen om barn samlet i saksbildet (navn, fødselsdato, familierelasjoner, dokumenter mottatt fra andre EØS-land), slik at relevant kunnskap om barnets situasjon er tilgjengelig før vedtak fattes.
+- Strukturerte elektroniske dokumenter (SED) som omhandler barn følger felles europeiske datamodeller, slik at opplysninger fra andre EØS-land tolkes likt og ikke går tapt i overføringen mellom land.
+- Opplysninger om barn registreres på samme måte og med samme strenghet som øvrige personopplysninger, og er omfattet av løsningens tilgangsstyring og logging. nEESSI har ingen egne, manuelle skjemaer der saksbehandler skriver inn fritekst om barn utenom det som inngår i SED-ene.
+- Foreldre/foresatte representerer barnet i sak via fagsystemenes ordinære fullmaktsløsninger og innbyggertjenester. nEESSI er en intern saksbehandlerløsning og har ikke et eget innbyggergrensesnitt.
+
+Dokumentasjon:
+- Personvernkonsekvensvurdering for EESSI på familieområdet identifiserer barn som en gruppe med særlig beskyttelsesbehov og beskriver behandling av deres personopplysninger.
+- Konkrete barnets beste-vurderinger i enkeltsaker dokumenteres i fagsystemenes vedtaks- og saksdokumentasjon, ikke i nEESSI.
+- En egen, dokumentert systemnivå-vurdering av barnets beste for nEESSI som verktøy, basert på Nav sin veileder om barnets beste, er ikke gjennomført. Dette bør gjøres sammen med Juridisk avdeling og styringsseksjonene i de berørte fagavdelingene (familieytelser, pensjon, arbeid og ytelse).
+
+Status: Under arbeid – berøring er kartlagt og avgrensning mot fagsystemene er klar, men en formell, dokumentert barnets beste-vurdering for nEESSI på systemnivå gjenstår.

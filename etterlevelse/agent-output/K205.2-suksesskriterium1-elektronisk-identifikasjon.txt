@@ -1,0 +1,9 @@
+EUX/eessibasis fatter ikke enkeltvedtak og lagrer ikke vedtaksbrev til innbygger – dette håndteres av fagsystemene. Innbyggere har ingen direkte brukerflate inn mot EUX og identifiseres derfor ikke i denne plattformen. Når innbyggere skal få tilgang til vedtak og forhåndsvarsel som hører hjemme i en EESSI-sak, skjer det via Nav sine ordinære innbyggerflater (Ditt NAV på nav.no, digital postkasse via Digipost / eBoks), der **ID-porten** ivaretar entydig elektronisk identifikasjon i tråd med kravet.
+
+For den ene innbyggerrettede utsendelsen i stacken – **PDU1** – distribueres journalposten via Dokdistfordeling. Innbygger må logge seg inn med ID-porten i Digipost / eBoks for å hente dokumentet, eller motta det fysisk på papir. Identifikasjon ved henting håndteres av postkasseleverandørene som fellesløsning.
+
+Saksbehandlere identifiseres entydig via Nav sin felles identitetsløsning (Entra ID / Azure AD) med fler-faktorautentisering og krav til godkjent enhet. Hver saksbehandlers identitet følger med i alle kall mellom eux-web-app, eux-neessi, eux-rina-api og nedstrøms Nav-tjenester, slik at handlinger kan knyttes til en bestemt person i ettertid.
+
+eux-rina-api og eux-adresse-oppdatering eksponerer ingen innbyggerflate; eux-rina-api krever Azure AD-tokens i alle kall fra Nav-tjenester, og eux-adresse-oppdatering er en Kafka-konsument uten direkte brukerflate.
+
+Status: Oppfylt

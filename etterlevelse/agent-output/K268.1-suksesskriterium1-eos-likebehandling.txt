@@ -1,0 +1,17 @@
+nEESSI er Nav sin løsning for å utveksle trygdeinformasjon elektronisk med trygdemyndigheter i andre EU/EØS-land. Hele formålet med løsningen er nettopp å støtte opp under EØS-avtalens regler om koordinering av trygderettigheter og fri bevegelighet, slik at en person ikke taper rettigheter eller opparbeider urettmessige rettigheter når hen bor, jobber eller flytter mellom EØS-land.
+
+Slik er likebehandling og EØS-tilpasning ivaretatt i nEESSI:
+- nEESSI tar i mot og sender Strukturerte elektroniske dokumenter (SED) til og fra alle EU/EØS-land som er tilknyttet EESSI-nettverket. Saksbehandler bruker samme funksjonalitet for å håndtere informasjon om en EØS-borger uavhengig av hvilket land personen kommer fra eller har opptjent rettigheter i.
+- SED-ene følger felles europeiske datamodeller, kodelister og prosessflyter (BUC) som er fastsatt av EU-kommisjonen. Det sikrer at informasjon om en EØS-borger kan utveksles, tolkes og brukes på samme måte i alle medlemsland.
+- nEESSI inneholder ingen logikk som skiller mellom norske og utenlandske borgere, eller mellom personer som har og ikke har benyttet seg av retten til fri bevegelighet. Identifikatorer fra andre EØS-land håndteres på linje med norske fødselsnumre, og oppdateres mot Persondataløsningen via egen synktjeneste.
+- Fagspesifikke EØS-regler (trygdeforordningen 883/2004 og gjennomføringsforordningen 987/2009, unionsborgerdirektivet, arbeidstakerforordningen mv.) er forankret i fagavdelingenes regelverk og styringsdokumenter. Forordningenes krav til samhandling mellom land oppfylles teknisk gjennom EESSI/RINA, som er EU-kommisjonens felleskomponent.
+
+Avgrensning mot fagsystemene:
+- nEESSI fatter ikke vedtak og gjør ikke materielle vurderinger av om en EØS-borger har rett til en ytelse. Vurdering av vilkår, regelkjøring og likebehandling i selve ytelsesbehandlingen skjer i fagsystemene (Pesys, Arena, Infotrygd m.fl.). EØS-faglige avklaringer og tolkning av forordningene gjøres av styringsseksjonen i den enkelte fagavdeling.
+- nEESSI sin rolle er å sørge for at den tekniske og prosessuelle utvekslingen med andre EØS-land fungerer, slik at fagsystemene har grunnlaget de trenger for å treffe riktig vedtak.
+
+Dokumentasjon og kontroll:
+- Arkitektur, dataflyt og integrasjoner mot EESSI er beskrevet i `eux-architecture` (README.md) og i teamets PVKV for EESSI på familieområdet. PVKV-en dokumenterer behandlingsgrunnlag, dataflyt og roller knyttet til grenseoverskridende utveksling av personopplysninger.
+- Teamet har ikke gjort en egen, formell punktvis gjennomgang og dokumentert vurdering av nEESSI mot EØS-regelverket utover dette. En slik gjennomgang bør gjøres sammen med fagavdelingenes styringsseksjoner og personvernombud, og legges til som ledd i den løpende forvaltningen.
+
+Status: Ja (delvis) – nEESSI er bygget for å støtte EØS-koordinering og inneholder ingen logikk som forskjellsbehandler EØS-borgere, men teamet har ikke en eksplisitt, dokumentert kontroll mot EØS-regelverket per produkt/tjeneste.

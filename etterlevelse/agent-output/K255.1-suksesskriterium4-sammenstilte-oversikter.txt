@@ -1,0 +1,19 @@
+nEESSI har flere flater som viser informasjon på tvers av saker for én eller flere saksbehandlere:
+
+- Saks-/oppgavelister i eux-web-app (sakene en bruker eller enhet eier eller er involvert i)
+- Søk/oppslag mot RINA via eux-rina-api og eux-rina-case-search
+- Statuslister og oppfølgingslister (for eksempel saker uten utgående SED, åpne anmodninger osv.)
+
+Hvordan adressebeskyttelse håndteres i slike oversikter:
+- Adgangen til den enkelte sak er styrt av tilgangsattributtene 0000-GA-Fortrolig_Adresse og 0000-GA-Strengt_Fortrolig_Adresse (se SK1). En saksbehandler uten riktig attributt skal ikke få skjermede saker i listen.
+- Filtreringen håndheves i RINA og i underliggende fellesløsninger. nEESSI bygger ikke en egen indeks som omgår denne tilgangskontrollen; eux-rina-case-search bygger på de samme tilgangsstyrte hendelsene fra RINA og skal følge samme regime.
+
+Risikoområder:
+- Aggregerte oversikter (telling, statistikk) som vises i UI uten å måtte åpne hver sak. Slike oversikter må enten kun inneholde saker brukeren har tilgang til, eller eksplisitt utelate skjermede saker. Det er ikke i dag gjort en uttømmende, dokumentert vurdering fra teamets side av samtlige listevisninger i eux-web-app for å bekrefte at ingen aggregerte tall eller oppsummeringer kan lekke geolokaliserende eller person-identifiserende opplysninger om brukere med adressebeskyttelse.
+- Logger og driftsdashbord (Kibana, Grafana, Sentry-meldinger) som driftspersonell ser. nEESSI logger som hovedregel ikke fødselsnummer eller adresse, men feilsøking kan kreve det. Skjerming i logg er fulgt opp under K128.1 og K267.1.
+
+Avgrensning: Visning av eksterne sammenstilte oversikter (for eksempel tiltakslister, deltakerlister) er ikke en del av nEESSI – disse hører til andre fagsystemer.
+
+Åpent punkt: Det er ikke gjort en eksplisitt gjennomgang og dokumentasjon per listevisning i eux-web-app som bekrefter at brukere med adressebeskyttelse er korrekt skjermet i alle aggregerte og sammenstilte visninger. Tatt inn som åpen antagelse i `etterlevelse/apne-sporsmal.md`.
+
+Status: Ja (delvis) – Tilgangsfiltrering på saksnivå arves fra RINA/fellesløsningene, men teamet har ikke gjennomført en dokumentert gjennomgang av alle sammenstilte visninger i nEESSI.

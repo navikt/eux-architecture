@@ -1,0 +1,5 @@
+nEESSI er avklart med Team Auditlogging Arcsight og inkludert i innsynsrapportene til innbyggere og ledere. Løsningen er navngitt med deviceVendor=`EESSI` og deviceProduct=`nEESSI` i CEF-meldingene, og meldingstekstene (f.eks. "Saksbehandler åpnet internasjonal sak knyttet til borger", "Saksbehandler gjorde oppslag på borger", "Saksbehandler hentet informasjon om borger fra SED") brukes som forklaring til innbygger på det enkelte oppslaget.
+
+Avklaringen er gjort med teamet, og det kreves ingen ytterligere oppfølging på dette punktet.
+
+Status: Oppfylt

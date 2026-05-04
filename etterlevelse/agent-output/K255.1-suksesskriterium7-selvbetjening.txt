@@ -1,0 +1,16 @@
+nEESSI er saksbehandlerverktøyet for EØS-utveksling i Nav og har ingen innbyggerflate på nav.no. Det vil si at det ikke finnes:
+
+- Selvbetjeningssider eller skjemaer rettet mot innbygger i nEESSI
+- Innsynsfunksjonalitet for innbygger direkte mot nEESSI
+- Digital fullmakt opprettet i nEESSI
+- Visning av personopplysninger til en fullmektig, verge eller foresatt via nEESSI
+
+Innbyggers innsyn i opplysninger om seg selv på EØS-området går gjennom Nav sine ordinære innbygger- og selvbetjeningsflater (Min side / nav.no / Modia for Nav-ansatte som svarer innbygger), ikke gjennom nEESSI. Tilsvarende styres digital fullmakt sentralt i Nav, ikke i nEESSI.
+
+Konsekvens:
+- Risikoen for visning av en brukers geolokaliserende opplysninger til en fullmektig eller en annen part via en selvbetjeningsløsning i nEESSI er ikke til stede. Adressebeskyttelse hindrer derfor ikke en bruker i å bruke nEESSI selv, fordi nEESSI uansett ikke brukes av innbygger.
+- Krav som hindrer at brukere med adressebeskyttelse kan opprette digital fullmakt på nav.no eller får sine geolokaliserende opplysninger delt med fullmektig/verge gjennom selvbetjeningsløsninger, må innfris av de selvbetjeningsløsningene det gjelder, ikke av nEESSI.
+
+Avgrensning: Selvbetjening for innbygger på EØS-området ligger utenfor team eessibasis sitt ansvar. Eventuelle nye innbyggerflater fra teamet (om det skulle bli aktuelt) må vurderes på nytt opp mot dette suksesskriteriet.
+
+Status: Ikke relevant – nEESSI har ingen innbyggerflate eller selvbetjeningsløsning, og kriteriet får derfor ikke teknisk anvendelse i nEESSI i dag.

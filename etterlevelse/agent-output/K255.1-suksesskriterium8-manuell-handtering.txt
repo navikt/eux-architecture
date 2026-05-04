@@ -1,0 +1,19 @@
+nEESSI er bygget rundt automatisering av rutinearbeid i SED-utvekslingen, og dette er også fordelaktig for brukere med adressebeskyttelse fordi det reduserer manuell håndtering og «øyne på saken»:
+
+- Automatisk journalføring av SED-er via eux-journalfoering: Innkommende SED-er journalføres automatisk i Nav sitt felles saks- og dokumentarkiv uten manuell saksbehandling. Skjerming av journalposter for brukere med adressebeskyttelse håndteres av arkivets egne skjermingsmekanismer (se K128.1).
+- Automatisk opprettelse av rinasaker via eux-nav-rinasak og automatisk fordeling/avslutning via tilhørende bakgrunnsjobber.
+- Automatisk oppdatering av utenlandsk adresse via eux-adresse-oppdatering og av utenlandske identer via eux-person-oppdatering, som leverer endringsmeldinger til PDL via PDL-Mottak. PDL er autoritativ kilde og håndhever selv at oppdateringer for adressebeskyttede personer behandles riktig.
+- Automatiske saksflyter for terminering, sletting av usendte rinasaker, avslutning av rinasaker og fornyelse av barnetrygd.
+
+Dette betyr at de fleste rutinemessige operasjoner på saker som omhandler brukere med adressebeskyttelse skjer maskinelt, uten at en saksbehandler trenger å åpne saken.
+
+Manuell håndtering forekommer fortsatt i:
+- Saksbehandlernes utfylling av utgående SED-er i nEESSI for komplekse saker.
+- Manuell oppfølging av saker med feil eller uventede mønstre.
+- Vedtaksfasen i fagsystemene, som ligger utenfor nEESSI.
+
+Avgrensning: Automatisering av selve vedtaksbehandlingen er fagsystemenes ansvar (Pesys, Infotrygd, Arena, Familiesystemet). nEESSI sitt bidrag er å fjerne unødvendig manuell håndtering rundt SED-utveksling og journalføring.
+
+Åpent punkt: Det er ikke gjort en eksplisitt vurdering fra teamet av om enkelte automatiseringsregler bør slå annerledes ut for brukere med adressebeskyttelse (for eksempel ekstra varsling, eller å unngå sammenslåing/fordeling som kan eksponere informasjon). Tatt inn som åpen antagelse i `etterlevelse/apne-sporsmal.md`.
+
+Status: Ja (delvis) – nEESSI har lagt vekt på automatisering av rutineoperasjoner som reduserer manuell håndtering, men det er ikke gjort en eksplisitt vurdering av om automatiseringsreglene bør differensieres ytterligere for brukere med adressebeskyttelse.

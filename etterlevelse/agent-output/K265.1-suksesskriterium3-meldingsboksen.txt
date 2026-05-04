@@ -1,0 +1,12 @@
+nEESSI sender ikke digital post til næringsdrivende. Vurderingen av Meldingsboksen i Altinn (DPV) er derfor gjort på funksjonelt nivå:
+
+Vurdering av Meldingsboksen:
+- Meldingsboksen i Altinn er fellesløsningen for digital post fra forvaltningen til næringsdrivende og virksomheter med organisasjonsnummer.
+- nEESSI er en saksbehandlerløsning og produserer ingen utgående brev eller meldinger til næringsdrivende. Brevproduksjon og forsendelse i Nav skjer i fagsystemene og gjennom Nav sin felles dokumentdistribusjonsløsning.
+- I EESSI-flyten utveksles strukturerte elektroniske dokumenter (SED) mellom trygdemyndigheter i forskjellige EU/EØS-land via EESSI-nettverket. Dette er ikke "digital post fra forvaltningen til næringsdrivende", men kommunikasjon mellom offentlige myndigheter på tvers av landegrenser, og er regulert av EU.
+
+Avvik:
+- nEESSI bruker ikke Meldingsboksen i Altinn fordi løsningen ikke sender post til næringsdrivende.
+
+Begrunnelse for avvik:
+- Hvis Nav skal sende digital post til næringsdrivende som ledd i en sak som også går i EESSI, skjer det gjennom det aktuelle fagsystemet og Nav sin felles dokumentdistribusjonsløsning, som dekker bruken av Meldingsboksen. Avgrensningen for nEESSI er funksjonell og godt begrunnet.

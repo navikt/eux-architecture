@@ -1,0 +1,13 @@
+nEESSI er i sin kjerne en grenseoverskridende tjeneste. Hele formålet med løsningen er å gjøre det mulig for Nav å utveksle trygdeinformasjon elektronisk med andre EU/EØS-land som ledd i koordineringen av trygderettigheter for personer som beveger seg over landegrenser.
+
+Tilpasning til grenseoverskridende informasjonsutveksling:
+- Saksbehandlere i Nav sender og mottar Strukturerte elektroniske dokumenter (SED) til og fra trygdemyndigheter i andre EU/EØS-land gjennom EESSI-nettverket. Sakene er organisert i felles europeiske bruksmønstre (BUC), slik at landene snakker "samme språk" i saksbehandlingen.
+- Innholdet i SED-ene følger felles europeiske datamodeller fastsatt av EU-kommisjonen, og kodelister, identifikatorer og prosessflyter er standardisert for alle medlemsland. Dette gjør at Nav og de andre landenes løsninger kan tolke og bruke informasjonen som utveksles.
+- Selve den grenseoverskridende transporten håndteres av EESSI-nettverket og EU-kommisjonens felleskomponent RINA. Rammene for sikkerhet, integritet og adressering mellom land er felles for alle medlemsland.
+
+Beskrivelse og gjenbruk:
+- nEESSI er bygget rundt EESSI som er en felles europeisk løsning, og Nav følger EU-kommisjonens spesifikasjoner for SED-er, BUC-er og prosessflyter. Disse spesifikasjonene er åpent beskrevet for medlemsland og tilknyttede organer, slik at både Nav og andre land kan finne, forstå og bruke dem.
+- Internt i Nav er nEESSI dokumentert i felles arkitektur- og forvaltningsdokumentasjon, og kildekoden er åpen, slik at andre fagmiljøer kan finne og forstå tjenesten.
+
+Avgrensning:
+- Tilpasning til grenseoverskridende utveksling utenfor EESSI-rammeverket (for eksempel mot tjenester i Single Digital Gateway / Once Only Technical System) er ikke en del av nEESSI i dag. Slike tilpasninger eies av andre team i Nav.

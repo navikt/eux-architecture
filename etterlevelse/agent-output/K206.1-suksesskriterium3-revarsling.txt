@@ -1,0 +1,7 @@
+Re-varsling av innbygger som ikke har skaffet seg tilgang til et forhåndsvarsel innen én uke håndteres av Nav sine fellesløsninger for brev og varsling, ikke av EUX/eessibasis. Det er disse løsningene som vet om en melding er åpnet og som sender ny påminnelse innenfor de fastsatte fristene.
+
+**PDU1-vurdering**: PDU1 er ikke et forhåndsvarsel etter fvl § 16, og kravet om re-varsling kommer derfor ikke til anvendelse for PDU1. Etter at PDU1 er distribuert via Dokdistfordeling til innbyggers digitale postkasse eller fysisk print, har verken eux-neessi eller andre tjenester i stacken funksjon for å overvåke om innbygger har lest dokumentet. Dette er heller ikke nødvendig, ettersom PDU1 er innbyggers egen attestasjon og ikke utløser frist for partens innspill slik fvl § 16 krever.
+
+For meldinger som oppstår i forbindelse med en EESSI-sak og som faktisk er forhåndsvarsel etter fvl § 16, går varslingen og eventuell re-varsling via fagsystemet og brevtjenesten på samme måte som for andre Nav-saker. Verken eux-web-app, eux-neessi, eux-rina-api eller eux-adresse-oppdatering har funksjon for re-varsling, og bygger heller ikke parallelle løsninger for dette. Ansvaret ligger hos teamene som forvalter Nav sine varslings- og brevtjenester.
+
+Status: Ikke relevant

@@ -1,0 +1,7 @@
+EUX/eessibasis har ingen egne elektroniske kommunikasjonskanaler ut til innbygger – verken e-post, SMS, push-varsler eller direkte meldinger på nav.no produseres fra plattformen. All saksbehandlerflate (eux-web-app, eux-neessi) er intern og berører kun Nav-ansatte.
+
+For den ene innbyggerrettede utsendelsen i stacken – **PDU1** – benyttes Nav sin felles distribusjonsløsning (Dokdistfordeling) via `DistribuerJournalpostService` i eux-neessi. Dokdistfordeling håndterer kanalvalg basert på KRR/Enhetsregisteret, slik at digital eller fysisk utsendelse styres av brukers valg i KRR. eessibasis bygger ikke parallelle distribusjonskanaler.
+
+Bakgrunns- og integrasjonstjenester i plattformen (eux-rina-api, eux-adresse-oppdatering, eux-person-oppdatering, eux-all-rina-events, eux-legacy-rina-events, eux-journalfoering, eux-journalarkivar, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-barnetrygd m.fl.) kommuniserer enten mot RINA CPI, andre Nav-systemer eller Kafka, og har ingen kommunikasjonsflater mot innbygger som KRR ville vært relevant for.
+
+Status: Oppfylt

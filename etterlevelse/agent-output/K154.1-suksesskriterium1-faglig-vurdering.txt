@@ -1,0 +1,14 @@
+Faglig vurdering av taushetspliktsregler:
+- Den materielle vurderingen av hvilke taushetspliktsregler som gjelder for opplysningene som behandles i nEESSI, er gjort av Juridisk avdeling og fagavdelingenes styringsseksjoner. Sentrale regelsett er forvaltningslovens regler om taushetsplikt, NAV-lovens taushetsplikt om noens personlige forhold, og særreglene i folketrygdloven, barnetrygdloven og kontantstøtteloven for de aktuelle ytelsene.
+- For grenseoverskridende utveksling med andre EU/EØS-land er adgangen til å dele opplysninger forankret i trygdeforordningen 883/2004 og gjennomføringsforordningen 987/2009, som pålegger trygdemyndigheter i medlemslandene å utveksle nødvendig informasjon for å koordinere trygderettigheter.
+
+Hvem taushetsplikten gjelder for og overfor hvem:
+- Alle som har tilgang til nEESSI – saksbehandlere, ledere, systemforvaltere, konsulenter – er ansatt eller engasjert i Nav og er omfattet av lovbestemt taushetsplikt og signert taushetserklæring.
+- Taushetsplikten gjelder også overfor kollegaer uten tjenstlig behov. nEESSI er kun tilgjengelig for ansatte med fagrolle som krever tilgang til EESSI-saksbehandling, og tilganger gis gjennom Nav sine fellesrutiner for identitet og tilgangsstyring.
+
+Opplysninger som er underlagt taushetsplikt:
+- Strukturerte elektroniske dokumenter (SED), saksopplysninger, personopplysninger fra Persondataløsningen og dokumenter fra Nav sitt saks- og dokumentarkiv som behandles i nEESSI, anses som taushetsbelagte personopplysninger om personlige forhold.
+
+Avgrensning: nEESSI fatter ikke vedtak og gjør ikke selvstendig juridisk vurdering av taushetsplikten i den enkelte sak. Konkrete utleveringsvurderinger gjøres av fagsystem og saksbehandler etter de rutinene fagavdelingene har etablert. Den overordnede vurderingen som ligger til grunn for nEESSI som løsning er reflektert i teamets personvernkonsekvensvurdering for EESSI på familieområdet.
+
+Status: Ja (delvis) – det er gjort en overordnet juridisk forankring og PVKV, men en eksplisitt, samlet og oppdatert taushetsplikt-vurdering på tvers av alle ytelsesområder nEESSI dekker, er ikke dokumentert som ett felles dokument.

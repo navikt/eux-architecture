@@ -1,0 +1,9 @@
+nEESSI er en intern saksbehandlerløsning som ikke er tilgjengelig for innbyggere eller eksterne brukere. All pålogging skjer mot Nav sin felles identitetsløsning (Entra ID), slik at hver saksbehandler identifiseres entydig med sin Nav-ansattidentitet før vedkommende får tilgang til sakene. Kravene til pålogging arves fra Nav sin felles identitetsløsning og inkluderer fler-faktorautentisering og krav til godkjent enhet, på samme måte som for andre interne Nav-løsninger.
+
+Tilgangen i nEESSI er rollebasert. En saksbehandler får ikke automatisk tilgang til alle EESSI-saker, men til de sakstypene (BUC-er) som vedkommende har fått tildelt en rolle for – for eksempel pensjon, uføretrygd, sykepenger, familieytelser eller arbeidsledighet. Rollene tildeles og forvaltes utenfor nEESSI gjennom Nav sin sentrale tilgangsstyring, og nEESSI håndhever begrensningen ved hver innlogging. Enkelte grupper har bredere tilgang enn vanlige saksbehandlere – typisk teamet som forvalter løsningen og brukerstøtte – og dette er styrt av egne grupper i tilgangsstyringen.
+
+For saker som krever skjerming (for eksempel kode 6 / strengt fortrolig adresse) finnes egen rolle som må være tildelt før innholdet kan vises. Saksbehandlere uten denne rollen får ikke se de skjermede sakene.
+
+Identiteten følger med videre i alle kall mot nEESSI sine baktjenester og mot integrerte Nav-tjenester (persondataløsningen, dokumentarkivet, oppgavesystemet), slik at hver handling kan knyttes til en bestemt saksbehandler i ettertid.
+
+Innbyggere som henvender seg til Nav i en EESSI-sak gjør det gjennom Nav sine ordinære innbyggerflater, hvor ID-porten håndterer autentiseringen. Selve EESSI-utvekslingen mellom Nav og andre lands trygdemyndigheter er ikke en innbyggerkanal og krever derfor ikke eID for sluttbrukeren.

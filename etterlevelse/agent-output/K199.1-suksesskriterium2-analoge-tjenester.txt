@@ -1,0 +1,9 @@
+EUX/eessibasis tilbyr ingen direkte kommunikasjonsflate mot innbygger – verken digital eller analog. Innbyggers behov for personlig veiledning og analog samhandling med Nav ivaretas av Nav sine fellestjenester: Nav Kontaktsenter, Nav-kontor, ordinær postgang og brevtjenester. Disse er felleskanaler som dekker alle Nav sine saksområder, inkludert internasjonale saker som behandles via EUX.
+
+For den ene innbyggerrettede utsendelsen i stacken – **PDU1** – sendes journalposten til **Dokdistfordeling** (`DistribuerJournalpostService` i eux-neessi). Dokdistfordeling støtter både digital utsendelse (Digipost / eBoks) og fysisk print/postgang, og velger kanal basert på innbyggers reservasjonsstatus i KRR. Det betyr at en innbygger som ikke har digital postkasse eller har reservert seg, automatisk får PDU1 på papir gjennom sentral print – uten at saksbehandler trenger å gjøre noe særskilt.
+
+Innkommende henvendelser fra innbygger (papirsøknader, fysiske brev) registreres på fagsaken i fagsystemet og journalføres på vanlig måte. EUX bygger ikke parallelle løsninger for analog kommunikasjon.
+
+eux-rina-api og eux-adresse-oppdatering kommuniserer ikke med innbygger og er ikke berørt av kriteriet.
+
+Status: Oppfylt

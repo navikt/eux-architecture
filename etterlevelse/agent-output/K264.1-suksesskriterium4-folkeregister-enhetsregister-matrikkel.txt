@@ -1,0 +1,12 @@
+Folkeregisteret:
+- Persondata som brukes i nEESSI hentes fra Persondataløsningen (PDL), Nav sin felles tjeneste over Folkeregisteret. Det gjelder navn, adresse, fødselsnummer/D-nummer, statsborgerskap, sivilstand og familierelasjoner som vi trenger for å fylle ut og journalføre strukturerte elektroniske dokumenter (SED) i EESSI-saker.
+- I tillegg bidrar nEESSI til å holde Folkeregisteret oppdatert: Når en innkommende SED inneholder en utenlandsk identifikator eller adresseendring for en person, sender nEESSI dette videre til PDL slik at Folkeregisteret kan oppdateres.
+
+Enhetsregisteret:
+- nEESSI har ingen direkte oppslag mot Enhetsregisteret, fordi løsningen ikke håndterer virksomhetsdata for næringsdrivende. Hvis informasjon om en arbeidsgiver eller virksomhet trengs i en EESSI-sak, hentes det fra fagsystemene som forvalter arbeidsgiver- og inntektsdata, og som bruker Enhetsregisteret som autoritativ kilde.
+
+Matrikkelen:
+- nEESSI har ikke behov for matrikkeldata. Eiendoms- og adressedata utover personadresse fra Folkeregisteret er ikke en del av EESSI-utvekslingen.
+
+Avvik:
+- Ingen kjente avvik. Vi bruker Folkeregisteret indirekte gjennom PDL, og bruker hverken Enhetsregisteret eller matrikkelen direkte fordi det ikke er datatyper som inngår i nEESSI sin saksbehandling.

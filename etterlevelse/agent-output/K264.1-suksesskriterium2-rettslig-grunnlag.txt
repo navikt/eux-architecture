@@ -1,0 +1,8 @@
+nEESSI bruker autoritative kilder vi har rettslig grunnlag for å bruke i saksbehandling av EU/EØS-trygdesaker:
+
+- Persondataløsningen (PDL) som autoritativ kilde for personopplysninger.
+- Inntektskomponenten / a-ordningen som autoritativ kilde for inntekts- og arbeidsforholdsopplysninger ved utfylling av U-SED-er (arbeidssøking i annet EØS-land).
+- Nav sitt felles saks- og dokumentarkiv som autoritativ kilde for journalført saksdokumentasjon.
+- EESSI-nettverket og RINA som autoritativ kanal for utveksling av trygdeinformasjon mellom Nav og trygdemyndigheter i andre EU/EØS-land. Det rettslige grunnlaget for utvekslingen følger av EU-forordningene 883/2004 og 987/2009 om koordinering av trygdeordninger.
+
+Vi har ikke identifisert autoritative kilder som vi mener det er riktig å bruke, men hvor vi mangler rettslig grunnlag i dag. Hvis et slikt behov skulle oppstå – for eksempel ved nye fagområder som tas inn i nEESSI – vil teamet sammen med personvernombudet og fagansvarlige avklare grunnlaget før kilden tas i bruk.

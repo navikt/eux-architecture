@@ -1,0 +1,7 @@
+EUX/eessibasis fastsetter ikke selv hvilken kommunikasjonsform som skal brukes mot innbygger – plattformen er en intern saksbehandlerflate for elektronisk utveksling av strukturerte trygdedokumenter (SED) mellom Nav og trygdemyndigheter i andre EU/EØS-land. Vurderingen av om en bestemt kommunikasjonsform er lovregulert (slik at innbyggers valgfrihet etter eForvaltningsforskriften ikke kommer til anvendelse) gjøres i fagsystemene som fatter vedtak og produserer brev til innbygger.
+
+Den ene innbyggerrettede utsendelsen som produseres i stacken er **PDU1** (Portable Document U1, dokument om dagpengeperioder). PDU1 er regulert av forordning (EF) 883/2004 og 987/2009 som et EU-formalisert papirdokument innbygger kan medbringe til andre EØS-land. Saksbehandler vurderer i hvert tilfelle om det er aktuelt å utstede PDU1, og distribusjonen følger Nav sine felles regler (KRR/Enhetsregisteret) gjennom Dokdistfordeling.
+
+eux-rina-api (middleware mot RINA CPI) og eux-adresse-oppdatering (Kafka-konsument mot PDL) kommuniserer ikke med innbygger og er ikke berørt av kriteriet.
+
+Status: Oppfylt

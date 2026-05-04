@@ -1,0 +1,7 @@
+EUX/eessibasis fatter ikke enkeltvedtak og er ikke det informasjonssystemet som tilgjengeliggjør vedtak for innbygger. Registrering av når innbygger har skaffet seg tilgang til et enkeltvedtak (lesetidspunkt, autentisering av entydig personidentifikator) håndteres av det informasjonssystemet vedtaket faktisk gjøres tilgjengelig i – typisk innbyggers digitale postkasse (Digipost / eBoks) eller "Ditt NAV" på nav.no – ikke i EUX-stacken.
+
+For **PDU1**, som er den eneste innbyggerrettede utsendelsen fra eessibasis, distribueres dokumentet via Dokdistfordeling til innbyggers digitale postkasse eller fysisk print. Lesetidspunkt og autentisering ved henting av dokumentet i digital postkasse håndteres av Digipost/eBoks som fellesløsninger – Nav stoler på disse leverandørenes registreringer. eux-neessi har ingen egen funksjon for å spore lesetidspunkt og bygger heller ikke parallelle løsninger for dette.
+
+eux-rina-api og eux-adresse-oppdatering tilgjengeliggjør ikke vedtak for innbygger og er ikke berørt av kriteriet.
+
+Status: Ikke relevant

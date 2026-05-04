@@ -1,0 +1,25 @@
+SED-er kan inneholde flere geolokaliserende opplysninger enn bare adresse, blant annet:
+
+- Arbeidsgiver og arbeidssted (særlig i SED-er knyttet til medlemskap, sykepenger og dagpenger)
+- Bostedsperioder og oppholdsperioder i ulike land
+- Skole, barnehage eller utdanningsinstitusjon (familieytelser, barnetrygd)
+- Behandlingsinstitusjon, fastlege og helsepersonell (sykepenger, uføre)
+- Relasjoner som kan brukes til å lokalisere personen (samboer, ektefelle, fosterforeldre, verge)
+
+Hvordan dette håndteres i nEESSI:
+- nEESSI selv har ikke i dag en egen automatisk kontroll som filtrerer eller blokkerer geolokaliserende felter i utgående SED-er for personer med adressebeskyttelse. Plattformen sender det innholdet saksbehandler eller fagsystem fyller inn.
+- Innkommende geolokaliserende opplysninger fra utenlandsk RINA blir lagret i RINA og journalført via eux-journalfoering i Nav sitt felles saks- og dokumentarkiv. Tilgang til disse styres av rolletilganger og av arkivets skjermingsmekanismer.
+- For bakgrunnsjobben eux-adresse-oppdatering, som plukker adresser ut av innkommende SED og sender dem til PDL-Mottak, gjøres det ikke en egen risikovurdering per person basert på adressebeskyttelse i PDL før innsending – PDL er endelig autoritet og håndterer det selv.
+
+Vurderinger som må gjøres per BUC/SED-type:
+- Hvilke geolokaliserende felter er nødvendige for at SED-en skal oppfylle sin funksjon i forordningen?
+- Kan vi fjerne eller utelate slike felter for personer med kode 6/19 uten å bryte SED-skjemaet og kommunikasjonsplikten?
+- Når er manuell rutine (telefon/dialog mellom kompetente myndigheter) mer egnet enn å sende geolokaliserende opplysninger via SED?
+
+Disse vurderingene er fagavdelingens og kraveiers ansvar. Sikkerhetsseksjonen og personvernombudet bør involveres i tvilstilfeller, slik veilederen for adressebeskyttelse anbefaler.
+
+Avgrensning: Det er fagavdelingen som eier vurderingen av hvilke opplysninger som skal med i en SED for en gitt sak. nEESSI er teknisk plattform for selve utvekslingen.
+
+Åpent punkt: Det finnes ingen samlet, dokumentert helhetsvurdering fra teamet av geolokaliserende opplysninger i SED-utvekslingen for brukere med adressebeskyttelse. Tatt inn som åpen antagelse i `etterlevelse/apne-sporsmal.md`.
+
+Status: Nei (delvis) – Tilgang til skjermede saker er på plass via fellesmekanismer, men det er ikke gjort en samlet helhetsvurdering av geolokaliserende opplysninger i SED-utvekslingen for brukere med adressebeskyttelse.

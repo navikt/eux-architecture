@@ -1,0 +1,7 @@
+EUX/eessibasis sender ikke selv vedtak, forhåndsvarsel eller andre meldinger som styres av valg i KRR – fagsystemene som faktisk fatter vedtak (pensjon, uføretrygd, sykepenger, familieytelser m.fl.) gjør det gjennom Nav sine fellestjenester for brev og distribusjon, og er ansvarlige for å forholde seg til reservasjon i KRR.
+
+Den eneste innbyggerrettede utsendelsen som produseres i eessibasis-stacken er **PDU1** (Portable Document U1, dokument om dagpengeperioder). Saksbehandler oppretter PDU1 i eux-web-app, eux-neessi genererer PDF (forside + blankett), journalfører i Dokarkiv og sender deretter journalposten til **Dokdistfordeling** (`DistribuerJournalpostService` i eux-neessi). Dokdistfordeling er Nav sin felles distribusjonsløsning som selv slår opp i Kontakt- og reservasjonsregisteret (KRR) og Enhetsregisteret, og som velger digital kanal (Digipost / eBoks) eller fysisk print basert på innbyggers reservasjonsstatus og registrerte digitale adresse. Vi reimplementerer ikke KRR-oppslag i nEESSI.
+
+eux-rina-api (middleware mot RINA CPI) og eux-adresse-oppdatering (Kafka-konsument som oppdaterer adresser i PDL maskinelt) sender ingen meldinger til innbygger og er derfor ikke berørt av kriteriet.
+
+Status: Oppfylt

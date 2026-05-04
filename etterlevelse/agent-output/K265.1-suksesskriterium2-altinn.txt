@@ -1,0 +1,12 @@
+nEESSI er en intern saksbehandlerløsning og tilbyr ikke selvbetjeningstjenester rettet mot næringsdrivende. Vurderingen av Altinn er derfor gjort på funksjonelt nivå:
+
+Vurdering av Altinn:
+- Altinn er fellesløsningen for digitale tjenester rettet mot næringsdrivende, inkludert innlogging, skjema, meldingsutveksling og tjenesteportal.
+- nEESSI tilbyr ingen tjenester, skjema eller meldinger rettet mot næringsdrivende. Saksbehandlingen i nEESSI er en del av Nav sin behandling av trygdesaker for enkeltpersoner, og selve grenseoverskridende utvekslingen skjer mellom Nav og trygdemyndigheter i andre EU/EØS-land via EESSI-nettverket.
+- I de tilfellene Nav skal kommunisere med en arbeidsgiver eller annen næringsdrivende som ledd i en EESSI-sak (for eksempel for å innhente opplysninger), skjer dette gjennom Nav sine ordinære arbeidsgiverflater og kanaler, som benytter Altinn der det er hensiktsmessig. nEESSI etablerer ingen egen kanal mot næringsdrivende.
+
+Avvik:
+- nEESSI publiserer ingen tjenester på Altinn-portalen, fordi løsningen ikke retter seg mot næringsdrivende.
+
+Begrunnelse for avvik:
+- Bruk av Altinn er ikke aktuelt for nEESSI siden løsningen ikke har næringsdrivende som målgruppe. Eventuell kommunikasjon med næringsdrivende ivaretas av Nav sine arbeidsgiverflater, som er der bruken av Altinn skal vurderes. Avgrensningen er funksjonell og godt begrunnet.

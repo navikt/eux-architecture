@@ -1,0 +1,5 @@
+nEESSI logger først når saksbehandler aktivt åpner en sak, et SED-dokument eller henter brukerens dokumenter. Listevisninger i saksbehandlerflaten – søketreff, oversikten over internasjonale saker og oppgavelister – skriver ikke en linje per bruker som vises i listen. `AuditService.logRinasaker(...)` brukes kun ved direkte oppslag på borger, ikke ved generell listevisning.
+
+For en åpnet sak eller et åpnet SED logges også personer som er parter i saken (ektefelle, barn, andre personer som fremkommer i et familie-SED, samt personer hentet via brukerrelasjon). Dette regnes som direkte oppslag fordi saksbehandler får tilgang til de fulle personopplysningene (inkludert fnr) til den aktuelle personen i nEESSI – ikke bare et navn som "dukker opp" i en liste. Det skiller seg fra eksempler i kravteksten (familiemedlem som vises i annen brukers sak, deltakere i tiltakslister, fnr i oppgavebenken), der mengden personopplysninger er begrenset.
+
+Status: Oppfylt

@@ -1,0 +1,22 @@
+nEESSI deler ikke adresse med privatpersoner eller private virksomheter. Plattformen er saksbehandlerverktøy for utveksling av strukturerte SED-er mellom kompetente myndigheter i EØS-området, og har ikke en innbyggerflate eller åpne API-er ut til private parter.
+
+Deling skjer i to hovedretninger:
+
+1) Til andre EØS-lands kompetente myndigheter via EESSI-nettverket (RINA → CCN/sTesta → utenlandsk RINA)
+- Dette er deling med utenlandske offentlige myndigheter, hjemlet i trygdeforordningen 883/2004 og gjennomføringsforordningen 987/2009. Det er nødvendig for at den registrerte skal få sine EØS-rettigheter.
+- For brukere med strengt fortrolig adresse (kode 6) eksisterer ingen registrert reell adresse i PDL – kun en postboksadresse hos Kripos. SED-er som autofylles fra PDL vil i et slikt tilfelle ikke inneholde brukerens reelle adresse. nEESSI henter persondata via PDL og arver derfor PDLs skjerming av geolokaliserende felter for kode 6.
+- For brukere med strengt fortrolig adresse utland (kode 19) finnes en utenlandsk adresse i PDL. Saksbehandler/fagsystem må vurdere om adressen kan deles via SED i den konkrete saken. Det er ikke en automatisk avgrensning i nEESSI som hindrer at en adresse hentet fra fagsystem eller manuelt fra saksbehandler kan inkluderes i en utgående SED.
+- For brukere med fortrolig adresse (kode 7) kan deling med utenlandsk offentlig myndighet være tillatt, men også her må det vurderes konkret per sak.
+
+2) Til Nav-interne fellesløsninger
+- eux-adresse-oppdatering tar imot adresseopplysninger fra innkommende SED-er og sender dem som endringsmelding til PDL-Mottak. PDL er endelig kilde og håndhever selv om/hvordan en innsendt adresse skal lagres for en person med adressebeskyttelse.
+- eux-journalfoering arkiverer SED-er i Nav sitt felles saks- og dokumentarkiv (Dokarkiv/SAF). Skjerming av journalposter (kode 6/7) håndteres av arkivets egne skjermingsmekanismer, ikke av nEESSI selv (se K128.1).
+
+Risiko som er identifisert:
+- Saksbehandler i utgående retning kan i prinsippet legge inn en adresse manuelt i en SED. Det finnes i dag ikke en automatisk «kode 6/19»-stopp i eux-rina-api eller eux-web-app som blokkerer eller advarer ved utfylling av geolokaliserende felter for personer med adressebeskyttelse. Dette håndteres av saksbehandler ut fra rutiner og rolletilgang.
+
+Avgrensning: nEESSI deler ikke ut data til privatpersoner eller private virksomheter; slike utleveringer (innsynsbegjæringer, partsinnsyn) styres av fagsystemenes og arkivets fellesrutiner.
+
+Åpent punkt: Behov for en eksplisitt advarsel/blokkering i nEESSI når saksbehandler skal sende en SED som inneholder adresse for en bruker med kode 6/7/19. Tatt inn som åpen antagelse i `etterlevelse/apne-sporsmal.md`.
+
+Status: Ja (delvis) – Adresse deles ikke med private parter; deling til utenlandsk myndighet er hjemlet i forordningen og PDL skjermer kode 6 i kilden, men nEESSI har ikke en egen automatisk kontroll mot at saksbehandler manuelt fyller inn geolokaliserende opplysninger for kode 6/7/19 i utgående SED.

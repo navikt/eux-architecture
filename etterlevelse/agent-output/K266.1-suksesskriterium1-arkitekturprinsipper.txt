@@ -1,0 +1,12 @@
+nEESSI er bygget i tråd med de overordnede arkitekturprinsippene for digitalisering av offentlig sektor. Prinsippene følges først og fremst gjennom Nav sine fellesløsninger og felles utviklingspraksis, og ikke ved at teamet selv lager parallelle løsninger.
+
+Hvordan prinsippene gjenspeiles i nEESSI:
+- Brukerbehov i sentrum: Løsningen er utformet sammen med saksbehandlerne som bruker den daglig. Vi tar inn tilbakemeldinger fortløpende og prioriterer endringer som forenkler saksbehandlingen.
+- Helhet og gjenbruk: nEESSI henter person- og adresseopplysninger fra Persondataløsningen (PDL), arkiverer dokumenter i Nav sitt felles saks- og dokumentarkiv (Joark), oppretter oppgaver i Nav sin felles oppgaveløsning, og bruker Nav sin felles innloggings- og tilgangsstyring (Azure AD). Vi etablerer ikke egne, parallelle løsninger der fellesløsninger finnes.
+- Felles plattform: nEESSI driftes på Nav sin felles utviklings- og driftsplattform (NAIS), med felles logging, overvåking, sikkerhetsskanning og hendelseshåndtering. Frontend-komponenter er bygget på Nav sitt felles designsystem (Aksel), som ivaretar brukervennlighet og universell utforming.
+- Sikre og robuste tjenester: nEESSI arver sikkerhetsnivået fra Nav sine fellesløsninger og følger Nav sine retningslinjer for informasjonssikkerhet. Se også K267.1 for nærmere beskrivelse.
+- Åpenhet og kunnskapsbaserte beslutninger: Kildekoden er åpen og endringer dokumenteres og gjennomgås av flere utviklere. Drifts- og bruksdata fra fellesløsningene brukes til å forbedre løsningen.
+
+Avvik:
+- Vi har ikke identifisert bevisste avvik fra de overordnede arkitekturprinsippene. Der nEESSI har egenart, skyldes det at EESSI-utvekslingen er en europeisk fellesløsning (RINA) styrt av EU-kommisjonen, og at Nav må følge de tekniske rammene EU har lagt for EESSI-nettverket.
+- Teamet har ikke gjort en formell, dokumentert avviksvurdering per prinsipp. En slik gjennomgang vil følges opp som ledd i forvaltningen av løsningen.

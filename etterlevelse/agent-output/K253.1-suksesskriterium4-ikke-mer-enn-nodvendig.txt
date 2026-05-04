@@ -1,0 +1,5 @@
+Oppslagslogging i nEESSI er plassert på de operasjonene som faktisk gir saksbehandler tilgang til nye personopplysninger – åpning av sak, åpning av SED, henting av journalførte dokumenter og oppstart av ny PD U1. Tekniske mellomkall som autorisasjon, henting av menyer, statussjekker og paginering genererer ingen egne logglinjer. Navigering mellom faner og skjermbilder uten at nye personopplysninger eksponeres, logges heller ikke.
+
+Når et SED inneholder flere personer (hovedbruker, ektefelle, barn, andre), skrives én logglinje per fødselsnummer som faktisk vises i SED-et. Dette er et bevisst valg fordi hver enkelt person identifiseres med fullt fnr i dokumentet og dermed eksponeres med tilstrekkelig persondata til å regnes som et reelt oppslag. Dedupliseringen i `AuditService.logRinasaker(...)` (toSet på fnr) sikrer at samme fnr ikke logges flere ganger for samme handling.
+
+Status: Oppfylt

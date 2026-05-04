@@ -1,0 +1,13 @@
+Avgrensning: nEESSI er en integrasjons- og saksbehandlerløsning for elektronisk utveksling av trygdeinformasjon med andre EU/EØS-land. Vedtak, utbetalinger og ytelsesmessig saksdata ligger i fagsystemene (Pesys for pensjon, Infotrygd og Arena for familieytelser, sykepenger, kontantstøtte, AAP m.fl.). Avlevering av disse dataene til Nav sitt datavarehus eies av fagsystemene og deres fagavdelinger – ikke av nEESSI.
+
+Hva nEESSI selv eier av data som kan være aktuelle for statistikk og styringsinformasjon:
+- Antall strukturerte elektroniske dokumenter (SED) sendt og mottatt, fordelt på Business Use Case (BUC), mottakerland/avsenderland og dokumenttype.
+- Antall åpnede og avsluttede EESSI-saker, gjennomstrømmingstid, og volum per ytelsesområde.
+- Hendelsesstrøm fra EESSI-nettverket som Nav-tjenester konsumerer.
+
+Status i dag:
+- nEESSI har ikke etablert en formell, dokumentert avleveringskanal av disse metadataene til Nav sitt sentrale datavarehus eller en tilsvarende statistikkløsning.
+- Behovet og innholdet er heller ikke avklart med Statistikkseksjonen og Styringsinformasjon. Kravets veiledning forutsetter slik avklaring.
+- Operasjonelle metrikker (oppetid, feilrater, volum) finnes i drifts- og observabilitetsverktøy for plattformen, men dette er ikke datavarehus-avlevering for offisiell statistikk og styring.
+
+Status: Ikke oppfylt – nEESSI har ikke en avtalt avlevering av data til Nav sin sentrale statistikkløsning. Behovet bør avklares med Statistikkseksjonen og Styringsinformasjon for å vurdere om EESSI-utvekslingsdata skal være en egen kilde til datavarehuset, eller om aggregerte mål dekkes via fagsystemenes egne avleveringer.

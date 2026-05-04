@@ -1,0 +1,7 @@
+EUX/eessibasis fatter ikke enkeltvedtak og produserer ikke vedtaksbrev til innbygger. Plattformen er en intern saksbehandlerflate for elektronisk utveksling av strukturerte trygdedokumenter (SED) mellom Nav og trygdemyndigheter i andre EU/EØS-land. Vedtak om norske ytelser (pensjon, uføretrygd, dagpenger, sykepenger, familieytelser m.fl.) fattes i fagsystemene, og vedtaksbrevene distribueres derfra via Nav sine fellestjenester for brev og digital postkasse.
+
+Den ene innbyggerrettede utsendelsen som produseres i stacken er **PDU1** (Portable Document U1, dokumentasjon på dagpengeperioder etter forordning (EF) 883/2004 og 987/2009). PDU1 er ikke et enkeltvedtak, men en EU-standardisert attestasjon innbygger kan bruke i andre EØS-land. PDU1 distribueres likevel via **Dokdistfordeling** (`DistribuerJournalpostService` i eux-neessi), som er Nav sin felles distribusjonsløsning. Dokdistfordeling sender digitalt til innbyggers digitale postkasse (Digipost / eBoks) når innbygger har valgt digital postkasse og ikke har reservert seg, og fysisk på papir ellers. Kanalvalget styres av reservasjonsstatus i KRR.
+
+eux-rina-api (middleware mot RINA CPI) og eux-adresse-oppdatering (Kafka-konsument mot PDL) sender ikke brev til innbygger og er ikke berørt av kriteriet.
+
+Status: Ikke relevant

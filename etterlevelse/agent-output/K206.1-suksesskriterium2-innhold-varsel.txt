@@ -1,0 +1,7 @@
+EUX/eessibasis produserer ikke forhåndsvarsler og bestemmer ikke teksten i slike varsler. Innholdet – inkludert informasjon om hvilken kanal varselet er sendt til (nav.no, digital postkasse) og hvordan parten skal gå fram for å lese forhåndsvarselet – formes og sendes av Nav sine ordinære brev- og varslingstjenester på vegne av det fagsystemet som har fattet beslutningen om å forhåndsvarsle.
+
+**PDU1-vurdering**: PDU1 er ikke et forhåndsvarsel etter fvl § 16 og utløser derfor ikke kriteriet. Forsidebrevet til PDU1 (`forsidemal_v2.html` i eux-neessi) er en mottakerinformasjon om selve PDU1-dokumentet, ikke et varsel om en annen melding som ligger i en digital kanal. Kriteriet om at varsel skal angi hvor og hvordan parten kan skaffe seg kunnskap om innholdet i et separat forhåndsvarsel, er dermed ikke aktuelt for PDU1.
+
+For meldinger som oppstår som følge av en EESSI-sak og som krever forhåndsvarsel, er det fagsystemet og brevtjenesten som har ansvaret for at varselet er forståelig og angir hvor og hvordan parten kan skaffe seg kunnskap om innholdet. Saksbehandlerflaten i eux-web-app/eux-neessi har ingen brev- eller varslingsmaler for forhåndsvarsel. eux-rina-api og eux-adresse-oppdatering kommuniserer ikke med innbygger.
+
+Status: Ikke relevant

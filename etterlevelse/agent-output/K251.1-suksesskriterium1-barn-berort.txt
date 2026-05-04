@@ -1,0 +1,11 @@
+nEESSI brukes til å utveksle trygdeinformasjon med andre EU/EØS-land. Saksbehandler bruker løsningen i flere ytelser der barn berøres direkte eller indirekte:
+
+- **Familieytelser** – barnetrygd og kontantstøtte i EØS-saker behandles via løsningen. Strukturerte elektroniske dokumenter (SED) i familie-bruksmønstrene (F-BUC) inneholder opplysninger om barn (navn, fødselsdato, fødselsattest, bostedsadresse, foreldreansvar osv.). En egen tjeneste fornyer årlig barnetrygdsaker mot andre EØS-land.
+- **Foreldrepenger og sykepenger** – saker som gjelder fødsel, omsorg for barn og foreldreansvar utveksles med andre lands trygdemyndigheter.
+- **Pensjon og uføretrygd** – barnepensjon og barnetillegg til etterlatte- og uføreytelser kan inkludere opplysninger om barn som familiemedlem.
+
+Vi har derfor avklart at nEESSI berører barn både direkte (som part/medforsikret familiemedlem i SED-er om familieytelser, barnepensjon og barnetillegg) og indirekte (gjennom foreldres/foresattes saker om foreldrepenger, sykepenger og lignende).
+
+Vurderingen er reflektert i teamets personvernkonsekvensvurdering for EESSI på familieområdet, der barn er identifisert som en gruppe med særlig beskyttelsesbehov, og der behandling av personopplysninger om barn er en sentral del av risikobildet.
+
+Avgrensning: nEESSI er en integrasjons- og saksbehandlerløsning. Selve vedtakene som berører barn fattes i fagsystemene (Pesys, Infotrygd, Arena m.fl.). Vurderingen her gjelder hvorvidt nEESSI som verktøy berører barn – ikke hvorvidt fagsystemene gjør det.

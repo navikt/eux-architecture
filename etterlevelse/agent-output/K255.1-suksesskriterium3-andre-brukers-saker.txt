@@ -1,0 +1,16 @@
+EESSI-saker (BUC-er) inneholder ofte flere personer enn hovedparten – typisk ektefelle/partner, barn, andre familiemedlemmer, og i noen tilfeller arbeidsgivere eller andre samhandlere. Dette gjelder særlig på familieområdet (barnetrygd, kontantstøtte, ytelser til etterlatte) og i pensjon/uføre der opptjening og familiesammensetning er relevant.
+
+Beskyttelse av tredjepersoner med adressebeskyttelse i nEESSI:
+- Når en tredjeperson på en sak har fortrolig eller strengt fortrolig adresse, gjelder de samme tilgangskravene (0000-GA-Fortrolig_Adresse / 0000-GA-Strengt_Fortrolig_Adresse) som for hovedparten. Saken som helhet skal være skjermet for saksbehandlere uten riktig attributt, slik at geolokaliserende opplysninger om tredjepersonen ikke kan leses ved å åpne en annen brukers EESSI-sak. Skjermingen håndheves i RINA og i Nav sitt felles saks- og dokumentarkiv.
+- I personskjemaene som brukes når en ekstra person legges til på en SED (lett personregister for ektefelle/barn/annen person, kandidatperson-panel ved opprettelse av sak), henter nEESSI adressebeskyttelses-status fra PDL og viser samme gule varsel som for hovedparten. Saksbehandler får dermed beskjed når tredjepersonen har adressebeskyttelse, både umiddelbart etter PDL-oppslaget og når saken åpnes på nytt.
+- Bakgrunnsjobber som leser SED-er (eksempelvis automatisk oppdatering av utenlandsk adresse og av utenlandske identer mot PDL via Nav sin felles persontjeneste) kjører uten saksbehandlertilgang og oppdaterer PDL direkte. PDL er autoritativ kilde og håndhever selv adressebeskyttelse i hvem som senere kan lese opplysningene.
+
+Risikoområder som er identifisert:
+- Familieområdet: Barn registrert som saksopplysning på en forelders sak. Hvis barnet har strengt fortrolig adresse, skal også forelderens sak være skjermet i den grad saken inneholder geolokaliserende opplysninger om barnet.
+- Avhengige saker: SED-er der både avsender- og mottakerland har sine egne parter (typisk F-SED-er om familieytelser). Også her må skjerming følge personen, ikke bare saken.
+
+Avgrensning: Vurderingen av hvilke konkrete opplysninger på en sak som er «geolokaliserende» og hvordan disse skal behandles i en gitt BUC, må gjøres i samarbeid med fagavdelingene og kraveier. nEESSI er teknisk plattform for SED-utvekslingen.
+
+Åpent punkt: Det er ikke gjennomført en uttømmende kartlegging fra teamets side av alle BUC-er der en tredjeperson med adressebeskyttelse kan inntreffe på en annen brukers sak, og hva slags geolokaliserende opplysninger som da kan vises i nEESSI. Det bør også vurderes om bakgrunnsjobbene bør gjøre en eksplisitt kontroll mot PDLs adressebeskyttelse før innsending. Begge punkter er fulgt opp som åpne antagelser i `etterlevelse/apne-sporsmal.md`.
+
+Status: Ja (delvis) – Skjerming følger personen via RINA/arkivets fellesmekanismer, og nEESSI viser tydelig varsel på tredjepersoner med adressebeskyttelse, men teamet har ikke selv kartlagt alle scenarier på tvers av BUC-er.

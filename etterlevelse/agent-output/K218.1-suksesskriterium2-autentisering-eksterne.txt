@@ -1,0 +1,7 @@
+Ekstern elektronisk kommunikasjon i nEESSI går ikke direkte mellom Nav og enkeltsamhandlere, men gjennom det felleseuropeiske EESSI-nettverket. Trygdemyndighetene i EU/EØS-landene utveksler strukturerte elektroniske dokumenter (SED) gjennom dette nettverket, hvor autentisering av nasjonale institusjoner og kryptert overføring håndteres av plattformen på europeisk nivå.
+
+Når Nav sender eller mottar en SED, er det dermed sikret at avsender og mottaker er en kjent og autentisert nasjonal trygdemyndighet, og at dokumentet er knyttet til en bestemt sak (BUC) og en bestemt institusjonskode.
+
+For den interne integrasjonen mellom nEESSI og RINA-plattformen brukes autentiseringsformene som EESSI-plattformen tilbyr (delt hemmelighet, servicebruker eller CAS). Disse er vurdert som nødvendige fordi RINA er levert av EU-kommisjonen og ikke tilbyr Nav sin foretrukne autentiseringsform.
+
+Andre Nav-tjenester som nEESSI integrerer med (persondataløsningen, dokumentarkivet, oppgavesystemet) autentiseres via Nav sin felles identitetsløsning (Entra ID), enten med servicebruker eller i saksbehandlerens kontekst. nEESSI eksponerer ingen åpne API-er mot eksterne samhandlere utenfor Nav.

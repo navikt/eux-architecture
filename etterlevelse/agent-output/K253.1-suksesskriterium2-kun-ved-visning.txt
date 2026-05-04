@@ -1,0 +1,10 @@
+Oppslagsloggingen i nEESSI utløses kun når personopplysninger faktisk leveres til saksbehandlerflaten. `AuditService.log(...)` skriver kun en logglinje når innlogget bruker (saksbehandler) finnes i sikkerhetskonteksten og når mottakers id er et gyldig 11-sifret fødselsnummer. Det betyr at:
+
+- Avviste oppslag (manglende rolle, skjerming, ikke-eksisterende bruker, feilrespons fra RINA) skriver ikke til oppslagsloggen, fordi data ikke når frem til responsen.
+- Tilgangskontroll og forhåndssjekker mot tilgangsgrupper og PDL logges ikke som visning.
+- Maskinelle flyter skriver ikke til oppslagsloggen. Dette gjelder Kafka-konsumenter som eux-adresse-oppdatering og eux-person-oppdatering, hendelsesproduserende tjenester som eux-all-rina-events og eux-legacy-rina-events, samt bakgrunns- og NAIS-jobber som eux-journalfoering, eux-journalarkivar, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker og eux-barnetrygd. Disse har ingen innlogget saksbehandler i konteksten og treffer dermed heller ikke kodestien som logger til Arcsight.
+- eux-rina-api proxyer kall fra både saksbehandlerflyt og maskinelle flyter og logger ikke til Arcsight; visning logges på riktig nivå i nEESSI, der saksbehandler-konteksten er kjent og responsen returneres til frontend.
+
+Tekniske feil som gjør at data unntaksvis ikke når frem til skjermbildet, kompenseres ikke i loggingen, i tråd med kravet.
+
+Status: Oppfylt

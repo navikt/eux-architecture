@@ -1,0 +1,10 @@
+nEESSI har ingen funksjonalitet for å utlevere taushetsbelagte opplysninger til andre enn parten selv eller andre offentlige myndigheter med rettslig grunnlag.
+
+- Løsningen har ingen innbygger-flate. Innbyggere ser ikke opplysninger fra nEESSI direkte. Innsyn for parten selv håndteres gjennom Nav sine fellesløsninger for innsyn (innbyggerflater, brevtjeneste og sentrale innsynsrutiner) og gjennom fagsystemenes egne kanaler.
+- Strukturerte elektroniske dokumenter (SED) som saksbehandler oppretter eller mottar i nEESSI kan kun sendes til to kategorier mottakere: (1) trygdemyndigheter i andre EU/EØS-land som er parter i den aktuelle saken via EESSI-nettverket, og (2) Nav sitt felles saks- og dokumentarkiv (Joark/Dokarkiv) for journalføring og videre saksbehandling. Begge er forankret i lov og forskrift.
+- All utveksling med andre EØS-land går gjennom EESSI-nettverket og er hjemlet i trygdeforordningen 883/2004 og gjennomføringsforordningen 987/2009, som pålegger medlemslandenes trygdemyndigheter å utveksle nødvendig informasjon for å koordinere trygderettigheter.
+- Det finnes ingen funksjon i nEESSI for å sende dokumenter eller saksopplysninger til arbeidsgivere, helsepersonell, advokater, andre forvaltningsorganer (utover det som skjer via felles saks- og dokumentarkiv) eller tredjeparter for øvrig.
+
+Avgrensning: Konkrete vurderinger av om en bestemt opplysning kan utleveres i et enkelt tilfelle gjøres av saksbehandler i fagsystemet etter fagavdelingens rutiner – ikke i nEESSI som verktøy. Materielle utleveringsvedtak (innsyn, partsinnsyn, opplysningsplikt mot andre etater) håndteres i fagsystemene og fellesløsninger for innsyn.
+
+Status: Oppfylt – nEESSI har ikke utleveringsfunksjonalitet utover den lovregulerte EØS-utvekslingen og journalføring til Nav sitt felles arkiv.

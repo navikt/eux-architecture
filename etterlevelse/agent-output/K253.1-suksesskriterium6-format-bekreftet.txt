@@ -1,0 +1,5 @@
+nEESSI produserer oppslagsloggen på CEF-format (Common Event Format) i henhold til Nav sin Security Playbook, med feltene end (tidspunkt), suid (saksbehandlers Nav-ident), duid (fødselsnummer det er gjort oppslag på) og msg (beskrivelse av oppslaget). Loggene sendes via TCP syslog til Nav sin felles auditlogg-tjeneste på `audit.nais:6514` (ident `eux-neessi`), som videresender til Arcsight.
+
+Team Auditlogging Arcsight har bekreftet at loggene fra nEESSI mottas på riktig format i produksjon og plasseres i de riktige rapportene. Verifisering er gjort og trenger ingen ytterligere oppfølging.
+
+Status: Oppfylt

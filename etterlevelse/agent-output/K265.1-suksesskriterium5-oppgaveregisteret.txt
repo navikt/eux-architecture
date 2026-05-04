@@ -1,0 +1,12 @@
+nEESSI pålegger ingen rapporteringsplikter på næringsdrivende. Vurderingen av Oppgaveregisteret er derfor gjort på funksjonelt nivå:
+
+Vurdering av Oppgaveregisteret:
+- Oppgaveregisteret er fellesløsningen for å melde inn nye eller endrede rapporteringsplikter som pålegges næringsdrivende, før de iverksettes.
+- nEESSI er en saksbehandlerløsning for utveksling av trygdeinformasjon mellom Nav og trygdemyndigheter i andre EU/EØS-land. Løsningen pålegger ikke næringsdrivende noen rapporteringsplikt og innfører heller ikke nye skjemaer eller datakrav rettet mot næringsdrivende.
+- Eventuelle opplysninger som hentes inn fra arbeidsgivere som ledd i en EESSI-sak (for eksempel om arbeidsforhold eller inntekt), bygger på rapporteringsplikter som er regulert i fagsystemene og i felles arbeidsgiverflater. Disse rapporteringspliktene meldes inn til Oppgaveregisteret av de teamene som forvalter dem, ikke av team eessibasis.
+
+Avvik:
+- Team eessibasis melder ingen rapporteringsplikter til Oppgaveregisteret for nEESSI, fordi nEESSI i seg selv ikke etablerer rapporteringsplikter for næringsdrivende.
+
+Begrunnelse for avvik:
+- Plikten til å melde inn rapporteringsplikter ligger hos den virksomhet og det fagområdet som faktisk pålegger plikten. nEESSI er et integrasjonslag for grenseoverskridende utveksling og er ikke kilde til rapporteringsplikter. Avgrensningen er funksjonell og godt begrunnet.

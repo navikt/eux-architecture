@@ -1,0 +1,12 @@
+nEESSI er en intern saksbehandlerløsning for Nav-ansatte og brukes ikke av innbyggere. Innlogging og autentisering skjer derfor med Nav sin felles identitetsløsning for ansatte (Azure AD / Entra ID), som er fellesløsningen for ansattflater i staten.
+
+Vurdering av ID-porten:
+- ID-porten er fellesløsningen for innlogging av innbyggere og næringsdrivende til offentlige digitale tjenester. nEESSI har ingen innbyggerflate – innbyggere logger ikke inn for å bruke nEESSI.
+- Saksbehandling av EESSI-saker innebærer dialog med trygdemyndigheter i andre EU/EØS-land, ikke med innbygger direkte. Når en innbygger skal logge inn for å se saker, klage eller sende inn opplysninger, skjer det gjennom Nav sine ordinære innbyggerflater (nav.no, "Min side" m.m.) som bruker ID-porten.
+- nEESSI gjenbruker dermed ID-porten indirekte, gjennom Nav sine innbyggerflater og fagsystemer som henter informasjon videre.
+
+Avvik:
+- For selve saksbehandlerinnloggingen i nEESSI brukes ikke ID-porten, og det er hverken hensiktsmessig eller ønskelig: ID-porten er beregnet på innbyggere/næringsdrivende, mens saksbehandlere skal logge inn med tjenestlig identitet. Dette er i tråd med praksis i Nav og resten av offentlig sektor.
+
+Begrunnelse for avvik:
+- Bruk av Nav sin felles ansattidentitet gir rolle- og tilgangsstyring tilpasset saksbehandling, og er fellesløsningen for ansattflater. Avvik fra ID-porten er derfor godt begrunnet og i samsvar med føringene for ansattflater.

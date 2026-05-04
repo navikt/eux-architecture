@@ -1,0 +1,5 @@
+nEESSI fatter ikke enkeltvedtak overfor innbyggere og sender ikke vedtaksbrev til parter. Vedtak i saker som har en utenlandsdimensjon fattes i Nav sine fagsystemer (for eksempel pensjon, uføre, sykepenger, familieytelser). Det er fagsystemet som genererer underretningen om vedtaket og som har ansvar for å informere parten om klageadgang og om hvilken elektronisk kanal en klage kan sendes til.
+
+nEESSI bidrar i denne kjeden ved å utveksle strukturerte dokumenter (SED) mellom Nav og trygdemyndigheter i andre EU/EØS-land som grunnlag for behandlingen i fagsystemet, og ved å journalføre disse dokumentene i Nav sitt felles saks- og dokumentarkiv. Selve underretningen om vedtak og veiledning om elektronisk klageadresse skjer i fagsystemets ordinære vedtaks- og brevflyt og er ikke en del av nEESSI.
+
+Ansvaret for at vedtaksbrevet inneholder riktig elektronisk klageadresse ligger derfor hos teamet som forvalter det aktuelle fagsystemet, ikke hos team eessibasis.

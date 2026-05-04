@@ -1,0 +1,9 @@
+Data for analyser og budsjettprosesser knyttet til de ytelsene som koordineres via EESSI hentes i dag fra fagsystemene (Pesys, Infotrygd, Arena m.fl.) gjennom Nav sitt sentrale datavarehus. Det er disse dataene som brukes i analyser og i utgiftsprognoser for velferdsbudsjettet. nEESSI er ikke kilde for ytelses- og økonomidata til disse prosessene.
+
+Status for nEESSI sine egne data:
+- Metadata om EESSI-utvekslingen (SED-volumer, BUC-fordeling, behandlingstider, mottaker-/avsenderland) er ikke avlevert til datavarehuset og er ikke gjort tilgjengelig for analytikere i Nav som et datasett til ad hoc-analyser eller budsjettarbeid.
+- Driftsmetrikker og volumtall som brukes internt i team eessibasis ligger i drifts- og observabilitetsverktøy. Dette dekker ikke krav om analysetilgang for analytikere i Nav.
+
+Avgrensning: Hvorvidt EESSI-utvekslingsdata bør være tilgjengelig som datasett for Nav sine analytikere – som et eget kildesystem ved siden av fagsystemene – er en avklaring mellom Statistikkseksjonen, Styringsinformasjon og fagavdelingene. Ved et avtalt behov vil nEESSI etablere avlevering på linje med Nav sine etablerte mønstre for datavarehus-leveranser.
+
+Status: Ikke oppfylt for nEESSI-data – analyse- og budsjettbehov for ytelsene dekkes via fagsystemene, mens en analyseflate på EESSI-utvekslingsdata ikke eksisterer i dag.

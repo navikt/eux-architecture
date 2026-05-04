@@ -1,0 +1,18 @@
+nEESSI legger til rette for de utleveringene som skjer fra løsningen, og som har rettslig grunnlag.
+
+Utlevering til trygdemyndigheter i andre EU/EØS-land:
+- Saksbehandler sender og mottar Strukturerte elektroniske dokumenter (SED) til og fra andre EØS-land via EESSI-nettverket. Mottakerlandet og dokumenttypen er styrt av Business Use Case (BUC) og fagregelverket for den enkelte ytelse, slik at saksbehandler kun kan sende til mottakere som er part i den konkrete trygdesaken.
+- Hjemmelsgrunnlaget følger av trygdeforordningen 883/2004 og gjennomføringsforordningen 987/2009. Behandlingen er registrert i Behandlingskatalogen og dekket av personvernkonsekvensvurderingen for EESSI på familieområdet.
+- Utvekslingen er sporbar: hver SED som sendes eller mottas blir loggført med saksbehandler, tidspunkt, mottakerland og dokumenttype, og blir journalført som journalpost i Nav sitt felles saks- og dokumentarkiv.
+
+Utlevering til Nav sitt felles saks- og dokumentarkiv:
+- Sendte og mottatte SED-er journalføres automatisk på riktig fagsak i Nav sitt felles arkiv, slik at de kan brukes av fagsystemene videre i saksbehandlingen. Tilgang til arkiverte dokumenter styres av arkivets egen tilgangsmodell.
+
+Utlevering til andre forvaltningsorganer (Nav Innkreving, politiet, kriminalomsorgen, utlendingsmyndighetene, kommune, helsepersonell, arbeidsgiver osv.):
+- Slik utlevering håndteres ikke fra nEESSI. Den skjer fra fagsystemene og gjennom Nav sine fellesrutiner for opplysningsplikt og innsyn, der konkrete vilkår vurderes per anmodning.
+
+Sporbarhet og registrering:
+- Alle utleveringer som faktisk skjer fra nEESSI (SED-er ut til EØS-land og journalføring i felles arkiv) er sporbare gjennom logger i løsningen og gjennom journalpostene i arkivet.
+- Behandlingen av personopplysninger som ledd i EESSI-utveksling er registrert i Nav sin Behandlingskatalog. Eventuelle nye utleveringsformer skal registreres på samme måte før de tas i bruk.
+
+Status: Ja (delvis) – tilrettelegging for de lovregulerte utleveringene er på plass, men teamet har ikke en samlet, oppdatert oversikt over utleveringsscenarioene som dokumenterer at hver enkelt er forankret i Behandlingskatalogen.

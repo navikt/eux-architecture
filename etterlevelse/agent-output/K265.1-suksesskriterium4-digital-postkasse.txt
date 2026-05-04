@@ -1,0 +1,14 @@
+nEESSI bruker Nav sin felles dokumentdistribusjonsløsning for de tilfellene hvor saksbehandler skal sende et EESSI-dokument direkte til innbygger.
+
+Vurdering av Digital postkasse til innbyggere:
+- Digital postkasse er fellesløsningen for utsending av post fra forvaltningen til innbyggere som har valgt digital postkasse og ikke har reservert seg.
+- I de fleste EESSI-saker går utgående brev til innbygger fra fagsystemene (for eksempel pensjon og familieytelser), og nEESSI har ingen rolle i forsendelsen utover å utveksle SED-er med trygdemyndigheter i andre EU/EØS-land.
+- I tilfeller hvor saksbehandler skal sende selve EESSI-dokumentet til innbygger – typisk PDU1 (Portable Document U1), som er en bekreftelse på arbeids- og trygdeperioder ved arbeidssøking i et annet EØS-land – bestiller nEESSI distribusjon av journalposten gjennom Nav sin felles dokumentdistribusjonstjeneste. Den tjenesten velger riktig kanal etter regelverket: Digital postkasse for innbyggere som har valgt det, Altinn meldingsboks som alternativ, og fysisk post for de som har reservert seg eller ikke har digital postkasse.
+
+Hvordan kriteriet oppfylles:
+- Ved bruk av Nav sin felles dokumentdistribusjonsløsning oppfylles kravet om Digital postkasse, slik kriteriet selv presiserer.
+- nEESSI etablerer ingen egen, parallell forsendelseskanal mot innbygger og lager ikke egne brevmaler utenfor fellesløsningen.
+- Vurderingen av hvilke brev som har dokumentasjonsverdi for innbygger, gjøres av fagansvarlige for det enkelte ytelsesområdet.
+
+Avvik:
+- Ingen kjente avvik.

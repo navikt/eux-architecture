@@ -1,0 +1,8 @@
+Integriteten til den elektroniske kommunikasjonen sikres på flere nivåer:
+
+- Mellom Nav og andre europeiske trygdemyndigheter overføres SED-er gjennom EESSI-nettverket. Plattformen sørger for kryptert overføring og at innholdet i en SED ikke kan endres uoppdaget mellom avsender og mottaker. Hver SED og BUC har en unik identifikator som følger dokumentet gjennom hele utvekslingen.
+- Når en SED er mottatt eller sendt, journalføres den automatisk i Nav sitt felles saks- og dokumentarkiv med konvertering til arkivformat (PDF/A) for langtidsbevaring. Journalposten låses for endring når den er ferdigstilt, og dokumentet bevares uendret sammen med metadata om avsender, mottaker, tidspunkt, sakstype og dokumenttype.
+- Kommunikasjon mellom nEESSI og andre Nav-tjenester (persondataløsningen, dokumentarkivet, oppgavesystemet) går over kryptert tilkobling og er beskyttet av Nav sin felles identitetsløsning, slik at innholdet ikke kan endres i transitt og det er sporbart hvilken tjeneste som har sendt et kall.
+- Handlinger som påvirker dokumentasjonen (utfylling, ferdigstilling, sending, journalføring) registreres med saksbehandlerens identitet og tidspunkt, slik at det i ettertid kan dokumenteres at innholdet er det samme som ble godkjent.
+
+Dermed kan Nav i ettertid dokumentere at innholdet i en SED, et vedlegg eller en journalpost er uendret fra det tidspunktet det ble mottatt, sendt eller ferdigstilt.

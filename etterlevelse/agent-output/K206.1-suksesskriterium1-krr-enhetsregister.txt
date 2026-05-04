@@ -1,0 +1,9 @@
+EUX/eessibasis fatter ikke enkeltvedtak og sender ikke forhåndsvarsel etter forvaltningsloven § 16 til innbyggere. Plattformen er en intern saksbehandlerflate for elektronisk utveksling av strukturerte trygdedokumenter (SED) mellom Nav og trygdemyndigheter i andre EU/EØS-land.
+
+Når en EESSI-sak fører til at det skal sendes et forhåndsvarsel til innbygger, fattes vedtaket og produseres varselet i det aktuelle fagsystemet (pensjon, uføretrygd, sykepenger, dagpenger, familieytelser m.fl.). Disse fagsystemene benytter Nav sine ordinære brev- og distribusjonstjenester (Dokdistfordeling), som henter varslingsadresse fra Kontakt- og reservasjonsregisteret eller Enhetsregisteret.
+
+**PDU1-vurdering**: Den eneste innbyggerrettede utsendelsen som produseres i eessibasis-stacken er PDU1 (Portable Document U1, dokumentasjon på dagpengeperioder etter forordning (EF) 883/2004 og 987/2009). PDU1 er ikke et forhåndsvarsel etter fvl § 16, men en EU-standardisert attestasjon innbygger kan medbringe til andre EØS-land. Distribusjonen via `DistribuerJournalpostService` → Dokdistfordeling sender uansett til adressen i KRR/Enhetsregisteret, men dette gjelder ikke forhåndsvarsel.
+
+Verken eux-web-app, eux-neessi, eux-rina-api eller eux-adresse-oppdatering har egen logikk for utsendelse av forhåndsvarsel eller for oppslag mot KRR/Enhetsregisteret for forhåndsvarslingsformål. Ansvaret for at forhåndsvarsler sendes til adressen i KRR eller Enhetsregisteret ligger hos teamene som forvalter Nav sine fagsystemer og brev-/varslingstjenester.
+
+Status: Ikke relevant

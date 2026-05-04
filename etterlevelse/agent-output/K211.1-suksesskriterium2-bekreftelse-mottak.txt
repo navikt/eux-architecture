@@ -1,0 +1,5 @@
+nEESSI er ikke en mottakskanal for klager fra innbyggere. Klager fra parter sendes inn gjennom Nav sine ordinære innbyggerflater på nav.no (for eksempel klageskjema eller "Skriv til oss"), og det er disse kanalene som har ansvar for å sende elektronisk bekreftelse til klager med referansenummer og mottakstidspunkt.
+
+Når en klage er registrert i Nav og er relevant for en EESSI-sak, vil den være tilgjengelig som journalpost i Nav sitt felles saks- og dokumentarkiv, og saksbehandler kan se den i nEESSI på linje med øvrig dokumentasjon i saken. nEESSI selv produserer ingen kvittering til innbygger.
+
+Mottaksbekreftelse til klager er derfor et ansvar for de innbyggerflatene som faktisk tar imot klagen, ikke for nEESSI.

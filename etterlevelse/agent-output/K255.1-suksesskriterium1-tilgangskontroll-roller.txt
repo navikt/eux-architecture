@@ -1,0 +1,13 @@
+Tilgang til personopplysninger i nEESSI er rollestyrt og bygger på Nav sine fellesrutiner for identitet og tilgangsstyring. Tilganger gis ut fra tjenstlig behov og fagområde, ikke som åpne tilganger til alle saker.
+
+Tilgang til brukere med adressebeskyttelse:
+- For at en saksbehandler skal kunne se og behandle saker som omhandler personer med fortrolig eller strengt fortrolig adresse, må vedkommende ha tilgangsattributtene 0000-GA-Fortrolig_Adresse eller 0000-GA-Strengt_Fortrolig_Adresse, i tråd med Navs fellesregler for slik tilgang.
+- Selve håndhevelsen av tilgang til skjermede saker skjer i RINA (EU-applikasjonen som lagrer SED-er og BUC-er) og i Nav sitt felles saks- og dokumentarkiv (Joark/SAF). nEESSI sin saksbehandlerflate (eux-web-app) og BFF-en (eux-neessi/eux-rina-api) er en strukturert klient over RINA og arkivet, og bygger ikke en parallell tilgangsmodell som kan omgå denne kontrollen. Saksbehandlere uten riktig attributt får ikke åpnet skjermede saker, og ser heller ikke skjermede dokumenter.
+- Ved hvert oppslag i nEESSI hentes det også adressebeskyttelses-status fra PDL via Nav sin felles persontjeneste, slik at både tilgang og fremvisning bruker samme autoritative kilde.
+- nEESSI behandler personer fra alle fagområder hvor EØS-utveksling er aktuelt, og en bruker kan få adressebeskyttelse mens en EESSI-sak pågår. Tilgangskontrollen er derfor alltid på, ikke avhengig av fagområde eller om saken «typisk» berører trusselutsatte.
+
+Avgrensning: Selve katalogen over hvem som har hvilke tilgangsattributter (AD-grupper) eies og forvaltes ikke av team eessibasis, men av Nav sine fellesfunksjoner for identitet og tilgang. nEESSI definerer ikke egne, parallelle tilganger for adressebeskyttelse utenom dette.
+
+Åpent punkt: Det er ikke gjennomført en eksplisitt teknisk verifisering fra teamets side av at alle inngangene til nEESSI/eux-rina-api håndhever 0000-GA-Fortrolig_Adresse / 0000-GA-Strengt_Fortrolig_Adresse riktig i alle koblinger – særlig for nyere endepunkt og listevisninger. Dette er fulgt opp som åpen antagelse i `etterlevelse/apne-sporsmal.md`.
+
+Status: Ja (delvis) – Tilgang til skjermede personer styres av Nav sine fellesrutiner og av RINA/Joark, og nEESSI henter adressebeskyttelse fra PDL ved hvert saksoppslag, men teamet har ikke selv verifisert at alle koblinger håndhever AD-gruppene riktig i alle scenarier.

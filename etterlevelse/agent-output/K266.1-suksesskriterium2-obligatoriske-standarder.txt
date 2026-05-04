@@ -1,0 +1,17 @@
+nEESSI bruker de obligatoriske IT-standardene som følger av standardiseringsforskriften, hovedsakelig gjennom Nav sine fellesløsninger og felles utviklingspraksis.
+
+Tegnsett og språk:
+- All tekst i nEESSI lagres og utveksles i Unicode (UTF-8). Brukergrensesnittet er på norsk (bokmål), og fagbegreper følger Nav sin terminologi og EESSI-terminologi fra EU-kommisjonen.
+
+Dokumentformater:
+- Ferdigstilte saksdokumenter arkiveres i PDF/A i Nav sitt felles saks- og dokumentarkiv. PDF/A er et åpent og standardisert format egnet for langtidsbevaring. Konverteringen håndteres av arkivet som fellesløsning.
+- Strukturerte elektroniske dokumenter (SED) som utveksles med andre EU/EØS-land, følger felles europeiske datamodeller fastsatt av EU-kommisjonen for EESSI.
+
+Utveksling og protokoller:
+- Kommunikasjon mellom tjenester og mot eksterne integrasjoner skjer over HTTPS med TLS, og bruker REST og JSON for grensesnitt mellom interne tjenester. Dette er åpne og bredt brukte standarder.
+- Innlogging og tilgangsstyring bruker Nav sin felles identitetsløsning basert på OAuth2 og OpenID Connect.
+- All utveksling av SED-er med andre EU/EØS-land går gjennom EESSI-nettverket via RINA, som er EU-kommisjonens felleskomponent. Tekniske rammer for selve den grenseoverskridende utvekslingen styres av EU.
+
+Anbefalte standarder:
+- Der det er relevant og hensiktsmessig, bruker vi anbefalte standarder fra Referansekatalogen, hovedsakelig gjennom de samme fellesløsningene (NAIS, Aksel, Nav-felles tjenester).
+- Teamet har ikke gjort en eksplisitt punktvis gjennomgang mot Referansekatalogen og standardiseringsforskriften. En slik gjennomgang vil følges opp og dokumenteres som ledd i forvaltningen av løsningen.
