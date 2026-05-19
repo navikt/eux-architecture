@@ -228,7 +228,7 @@ export default function ArchitecturePage() {
           synspunkt er RINA den andre enden av et REST-API
           (<strong>CPI</strong>) og en push-kanal for hendelser
           (<strong>NIE</strong>). Den norske saksbehandleren åpner
-          aldri RINA direkte — de bruker <code>eux-web-app</code>, som
+          aldri RINA direkte — de bruker <code>nEESSI</code>, som
           går via NAVs tjenester og først der når RINA.
         </BodyLong>
         <BodyLong className="portal-prose">
@@ -244,7 +244,7 @@ export default function ArchitecturePage() {
           Forespørselsflyt — hva skjer når en saksbehandler klikker
         </Heading>
         <BodyLong className="portal-prose">
-          En saksbehandler åpner <code>eux-web-app</code> i nettleseren.
+          En saksbehandler åpner <code>nEESSI</code> i nettleseren.
           Node.js-BFF-en logger dem inn med Azure AD via
           Wonderwall-sidecaren, og sender deretter forespørselen videre
           til <code>eux-neessi</code> med en OAuth2{" "}
@@ -263,7 +263,7 @@ export default function ArchitecturePage() {
             <Accordion.Content>
               <ul className="portal-prose">
                 <li>
-                  <code>eux-web-app</code> — saksbehandler-UI, React +
+                  <code>nEESSI</code> — saksbehandler-UI, React +
                   TypeScript. Node.js-BFF-en videresender{" "}
                   <code>/api</code>, <code>/v2</code>–<code>/v5</code>{" "}
                   til <code>eux-neessi</code>.
@@ -303,7 +303,7 @@ export default function ArchitecturePage() {
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                <code>eux-web-app</code> har en Node.js-BFF som
+                <code>nEESSI</code> har en Node.js-BFF som
                 håndterer innlogging og token-veksling — det er et
                 NAV-mønster. <code>eux-neessi</code> er en
                 domenespesifikk backend-for-frontend som skjuler den
@@ -447,7 +447,7 @@ export default function ArchitecturePage() {
             {
               title: "Frontend",
               color: "portal-card portal-card--blue",
-              body: "eux-web-app — det eneste saksbehandleren ser. React + TypeScript med en Node.js-BFF.",
+              body: "nEESSI — det eneste saksbehandleren ser. React + TypeScript med en Node.js-BFF.",
             },
             {
               title: "Kjernetjenester",
@@ -541,7 +541,7 @@ export default function ArchitecturePage() {
                 </li>
                 <li>
                   Brukerinnlogging: <strong>Wonderwall</strong>-sidecar
-                  foran <code>eux-web-app</code>.
+                  foran <code>nEESSI</code>.
                 </li>
                 <li>
                   <code>eux-rina-api</code> → RINA CPI: shared-secret
@@ -592,7 +592,7 @@ export default function ArchitecturePage() {
                 Alle JVM-tjenester eksponerer{" "}
                 <code>/actuator/health</code> og{" "}
                 <code>/actuator/prometheus</code>.{" "}
-                <code>eux-web-app</code> bruker{" "}
+                <code>nEESSI</code> bruker{" "}
                 <code>/internal/isAlive</code> og{" "}
                 <code>/internal/isReady</code> i stedet. Strukturert
                 logging med MDC (<code>x_request_id</code>,{" "}

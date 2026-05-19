@@ -142,7 +142,7 @@ export function SyncFlowDiagram() {
     <svg
       viewBox="0 0 900 520"
       role="img"
-      aria-label="Synchronous request flow from caseworker through eux-web-app, eux-neessi, and the specialised EUX services to RINA and external NAV systems."
+      aria-label="Synchronous request flow from caseworker through nEESSI, eux-neessi, and the specialised EUX services to RINA and external NAV systems."
       width="100%"
       style={{ maxWidth: "100%", height: "auto" }}
     >
@@ -151,8 +151,8 @@ export function SyncFlowDiagram() {
       <Node x={370} y={10} w={160} h={48} label="Caseworker" sub="Browser" {...C.grey} />
       <Arrow x1={450} y1={58} x2={450} y2={82} />
 
-      {/* eux-web-app */}
-      <Node x={350} y={84} w={200} h={56} label="eux-web-app" sub="React + Node.js BFF" {...C.blue} />
+      {/* nEESSI */}
+      <Node x={350} y={84} w={200} h={56} label="nEESSI" sub="React + Node.js BFF" {...C.blue} />
       <Arrow x1={450} y1={140} x2={450} y2={164} label="OAuth2 on-behalf-of" />
 
       {/* eux-neessi */}
@@ -239,7 +239,7 @@ export function SedLifecycleDiagram() {
   const steps: { label: string; sub: string }[] = [
     { label: "Open case", sub: "Caseworker starts" },
     { label: "Create RINA case", sub: "via eux-rina-api" },
-    { label: "Fill SED", sub: "in eux-web-app" },
+    { label: "Fill SED", sub: "in nEESSI" },
     { label: "Send SED", sub: "to counterpart" },
     { label: "Document event", sub: "RINA → Kafka" },
     { label: "Auto-journal", sub: "Dokarkiv + Oppgave" },

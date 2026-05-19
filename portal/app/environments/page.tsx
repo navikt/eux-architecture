@@ -33,7 +33,7 @@ type ServiceRow = {
 };
 
 const services: ServiceRow[] = [
-  { name: "eux-web-app", description: "Frontend for saksbehandlere (servert via eux-neessi-ingressen)", q1: "https://eux-neessi-q1.intern.dev.nav.no/", q2: "https://eux-neessi-q2.intern.dev.nav.no/" },
+  { name: "nEESSI", description: "Frontend for saksbehandlere (servert via eux-neessi-ingressen)", q1: "https://eux-neessi-q1.intern.dev.nav.no/", q2: "https://eux-neessi-q2.intern.dev.nav.no/" },
   { name: "eux-neessi", description: "Backend-for-frontend / orkestrator", q1: "https://eux-neessi-backend-q1.intern.dev.nav.no", q2: "https://eux-neessi-backend-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
   { name: "eux-rina-api", description: "Mellomvare mot RINA CPI", q1: "https://eux-rina-api-q1.intern.dev.nav.no", q2: "https://eux-rina-api-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
   { name: "eux-rina-terminator-api", description: "Lukke- og sletteoperasjoner mot RINA", q1: "https://eux-rina-terminator-api-q1.intern.dev.nav.no", q2: "https://eux-rina-terminator-api-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
@@ -400,7 +400,7 @@ export default function EnvironmentsPage() {
               </Accordion.Header>
               <Accordion.Content>
                 <BodyLong>
-                  Frontenden (<code>eux-web-app</code> via{" "}
+                  Frontenden (<code>nEESSI</code> via{" "}
                   <code>eux-neessi-qN.intern.dev.nav.no</code>) bruker Azure
                   AD med Wonderwall-sidecar. Du logger inn med din vanlige
                   NAV-bruker. RINA-UI-ene (<code>rina-ss4-q.adeo.no</code> og{" "}
