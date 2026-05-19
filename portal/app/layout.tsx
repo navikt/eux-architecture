@@ -35,7 +35,7 @@ export default function RootLayout({
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <Heading level="1" size="small">
-                  EUX-arkitektur
+                  Team EESSI Nav
                 </Heading>
               </Link>
             </HStack>

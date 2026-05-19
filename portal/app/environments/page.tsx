@@ -55,6 +55,7 @@ const services: ServiceRow[] = [
 type EnvDetails = {
   key: Env;
   navn: string;
+  badgeColor: string;
   identifikator: string;
   rinaVersjon: string;
   rinaUiUrl: string;
@@ -73,6 +74,7 @@ const envs: EnvDetails[] = [
   {
     key: "q1",
     navn: "Q1",
+    badgeColor: "#0067c5",
     identifikator: "NO:NAVAT06",
     rinaVersjon: "JINA 2025 V2.1",
     rinaUiUrl: "https://rina-ss4-q.adeo.no",
@@ -87,6 +89,7 @@ const envs: EnvDetails[] = [
   {
     key: "q2",
     navn: "Q2",
+    badgeColor: "#634689",
     identifikator: "NO:NAVAT07",
     rinaVersjon: "JINA 2025 v2.1",
     rinaUiUrl: "https://rina-ss1-q.adeo.no",
@@ -104,94 +107,205 @@ const envs: EnvDetails[] = [
   },
 ];
 
-function EnvCard({ env }: { env: EnvDetails }) {
-  const rows: { label: string; value: string; href?: string; copy?: string }[] = [
-    { label: "Identifikator", value: env.identifikator, copy: env.identifikator },
-    { label: "RINA-versjon", value: env.rinaVersjon },
-    { label: "RINA-server", value: env.rinaServer, copy: env.rinaServer },
-    { label: "Innlogging", value: env.innlogging },
-    { label: "RINA-UI", value: env.rinaUiUrl, href: env.rinaUiUrl },
-    { label: "Frontend (saksbehandler)", value: env.frontend, href: env.frontend },
-    { label: `CPI · ${env.cpiApp}`, value: env.cpiUrl, href: env.cpiUrl },
-    { label: `NIE · ${env.nieApp}`, value: env.nieUrl, href: env.nieUrl },
-  ];
+function hostnameOf(url: string): string {
+  try {
+    const u = new URL(url);
+    return u.hostname + (u.pathname && u.pathname !== "/" ? u.pathname : "");
+  } catch {
+    return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  }
+}
 
+function UrlLink({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      title={href}
+      style={{
+        fontFamily:
+          '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+        fontSize: "0.85rem",
+        wordBreak: "break-all",
+      }}
+    >
+      {hostnameOf(href)} ↗
+    </a>
+  );
+}
+
+function MetaRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "110px 1fr",
+        gap: "0.75rem",
+        alignItems: "baseline",
+        paddingBlock: "0.25rem",
+      }}
+    >
+      <BodyShort size="small" style={subtle}>
+        {label}
+      </BodyShort>
+      <div style={{ minWidth: 0 }}>{children}</div>
+    </div>
+  );
+}
+
+function GroupHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <BodyShort
+      size="small"
+      style={{
+        ...eyebrow,
+        fontSize: "0.7rem",
+        marginTop: "0.5rem",
+        marginBottom: "0.25rem",
+      }}
+    >
+      {children}
+    </BodyShort>
+  );
+}
+
+function EnvCard({ env }: { env: EnvDetails }) {
   return (
     <Box
-      padding="space-24"
       borderRadius="12"
       borderWidth="1"
       borderColor="neutral-subtle"
-      background="neutral-soft"
-      style={{ height: "100%" }}
+      style={{
+        height: "100%",
+        overflow: "hidden",
+        background: "var(--ax-bg-default, #fff)",
+      }}
     >
-      <VStack gap="space-16">
-        <HStack gap="space-12" align="center" justify="space-between" wrap>
-          <Heading level="2" size="large">
-            {env.navn}
+      {/* Header */}
+      <div
+        style={{
+          padding: "1.25rem 1.5rem",
+          background: `linear-gradient(135deg, ${env.badgeColor}14 0%, ${env.badgeColor}06 100%)`,
+          borderBottom: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
+          display: "flex",
+          gap: "1rem",
+          alignItems: "center",
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: "50%",
+            background: env.badgeColor,
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 700,
+            fontSize: "1.4rem",
+            flexShrink: 0,
+            boxShadow: `0 4px 10px ${env.badgeColor}33`,
+          }}
+        >
+          {env.navn}
+        </div>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <Heading level="2" size="small" style={{ margin: 0 }}>
+            Testmiljø {env.navn}
           </Heading>
-          <HStack gap="space-8" align="center">
-            <Tag size="small" variant="info">
-              Testmiljø
+          <HStack gap="space-4" align="center" wrap style={{ marginTop: "0.35rem" }}>
+            <Tag size="xsmall" variant="info">
+              {env.identifikator}
             </Tag>
-            <Tag size="small" variant="neutral">
+            <Tag size="xsmall" variant="neutral">
+              {env.rinaVersjon}
+            </Tag>
+            <Tag size="xsmall" variant="neutral">
               dev-gcp
             </Tag>
           </HStack>
-        </HStack>
+        </div>
+      </div>
 
-        <dl style={{ margin: 0, display: "grid", gridTemplateColumns: "minmax(160px, max-content) 1fr", gap: "0.4rem 1rem" }}>
-          {rows.map((r) => (
-            <div key={r.label} style={{ display: "contents" }}>
-              <dt>
-                <BodyShort size="small" style={subtle}>
-                  {r.label}
-                </BodyShort>
-              </dt>
-              <dd style={{ margin: 0 }}>
-                <HStack gap="space-4" align="center" wrap>
-                  {r.href ? (
-                    <a href={r.href} target="_blank" rel="noreferrer">
-                      <code>{r.value}</code>
-                    </a>
-                  ) : (
-                    <code>{r.value}</code>
-                  )}
-                  {r.copy && (
-                    <CopyButton
-                      copyText={r.copy}
-                      size="xsmall"
-                      variant="action"
-                      title={`Kopier ${r.copy}`}
-                    />
-                  )}
-                </HStack>
-              </dd>
-            </div>
-          ))}
-        </dl>
+      {/* Body */}
+      <div style={{ padding: "1rem 1.5rem 1.25rem" }}>
+        <GroupHeading>RINA-instans</GroupHeading>
+        <MetaRow label="RINA-UI">
+          <UrlLink href={env.rinaUiUrl} />
+        </MetaRow>
+        <MetaRow label="Server">
+          <HStack gap="space-4" align="center">
+            <code style={{ fontSize: "0.85rem" }}>{env.rinaServer}</code>
+            <CopyButton
+              copyText={env.rinaServer}
+              size="xsmall"
+              variant="action"
+              title={`Kopier ${env.rinaServer}`}
+            />
+          </HStack>
+        </MetaRow>
+        <MetaRow label="Pålogging">
+          <BodyShort size="small">{env.innlogging}</BodyShort>
+        </MetaRow>
+
+        <GroupHeading>NAV-endepunkter</GroupHeading>
+        <MetaRow label="Frontend">
+          <UrlLink href={env.frontend} />
+        </MetaRow>
+        <MetaRow label="CPI">
+          <VStack gap="space-0">
+            <UrlLink href={env.cpiUrl} />
+            <BodyShort size="small" style={subtle}>
+              app: <code style={{ fontSize: "0.78rem" }}>{env.cpiApp}</code>
+            </BodyShort>
+          </VStack>
+        </MetaRow>
+        <MetaRow label="NIE">
+          <VStack gap="space-0">
+            <UrlLink href={env.nieUrl} />
+            <BodyShort size="small" style={subtle}>
+              app: <code style={{ fontSize: "0.78rem" }}>{env.nieApp}</code>
+            </BodyShort>
+          </VStack>
+        </MetaRow>
 
         {env.ekstra && env.ekstra.length > 0 && (
-          <Box>
-            <BodyShort size="small" style={{ ...subtle, marginBottom: "0.25rem" }}>
-              Andre lenker
-            </BodyShort>
-            <HStack gap="space-8" wrap>
+          <>
+            <GroupHeading>Andre lenker</GroupHeading>
+            <HStack gap="space-12" wrap>
               {env.ekstra.map((l) => (
-                <a key={l.href} href={l.href} target="_blank" rel="noreferrer">
+                <a
+                  key={l.href}
+                  href={l.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontSize: "0.9rem" }}
+                >
                   {l.label} ↗
                 </a>
               ))}
             </HStack>
-          </Box>
+          </>
         )}
 
         {env.notater && (
-          <BodyShort size="small" style={subtle}>
+          <BodyShort
+            size="small"
+            style={{ ...subtle, marginTop: "0.75rem", fontStyle: "italic" }}
+          >
             {env.notater}
           </BodyShort>
         )}
-      </VStack>
+      </div>
     </Box>
   );
 }
