@@ -25,6 +25,7 @@ type Env = "q1" | "q2";
 
 type ServiceRow = {
   name: string;
+  repo?: string;
   description: string;
   q1?: string;
   q2?: string;
@@ -33,7 +34,7 @@ type ServiceRow = {
 };
 
 const services: ServiceRow[] = [
-  { name: "nEESSI", description: "Frontend for saksbehandlere (servert via eux-neessi-ingressen)", q1: "https://eux-neessi-q1.intern.dev.nav.no/", q2: "https://eux-neessi-q2.intern.dev.nav.no/" },
+  { name: "nEESSI", repo: "eux-web-app", description: "Frontend for saksbehandlere (servert via eux-neessi-ingressen)", q1: "https://eux-neessi-q1.intern.dev.nav.no/", q2: "https://eux-neessi-q2.intern.dev.nav.no/" },
   { name: "eux-neessi", description: "Backend-for-frontend / orkestrator", q1: "https://eux-neessi-backend-q1.intern.dev.nav.no", q2: "https://eux-neessi-backend-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
   { name: "eux-rina-api", description: "Mellomvare mot RINA CPI", q1: "https://eux-rina-api-q1.intern.dev.nav.no", q2: "https://eux-rina-api-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
   { name: "eux-rina-terminator-api", description: "Lukke- og sletteoperasjoner mot RINA", q1: "https://eux-rina-terminator-api-q1.intern.dev.nav.no", q2: "https://eux-rina-terminator-api-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
@@ -456,7 +457,7 @@ export default function EnvironmentsPage() {
                     <td style={{ padding: "0.5rem", borderBottom: "1px solid #eee", verticalAlign: "top" }}>
                       <BodyShort weight="semibold">
                         <a
-                          href={`https://github.com/navikt/${s.name}`}
+                          href={`https://github.com/navikt/${s.repo ?? s.name}`}
                           target="_blank"
                           rel="noreferrer"
                         >

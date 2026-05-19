@@ -6,13 +6,14 @@ export const metadata = {
 
 type App = {
   name: string;
+  repo?: string;
   tech: string;
   db: string;
   description: string;
 };
 
 const core: App[] = [
-  { name: "nEESSI", tech: "React / TypeScript / Node.js", db: "—", description: "Frontend for saksbehandlere. Node.js BFF videresender forespørsler til eux-neessi med OAuth2 on-behalf-of." },
+  { name: "nEESSI", repo: "eux-web-app", tech: "React / TypeScript / Node.js", db: "—", description: "Frontend for saksbehandlere. Node.js BFF videresender forespørsler til eux-neessi med OAuth2 on-behalf-of." },
   { name: "eux-neessi", tech: "Java / Spring Boot", db: "—", description: "Backend-for-frontend / orkestrator. Kaller eux-* tjenester, PDL, Dokarkiv, SAF." },
   { name: "eux-rina-api", tech: "Java / Spring Boot", db: "—", description: "Mellomvare mot RINA CPI. SED-malrendering, PDF-generering, saksstyring." },
   { name: "eux-nav-rinasak", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Kobler NAV-fagsaker til RINA-saker. Holder styr på journalstatus per SED." },
@@ -59,7 +60,7 @@ function AppTable({ rows }: { rows: App[] }) {
           <VStack gap="space-4">
             <BodyShort weight="semibold">
               <a
-                href={`https://github.com/navikt/${r.name}`}
+                href={`https://github.com/navikt/${r.repo ?? r.name}`}
                 target="_blank"
                 rel="noreferrer"
               >
