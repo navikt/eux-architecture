@@ -22,48 +22,41 @@ type Card = {
 const cards: Card[] = [
   {
     href: "/architecture",
-    eyebrow: "How it fits together",
-    title: "Architecture overview",
+    eyebrow: "Hvordan henger det sammen",
+    title: "Arkitekturoversikt",
     description:
-      "A guided tour of the EUX services, the Kafka topics that glue them together, and the integrations to RINA, PDL, Dokarkiv and SAF.",
-    cta: "See the architecture →",
+      "En guidet tur gjennom EUX-tjenestene, Kafka-strømmene som binder dem sammen, og integrasjonene mot RINA, PDL, Dokarkiv og SAF.",
+    cta: "Se arkitekturen →",
     className: "portal-card portal-card--blue",
   },
   {
     href: "/applications",
-    eyebrow: "Catalogue",
-    title: "Applications",
+    eyebrow: "Katalog",
+    title: "Applikasjoner",
     description:
-      "Every EUX/EESSI service we run — what it does, what it depends on, and where to find its source code.",
-    cta: "Browse applications →",
+      "Hver eneste EUX/EESSI-tjeneste vi drifter — hva den gjør, hva den er avhengig av, og hvor du finner kildekoden.",
+    cta: "Bla i applikasjonene →",
     className: "portal-card portal-card--green",
   },
   {
-    href: "https://eux-rina-gateway-portal-q1.intern.dev.nav.no",
-    external: true,
-    eyebrow: "Sister portal",
-    title: "RINA Gateway portal",
+    href: "/environments",
+    eyebrow: "Test og utvikling",
+    title: "Miljøer",
     description:
-      "A friendlier window into the gateway: live status, end-to-end smoke tests, and the story behind the replacement of the old EESSI integration.",
-    cta: "Open RINA Gateway portal →",
+      "Q1 og Q2 — RINA-instanser, frontend-URL-er, CPI- og NIE-endepunkter, og Swagger-lenker per tjeneste.",
+    cta: "Åpne miljøoversikten →",
     className: "portal-card portal-card--purple",
   },
   {
     href: "https://github.com/navikt/eux-architecture/blob/main/README.md",
     external: true,
-    eyebrow: "Source of truth",
+    eyebrow: "Kildedokument",
     title: "README.md",
     description:
-      "The full, always-current architecture document on GitHub. Read this before making changes that cross service boundaries.",
-    cta: "Read the README →",
+      "Det fullstendige, alltid oppdaterte arkitekturdokumentet på GitHub. Les dette før du gjør endringer på tvers av tjenester.",
+    cta: "Les README-en →",
     className: "portal-card portal-card--orange",
   },
-];
-
-const facts = [
-  { label: "Services in the platform", value: "~24" },
-  { label: "Kafka topics", value: "5+" },
-  { label: "External integrations", value: "RINA · PDL · Dokarkiv · SAF" },
 ];
 
 const subtleStyle = { color: "var(--ax-text-subtle, #555)" };
@@ -87,29 +80,30 @@ export default function Home() {
                 NAV · EUX · EESSI
               </BodyShort>
               <Heading level="1" size="xlarge">
-                The EUX architecture, in one place
+                EUX-arkitekturen — samlet på ett sted
               </Heading>
               <BodyLong size="large">
-                When someone in Norway has lived or worked elsewhere in the
-                EU, NAV often needs to exchange information with the country
-                they came from — a pension claim, a sickness benefit, a
-                family allowance. Those exchanges happen over{" "}
-                <strong>EESSI</strong>, the EU&rsquo;s electronic
-                social-security network, through a system called{" "}
+                Når noen som bor i Norge har bodd eller jobbet i et annet
+                EU/EØS-land, må NAV ofte utveksle informasjon med landet
+                de kom fra — en pensjonssøknad, en sykepengesak, en
+                familieytelse. Den utvekslingen skjer over{" "}
+                <strong>EESSI</strong>, EUs elektroniske nettverk for
+                trygdeinformasjon, gjennom et system som heter{" "}
                 <strong>RINA</strong>.
               </BodyLong>
               <BodyLong>
-                <strong>EUX</strong> is NAV&rsquo;s collection of services
-                that sit between Norwegian caseworkers and RINA. This portal
-                explains what those services are, how they talk to each
-                other, and where to look when you need to dive deeper.
+                <strong>EUX</strong> er NAVs samling av tjenester som
+                sitter mellom norske saksbehandlere og RINA. Denne
+                portalen forklarer hva tjenestene er, hvordan de snakker
+                sammen, og hvor du skal lete når du trenger å dykke
+                dypere.
               </BodyLong>
               <HStack gap="space-8" align="center" wrap>
                 <Tag size="small" variant="info">
-                  Documentation
+                  Dokumentasjon
                 </Tag>
                 <Tag size="small" variant="neutral">
-                  Test environment
+                  Testmiljø
                 </Tag>
                 <BodyShort size="small" style={subtleStyle}>
                   architecture.intern.dev.nav.no
@@ -122,7 +116,7 @@ export default function Home() {
 
       <section>
         <Heading level="2" size="medium" spacing>
-          Take a look around
+          Se deg rundt
         </Heading>
         <div
           style={{
@@ -152,39 +146,6 @@ export default function Home() {
               </NextLink>
             )
           )}
-        </div>
-      </section>
-
-      <section>
-        <Heading level="2" size="medium" spacing>
-          EUX in three numbers
-        </Heading>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "1rem",
-          }}
-        >
-          {facts.map((f) => (
-            <Box
-              key={f.label}
-              padding="space-24"
-              borderRadius="8"
-              borderWidth="1"
-              borderColor="neutral-subtle"
-              background="neutral-soft"
-            >
-              <VStack gap="space-4">
-                <Heading level="3" size="large">
-                  {f.value}
-                </Heading>
-                <BodyShort size="small" style={subtleStyle}>
-                  {f.label}
-                </BodyShort>
-              </VStack>
-            </Box>
-          ))}
         </div>
       </section>
     </VStack>

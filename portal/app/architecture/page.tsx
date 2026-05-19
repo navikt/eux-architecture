@@ -29,17 +29,17 @@ const eyebrowStyle = {
 };
 
 const sections = [
-  { id: "intro", label: "What is EUX?" },
+  { id: "intro", label: "Hva er EUX?" },
   { id: "eessi", label: "EESSI" },
   { id: "rina", label: "RINA" },
-  { id: "sync", label: "Request flow" },
-  { id: "events", label: "Event flow" },
-  { id: "lifecycle", label: "SED lifecycle" },
-  { id: "layers", label: "Service layers" },
-  { id: "external", label: "External systems" },
-  { id: "patterns", label: "Patterns" },
-  { id: "pitfalls", label: "Pitfalls" },
-  { id: "next", label: "Where to go next" },
+  { id: "sync", label: "Forespørselsflyt" },
+  { id: "events", label: "Hendelsesflyt" },
+  { id: "lifecycle", label: "SED-livssyklus" },
+  { id: "layers", label: "Tjenestelag" },
+  { id: "external", label: "Eksterne systemer" },
+  { id: "patterns", label: "Mønstre" },
+  { id: "pitfalls", label: "Fallgruver" },
+  { id: "next", label: "Videre lesing" },
 ];
 
 function Section({
@@ -92,19 +92,18 @@ export default function ArchitecturePage() {
         >
           <VStack gap="space-16" style={{ maxWidth: "52rem" }}>
             <BodyShort size="small" style={eyebrowStyle}>
-              Architecture overview
+              Arkitekturoversikt
             </BodyShort>
             <Heading level="1" size="xlarge">
-              How EUX talks to Europe
+              Slik snakker EUX med resten av Europa
             </Heading>
             <BodyLong size="large">
-              When someone in Norway has lived or worked in another EU/EEA
-              country — and now needs a pension, a sickness benefit, a
-              family allowance — NAV cannot just look the answer up in a
-              Norwegian register. We have to ask the country they came
-              from, and they have to ask us. <strong>EUX</strong> is the
-              collection of ~24 small services that makes those
-              conversations possible.
+              Når noen som bor i Norge har bodd eller jobbet i et annet
+              EU/EØS-land — og nå trenger pensjon, sykepenger eller en
+              familieytelse — kan ikke NAV bare slå opp svaret i et norsk
+              register. Vi må spørre landet de kom fra, og de må spørre
+              oss. <strong>EUX</strong> er samlingen av om lag 24 små
+              tjenester som gjør de samtalene mulige.
             </BodyLong>
             <HStack gap="space-8" align="center" wrap>
               <Tag size="small" variant="info">EESSI</Tag>
@@ -120,7 +119,7 @@ export default function ArchitecturePage() {
       {/* Table of contents */}
       <Box>
         <Detail style={{ marginBottom: "0.5rem", ...subtleStyle }}>
-          Jump to
+          Hopp til
         </Detail>
         <Chips>
           {sections.map((s) => (
@@ -134,33 +133,33 @@ export default function ArchitecturePage() {
       {/* Intro */}
       <Section id="intro">
         <Heading level="2" size="large">
-          What is EUX?
+          Hva er EUX?
         </Heading>
         <BodyLong size="large" className="portal-prose">
-          <strong>EUX</strong> (sometimes written <em>EUX/EESSI</em>) is
-          NAV&rsquo;s domain for cross-border social-security
-          coordination. Functionally it is a thin layer of NAV services
-          that sit between Norwegian caseworkers and the European
-          infrastructure called EESSI/RINA. Operationally it is owned by
-          the team <strong>eessibasis</strong> in NAV.
+          <strong>EUX</strong> (av og til skrevet <em>EUX/EESSI</em>) er
+          NAVs domene for trygdesamordning på tvers av landegrenser.
+          Funksjonelt er det et tynt lag NAV-tjenester som sitter mellom
+          norske saksbehandlere og den europeiske infrastrukturen som
+          heter EESSI/RINA. Driftsmessig eies det av teamet{" "}
+          <strong>eessibasis</strong> i NAV.
         </BodyLong>
         <BodyLong className="portal-prose">
-          From a developer&rsquo;s perspective, EUX is roughly two dozen
-          services on NAIS — a React/TypeScript frontend, a few
-          Spring-Boot backends in Kotlin and Java, a handful of Kafka
-          consumers, and some scheduled jobs — all wired into the
-          Norwegian instance of RINA and a number of NAV registers (PDL,
-          Dokarkiv, SAF, NAV Oppgave).
+          Fra et utviklerperspektiv er EUX om lag to dusin tjenester på
+          NAIS — en React/TypeScript-frontend, et knippe
+          Spring-Boot-backender i Kotlin og Java, noen Kafka-konsumenter
+          og noen planlagte jobber — alle koblet til den norske
+          RINA-instansen og en rekke NAV-registre (PDL, Dokarkiv, SAF,
+          NAV Oppgave).
         </BodyLong>
         <GuidePanel poster>
           <Heading level="3" size="small" spacing>
-            One sentence
+            Én setning
           </Heading>
           <BodyLong>
-            EUX lets a Norwegian caseworker exchange structured documents
-            (<strong>SEDs</strong>) with social-security institutions in
-            other EU/EEA countries — and quietly keeps NAV&rsquo;s
-            registers in sync while it happens.
+            EUX lar en norsk saksbehandler utveksle strukturerte
+            dokumenter (<strong>SED-er</strong>) med
+            trygdemyndigheter i andre EU/EØS-land — og holder samtidig
+            NAVs egne registre i synk i bakgrunnen.
           </BodyLong>
         </GuidePanel>
       </Section>
@@ -168,51 +167,51 @@ export default function ArchitecturePage() {
       {/* EESSI */}
       <Section id="eessi">
         <Heading level="2" size="large">
-          EESSI — the European network
+          EESSI — det europeiske nettverket
         </Heading>
         <BodyLong className="portal-prose">
           <strong>EESSI</strong> (Electronic Exchange of Social Security
-          Information) is the EU&rsquo;s network for cross-border social
-          security. Every EU/EEA country has a national connection point.
-          When NAV needs information from, say, Germany, the request
-          travels over EESSI and reaches the German equivalent of NAV.
-          The piece of software each country runs on its side of the
-          network is called <strong>RINA</strong>.
+          Information) er EUs nettverk for trygdesamordning på tvers av
+          land. Hvert EU/EØS-land har sitt eget nasjonale
+          kontaktpunkt. Når NAV trenger informasjon fra for eksempel
+          Tyskland, reiser forespørselen over EESSI og når den tyske
+          motparten til NAV. Programvaren hvert land kjører på sin side
+          av nettverket heter <strong>RINA</strong>.
         </BodyLong>
         <BodyLong className="portal-prose">
-          The unit of work in EESSI is a <strong>BUC</strong> (Business
-          Use Case) — for example &ldquo;P_BUC_01&rdquo; for a basic
-          pension claim. A BUC is a small workflow that defines{" "}
-          <em>which</em> documents are exchanged, <em>by whom</em>, and{" "}
-          <em>in which order</em>. Each document inside a BUC is a{" "}
-          <strong>SED</strong> (Structured Electronic Document) with a
-          well-defined schema, e.g.{" "}
-          <code>P2000</code> for a claim for old-age pension.
+          Arbeidsenheten i EESSI er en <strong>BUC</strong> (Business
+          Use Case) — for eksempel &laquo;P_BUC_01&raquo; for en
+          ordinær pensjonssøknad. En BUC er en liten arbeidsflyt som
+          definerer <em>hvilke</em> dokumenter som utveksles,{" "}
+          <em>av hvem</em> og <em>i hvilken rekkefølge</em>. Hvert
+          dokument i en BUC er en <strong>SED</strong> (Structured
+          Electronic Document) med et veldefinert skjema, f.eks.{" "}
+          <code>P2000</code> for søknad om alderspensjon.
         </BodyLong>
-        <ReadMore header="More on the EESSI domain language">
+        <ReadMore header="Mer om EESSI-begrepene">
           <ul className="portal-prose">
             <li>
               <strong>SED</strong> — Structured Electronic Document.
-              The actual XML/JSON message passed between countries.
+              Selve XML/JSON-meldingen som sendes mellom land.
             </li>
             <li>
-              <strong>BUC</strong> — Business Use Case. A workflow that
-              chains a set of SEDs together.
+              <strong>BUC</strong> — Business Use Case. En arbeidsflyt
+              som kjeder sammen et sett SED-er.
             </li>
             <li>
               <strong>RINA</strong> — Reference Implementation of a
-              National Application. The local UI/server every country
-              uses to participate in EESSI.
+              National Application. Den lokale UI-en og serveren hvert
+              land bruker for å delta i EESSI.
             </li>
             <li>
               <strong>CPI</strong> — Case Processing Interface.
-              RINA&rsquo;s REST API. This is what NAV&rsquo;s
-              <code> eux-rina-api</code> talks to.
+              REST-API-et til RINA. Det er dette{" "}
+              <code>eux-rina-api</code> snakker med.
             </li>
             <li>
-              <strong>NIE</strong> — National Interface Endpoint. How
-              RINA pushes events <em>out</em> to national systems —
-              consumed by <code>eux-all-rina-events</code>.
+              <strong>NIE</strong> — National Interface Endpoint. Slik
+              pusher RINA hendelser <em>ut</em> til nasjonale systemer
+              — konsumeres av <code>eux-all-rina-events</code>.
             </li>
           </ul>
         </ReadMore>
@@ -221,108 +220,111 @@ export default function ArchitecturePage() {
       {/* RINA */}
       <Section id="rina">
         <Heading level="2" size="large">
-          RINA — the EU app NAV operates
+          RINA — EU-applikasjonen NAV drifter
         </Heading>
         <BodyLong className="portal-prose">
-          RINA is delivered by the European Commission, but each member
-          state runs its own instance. NAV hosts NAV&rsquo;s. From
-          NAV&rsquo;s point of view, RINA is the other end of a REST API
-          (<strong>CPI</strong>) and an event push channel
-          (<strong>NIE</strong>). The Norwegian caseworker never opens
-          RINA directly — they use{" "}
-          <code>eux-web-app</code>, which goes through NAV&rsquo;s
-          services and only then reaches RINA.
+          RINA leveres av EU-kommisjonen, men hvert medlemsland drifter
+          sin egen instans. NAV drifter NAV sin. Fra NAV sitt
+          synspunkt er RINA den andre enden av et REST-API
+          (<strong>CPI</strong>) og en push-kanal for hendelser
+          (<strong>NIE</strong>). Den norske saksbehandleren åpner
+          aldri RINA direkte — de bruker <code>eux-web-app</code>, som
+          går via NAVs tjenester og først der når RINA.
         </BodyLong>
         <BodyLong className="portal-prose">
-          That single design choice — &ldquo;NAV-facing UI on top of
-          RINA, not RINA itself&rdquo; — is the reason the EUX platform
-          exists in the shape it does.
+          Det ene designvalget — &laquo;NAV-rettet UI på toppen av
+          RINA, ikke RINA selv&raquo; — er grunnen til at
+          EUX-plattformen har akkurat den formen den har.
         </BodyLong>
       </Section>
 
       {/* Sync */}
       <Section id="sync">
         <Heading level="2" size="large">
-          Request flow — what happens when a caseworker clicks
+          Forespørselsflyt — hva skjer når en saksbehandler klikker
         </Heading>
         <BodyLong className="portal-prose">
-          A caseworker opens <code>eux-web-app</code> in their browser.
-          The frontend&rsquo;s Node.js BFF logs them in with Azure AD via
-          the Wonderwall sidecar, then proxies the request to{" "}
-          <code>eux-neessi</code> using an OAuth2{" "}
-          <em>on-behalf-of</em> token. <code>eux-neessi</code> is the
-          orchestrator: it fans out to a small set of focused services
-          and stitches the answers back together.
+          En saksbehandler åpner <code>eux-web-app</code> i nettleseren.
+          Node.js-BFF-en logger dem inn med Azure AD via
+          Wonderwall-sidecaren, og sender deretter forespørselen videre
+          til <code>eux-neessi</code> med en OAuth2{" "}
+          <em>on-behalf-of</em>-token. <code>eux-neessi</code> er
+          orkestratoren: den splitter ut til et lite sett spesialiserte
+          tjenester og syr svarene sammen igjen.
         </BodyLong>
-        <Figure caption="Synchronous request flow. Solid arrows are REST calls; the Node.js BFF on the left handles Azure AD login.">
+        <Figure caption="Synkron forespørselsflyt. Heltrukne piler er REST-kall; Node.js-BFF-en til venstre håndterer Azure AD-innlogging.">
           <SyncFlowDiagram />
         </Figure>
         <Accordion>
           <Accordion.Item>
-            <Accordion.Header>What each service does</Accordion.Header>
+            <Accordion.Header>
+              Hva hver tjeneste gjør
+            </Accordion.Header>
             <Accordion.Content>
               <ul className="portal-prose">
                 <li>
-                  <code>eux-web-app</code> — caseworker UI, React +
-                  TypeScript. Node.js BFF proxies <code>/api</code>,
-                  <code> /v2</code>–<code>/v5</code> to{" "}
-                  <code>eux-neessi</code>.
+                  <code>eux-web-app</code> — saksbehandler-UI, React +
+                  TypeScript. Node.js-BFF-en videresender{" "}
+                  <code>/api</code>, <code>/v2</code>–<code>/v5</code>{" "}
+                  til <code>eux-neessi</code>.
                 </li>
                 <li>
-                  <code>eux-neessi</code> — orchestrator BFF in Java +
-                  Spring Boot. Calls everything below.
+                  <code>eux-neessi</code> — orkestrator-BFF i Java +
+                  Spring Boot. Kaller alt under.
                 </li>
                 <li>
-                  <code>eux-rina-api</code> — middleware to RINA CPI.
-                  Translates between NAV&rsquo;s SED format and the EU
-                  format, generates PDFs, manages case lifecycle.
+                  <code>eux-rina-api</code> — mellomvare mot RINA CPI.
+                  Oversetter mellom NAVs SED-format og EU-formatet,
+                  genererer PDF, styrer saksforløp.
                 </li>
                 <li>
-                  <code>eux-nav-rinasak</code> — links NAV fagsaker to
-                  RINA cases. Tracks per-SED journal status. PostgreSQL.
+                  <code>eux-nav-rinasak</code> — kobler NAV-fagsaker
+                  til RINA-saker. Sporer journalstatus per SED.
+                  PostgreSQL.
                 </li>
                 <li>
-                  <code>eux-journal</code> — error-registration
-                  (feilregistrering) and finalization (ferdigstilling)
-                  of journal posts.
+                  <code>eux-journal</code> — feilregistrering og
+                  ferdigstilling av journalposter.
                 </li>
                 <li>
-                  <code>eux-oppgave</code> — integration to NAV Oppgave.
+                  <code>eux-oppgave</code> — integrasjon mot NAV
+                  Oppgave.
                 </li>
                 <li>
-                  <code>eux-saksbehandler</code> — stores caseworker
-                  preferences (favourite unit, etc.).
+                  <code>eux-saksbehandler</code> — lagrer
+                  saksbehandlerinnstillinger (favorittenhet osv.).
                 </li>
               </ul>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              Why a BFF in front of a BFF?
+              Hvorfor en BFF foran en BFF?
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                <code>eux-web-app</code> has a Node.js BFF that handles
-                login and token exchange — that is a NAV-wide pattern.{" "}
-                <code>eux-neessi</code> is a domain-level
-                backend-for-frontend that hides the EUX-internal service
-                graph from the frontend. The result: the React app only
-                needs to know about <em>one</em> backend, and the
-                downstream services can evolve independently.
+                <code>eux-web-app</code> har en Node.js-BFF som
+                håndterer innlogging og token-veksling — det er et
+                NAV-mønster. <code>eux-neessi</code> er en
+                domenespesifikk backend-for-frontend som skjuler den
+                EUX-interne tjenestegrafen for frontenden. Resultat:
+                React-appen forholder seg til <em>én</em> backend, og
+                tjenestene under kan utvikle seg uavhengig.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              The deep call chain — and what to watch out for
+              Den lange synkrone kjeden — og hva man skal være obs på
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                A single user click can travel{" "}
-                <code>web-app → neessi → rina-api → RINA CPI</code>. A
-                timeout in RINA cascades all the way back. Be careful
-                with timeout settings at each layer and resist the urge
-                to add &ldquo;just one more&rdquo; synchronous hop.
+                Ett klikk fra en bruker kan gå{" "}
+                <code>web-app → neessi → rina-api → RINA CPI</code>.
+                En timeout i RINA forplanter seg hele veien tilbake.
+                Vær nøye med timeout-innstillinger i hvert lag, og
+                motstå fristelsen å legge til &laquo;bare ett til&raquo;
+                synkront kall.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
@@ -332,77 +334,78 @@ export default function ArchitecturePage() {
       {/* Events */}
       <Section id="events">
         <Heading level="2" size="large">
-          Event flow — what RINA tells us, and who listens
+          Hendelsesflyt — hva RINA forteller oss, og hvem som lytter
         </Heading>
         <BodyLong className="portal-prose">
-          When something happens in RINA — a new case is created, a
-          document arrives from another country, a notification fires —
-          RINA pushes an event to <code>eux-all-rina-events</code> over
-          HTTP. That service publishes it onto Kafka, and from there a
-          small cloud of consumers does the actual work.
+          Når noe skjer i RINA — en ny sak opprettes, et dokument kommer
+          inn fra et annet land, et varsel fyrer av — pusher RINA en
+          hendelse til <code>eux-all-rina-events</code> over HTTP. Den
+          tjenesten publiserer hendelsen på Kafka, og derfra gjør en
+          liten sky av konsumenter selve arbeidet.
         </BodyLong>
-        <Figure caption="Event flow. eux-all-rina-events is the only ingress; everything else is a Kafka consumer.">
+        <Figure caption="Hendelsesflyt. eux-all-rina-events er den eneste inngangen; alt annet er Kafka-konsumenter.">
           <EventFlowDiagram />
         </Figure>
         <Accordion>
           <Accordion.Item>
-            <Accordion.Header>
-              The three primary topics
-            </Accordion.Header>
+            <Accordion.Header>De tre hovedtopicene</Accordion.Header>
             <Accordion.Content>
               <ul className="portal-prose">
                 <li>
-                  <code>eux-rina-case-events-v1</code> — case lifecycle.
-                  Consumed by{" "}
+                  <code>eux-rina-case-events-v1</code> —
+                  saks-livssyklus. Konsumeres av{" "}
                   <code>eux-rina-case-search</code>,{" "}
-                  <code>eux-avslutt-rinasaker</code>,{" "}
+                  <code>eux-avslutt-rinasaker</code> og{" "}
                   <code>eux-slett-usendte-rinasaker</code>.
                 </li>
                 <li>
-                  <code>eux-rina-document-events-v1</code> — SEDs
-                  arriving and being sent. Bridged to{" "}
-                  <code>sedmottatt-v1</code> / <code>sedsendt-v1</code>{" "}
-                  by <code>eux-legacy-rina-events</code>. Also consumed
-                  by <code>eux-adresse-oppdatering</code>.
+                  <code>eux-rina-document-events-v1</code> — SED-er
+                  som kommer inn og blir sendt. Bygges bro til{" "}
+                  <code>sedmottatt-v1</code> /{" "}
+                  <code>sedsendt-v1</code> av{" "}
+                  <code>eux-legacy-rina-events</code>. Konsumeres også
+                  av <code>eux-adresse-oppdatering</code>.
                 </li>
                 <li>
                   <code>eux-rina-notification-events-v1</code> —
-                  user-facing notifications. Consumed by external
-                  systems (eessi-pensjon, etc.).
+                  brukerrettede varsler. Konsumeres av eksterne
+                  systemer (eessi-pensjon m.fl.).
                 </li>
               </ul>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              Why a &ldquo;legacy&rdquo; bridge?
+              Hvorfor en &laquo;legacy&raquo;-bro?
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                The current document-event format replaced an older
-                one. To avoid breaking every existing consumer at once,{" "}
-                <code>eux-legacy-rina-events</code> reads the new topic
-                and re-publishes onto <code>sedmottatt-v1</code> /{" "}
-                <code>sedsendt-v1</code>. Older services like{" "}
+                Det nåværende dokumenthendelsesformatet erstattet et
+                eldre. For å unngå å bryte alle eksisterende
+                konsumenter samtidig leser{" "}
+                <code>eux-legacy-rina-events</code> det nye topicet og
+                publiserer på nytt til <code>sedmottatt-v1</code> /{" "}
+                <code>sedsendt-v1</code>. Eldre tjenester som{" "}
                 <code>eux-journalfoering</code>,{" "}
-                <code>eux-person-oppdatering</code> and external
-                consumers (e.g. eessi-pensjon) still listen to those.
+                <code>eux-person-oppdatering</code> og eksterne
+                konsumenter (f.eks. eessi-pensjon) lytter fremdeles
+                dit.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              What &ldquo;auto-journaling&rdquo; actually means
+              Hva &laquo;automatisk journalføring&raquo; faktisk betyr
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                When an incoming SED hits{" "}
-                <code>sedmottatt-v1</code>,{" "}
-                <code>eux-journalfoering</code> looks the person up in
-                PDL, looks the case up in <code>eux-nav-rinasak</code>,
-                writes a journal post to Dokarkiv, and creates an
-                Oppgave for the right NAV unit — all without a human in
-                the loop, as long as the data is unambiguous.
+                Når en innkommende SED treffer{" "}
+                <code>sedmottatt-v1</code>, slår{" "}
+                <code>eux-journalfoering</code> personen opp i PDL,
+                finner saken i <code>eux-nav-rinasak</code>, skriver
+                en journalpost til Dokarkiv og oppretter en oppgave
+                for riktig NAV-enhet — alt uten et menneske i loopen,
+                så lenge dataene er entydige.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
@@ -412,13 +415,13 @@ export default function ArchitecturePage() {
       {/* SED lifecycle */}
       <Section id="lifecycle">
         <Heading level="2" size="large">
-          A SED, from start to finish
+          En SED — fra start til slutt
         </Heading>
         <BodyLong className="portal-prose">
-          The same SED can travel a long way in a few hours. Here is the
-          happy-path lifecycle of a typical outgoing SED.
+          Den samme SED-en kan reise langt på noen timer. Her er den
+          lykkelige livssyklusen til en typisk utgående SED.
         </BodyLong>
-        <Figure caption="Typical outgoing SED lifecycle. Each step is owned by a different EUX service.">
+        <Figure caption="Typisk livssyklus for en utgående SED. Hvert steg eies av en egen EUX-tjeneste.">
           <SedLifecycleDiagram />
         </Figure>
       </Section>
@@ -426,12 +429,12 @@ export default function ArchitecturePage() {
       {/* Layers */}
       <Section id="layers">
         <Heading level="2" size="large">
-          The platform in four layers
+          Plattformen i fire lag
         </Heading>
         <BodyLong className="portal-prose">
-          Mentally, the ~24 EUX services group into four layers. The
-          full table with descriptions and links lives on{" "}
-          <DsLink href="/applications">the Applications page</DsLink>.
+          Mentalt grupperer de ~24 EUX-tjenestene seg i fire lag. Den
+          fullstendige tabellen med beskrivelser og lenker finner du på{" "}
+          <DsLink href="/applications">applikasjonssiden</DsLink>.
         </BodyLong>
         <div
           style={{
@@ -444,22 +447,22 @@ export default function ArchitecturePage() {
             {
               title: "Frontend",
               color: "portal-card portal-card--blue",
-              body: "eux-web-app — the only thing the caseworker sees. React + TypeScript with a Node.js BFF.",
+              body: "eux-web-app — det eneste saksbehandleren ser. React + TypeScript med en Node.js-BFF.",
             },
             {
-              title: "Core services",
+              title: "Kjernetjenester",
               color: "portal-card portal-card--green",
               body: "eux-neessi, eux-rina-api, eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler, eux-rina-terminator-api, eux-rina-case-search.",
             },
             {
-              title: "Event infrastructure",
+              title: "Hendelsesinfrastruktur",
               color: "portal-card portal-card--purple",
-              body: "eux-all-rina-events brings RINA events into Kafka; eux-legacy-rina-events bridges to the older topic format.",
+              body: "eux-all-rina-events tar RINA-hendelser inn på Kafka; eux-legacy-rina-events bygger bro til det eldre topic-formatet.",
             },
             {
-              title: "Workers & jobs",
+              title: "Arbeidere og jobber",
               color: "portal-card portal-card--orange",
-              body: "eux-journalfoering, eux-journalarkivar, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-adresse-oppdatering, eux-person-oppdatering, eux-barnetrygd — plus their NAIS-job cron triggers.",
+              body: "eux-journalfoering, eux-journalarkivar, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-adresse-oppdatering, eux-person-oppdatering, eux-barnetrygd — pluss NAIS-jobbene som trigger dem.",
             },
           ].map((c) => (
             <div key={c.title} className={c.color}>
@@ -475,28 +478,28 @@ export default function ArchitecturePage() {
       {/* External */}
       <Section id="external">
         <Heading level="2" size="large">
-          External NAV systems EUX depends on
+          Eksterne NAV-systemer EUX er avhengig av
         </Heading>
         <Box className="portal-figure">
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
                 <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>System</th>
-                <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Purpose</th>
-                <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Access</th>
+                <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Formål</th>
+                <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Tilgang</th>
               </tr>
             </thead>
             <tbody>
               {[
-                ["RINA CPI", "EU case management", "REST · shared-secret JWT or CAS"],
-                ["PDL", "Person registry (Folkeregisteret)", "GraphQL · Azure AD"],
-                ["PDL-Mottak", "Write updates to PDL", "REST · Azure AD"],
-                ["Dokarkiv", "Create/update journal posts", "REST · Azure AD"],
-                ["SAF", "Query journal posts and documents", "GraphQL · Azure AD"],
-                ["NAV Oppgave", "Task management", "REST · Azure AD via eux-oppgave"],
-                ["NORG2", "NAV organisational units", "REST · no auth"],
-                ["Aa-registeret", "Employment data", "REST · Azure AD via eux-neessi"],
-                ["A-Inntekt", "Income data", "REST · Azure AD via eux-neessi"],
+                ["RINA CPI", "EU-saksbehandlingssystem", "REST · shared-secret JWT eller CAS"],
+                ["PDL", "Personregisteret (Folkeregisteret)", "GraphQL · Azure AD"],
+                ["PDL-Mottak", "Skrive oppdateringer til PDL", "REST · Azure AD"],
+                ["Dokarkiv", "Opprette/oppdatere journalposter", "REST · Azure AD"],
+                ["SAF", "Spørre på journalposter og dokumenter", "GraphQL · Azure AD"],
+                ["NAV Oppgave", "Oppgavestyring", "REST · Azure AD via eux-oppgave"],
+                ["NORG2", "NAVs organisasjonsenheter", "REST · uten autentisering"],
+                ["Aa-registeret", "Arbeidsforholdsdata", "REST · Azure AD via eux-neessi"],
+                ["A-Inntekt", "Inntektsdata", "REST · Azure AD via eux-neessi"],
               ].map(([s, p, a]) => (
                 <tr key={s}>
                   <td style={{ padding: "0.5rem", borderBottom: "1px solid #eee" }}>
@@ -516,84 +519,86 @@ export default function ArchitecturePage() {
       {/* Patterns */}
       <Section id="patterns">
         <Heading level="2" size="large">
-          Common patterns
+          Felles mønstre
         </Heading>
         <BodyLong className="portal-prose">
-          Most EUX services look very similar from the outside: Spring
-          Boot, Azure AD, NAIS, PostgreSQL (when stateful),{" "}
+          De fleste EUX-tjenester ser veldig like ut utenfra: Spring
+          Boot, Azure AD, NAIS, PostgreSQL (når de er stateful),{" "}
           <code>/actuator/health</code>,{" "}
-          <code>/actuator/prometheus</code>. A few things vary
-          deliberately.
+          <code>/actuator/prometheus</code>. Noen ting varierer
+          bevisst.
         </BodyLong>
         <Accordion>
           <Accordion.Item>
             <Accordion.Header>
-              Authentication — who talks to whom, how
+              Autentisering — hvem snakker med hvem, hvordan
             </Accordion.Header>
             <Accordion.Content>
               <ul className="portal-prose">
                 <li>
-                  Service-to-service: <strong>Azure AD</strong> OAuth2
-                  client-credentials or on-behalf-of.
+                  Tjeneste-til-tjeneste: <strong>Azure AD</strong>{" "}
+                  OAuth2 client-credentials eller on-behalf-of.
                 </li>
                 <li>
-                  Frontend login: <strong>Wonderwall</strong> sidecar in
-                  front of <code>eux-web-app</code>.
+                  Brukerinnlogging: <strong>Wonderwall</strong>-sidecar
+                  foran <code>eux-web-app</code>.
                 </li>
                 <li>
                   <code>eux-rina-api</code> → RINA CPI: shared-secret
-                  JWT, then a CAS ticket, then a JSESSIONID. Cached.
+                  JWT, deretter en CAS-billett, deretter en JSESSIONID.
+                  Bufret.
                 </li>
                 <li>
-                  <code>eux-rina-terminator-api</code>,{" "}
-                  <code>eux-rina-case-search</code> → RINA CPI: service
-                  user credentials with CAS tickets.
+                  <code>eux-rina-terminator-api</code> og{" "}
+                  <code>eux-rina-case-search</code> → RINA CPI:
+                  systembruker med CAS-billett.
                 </li>
               </ul>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
-            <Accordion.Header>Persistence</Accordion.Header>
+            <Accordion.Header>Persistens</Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                PostgreSQL via GCP Cloud SQL, with Flyway migrations.
-                Used by <code>eux-nav-rinasak</code>,{" "}
+                PostgreSQL via GCP Cloud SQL med Flyway-migreringer.
+                Brukes av <code>eux-nav-rinasak</code>,{" "}
                 <code>eux-journal</code>, <code>eux-oppgave</code>,{" "}
                 <code>eux-saksbehandler</code>,{" "}
                 <code>eux-rina-case-search</code>,{" "}
                 <code>eux-avslutt-rinasaker</code>,{" "}
-                <code>eux-slett-usendte-rinasaker</code> and{" "}
-                <code>eux-person-oppdatering</code>. Everything else is
+                <code>eux-slett-usendte-rinasaker</code> og{" "}
+                <code>eux-person-oppdatering</code>. Resten er
                 stateless.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
-            <Accordion.Header>Build & dependencies</Accordion.Header>
+            <Accordion.Header>Bygg og avhengigheter</Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                Most Kotlin/Java services inherit from{" "}
-                <code>eux-parent-pom</code>, which pins Spring Boot,
-                Kotlin, Java, token-validation and PostgreSQL versions.
-                Several services generate Spring controllers and DTOs
-                from an OpenAPI spec; smaller services wire endpoints
-                by hand.
+                De fleste Kotlin/Java-tjenester arver fra{" "}
+                <code>eux-parent-pom</code>, som pinner versjoner for
+                Spring Boot, Kotlin, Java, token-validation og
+                PostgreSQL. Flere tjenester genererer Spring-controllere
+                og DTO-er fra en OpenAPI-spesifikasjon; mindre tjenester
+                kobler endepunkter for hånd.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
-            <Accordion.Header>Observability</Accordion.Header>
+            <Accordion.Header>Observabilitet</Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                Every JVM service exposes <code>/actuator/health</code>{" "}
-                and <code>/actuator/prometheus</code>.{" "}
-                <code>eux-web-app</code> uses{" "}
-                <code>/internal/isAlive</code> and{" "}
-                <code>/internal/isReady</code> instead. Structured
-                logging with MDC (<code>x_request_id</code>,{" "}
+                Alle JVM-tjenester eksponerer{" "}
+                <code>/actuator/health</code> og{" "}
+                <code>/actuator/prometheus</code>.{" "}
+                <code>eux-web-app</code> bruker{" "}
+                <code>/internal/isAlive</code> og{" "}
+                <code>/internal/isReady</code> i stedet. Strukturert
+                logging med MDC (<code>x_request_id</code>,{" "}
                 <code>rinasakId</code>, <code>sedId</code>,{" "}
-                <code>sedType</code>) via the shared{" "}
-                <code>eux-logging</code> library.
+                <code>sedType</code>) via det felles biblioteket{" "}
+                <code>eux-logging</code>.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
@@ -603,127 +608,125 @@ export default function ArchitecturePage() {
       {/* Pitfalls */}
       <Section id="pitfalls">
         <Heading level="2" size="large">
-          Pitfalls and gotchas
+          Fallgruver og ting å passe på
         </Heading>
         <BodyLong className="portal-prose">
-          A handful of things have caught contributors out enough times
-          that they deserve their own list. Read at least the first
-          three before changing anything in <code>eux-rina-api</code>.
+          Noen ting har lurt bidragsytere mange nok ganger til at de
+          fortjener sin egen liste. Les minst de tre første før du
+          endrer noe i <code>eux-rina-api</code>.
         </BodyLong>
         <Accordion>
           <Accordion.Item>
             <Accordion.Header>
-              &ldquo;ACL&rdquo; in eux-rina-api is not access control
+              &laquo;ACL&raquo; i eux-rina-api er ikke tilgangsstyring
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                The class <code>EessiAcl.java</code> is the SED format{" "}
-                <strong>transformation</strong> layer — it converts
-                SEDs between NAV&rsquo;s internal format and the EU
-                format using code mappings and templates. If a code
-                mapping lookup fails, the value is silently mapped to
-                an <strong>empty string</strong> and logged as a
-                warning. Data can be lost without any error being
-                raised.
+                Klassen <code>EessiAcl.java</code> er{" "}
+                <strong>transformasjonslaget</strong> for SED-format —
+                den konverterer SED-er mellom NAVs interne format og
+                EU-formatet ved hjelp av kodemapping og maler. Hvis et
+                kodemappingsoppslag feiler, blir verdien stille mappet
+                til en <strong>tom streng</strong> og logget som en
+                warning. Data kan altså bli borte uten at det blir
+                kastet en feil.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              CPI session cache expires at 29 minutes
+              CPI-sesjonsbufferen utløper etter 29 minutter
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                <code>eux-rina-api</code> caches the CPI session for 29
-                minutes; RINA expires it at 30. Long-running operations
-                (big SED transforms, attachment polling) can hit auth
-                failures if they start near the end of a cache window.
-                There is no automatic refresh — the full 3-step auth
-                (JWT → CAS ticket → JSESSIONID) is repeated.
+                <code>eux-rina-api</code> bufrer CPI-sesjonen i 29
+                minutter; RINA utløper den etter 30. Langvarige
+                operasjoner (store SED-transformasjoner, polling av
+                vedlegg) kan møte autentiseringsfeil hvis de starter
+                nær slutten av et buffervindu. Det er ingen automatisk
+                refresh — hele 3-stegs-autentiseringen (JWT →
+                CAS-billett → JSESSIONID) må gjøres på nytt.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              Action checks have a race condition
+              Action-sjekkene har en race condition
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                Before creating, updating or sending a SED,{" "}
-                <code>eux-rina-api</code> calls{" "}
-                <code>hentMuligeActions()</code> on RINA. There is no
-                lock — the case state can change between the check and
-                the operation, producing <strong>409 Conflict</strong>.
-                Callers should retry on 409.
+                Før <code>eux-rina-api</code> oppretter, oppdaterer
+                eller sender en SED, kaller den{" "}
+                <code>hentMuligeActions()</code> på RINA. Det er ingen
+                lås — saksstatusen i RINA kan endre seg mellom sjekken
+                og operasjonen, og du får{" "}
+                <strong>409 Conflict</strong>. Kallere bør forberedes
+                på å forsøke på nytt ved 409.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              The deep synchronous call chain
+              Den lange synkrone kjeden
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                <code>
-                  web-app → neessi → rina-api → RINA CPI
-                </code>{" "}
-                is four hops, all synchronous. A slow RINA cascades.
-                Pay close attention to timeouts at each layer.
+                <code>web-app → neessi → rina-api → RINA CPI</code> er
+                fire hopp, alle synkrone. En treg RINA forplanter seg.
+                Vær nøye med timeouts i hvert lag.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              Database connection pools are small on purpose
+              DB-pooler er bevisst små
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                Stateful services typically run with max 2 / min 1 DB
-                connection. That is intentional on NAIS — but it means
-                a slow query can block everything else. Keep
-                transactions short.
+                Stateful tjenester kjøres typisk med maks 2 / min 1
+                DB-tilkobling. Det er bevisst på NAIS — men det
+                betyr at en treg spørring kan blokkere alt annet. Hold
+                transaksjonene korte.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              Kafka consumers can get stuck
+              Kafka-konsumenter kan sette seg fast
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                Several consumers commit manually with small poll
-                sizes. If a message keeps failing, the consumer can
-                wedge on it.{" "}
-                <code>eux-adresse-oppdatering</code> retries 3 times
-                then ships to a DLT; others behave differently. Monitor
-                consumer lag.
+                Flere konsumenter commiter manuelt med små poll-størrelser.
+                Hvis en melding feiler gjentatte ganger, kan konsumenten
+                bli stående på den. <code>eux-adresse-oppdatering</code>{" "}
+                prøver 3 ganger og sender deretter til en DLT; andre
+                oppfører seg annerledes. Følg med på consumer-lag.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              NAIS-job schedules that &ldquo;never fire&rdquo;
+              NAIS-jobber med &laquo;umulig&raquo; schedule
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                Some jobs ship with a cron like{" "}
-                <code>0 0 31 2 *</code> (February 31st — never). That
-                is intentional: those jobs are enabled per environment.
-                Always check the env-specific YAML, not just the base
-                template.
+                Noen jobber leveres med en cron som{" "}
+                <code>0 0 31 2 *</code> (31. februar — finnes ikke).
+                Det er bevisst: de jobbene skrus på per miljø. Sjekk
+                alltid den miljøspesifikke YAML-en, ikke bare base-malen.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
-              FSS vs GCP — extra latency
+              FSS vs. GCP — ekstra ventetid
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                A few external NAV services (Dokarkiv, SAF, NAV
-                Oppgave) are still accessed via FSS public endpoints
-                (<code>*.prod-fss-pub.nais.io</code>), which adds
-                latency vs in-cluster calls.
+                Enkelte eksterne NAV-tjenester (Dokarkiv, SAF, NAV
+                Oppgave) nås fortsatt via FSS-public-endepunkter
+                (<code>*.prod-fss-pub.nais.io</code>), som gir mer
+                ventetid enn kall i klyngen.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
@@ -733,7 +736,7 @@ export default function ArchitecturePage() {
       {/* Next */}
       <Section id="next">
         <Heading level="2" size="large">
-          Where to go next
+          Videre lesing
         </Heading>
         <div
           style={{
@@ -744,11 +747,20 @@ export default function ArchitecturePage() {
         >
           <a className="portal-card portal-card--blue" href="/applications">
             <Heading level="3" size="small" spacing>
-              Browse every service
+              Bla i alle tjenester
             </Heading>
             <BodyLong size="small">
-              The full Applications catalogue — descriptions, tech,
-              GitHub links.
+              Hele applikasjonskatalogen — beskrivelser, teknologi og
+              GitHub-lenker.
+            </BodyLong>
+          </a>
+          <a className="portal-card portal-card--purple" href="/environments">
+            <Heading level="3" size="small" spacing>
+              Miljøer (Q1 og Q2)
+            </Heading>
+            <BodyLong size="small">
+              RINA-instanser, frontend-URL-er, CPI/NIE-endepunkter og
+              Swagger-lenker per tjeneste.
             </BodyLong>
           </a>
           <a
@@ -761,22 +773,8 @@ export default function ArchitecturePage() {
               README.md
             </Heading>
             <BodyLong size="small">
-              The canonical, always-current architecture document.
-              Read this before any cross-service change.
-            </BodyLong>
-          </a>
-          <a
-            className="portal-card portal-card--purple"
-            href="https://eux-rina-gateway-portal-q1.intern.dev.nav.no"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Heading level="3" size="small" spacing>
-              RINA Gateway portal
-            </Heading>
-            <BodyLong size="small">
-              Live status, smoke tests, and the story of the gateway
-              replacement.
+              Det kanoniske, alltid oppdaterte arkitekturdokumentet.
+              Les dette før endringer på tvers av tjenester.
             </BodyLong>
           </a>
         </div>

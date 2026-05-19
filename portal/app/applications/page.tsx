@@ -1,7 +1,7 @@
 import { Heading, BodyLong, VStack, Box, BodyShort } from "@navikt/ds-react";
 
 export const metadata = {
-  title: "Applications · EUX Architecture",
+  title: "Applikasjoner · EUX-arkitektur",
 };
 
 type App = {
@@ -12,36 +12,36 @@ type App = {
 };
 
 const core: App[] = [
-  { name: "eux-web-app", tech: "React / TypeScript / Node.js", db: "—", description: "Frontend for caseworkers. Node.js BFF proxies to eux-neessi with OAuth2 on-behalf-of." },
-  { name: "eux-neessi", tech: "Java / Spring Boot", db: "—", description: "Backend-for-frontend. Orchestrates calls to downstream eux-* services, PDL, Dokarkiv, SAF." },
-  { name: "eux-rina-api", tech: "Java / Spring Boot", db: "—", description: "Middleware to the RINA CPI. SED template rendering, PDF generation, case lifecycle." },
-  { name: "eux-nav-rinasak", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Links NAV fagsaker to RINA cases. Tracks SED journal status." },
-  { name: "eux-journal", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Error-registration (feilregistrering) and finalization (ferdigstilling) of journal posts." },
-  { name: "eux-oppgave", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Integration layer to NAV Oppgave (task system)." },
-  { name: "eux-saksbehandler", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Stores caseworker preferences (e.g. favorite unit)." },
-  { name: "eux-rina-terminator-api", tech: "Kotlin / Spring Boot", db: "—", description: "REST API for closing, archiving, and deleting RINA cases." },
-  { name: "eux-rina-case-search", tech: "Java / Spring Boot", db: "PostgreSQL", description: "Searchable index of RINA cases. Built from Kafka events." },
+  { name: "eux-web-app", tech: "React / TypeScript / Node.js", db: "—", description: "Frontend for saksbehandlere. Node.js BFF videresender forespørsler til eux-neessi med OAuth2 on-behalf-of." },
+  { name: "eux-neessi", tech: "Java / Spring Boot", db: "—", description: "Backend-for-frontend / orkestrator. Kaller eux-* tjenester, PDL, Dokarkiv, SAF." },
+  { name: "eux-rina-api", tech: "Java / Spring Boot", db: "—", description: "Mellomvare mot RINA CPI. SED-malrendering, PDF-generering, saksstyring." },
+  { name: "eux-nav-rinasak", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Kobler NAV-fagsaker til RINA-saker. Holder styr på journalstatus per SED." },
+  { name: "eux-journal", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Feilregistrering og ferdigstilling av journalposter." },
+  { name: "eux-oppgave", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Integrasjonslag mot NAV Oppgave." },
+  { name: "eux-saksbehandler", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Saksbehandlerinnstillinger (f.eks. favorittenhet)." },
+  { name: "eux-rina-terminator-api", tech: "Kotlin / Spring Boot", db: "—", description: "REST-API for å lukke, arkivere og slette RINA-saker." },
+  { name: "eux-rina-case-search", tech: "Java / Spring Boot", db: "PostgreSQL", description: "Søkeindeks for RINA-saker. Bygges fra Kafka-hendelser." },
 ];
 
 const events: App[] = [
-  { name: "eux-all-rina-events", tech: "Java / Spring Boot", db: "—", description: "Receives NIE events from RINA via HTTP POST. Publishes to three Kafka topics." },
-  { name: "eux-legacy-rina-events", tech: "Java / Spring Boot", db: "—", description: "Bridges new document events to legacy sedmottatt-v1 / sedsendt-v1 topics." },
+  { name: "eux-all-rina-events", tech: "Java / Spring Boot", db: "—", description: "Mottar NIE-hendelser fra RINA via HTTP POST. Publiserer på tre Kafka-topics." },
+  { name: "eux-legacy-rina-events", tech: "Java / Spring Boot", db: "—", description: "Bro fra nye dokumenthendelser til legacy-topicene sedmottatt-v1 / sedsendt-v1." },
 ];
 
 const workers: App[] = [
-  { name: "eux-journalfoering", tech: "Java / Spring Boot", db: "—", description: "Consumes sedmottatt/sedsendt. Auto-journals SEDs via Dokarkiv, PDL, eux-nav-rinasak, eux-oppgave." },
-  { name: "eux-journalarkivar", tech: "Kotlin / Spring Boot", db: "—", description: "Orchestrates journal post finalization and error-registration. Triggered by NAIS jobs." },
-  { name: "eux-avslutt-rinasaker", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Manages RINA case closure/archival lifecycle. Triggered by NAIS jobs." },
-  { name: "eux-slett-usendte-rinasaker", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Deletes RINA cases that never received a SED. Triggered by NAIS jobs." },
-  { name: "eux-adresse-oppdatering", tech: "Kotlin / Spring Boot", db: "—", description: "Updates addresses in PDL when address data is found in incoming SEDs." },
-  { name: "eux-person-oppdatering", tech: "Java / Spring Boot", db: "PostgreSQL", description: "Extracts foreign ID numbers from incoming SEDs and sends updates to PDL." },
-  { name: "eux-barnetrygd", tech: "Java / Spring Boot", db: "—", description: "Scheduled worker for annual child benefit (barnetrygd) case renewal." },
+  { name: "eux-journalfoering", tech: "Java / Spring Boot", db: "—", description: "Konsumerer sedmottatt/sedsendt. Auto-journalfører SED-er via Dokarkiv, PDL, eux-nav-rinasak, eux-oppgave." },
+  { name: "eux-journalarkivar", tech: "Kotlin / Spring Boot", db: "—", description: "Orkestrerer ferdigstilling og feilregistrering av journalposter. Trigges av NAIS-jobber." },
+  { name: "eux-avslutt-rinasaker", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Håndterer livssyklusen for lukking/arkivering av RINA-saker. Trigges av NAIS-jobber." },
+  { name: "eux-slett-usendte-rinasaker", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Sletter RINA-saker som aldri fikk en SED. Trigges av NAIS-jobber." },
+  { name: "eux-adresse-oppdatering", tech: "Kotlin / Spring Boot", db: "—", description: "Oppdaterer adresser i PDL når adressedata finnes i innkommende SED-er." },
+  { name: "eux-person-oppdatering", tech: "Java / Spring Boot", db: "PostgreSQL", description: "Henter utenlandske ID-nummer fra innkommende SED-er og sender oppdateringer til PDL." },
+  { name: "eux-barnetrygd", tech: "Java / Spring Boot", db: "—", description: "Planlagt arbeider for årlig fornyelse av barnetrygdsaker." },
 ];
 
 const libs: App[] = [
-  { name: "eux-parent-pom", tech: "Maven parent POM", db: "—", description: "Shared dependency versions (Spring Boot, Kotlin, Java, token-validation, PostgreSQL)." },
-  { name: "eux-logging", tech: "Kotlin library", db: "—", description: "MDC filter for request-id tracking and EUX-specific logging context." },
-  { name: "eux-versions-maven-plugin", tech: "Maven plugin", db: "—", description: "Auto-increments patch versions from Git tags. Used in CI/CD." },
+  { name: "eux-parent-pom", tech: "Maven parent POM", db: "—", description: "Felles avhengighetsversjoner (Spring Boot, Kotlin, Java, token-validation, PostgreSQL)." },
+  { name: "eux-logging", tech: "Kotlin-bibliotek", db: "—", description: "MDC-filter for sporing av request-id og EUX-spesifikk loggekontekst." },
+  { name: "eux-versions-maven-plugin", tech: "Maven-plugin", db: "—", description: "Auto-inkrementerer patch-versjoner fra git-tagger. Brukes i CI/CD." },
 ];
 
 function AppTable({ rows }: { rows: App[] }) {
@@ -84,38 +84,39 @@ export default function ApplicationsPage() {
     <VStack gap="space-32">
       <div>
         <Heading level="1" size="xlarge" spacing>
-          Applications
+          Applikasjoner
         </Heading>
         <BodyLong size="large">
-          The EUX platform is roughly two dozen small services, organized
-          into four buckets. Click any name to open its GitHub repository.
+          EUX-plattformen består av om lag to dusin små tjenester,
+          organisert i fire grupper. Klikk på et navn for å åpne
+          GitHub-repoet.
         </BodyLong>
       </div>
 
       <section>
         <Heading level="2" size="medium" spacing>
-          Core services
+          Kjernetjenester
         </Heading>
         <AppTable rows={core} />
       </section>
 
       <section>
         <Heading level="2" size="medium" spacing>
-          Event infrastructure
+          Hendelsesinfrastruktur
         </Heading>
         <AppTable rows={events} />
       </section>
 
       <section>
         <Heading level="2" size="medium" spacing>
-          Background workers
+          Bakgrunnsarbeidere
         </Heading>
         <AppTable rows={workers} />
       </section>
 
       <section>
         <Heading level="2" size="medium" spacing>
-          Libraries &amp; build tools
+          Biblioteker og byggeverktøy
         </Heading>
         <AppTable rows={libs} />
       </section>

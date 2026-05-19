@@ -7,15 +7,16 @@ import Link from "next/link";
 import { Theme, Box, HStack, Heading, BodyShort } from "@navikt/ds-react";
 
 export const metadata: Metadata = {
-  title: "EUX Architecture",
+  title: "EUX-arkitektur",
   description:
-    "Architecture portal for NAV's EUX/EESSI platform — applications, integrations, APIs and how it all fits together.",
+    "Arkitekturportal for NAVs EUX/EESSI-plattform — applikasjoner, integrasjoner, API-er og hvordan det henger sammen.",
 };
 
 const NAV_LINKS = [
-  { href: "/", label: "Overview" },
-  { href: "/architecture", label: "Architecture" },
-  { href: "/applications", label: "Applications" },
+  { href: "/", label: "Oversikt" },
+  { href: "/architecture", label: "Arkitektur" },
+  { href: "/applications", label: "Applikasjoner" },
+  { href: "/environments", label: "Miljøer" },
 ];
 
 export default function RootLayout({
@@ -24,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-color-scheme="auto">
+    <html lang="no" data-color-scheme="auto">
       <body>
         <Theme>
           <Box
@@ -40,7 +41,7 @@ export default function RootLayout({
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <Heading level="1" size="small">
-                  EUX Architecture
+                  EUX-arkitektur
                 </Heading>
               </Link>
               <HStack gap="space-20" align="center">
