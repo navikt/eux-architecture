@@ -1,0 +1,120 @@
+:root {
+  color-scheme: light dark;
+  --portal-content-max: 880px;
+  --portal-wide-max: 1180px;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family:
+    "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--ax-bg-default, #fff);
+  color: var(--ax-text-default, #1a1a1a);
+}
+
+a {
+  color: var(--ax-text-action, #0067c5);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+main code {
+  background: var(--ax-bg-neutral-soft, rgba(0, 0, 0, 0.05));
+  padding: 0.05em 0.35em;
+  border-radius: 4px;
+  font-size: 0.92em;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.portal-hero {
+  background:
+    radial-gradient(
+      circle at 0% 0%,
+      var(--ax-bg-meta-purple-soft, #ece6f6) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 100% 100%,
+      var(--ax-bg-accent-moderate, #cce1ff) 0%,
+      var(--ax-bg-accent-soft, #e6f0fa) 60%
+    );
+  border-radius: 24px;
+}
+
+.portal-card {
+  display: block;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform 120ms ease,
+    box-shadow 160ms ease;
+  border: 1px solid var(--ax-border-subtle, rgba(0, 0, 0, 0.08));
+}
+
+.portal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+}
+
+.portal-card--blue {
+  background: var(--ax-bg-accent-soft, #e6f0fa);
+}
+
+.portal-card--green {
+  background: var(--ax-bg-success-soft, #e0f1e3);
+}
+
+.portal-card--purple {
+  background: var(--ax-bg-meta-purple-soft, #ece6f6);
+}
+
+.portal-card--orange {
+  background: var(--ax-bg-warning-soft, #fcecd6);
+}
+
+.portal-prose {
+  max-width: var(--portal-content-max);
+}
+
+.portal-prose ul {
+  padding-left: 1.5rem;
+}
+
+.portal-prose li + li {
+  margin-top: 0.4rem;
+}
+
+.portal-figure {
+  background: var(--ax-bg-subtle, #f7f7f7);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--ax-border-subtle, rgba(0, 0, 0, 0.08));
+  overflow-x: auto;
+}
+
+.portal-pre {
+  background: var(--ax-bg-subtle, #f7f7f7);
+  border-radius: 12px;
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  border: 1px solid var(--ax-border-subtle, rgba(0, 0, 0, 0.08));
+}
