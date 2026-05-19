@@ -1,0 +1,7 @@
+Status: Oppfylt
+
+Lovligheten av å utveksle personopplysninger med trygdemyndigheter i andre EU- og EØS-land følger av forordning (EF) 883/2004 og 987/2009 om koordinering av trygdeordninger, gjennomført i norsk rett. EESSI er den tekniske plattformen EU-kommisjonen har etablert for nettopp denne utvekslingen, og nEESSI er Navs nasjonale tilknytning til dette nettverket.
+
+Siden mottakerlandene enten er omfattet av personvernforordningen (EU/EØS) eller dekket av EU-kommisjonens beslutning om tilstrekkelig beskyttelsesnivå sammen med egen avtale om trygdekoordinering (Sveits, Storbritannia), utløses ikke kravet om særskilt overføringsgrunnlag etter forordningens kapittel V. Det er heller ikke behov for ytterligere garantier eller bindende virksomhetsregler for utvekslingen som skjer gjennom nEESSI.
+
+Det funksjonelle behandlingsgrunnlaget for selve utleveringen av personopplysninger i en konkret sak eies av fagansvarlig per ytelse, og er registrert i Behandlingskatalogen sammen med øvrig behandlingsgrunnlag for ytelsen. Team eessibasis er teknisk leverandør av kanalen og innfører ingen nye behandlinger ut over det fagansvarlig har besluttet.

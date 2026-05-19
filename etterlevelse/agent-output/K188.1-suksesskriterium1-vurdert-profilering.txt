@@ -1,0 +1,3 @@
+nEESSI utfører ikke profilering av brukere. Løsningen mottar, formidler og lagrer strukturerte trygdedokumenter (SED) i utvekslingen med trygdemyndigheter i andre EU- og EØS-land, og knytter dokumentene til rett person og sak. Det benyttes ingen statistiske modeller, maskinlæring eller automatiserte analyser som utleder eller predikerer personlige egenskaper, preferanser, atferd eller behov hos den registrerte.
+
+Vurderinger som plasserer en person i en bistandsgruppe, gir score eller predikerer utfall skjer eventuelt i fagsystemene for den enkelte ytelse, ikke i nEESSI. Behandlingskatalogen for nEESSI markerer derfor at behandlingen ikke innebærer profilering.

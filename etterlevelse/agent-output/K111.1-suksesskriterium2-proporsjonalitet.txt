@@ -1,0 +1,26 @@
+Proporsjonalitetsvurderingen for behandling av personopplysninger i nEESSI veier de positive effektene av EU/EØS-koordineringen mot inngrepet i den enkeltes personvern.
+
+Fordeler for de registrerte:
+
+- Personer som har vært i kontakt med trygdesystemet i flere land får ett samlet og riktig vedtak. Uten EESSI ville saksbehandlingstiden vært vesentlig lengre og risikoen for feil vedtak større.
+- Den registrerte slipper selv å hente ut og oversette dokumentasjon fra trygdemyndighetene i andre land – informasjonen utveksles strukturert mellom myndighetene.
+- Strukturert utveksling reduserer risiko for at opplysninger kommer på avveie i postgang eller ved manuell håndtering.
+- Innhold som mottas fra andre land brukes til å supplere folkeregisteret (utenlandsk adresse, utenlandsk identifikator) slik at andre Nav-systemer og eksterne aktører som henter data fra folkeregisteret jobber mot mer korrekte opplysninger.
+
+Inngrepet og avbøtende tiltak:
+
+- Inngrepet består i at personopplysninger – herunder særlige kategorier i enkelte BUC-er (helseopplysninger ved sykdom/uføre, opplysninger om barn ved familieytelser) – utveksles med trygdemyndigheter i andre EU/EØS-land. Mottakerlandene er bundet av personvernforordningen og av EESSI sine sikkerhetskrav.
+- Hvilke opplysninger som utveksles er begrenset til det den enkelte SED-typen krever, og nEESSI sender ikke flere felt enn det BUC-en forutsetter.
+- Tilgang til saker er rollestyrt og knyttet til fagområde og tjenstlig behov, slik at færrest mulig saksbehandlere ser den enkelte sak.
+- Saksbehandlerhandlinger logges, og oppslag inngår i Nav sine innsynsrapporter til innbyggere og ledere.
+- Saker og driftsdata som ikke er arkivpliktige slettes når formålet er bortfalt. Arkivpliktig dokumentasjon journalføres i Nav sitt felles arkiv og styres av arkivets bevarings- og kassasjonsregler.
+- Personopplysningene som hentes fra folkeregisteret hentes på oppslagstidspunktet, ikke kopieres permanent inn i nEESSI sine egne baser.
+- Endringer i SED-er etter utsending er ikke tillatt; rettelser skjer ved å sende rettelses-SED til mottakerland, slik at sporbarheten er ivaretatt.
+
+Vurdering:
+
+Nytten for den registrerte – riktige vedtak, kortere saksbehandlingstid og at den enkelte slipper selv å samle dokumentasjon på tvers av land – står etter teamets vurdering i rimelig forhold til inngrepet. Alternativet (manuell papirbasert utveksling eller ingen koordinering) ville gitt dårligere personvern, lengre saksbehandling og risiko for feil ytelse.
+
+Den materielle proporsjonalitetsvurderingen for hver enkelt behandling i EESSI hører hjemme i Behandlingskatalogen / Public 360, hos fagansvarlige for de respektive ytelsene og hos Juridisk avdeling. Team eessibasis sin oppgave er å sikre at den tekniske løsningen ikke gjør inngrepet større enn nødvendig.
+
+Status: Under arbeid

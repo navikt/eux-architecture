@@ -1,0 +1,19 @@
+Elektronisk innsyn for innbygger dekkes funksjonelt gjennom Nav sine fellesløsninger på nav.no:
+
+- Strukturerte trygdedokumenter (SED-er) som sendes og mottas via EESSI journalføres automatisk i Nav sitt felles dokumentarkiv. Innbygger ser dem på "Min sak" på nav.no på samme måte som andre saksdokumenter, og kan laste ned PDF-versjon av journalpostene.
+- Personopplysninger om innbygger som ligger i Persondataløsningen (PDL), Kontakt- og reservasjonsregisteret og andre sentrale registre er allerede tilgjengelige for innbygger på nav.no gjennom fellesløsningene; nEESSI henter opplysningene derfra og lager ingen parallell kopi for visning.
+
+I tillegg har nEESSI egne driftsdata som ikke er eksponert elektronisk for innbygger:
+
+- Mapping mellom RINA-saksnummer og Nav sitt saksnummer, journalføringsstatus og kø-status.
+- Oppgaver til saksbehandler, søkeindeks og enkelte mappinger mellom utenlandske identifikatorer og person-ID i PDL.
+
+Teamet har **ikke** ferdig avklart hvilke av disse interne driftsopplysningene som skal kunne gis ved elektronisk innsyn ut over dagens "Min sak"-visning av journalførte SED-er. Vurderingen som gjenstår er:
+
+- Hvilke nEESSI-spesifikke opplysninger som er meningsbærende for innbygger (utover selve SED-innholdet).
+- Hvilke opplysninger som ikke kan eksponeres elektronisk uten å gå på bekostning av sikkerhet eller andre personers rettigheter (for eksempel saksbehandlernotater, intern saksstatus, eller opplysninger om utenlandske trygdemyndigheter som er part i utvekslingen).
+- Om noe av dette bør samles og gjøres tilgjengelig som en ny visning på nav.no, eller om det er tilstrekkelig med dagens kombinasjon av "Min sak" + ordinært innsynskrav via Nav Kontaktsenter.
+
+Avklaringen vil gjøres i samråd med personvernombud, og dokumenteres som del av rutinen som utarbeides under suksesskriterium 1.
+
+Status: Under arbeid

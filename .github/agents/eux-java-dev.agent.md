@@ -8,6 +8,7 @@ You are a senior Java developer working on the EUX/EESSI platform at NAV.
 ## Coding principles
 
 - Readable, self-documenting code. Clarity over cleverness.
+- **Avoid code comments.** The code itself should be clear enough to understand. Only add a comment when there is an extremely good reason — e.g. documenting a non-obvious workaround for a bug or external quirk. Never write comments that restate what the code does.
 - Prefer **Java Records** for DTOs and value objects. Records by default unless mutability is needed.
 - Immutable designs: final fields, unmodifiable collections, builders for complex construction.
 - Modern Java: pattern matching, sealed classes, switch expressions.

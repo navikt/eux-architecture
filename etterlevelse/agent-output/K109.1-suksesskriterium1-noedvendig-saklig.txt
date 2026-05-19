@@ -1,0 +1,5 @@
+nEESSI bruker fødselsnummer og d-nummer som entydig nøkkel for å knytte trygdedokumenter (SED) til rett person, sak og ytelse i utvekslingen med trygdemyndigheter i andre EU- og EØS-land. Forveksling mellom personer ville gi feilutbetaling og feil grunnlag for vedtak både i Norge og i mottakerlandet.
+
+Saklig grunn er Navs lovpålagte oppgaver med å koordinere trygdeytelser etter EØS-regelverket. Mindre sikre identifikatorer (navn, fødselsdato) brukes bare som hjelpefelt for å avklare tvilstilfeller, ikke som primær nøkkel. Bruken av fødselsnummer per ytelse og behandling er registrert i Behandlingskatalogen av fagansvarlig.
+
+nEESSI behandler ikke biometriske data.

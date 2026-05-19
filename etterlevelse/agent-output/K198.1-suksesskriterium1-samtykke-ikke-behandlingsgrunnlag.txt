@@ -1,0 +1,12 @@
+nEESSI bruker ikke samtykke som behandlingsgrunnlag. Plattformen håndterer Norges forpliktelser etter EØS-avtalens regler om koordinering av trygdeytelser, og behandlingen av personopplysninger i utvekslingen av strukturerte trygdedokumenter (SED) mellom Nav og trygdemyndigheter i andre EU/EØS-land hviler på rettslig forpliktelse etter forordning (EF) 883/2004 og 987/2009 samt nasjonal trygdelovgivning. Det formelle behandlingsgrunnlaget per behandling forvaltes av Juridisk avdeling og personvernombud, og er dokumentert i Behandlingskatalogen.
+
+Saksbehandler i nEESSI henter inn opplysninger om innbygger fra Persondataløsningen (PDL) og fra utenlandske trygdemyndigheter via EESSI – ikke fra innbygger selv. Det innhentes derfor ikke samtykke i saksbehandlerflaten, og det finnes ingen samtykkedialog rettet mot innbygger i løsningen. nEESSI lager heller ingen tjenester som henvender seg direkte til barn, slik at de særskilte reglene om barns samtykke til informasjonssamfunnstjenester ikke kommer til anvendelse.
+
+Avgrensning mot integrasjonstjenestene:
+
+- eux-rina-api er middleware mot RINA CPI og kommuniserer ikke med innbygger.
+- eux-adresse-oppdatering oppdaterer adresser i PDL maskinelt på grunnlag av allerede mottatte SED-er, og innhenter ikke samtykke fra innbygger.
+
+Dersom et fagsystem som nEESSI integrerer mot (for eksempel Pesys) skulle bygge en flyt der samtykke er behandlingsgrunnlag for en konkret behandling, er det fagsystemet som er ansvarlig for å oppfylle de særskilte kravene til frivillighet, informasjon, aktiv handling, dokumentasjon og tilbaketrekking. nEESSI vil i et slikt scenario kun være en teknisk kanal for utvekslingen av SED-er, og vil måtte tilpasses i samråd med fagansvarlig og personvernombud før samtykke kan benyttes.
+
+Status: Oppfylt

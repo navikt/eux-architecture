@@ -1,0 +1,19 @@
+Selve forenelighetsvurderingen for gjenbruk av personopplysninger til nye formål gjøres ikke i nEESSI. nEESSI er en teknisk plattform for utveksling av strukturerte trygdedokumenter (SED-er) mellom Nav og trygdemyndigheter i andre EU/EØS-land – den er ikke en behandlingsansvarlig fagenhet. Vurderingen av hvorvidt et nytt eller utvidet formål er forenlig med innsamlingsformålet hører hjemme hos den enheten i Nav som eier den aktuelle behandlingen i Behandlingskatalogen:
+
+- For SED-utveksling per ytelse (alderspensjon, uføretrygd, sykepenger, familieytelser m.fl.) eies behandlingen av fagansvarlig for den ytelsen sammen med personvernombud. Det er fagområdet som vurderer om et nytt bruksområde for SED-data – for eksempel statistikk, kontroll eller utvidet saksbehandling – er forenlig med innsamlingsformålet, og som registrerer dette i Behandlingskatalogen.
+- For maskinell oppdatering av folkeregisteret (Persondataløsningen, PDL) på grunnlag av innkommende SED-er – både adresser og utenlandske identifikatorer – eies vurderingen av forvaltningsansvaret for PDL i samråd med personvernombud. nEESSI er her en kanal som leverer data inn til PDL, men forenelighetsvurderingen er ikke EUX-plattformens domene.
+
+Team eessibasis sin rolle ved forenelighetsvurderinger er å:
+
+- Gi fagområdet eller PDL-forvaltningen presis teknisk informasjon om hvilke data som faktisk utveksles via nEESSI og hvilke videreflyter som finnes i plattformen, slik at vurderingen kan gjøres på et korrekt grunnlag.
+- Sørge for at nEESSI ikke utvider behandlingen ut over det formålet og det grunnlaget som eieren har registrert i Behandlingskatalogen, og melde fra til personvernombud dersom en planlagt endring i plattformen vil utvide formålet.
+- Endre eller stoppe en flyt teknisk hvis fagområdet/PDL-forvaltningen konkluderer med at en gjenbruk ikke er forenlig.
+
+Avgrensning mot integrasjonstjenestene:
+
+- eux-rina-api er middleware mot RINA CPI og introduserer ikke nye behandlingsformål – all videreformidling skjer innenfor det opprinnelige formålet om SED-utveksling.
+- eux-adresse-oppdatering og oppdatering av utenlandske identifikatorer i PDL er konkrete tekniske flyter der personopplysninger fra mottatte SED-er brukes til å holde folkeregisteret oppdatert. Forenelighetsvurderingen for disse flytene tilligger eier av PDL-behandlingen i samråd med personvernombud, ikke team eessibasis.
+
+Statistikk, vitenskapelig/historisk forskning og arkivering anses etter personvernforordningen i utgangspunktet som forenlig med innsamlingsformålet og krever ikke egen vurdering hos nEESSI. Arkivering håndteres etter Nav sine fellesregler.
+
+Status: Oppfylt

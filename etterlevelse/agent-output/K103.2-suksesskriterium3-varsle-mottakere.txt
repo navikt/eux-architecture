@@ -1,0 +1,11 @@
+Når personopplysninger som er sendt fra Norge til andre EU/EØS-land må rettes, varsles mottakerne på følgende måte:
+
+EESSI-rammeverket har egne strukturerte dokumenter (SED-er) for å varsle andre lands trygdemyndigheter om feil i tidligere utvekslede opplysninger, be om utfyllende informasjon og videresende dokumenter som er sendt til feil mottaker. Når Nav retter en personopplysning som tidligere er oversendt i en SED, brukes disse mekanismene til å informere de aktuelle mottakerlandene, slik at de kan vurdere retting hos seg. Dette er en innebygd funksjon i EESSI som er utviklet fordi feil og endringer i opplysninger forekommer på tvers av landene.
+
+For norske personopplysninger som er hentet fra folkeregisteret er det PDL som er kilden. Når PDL oppdateres, slår endringen automatisk gjennom hos andre Nav-systemer og eksterne aktører som mottar opplysninger fra PDL. nEESSI viderefører rettingen mot utlandet ved at fremtidige SED-utvekslinger bruker de oppdaterte verdiene, og ved å sende rettelses-SED for saker der det er nødvendig å varsle eksplisitt.
+
+For personopplysninger som inngår i journalført saksdokumentasjon, ivaretar Nav sitt felles dokumentarkiv arkivfaglig korrekt håndtering av rettinger og supplerende dokumenter, slik at både opprinnelig versjon og rettelse er sporbare.
+
+Varsling kan unnlates dersom det viser seg umulig eller innebærer en uforholdsmessig stor innsats. Den registrerte kan på forespørsel få vite hvilke mottakere som har fått utlevert opplysningene; dette håndteres etter Nav sin sentrale rutine for retting, sletting og begrensning.
+
+Status: Oppfylt

@@ -1,0 +1,7 @@
+Status: Oppfylt
+
+nEESSI brukes til elektronisk utveksling av trygdeinformasjon mellom Nav og trygdemyndigheter i andre EU- og EØS-land, samt Sveits og Storbritannia, gjennom EESSI. Mottakerlandene er enten omfattet av personvernforordningen direkte (EU/EØS), eller dekkes av EU-kommisjonens beslutninger om tilstrekkelig beskyttelsesnivå (Storbritannia) og av egne avtaler om trygdekoordinering (Sveits, Storbritannia). EESSI er etablert på dette grunnlaget, og land utenfor denne kretsen har ikke tilgang til nettverket.
+
+Det skjer derfor ingen overføring av personopplysninger fra nEESSI til tredjeland slik begrepet er definert i personvernforordningen. Sjekkliste ved overføring er av den grunn ikke fylt ut for nEESSI som løsning. Dersom EESSI-samarbeidet på et senere tidspunkt utvides til land uten tilstrekkelig beskyttelsesnivå, vil teamet sammen med personvernombud og fagansvarlig vurdere overføringsgrunnlag og fylle ut sjekklisten i Public 360 før løsningen tas i bruk mot det aktuelle landet.
+
+Selve grunnlaget for utvekslingen med EU/EØS-land følger av forordning (EF) 883/2004 og 987/2009 om koordinering av trygdeordninger, gjennomført i norsk rett. Det funksjonelle behandlingsgrunnlaget per ytelse eies av fagansvarlig i den enkelte ytelseslinjen og er dokumentert i Behandlingskatalogen.

@@ -1,0 +1,18 @@
+Den skriftlige vurderingen av valg av behandlingsgrunnlag gjøres ikke i nEESSI. nEESSI er en teknisk plattform for elektronisk utveksling av strukturerte trygdedokumenter (SED-er) med EU/EØS-land, ikke en behandlingsansvarlig fagenhet. Vurderingen tilligger den enheten som eier den aktuelle behandlingen i Behandlingskatalogen:
+
+- For SED-utveksling per ytelse er det fagansvarlig for ytelsen som – i samråd med personvernombud og Juridisk avdeling – dokumenterer hvilken hjemmel som benyttes, hvilke faktiske forhold og premisser vurderingen bygger på, og hvordan momentene er vektet. For trygdekoordinering er grunnlaget rettslig forpliktelse og utøvelse av offentlig myndighet etter folketrygdloven og forordning (EF) 883/2004 og 987/2009, og det er normalt liten tolkningstvil om grunnlaget. Skriftlige vurderinger og henvisninger ligger i Behandlingskatalogen og, der det er nødvendig, i Public 360.
+- For særlige kategorier av personopplysninger (typisk helseopplysninger i sykepenger og uføretrygd) gjøres tilsvarende vurdering av fagansvarlig og personvernombud, med dokumentert grunnlag for at behandlingen er nødvendig for å oppfylle Nav sine plikter innenfor trygde- og sosialrett.
+- For maskinell oppdatering av folkeregisteret (Persondataløsningen, PDL) på grunnlag av innkommende SED-er eies vurderingen av forvalter av PDL-behandlingen sammen med personvernombud.
+
+Team eessibasis sin rolle er å:
+
+- Gi behandlingseier og personvernombud presis teknisk informasjon om hva som faktisk utveksles og lagres i plattformen, slik at vurderingen kan bygge på korrekt faktum.
+- Varsle behandlingseier og personvernombud før endringer i plattformen (ny BUC, ny SED-type, ny integrasjon, ny videreflyt) settes i drift, slik at den skriftlige vurderingen kan oppdateres dersom endringen påvirker grunnlaget.
+- Sørge for at nEESSI teknisk holder seg innenfor det grunnlaget som er dokumentert.
+
+Avgrensning mot integrasjonstjenestene:
+
+- eux-rina-api er middleware mot RINA CPI og introduserer ikke et eget behandlingsgrunnlag som krever egen vurdering.
+- eux-adresse-oppdatering og oppdatering av utenlandske identifikatorer i PDL skjer på grunnlag som eies og vurderes av PDL-forvaltningen, ikke av team eessibasis.
+
+Status: Oppfylt

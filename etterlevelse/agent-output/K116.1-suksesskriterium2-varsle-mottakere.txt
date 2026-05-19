@@ -1,0 +1,11 @@
+Varsling av mottakere om begrensning følger samme mønster som ved retting (jf. K103.2):
+
+- Mottakere i andre EU/EØS-land varsles gjennom EESSI sine egne dokumenttyper. EESSI har innebygde SED-er for å informere andre lands trygdemyndigheter om feil, endringer og behov for å stanse viderebehandling av tidligere utvekslede opplysninger. Når Juridisk avdeling har besluttet begrensning, bruker saksbehandler disse mekanismene til å varsle de aktuelle mottakerlandene. Dette er en innebygd funksjon i EESSI fordi situasjoner hvor opplysninger må korrigeres eller begrenses skjer på tvers av landene.
+- Mottakere internt i Nav (fagsystem, dokumentarkiv) er fellesløsninger som henter oppdaterte opplysninger fra kilden (PDL, fagsystem) ved oppslag. Endringer i kilden slår derfor automatisk gjennom uten egen varsling fra nEESSI.
+- Andre eksterne mottakere som har fått opplysningene utlevert i et enkelttilfelle (for eksempel via innsynsutlevering) varsles manuelt av Juridisk avdeling etter Nav sin sentrale rutine for retting, sletting og begrensning.
+
+Varsling kan unnlates dersom det viser seg umulig eller innebærer en uforholdsmessig stor innsats. Den registrerte kan på forespørsel få vite hvilke mottakere som er varslet; dette håndteres som del av den sentrale rutinen.
+
+Avgrensning: nEESSI har i dag ingen automatisk kobling som finner alle tidligere SED-mottakere for en person og varsler dem samlet ved et begrensningskrav. Saksbehandler/fagansvarlig identifiserer berørte rinasaker manuelt. Det er det samme åpne punktet som er flagget for K103.2.
+
+Status: Ja (delvis)

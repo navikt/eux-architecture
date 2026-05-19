@@ -1,0 +1,15 @@
+Saksbehandler kan rette og supplere personopplysninger i nEESSI på følgende måter:
+
+Mens en SED er under arbeid kan saksbehandler endre innholdet fritt – feilskrivinger korrigeres, manglende opplysninger fylles inn og vurderinger kan suppleres før dokumentet sendes til utlandet.
+
+Etter at en SED er sendt er innholdet låst, slik at dokumentasjonen forblir uforandret over tid (jf. arkivkravene). Dersom det viser seg at en sendt SED inneholder feil eller mangler, brukes EESSI sine egne dokumenttyper for å rette opplysningene mot mottakerlandet. EESSI har egne SED-er for å informere om feil, be om utfyllende opplysninger og videresende feilsendte dokumenter. Dette er innebygde mekanismer i EESSI-rammeverket og brukes både når Nav selv oppdager feil og når andre land melder fra.
+
+For norske personopplysninger (navn, adresse, fødselsnummer, sivilstatus mv.) er PDL kilden. Retting skjer i folkeregisteret/PDL, og nEESSI viser oppdaterte verdier ved neste oppslag. Når innkommende SED-er inneholder utenlandsk adresse eller utenlandsk identifikator som mangler i folkeregisteret, sender nEESSI disse videre til PDL slik at folkeregisteret kan suppleres med den korrekte informasjonen.
+
+Personopplysninger som ligger i fagsystemenes vedtaksgrunnlag (for eksempel i Pesys) rettes der – nEESSI er ikke kilde for dem.
+
+Krav om retting fra registrerte håndteres etter Nav sin retningslinje for retting, sletting og begrensning. Henvendelsene tas imot sentralt og rutes til riktig fagansvarlig, som vurderer kravet og utfører rettingen i den løsningen opplysningene faktisk ligger (PDL, fagsystem eller arkivet). Saksbehandler i nEESSI bistår ved å identifisere hvilke SED-er og rinasaker som er berørt, og ved å sende rettelses-SED-er der det er nødvendig.
+
+Frist for tilbakemelding (uten ugrunnet opphold, senest én måned) ivaretas i den sentrale rutinen.
+
+Status: Oppfylt

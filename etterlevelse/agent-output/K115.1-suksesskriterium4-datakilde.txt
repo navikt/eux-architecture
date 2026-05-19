@@ -1,0 +1,3 @@
+nEESSI bruker ikke datakilder som grunnlag for å avgjøre om vilkår er oppfylt, fordi løsningen ikke fatter avgjørelser om rett til ytelse. Personopplysninger som hentes inn (eksempelvis fra Persondataløsningen) brukes til å identifisere rett person og knytte trygdedokumenter til rett sak – ikke til vilkårsprøving.
+
+Vurderingen av datakvalitet for vilkårsprøving ligger hos fagansvarlig for den enkelte ytelse, i fagsystemene der vedtak fattes.

@@ -1,0 +1,7 @@
+Fødselsnummer sendes ikke fra nEESSI i åpne eller usikrede kanaler.
+
+Utvekslingen av trygdedokumenter med andre EU- og EØS-land går gjennom EESSI-nettverket, som er et lukket, kryptert nettverk etablert av EU-kommisjonen for sikker overføring mellom trygdemyndigheter. Personidentifikatorer i SED-er er bare tilgjengelige for mottakende trygdemyndighet.
+
+Intern kommunikasjon mellom Nav-tjenester går over kryptert kommunikasjon med tjeneste-til-tjeneste-autentisering. Saksbehandler ser fødselsnummer kun etter pålogging med tofaktor og tilgangsstyring per ytelse.
+
+nEESSI sender ikke fødselsnummer på e-post, sms eller andre alminnelige usikrede kanaler. Brev til bruker produseres av fagsystemene, ikke av nEESSI.

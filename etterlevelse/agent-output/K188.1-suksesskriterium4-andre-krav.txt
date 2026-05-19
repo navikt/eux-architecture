@@ -1,0 +1,3 @@
+De skjerpede kravene som følger med profilering – tilpasset informasjonsplikt, rett til å protestere, ekstra interesseavveining, rutiner for modelloppdatering med videre – utløses ikke for nEESSI, fordi løsningen ikke utfører profilering.
+
+De alminnelige personvernkravene som gjelder all behandling i nEESSI (behandlingsgrunnlag, formålsbegrensning, dataminimering, riktighet, lagringsbegrensning, informasjon og innsyn) er dekket i sine respektive krav.

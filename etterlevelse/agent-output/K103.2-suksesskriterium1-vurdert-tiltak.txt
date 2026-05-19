@@ -1,0 +1,11 @@
+nEESSI er saksbehandler- og integrasjonsløsningen for utveksling av trygdeinformasjon med andre EU/EØS-land. Løsningen lagrer ikke egne "master"-personopplysninger om norske borgere – kjernen er at vi henter personopplysninger fra Persondataløsningen (PDL) ved hvert oppslag, slik at saksbehandler alltid jobber mot ferske data fra folkeregisteret.
+
+Vi har vurdert behovet for tiltak og besluttet følgende:
+
+- Opplysninger om norske personer hentes fra PDL ved oppslag, ikke kopieres inn i nEESSI sine egne baser. Retting i folkeregisteret slår dermed automatisk gjennom i nEESSI.
+- Når innkommende strukturerte dokumenter (SED-er) fra andre land inneholder utenlandske adresser eller utenlandske identifikatorer (uid), sender nEESSI disse videre til PDL slik at PDL kan oppdatere folkeregisteret. Det betyr at opplysninger fra utlandet bidrar til at folkeregisteret blir mer korrekt, ikke at nEESSI bygger opp en parallell "kilde" til de samme opplysningene.
+- I selve saksbehandlingen valideres SED-innhold mot EESSI sine datamodeller før utsending, slik at åpenbart feil eller mangelfulle opplysninger fanges opp før dokumentet forlater Norge.
+- Saksbehandler kan rette og supplere innholdet i en SED så lenge dokumentet er under arbeid. Etter at SED-en er sendt er den uforanderlig, og rettelser skjer ved å sende et nytt dokument til mottakerlandet (se SK2).
+- Personopplysninger som inngår i selve vedtaksgrunnlaget (vilkår, ytelsesopplysninger, beregninger) eier og oppdaterer fagsystemene (for eksempel Pesys for pensjon). nEESSI gjør ikke selvstendig vurdering av riktigheten på disse – det skjer i fagsystemet.
+
+Status: Oppfylt

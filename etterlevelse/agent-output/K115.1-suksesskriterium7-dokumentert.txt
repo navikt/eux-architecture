@@ -1,0 +1,3 @@
+Det fattes ingen helautomatiske avgjørelser i nEESSI, og dokumentasjonskravene som gjelder slike avgjørelser (datatyper, kilder, behandlingsregler, vilkårsprøving, vedtaksresultat, regelverksendringer) utløses derfor ikke for denne løsningen.
+
+Tilsvarende dokumentasjon for vedtaksprosesser i fagsystemene ligger hos fagansvarlig for den enkelte ytelse.

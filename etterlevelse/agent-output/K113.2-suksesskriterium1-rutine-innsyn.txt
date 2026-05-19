@@ -1,0 +1,19 @@
+Innsynsforespørsler fra innbyggere håndteres sentralt i Nav. Nav Kontaktsenter er felles mottak for innsynskrav etter personopplysningsloven og GDPR for hele Nav, og videreformidler henvendelser til riktig team når det er behov for uttrekk fra en bestemt løsning. Innbygger får informasjon om innsynsretten gjennom personvernerklæringen på nav.no, og innsyn i sakens dokumenter via "Min sak" på nav.no.
+
+Slik kobles dette på nEESSI funksjonelt:
+
+- Selve trygdedokumentene (SED-er) som utveksles med andre EU/EØS-land journalføres automatisk i Nav sitt felles dokumentarkiv (Joark) når de sendes eller mottas. Det betyr at innbygger får innsyn i SED-innholdet på samme måte som i øvrige saksdokumenter – via "Min sak" på nav.no og via ordinært innsynskrav til Nav Kontaktsenter, uten egen kanal for nEESSI.
+- I tillegg lagrer nEESSI driftsdata om saksgangen i egne databaser: koblingen mellom RINA-saksnummer og Nav sitt saksnummer, journalføringsstatus, oppgaver til saksbehandler, søkeindeks og enkelte mappinger mellom utenlandske identifikatorer og person-ID i PDL. Personopplysninger her er i hovedsak fødselsnummer/aktør-ID, navn og saksreferanser – ikke vurderinger eller fritekst om innbygger.
+
+Teamet har per i dag **ikke** en formelt dokumentert rutine for hvordan innsynsforespørsler videreformidlet fra Nav Kontaktsenter skal håndteres for nEESSI sine egne databaser, og det er ikke avklart med Nav Kontaktsenter at nEESSI er en distinkt kilde til personopplysninger som krever uttrekk ut over det som ligger i Joark. Teamet vil:
+
+- Sende melding til Nav Kontaktsenter (nav.kontaktsenter.styringsenhet@nav.no, emne "K113.2 Innsyn") med beskrivelse av nEESSI og hvilke typer personopplysninger som lagres i plattformens egne baser.
+- Utarbeide en skriftlig rutine for hvordan teamet henter ut personopplysninger om én bestemt innbygger fra nEESSI sine baser (rinasaks-kobling, journaltreff, oppgaver, søkeindekstreff og PDL-mappinger), og hvordan resultatet leveres tilbake innen fristen på én måned.
+- Avklare med personvernombud om rutinen skal følge Nav sin felles retningslinje for innsynskrav direkte, eller om vi trenger en egen nEESSI-tilpasset variant.
+
+Avgrensning mot integrasjonstjenestene:
+
+- eux-rina-api er middleware mot RINA CPI og lagrer ikke personopplysninger om innbygger ut over det som videreformidles i sanntid.
+- eux-adresse-oppdatering lagrer fødselsnummer/aktør-ID og oppdateringsstatus knyttet til adresseendringer fra utlandet; også disse må omfattes av teamets uttrekksrutine når den utarbeides.
+
+Status: Under arbeid

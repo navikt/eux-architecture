@@ -1,0 +1,26 @@
+Teamet har gjennomgått hvilken informasjon nEESSI håndterer, og vurdert i tråd med arkivkriteriene (har informasjonen verdi som dokumentasjon? er den saksbehandlet?) hva som skal arkiveres. Vurderingen er gjort i samråd med arkivfunksjonen i Nav (SIF) og resulterer i følgende avklaring:
+
+**Skal arkiveres (har dokumentasjonsverdi og/eller er saksbehandlet):**
+
+- Strukturerte trygdedokumenter (SED-er) som sendes og mottas mellom Nav og trygdemyndigheter i andre EU/EØS-land. SED-er er bevis på hva som er utvekslet, hvilket grunnlag vedtak bygger på, og hva norske og utenlandske myndigheter har kommunisert om innbygger.
+- Vedlegg som hører til SED-ene (medisinske erklæringer, attester, dokumentasjon innbygger har sendt inn).
+- Saksbehandlerproduserte dokumenter knyttet til rinasaken (for eksempel utstedte PDU1-blanketter).
+
+Disse arkiveres automatisk i Nav sitt felles dokumentarkiv (Joark) etter hvert som de produseres eller mottas, og knyttes til riktig bruker, fagsak og sakstype.
+
+**Skal ikke arkiveres (driftsdata uten dokumentasjonsverdi):**
+
+- Tekniske koblinger mellom RINA-saksnummer og Nav sitt saksnummer.
+- Journalføringsstatus, kø-status, søkeindeks og oppgavereferanser som kun støtter saksbehandlerflyten.
+- Maskinelle mappinger mellom utenlandske identifikatorer og person-ID i PDL.
+
+Disse er referanse- og driftsdata; saksbehandlingen som ligger bak ligger arkivert i Joark, og opplysningene i PDL forvaltes med egen historikk.
+
+**Avgrensning mot integrasjonstjenestene:**
+
+- eux-rina-api er middleware mot RINA CPI og lagrer ikke selv arkivverdig informasjon – SED-ene blir journalført når de er sendt/mottatt.
+- eux-adresse-oppdatering oppdaterer adresser i PDL maskinelt på grunnlag av allerede mottatte SED-er. Opphavs-SED-en er journalført, og endringshistorikken bevares av PDL selv – det er derfor ingen egen arkivering av adresseendringer fra denne tjenesten.
+
+Konklusjonen er at all saksbehandlet informasjon og all informasjon med dokumentasjonsverdi som passerer nEESSI blir arkivert via Nav sitt felles arkiv, og at nEESSI sine egne baser kun inneholder driftsdata. Detaljert beskrivelse av selve arkiveringen ligger i besvarelsen for K226.1 (journalføring), og de øvrige Arkiv-kravene (K220.1–K231.1) bygger på samme avklaring.
+
+Status: Oppfylt

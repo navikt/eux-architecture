@@ -1,0 +1,3 @@
+Det fattes ikke helautomatiske avgjørelser i nEESSI, og det er derfor ingen underliggende vedtakslogikk som krever forklaring overfor den registrerte fra denne løsningen. Regelverk og vedtakslogikk per ytelse er bygget inn i fagsystemene, og informasjon om logikken gis av fagansvarlig i forbindelse med den digitale tjenesten der søknaden sendes inn og vedtaket fattes.
+
+For ordens skyld: nEESSI behandler ikke søknader fra bruker og produserer ikke vedtak. Løsningen henter og videreformidler strukturert trygdeinformasjon mellom Nav og utenlandske trygdemyndigheter, og gjør dette tilgjengelig for saksbehandler i den enkelte sak.

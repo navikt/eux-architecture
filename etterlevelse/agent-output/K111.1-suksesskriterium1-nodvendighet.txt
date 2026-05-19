@@ -1,0 +1,15 @@
+Formålet med nEESSI er å oppfylle Norges forpliktelser etter EØS-avtalens regler om koordinering av trygdeytelser. For at en person som har bodd, jobbet eller mottatt ytelser i flere EU/EØS-land skal få riktig vedtak, må norske trygdemyndigheter utveksle personopplysninger med tilsvarende myndigheter i andre land. Denne utvekslingen skjer i form av strukturerte elektroniske dokumenter (SED-er) gjennom det felleseuropeiske EESSI-rammeverket. Uten denne utvekslingen kan Nav verken vurdere rett til ytelser med utenlandsk komponent, beregne ytelsesnivå korrekt eller hindre dobbeltutbetaling.
+
+Vurdering av nødvendigheten:
+
+- Behandlingen er egnet til å oppnå formålet. SED-utveksling er den eneste anerkjente måten å koordinere trygderettigheter mellom EU/EØS-land på. Manuell papirbasert utveksling er erstattet av EESSI på vedtak fra EU-kommisjonen.
+- Det finnes ikke mindre inngripende alternativer som oppfyller formålet. Hvilke felt som inngår i en SED er fastsatt av EU-kommisjonen for hver Business Use Case (BUC), og Nav kan ikke ensidig velge å sende færre opplysninger uten å bryte koordineringsregelverket. nEESSI bruker bare de SED-typene som er nødvendige for det aktuelle saksformålet.
+- nEESSI lagrer ikke egne kopier av personopplysninger fra folkeregisteret, men henter dem fra Persondataløsningen (PDL) ved oppslag. Det reduserer mengden data som ligger lagret i nEESSI sine egne baser og sikrer at saksbehandler alltid jobber mot ferskeste versjon.
+- Tilganger er rollestyrt og knyttet til tjenstlig behov. Saksbehandlere ser kun saker innenfor det fagområdet de er autorisert for.
+- Saker og dokumenter med personopplysninger som ikke skal langtidsbevares slettes automatisk når formålet er bortfalt – for eksempel rinasaker som aldri ble sendt og driftsdata som ikke er journalpliktige.
+- Innkommende SED-er som inneholder utenlandsk adresse eller utenlandsk identifikator brukes til å supplere folkeregisteret slik at PDL får riktigere opplysninger. Dette er en målrettet bruk av allerede mottatte data – ingen ny innsamling.
+- Fagsystemene (for eksempel Pesys for pensjon) gjør den materielle nødvendighetsvurderingen for sin egen ytelsesbehandling. nEESSI etterlever sin del av ansvaret ved å legge til rette for at bare nødvendige SED-typer og felt utveksles.
+
+Den overordnede nødvendighetsvurderingen for behandling av personopplysninger i EESSI ligger hos Juridisk avdeling og personvernombud, og er dokumentert i Behandlingskatalogen for de aktuelle behandlingene. Team eessibasis sin rolle er å sikre at den tekniske løsningen ikke utvider behandlingen ut over det som er nødvendig for formålet.
+
+Status: Under arbeid

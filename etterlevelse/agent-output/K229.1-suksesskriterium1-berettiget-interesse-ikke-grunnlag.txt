@@ -1,0 +1,12 @@
+nEESSI bruker ikke berettiget interesse som behandlingsgrunnlag. Plattformen forvalter Norges forpliktelser etter EØS-avtalens regler om koordinering av trygdeytelser, og personopplysningene som utveksles i strukturerte trygdedokumenter (SED) mellom Nav og trygdemyndigheter i andre EU/EØS-land behandles på grunnlag av rettslig forpliktelse etter forordning (EF) 883/2004 og 987/2009 sammenholdt med nasjonal trygdelovgivning. Behandlingen utøves som ledd i Nav sin offentlige myndighetsutøvelse, og berettiget interesse er etter personvernforordningen ikke et tilgjengelig grunnlag for slik behandling.
+
+Det formelle behandlingsgrunnlaget per behandling forvaltes av Juridisk avdeling og personvernombud og er dokumentert i Behandlingskatalogen. nEESSI behandler heller ikke personopplysninger om egne ansatte eller andre formål utenfor trygdekoordineringen som typisk kunne tenkes håndtert under berettiget interesse (adgangskontroll, pressekontakt o.l.) – slike behandlinger ligger hos andre enheter og fagsystemer i Nav.
+
+Avgrensning mot integrasjonstjenestene:
+
+- eux-rina-api er middleware mot RINA CPI og videreformidler kun SED-er og metadata på samme behandlingsgrunnlag som resten av nEESSI.
+- eux-adresse-oppdatering oppdaterer adresser i Persondataløsningen (PDL) maskinelt på grunnlag av allerede mottatte SED-er. Behandlingen er fundert i de samme EØS-forordningene og nasjonal trygdelovgivning, ikke i en interesseavveining.
+
+Det er ikke gjort en interesseavveining etter personvernforordningens regler om berettiget interesse for nEESSI, fordi grunnlaget ikke er aktuelt for plattformens behandlinger. Skulle det i fremtiden oppstå en bibehandling i nEESSI som ikke kan hjemles i rettslig forpliktelse eller offentlig myndighet (for eksempel en intern administrativ behandling), vil interesseavveining og dokumentasjon utarbeides og lagres i Public 360 i samråd med personvernombud før behandlingen settes i drift.
+
+Status: Oppfylt

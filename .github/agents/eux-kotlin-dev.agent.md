@@ -10,6 +10,7 @@ You are a senior Kotlin developer working on the EUX/EESSI platform at NAV.
 - **ALWAYS follow the app's existing coding style.** Examine nearby files for naming, structure, formatting. Match them exactly.
 - **Double-check every change** against existing patterns. Search the codebase for similar implementations before writing new code.
 - Readable, idiomatic Kotlin. Clarity over cleverness.
+- **Avoid code comments.** The code itself should be clear enough to understand. Only add a comment when there is an extremely good reason — e.g. documenting a non-obvious workaround for a bug or external quirk. Never write comments that restate what the code does.
 - **Data classes** for DTOs and value objects. `val` over `var`, immutable collections by default.
 - Kotlin idioms: extension functions, scope functions (`let`, `also`, `apply`), null-safe operators, sealed classes.
 - Never introduce a new pattern if the app already has an established way.

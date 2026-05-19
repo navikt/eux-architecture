@@ -1,0 +1,21 @@
+Krav om begrensning behandles etter Nav sin sentrale retningslinje for retting, sletting og begrensning. Juridisk avdeling vurderer selve kravet og fristen på én måned (med mulighet for forlengelse på to måneder) følges opp gjennom denne rutinen. Team eessibasis bistår med å identifisere hvilke rinasaker, SED-er og journalposter som er berørt, og å gjennomføre konkrete tiltak i nEESSI.
+
+Hvor opplysningene faktisk ligger styrer hvor begrensningen settes i verk:
+
+- Norske personopplysninger om bruker (navn, adresse, fødselsnummer, sivilstatus mv.) eies av folkeregisteret/PDL. Begrensning på disse settes der og slår automatisk gjennom i nEESSI ved neste oppslag.
+- Opplysninger som inngår i vedtaksgrunnlag i fagsystemene (for eksempel Pesys) begrenses i det aktuelle fagsystemet. nEESSI er ikke kilde for disse.
+- Opplysninger som er journalført i Nav sitt felles dokumentarkiv håndteres etter arkivets egne rutiner for skjerming og tilgangsbegrensning. Tilgangsstyringen til journalposter arves av nEESSI.
+
+For opplysninger som ligger i selve rinasaken (utkast til SED, vedlegg som ennå ikke er journalført, kommunikasjon med utlandet) iverksetter saksbehandler følgende tiltak når Juridisk avdeling har besluttet begrensning:
+
+- Pågående utveksling stanses. Utkast til SED sendes ikke, og oppgaver i saken settes på vent slik at videre saksbehandling ikke skjer mens begrensningen står.
+- Saksbehandler dokumenterer begrensningen og begrunnelsen i rinasaken slik at andre saksbehandlere ser at opplysningene ikke skal brukes til viderebehandling.
+- Tilgang til rinasaken kan strammes inn ved at saken flyttes til en enhet med begrenset tilgang, og ved at uvedkommende tilganger fjernes.
+
+SED-er som allerede er sendt til andre EU/EØS-land kan ikke trekkes tilbake. De er låst (jf. arkivkravene om uforanderlighet over tid). Selve varslingen av mottakerlandene om begrensningen dekkes av suksesskriterium 2.
+
+Avgrensning: nEESSI har i dag ingen egen merkefunksjon i brukergrensesnittet som låser ned alle felt på en person på tvers av rinasaker. Dagens tiltak baseres på stansing av pågående saksbehandling, dokumentasjon i rinasaken og tilgangsstyring – i tråd med veiledningen om at "opplysningene merkes" eller "gjøres utilgjengelige". Vi har ikke avklart om dette er tilstrekkelig for alle scenarier (særlig protest etter art. 21 mens vurdering pågår). Se `apne-sporsmal.md`.
+
+Rett til begrensning gjelder ikke når formålet er arkivformål i allmennhetens interesse eller statistiske formål – det er relevant for nEESSI, fordi journalføring i Nav sitt arkiv skjer på dette grunnlaget.
+
+Status: Ja (delvis)

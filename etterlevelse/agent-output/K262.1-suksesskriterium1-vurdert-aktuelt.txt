@@ -1,0 +1,13 @@
+Retten til å protestere gjelder kun når behandlingsgrunnlaget er allmennhetens interesse / utøvelse av offentlig myndighet (art. 6 nr. 1 bokstav e) eller berettiget interesse (art. 6 nr. 1 bokstav f), inkludert profilering på disse grunnlagene.
+
+Behandlingsgrunnlaget for utvekslingen av trygdedokumenter (SED-er) med andre EU/EØS-land er i hovedsak rettslig forpliktelse etter folketrygdloven og forordning (EF) 883/2004 og 987/2009, kombinert med utøvelse av offentlig myndighet for trygdekoordinering. Vurderingen av om retten til å protestere er aktuell må derfor gjøres for hver enkelt behandling i Behandlingskatalogen, ikke samlet for plattformen:
+
+- For behandlinger som hviler på rettslig forpliktelse er retten til å protestere ikke aktuell. Dette dekker hovedtyngden av SED-utvekslingen.
+- For behandlinger som hviler på offentlig myndighet / allmennhetens interesse er retten aktuell, og fagansvarlig for ytelsen må vurdere konkrete protester sammen med personvernombud og Juridisk avdeling. Nav kan likevel fortsette behandlingen dersom det foreligger tungtveiende grunner som går foran den registrertes interesser, eller dersom behandlingen er nødvendig for å fastslå, gjøre gjeldende eller forsvare et rettskrav.
+- For behandlinger basert på berettiget interesse (art. 6 nr. 1 bokstav f) er retten aktuell. Dette er normalt ikke et grunnlag Nav bruker i nEESSI; eventuell bruk er knyttet til konkrete behandlinger som er dokumentert separat (jf. K229.1).
+
+nEESSI gjør ikke selv helautomatiske vedtak eller profilering av brukere. Vedtaksregler og profilering ligger i fagsystemene. Det betyr at protest mot profilering ikke retter seg mot nEESSI som plattform, men mot det aktuelle fagsystemet (jf. K115.1, K187.1 og K188.1).
+
+Vurderingen per behandling tilligger behandlingseier i Behandlingskatalogen. Team eessibasis sørger for at den tekniske beskrivelsen av hva som faktisk utveksles og lagres er korrekt, slik at vurderingen kan bygge på riktig faktum.
+
+Status: Ja (delvis)

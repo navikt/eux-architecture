@@ -1,0 +1,3 @@
+Det fattes ingen automatiserte avgjørelser i nEESSI som vekter opplysninger om den registrerte for å avgjøre rett til ytelse. Risikoen for diskriminering eller forskjellsbehandling som følge av automatisert vekting oppstår derfor ikke i denne løsningen.
+
+Opplysningene som flyter gjennom nEESSI er strukturerte trygdedokumenter med innhold definert av EU-kommisjonen for det enkelte BUC, og presenteres for saksbehandler uten egen vekting fra Nav sin side.

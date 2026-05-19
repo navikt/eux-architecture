@@ -1,0 +1,20 @@
+Krav om protest behandles etter Nav sin sentrale retningslinje for retting, sletting og begrensning, som også dekker protest mot behandling. Kravet kan fremsettes muntlig eller skriftlig og skal være begrunnet med den registrertes særlige situasjon. Juridisk avdeling vurderer selve protesten i samråd med fagansvarlig for behandlingen, og fristen på én måned (med mulighet for forlengelse på to måneder mot begrunnet varsel) følges opp gjennom denne rutinen.
+
+Hvor opplysningene faktisk ligger styrer hvor stansingen settes i verk dersom protesten tas til følge:
+
+- Norske personopplysninger om bruker eies av folkeregisteret/PDL og håndteres der.
+- Opplysninger som inngår i vedtaksgrunnlag i fagsystemene (for eksempel Pesys) håndteres i det aktuelle fagsystemet.
+- Journalførte SED-er i Nav sitt felles dokumentarkiv håndteres etter arkivets egne rutiner for skjerming og tilgangsbegrensning.
+
+For opplysninger som ligger i selve rinasaken iverksetter saksbehandler følgende tiltak når Juridisk avdeling har besluttet at protesten skal tas til følge:
+
+- Pågående utveksling stanses. Utkast til SED sendes ikke, og oppgaver i saken settes på vent slik at videre saksbehandling ikke skjer.
+- Stansingen og begrunnelsen dokumenteres i rinasaken slik at andre saksbehandlere ser at opplysningene ikke skal brukes til viderebehandling. Inntil protesten er avgjort behandles opplysningene som ved begrensning (jf. K116.1).
+- Tilgang til rinasaken kan strammes inn ved å flytte saken til en enhet med begrenset tilgang og fjerne uvedkommende tilganger.
+- Hvis Juridisk avdeling samtidig vurderer at opplysningene skal slettes, gjennomføres slettingen etter den sentrale sletterutinen.
+
+SED-er som allerede er sendt til andre EU/EØS-land kan ikke trekkes tilbake (jf. arkivkravene om uforanderlighet). Varsling av mottakerlandene følger samme mønster som ved retting og begrensning – EESSI sine innebygde rettelses-/X-SED-er brukes til å informere mottakerne om at videre bruk av opplysningene skal stanses.
+
+Avgrensning: nEESSI har i dag ingen egen merkefunksjon i brukergrensesnittet som låser ned alle felt på en person på tvers av rinasaker. Stansing skjer gjennom kombinasjonen av å sette oppgaver på vent, dokumentere stansingen i rinasaken og styre tilganger. Vi har ikke avklart om dette er tilstrekkelig i alle scenarier; se `apne-sporsmal.md`.
+
+Status: Ja (delvis)

@@ -1,0 +1,13 @@
+Informasjon om retten til å protestere gis ikke av nEESSI som system. nEESSI er en saksbehandlerløsning og en integrasjonsplattform mot EESSI; den har ingen brukerflate mot den registrerte. All generell informasjon om rettighetene den registrerte har etter personvernforordningen – inkludert retten til å protestere – gis gjennom Nav sin sentrale personvernerklæring på nav.no og gjennom informasjon på Ditt Nav.
+
+For behandlinger hvor retten til å protestere faktisk er aktuell (behandlinger med grunnlag i allmennhetens interesse / offentlig myndighet eller berettiget interesse, samt profilering på disse grunnlagene, jf. suksesskriterium 1) ligger informasjonsplikten hos behandlingseier for den aktuelle ytelsen. Behandlingseier sørger for at:
+
+- Informasjonen om retten til å protestere er løftet fram uttrykkelig og atskilt fra annen informasjon, slik forordningen krever.
+- Informasjonen gis senest ved første kommunikasjon med den registrerte, gjennom personvernerklæringen, brev fra fagsystemet eller annen direkte kommunikasjon i den aktuelle ytelseskanalen.
+- Informasjonen er beskrevet i Behandlingskatalogen for behandlingen.
+
+Team eessibasis sin rolle er å sørge for at den tekniske beskrivelsen av hva som utveksles og lagres er korrekt, slik at behandlingseier kan gi presis informasjon. Selve formuleringen og kanalvalget eies av behandlingseier og kommunikasjonsavdelingen.
+
+Avgrensning: For SED-utveksling som utelukkende hviler på rettslig forpliktelse er retten til å protestere ikke aktuell, og informasjonsplikten i dette suksesskriteriet utløses ikke. Den generelle informasjonen om rettighetene den registrerte har dekkes uansett av Nav sin sentrale personvernerklæring.
+
+Status: Ja (delvis)

@@ -1,0 +1,16 @@
+Behandlingsgrunnlaget for behandling av personopplysninger i nEESSI besluttes ikke av team eessibasis, men av fagansvarlig for den aktuelle ytelsen i samråd med personvernombud, og registreres i Behandlingskatalogen før behandlingen settes i gang. Team eessibasis er teknisk leverandør av plattformen og sørger for at nEESSI ikke utvider behandlingen ut over det grunnlaget eier har registrert.
+
+For de behandlingene som passerer nEESSI er hovedmønsteret:
+
+- **Alminnelige personopplysninger** (navn, fødselsnummer, kontaktopplysninger, saksreferanser, opplysninger om trygdeforhold uten sensitive elementer): grunnlaget er en kombinasjon av rettslig forpliktelse og utøvelse av offentlig myndighet. Pliktene følger av forordning (EF) 883/2004 og 987/2009 om koordinering av trygdeytelser i EØS, og av folketrygdloven og tilhørende særlovgivning for den enkelte ytelsen. Konkret hjemmel registreres per behandling i Behandlingskatalogen.
+- **Særlige kategorier av personopplysninger** (typisk helseopplysninger i sykepenger, uføretrygd og enkelte familieytelser): behandles på samme alminnelige grunnlag, supplert med det særlige grunnlaget om at behandlingen er nødvendig for å oppfylle Nav sine plikter innenfor trygde- og sosialrett. Hvilke BUC-er og SED-typer som faktisk håndterer særlige kategorier vurderes per ytelse av fagansvarlig.
+- **Opplysninger om straffedommer og lovovertredelser**: nEESSI er ikke utviklet for systematisk behandling av slike opplysninger, og det er ikke kjent at noen aktiv BUC krever det.
+
+Avgrensning mot integrasjonstjenestene:
+
+- eux-rina-api er middleware mot RINA CPI. Den introduserer ikke et eget behandlingsgrunnlag – flyten gjennom middleware skjer på samme grunnlag som det fagansvarlig har registrert for den aktuelle SED-utvekslingen.
+- eux-adresse-oppdatering og oppdatering av utenlandske identifikatorer i Persondataløsningen (PDL) skjer på grunnlag av Nav sin lovpålagte oppgave med å forvalte korrekte personopplysninger i folkeregisteret. Behandlingsgrunnlaget for denne oppdateringen eies av forvalter av PDL-behandlingen i samråd med personvernombud, ikke av team eessibasis.
+
+Når en ny BUC, SED-type eller integrasjon tas i bruk, varsler team eessibasis riktig behandlingseier (fagansvarlig eller PDL-eier) og personvernombud, slik at de kan vurdere om behandlingsgrunnlaget i Behandlingskatalogen må oppdateres før endringen settes i drift.
+
+Status: Oppfylt

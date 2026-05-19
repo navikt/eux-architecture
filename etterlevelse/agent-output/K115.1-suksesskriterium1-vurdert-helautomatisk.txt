@@ -1,0 +1,5 @@
+nEESSI fatter ikke helautomatiske avgjørelser overfor den registrerte. Løsningen brukes av saksbehandlere til å utveksle trygdedokumenter (SED) med trygdemyndigheter i andre EU- og EØS-land og knytte dokumentene til rett person og sak i Nav. Vedtak om ytelser fattes alltid i fagsystemet for den enkelte ytelse, av eller med involvering av saksbehandler.
+
+Maskinelle prosesser i nEESSI – auto-journalføring av dokumenter, oppdatering av personopplysninger i Persondataløsningen basert på opplysninger fra andre land, og opprettelse av oppgaver til saksbehandler – er tekniske støttetjenester. Disse er ikke avgjørelser som påvirker rettigheter eller plikter for den registrerte, og oppfyller derfor ikke definisjonen av helautomatisk behandling.
+
+Dette er markert i Behandlingskatalogen for nEESSI. Skulle det senere innføres helautomatiske avgjørelser i løsningen, vil de øvrige suksesskriteriene måtte vurderes på nytt.

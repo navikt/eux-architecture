@@ -38,6 +38,180 @@ Flere krav lener seg på de samme underliggende antagelsene. Disse bør avklares
 
 ---
 
+## K101.2 – Overføring av personopplysninger til utlandet må være lovlig
+
+- [ ] **Bekreftelse på at EESSI-kretsen ikke omfatter tredjeland uten
+      tilstrekkelig beskyttelsesnivå.** Antagelsen er at EESSI er begrenset til
+      EU/EØS pluss Sveits og Storbritannia, og at disse er dekket av
+      adekvansbeslutninger og/eller egne trygdekoordineringsavtaler. Bekreftes
+      med personvernombud / Juridisk avdeling.
+- [ ] **Eventuell sjekklisteutfylling i Public 360.** Vurder om det likevel
+      skal fylles ut en sjekkliste i Public 360 for nEESSI som dokumentasjon
+      på at vurderingen er gjort, selv om konklusjonen er at det ikke er
+      overføring til tredjeland. Personvernombud.
+
+## K109.1 – Fødselsnummer og andre identifikasjonsmidler
+
+- [ ] **Behandlingskatalogen dokumenterer bruk av fødselsnummer per
+      nEESSI-behandling.** Bekreft at fagansvarlig per ytelse / PDL-eier har
+      registrert at fødselsnummer er nødvendig for behandlingen.
+      Fagansvarlige + personvernombud.
+- [ ] **EESSI-nettverkets transportsikkerhet er formelt dokumentert.**
+      Antagelsen er at EESSI er et lukket, kryptert nettverk drevet av
+      EU-kommisjonen. Hent formell dokumentasjon (driftsdokumentasjon /
+      EU-kilde) som kan refereres ved tilsyn. Team eessibasis / SIF.
+
+## K102.3 – Det må fastsettes et klart formål før innsamling og behandling
+
+- [ ] **Behandlingskatalogen dekker alle aktive nEESSI-behandlinger med
+      formål.** Bekreft at hver aktive BUC/ytelse som nEESSI støtter har en
+      registrert behandling i Behandlingskatalogen med spesifikt og uttrykkelig
+      angitt formål, og hent referanser. Overlapper med K111.1-punktet om
+      Behandlingskatalogen – avklares samlet. Personvernombud + fagansvarlige
+      per ytelse.
+- [ ] **Forenelighetsvurdering for adresseoppdatering mot PDL er gjort av
+      PDL-eier.** Bekreft at forvaltningsansvaret for PDL har dokumentert
+      forenelighetsvurdering for at adresser fra innkommende SED-er brukes til
+      å oppdatere folkeregisteret. nEESSI er teknisk leverandør, ikke
+      vurderingsansvarlig. Eier av PDL-behandling + personvernombud.
+- [ ] **Forenelighetsvurdering for oppdatering av utenlandske identifikatorer i
+      PDL er gjort av PDL-eier.** Tilsvarende bekreftelse for at utenlandske
+      personnumre/trygdenumre fra SED-er supplerer PDL. Eier av PDL-behandling
+      + personvernombud.
+- [ ] **Rutine for å varsle fagområde/PDL-eier ved nye BUC-er eller endrede
+      videreflyter.** Bekreft at team eessibasis har en omforent rutine for å
+      melde fra til riktig behandlingseier når en ny BUC, SED-type eller
+      videreflyt i plattformen kan utvide formålet, slik at eier kan revidere
+      Behandlingskatalogen. Team eessibasis + personvernombud.
+
+## K107.2 – Behandling av personopplysninger må være lovlig
+
+- [ ] **Behandlingsgrunnlag dokumentert per nEESSI-behandling i
+      Behandlingskatalogen.** Bekreft at hver aktive BUC/ytelse som nEESSI
+      støtter har registrert behandlingsgrunnlag (med hjemmelhenvisning) og
+      eventuelt særlig grunnlag for særlige kategorier. Overlapper med
+      K102.3- og K111.1-punktene om Behandlingskatalogen. Personvernombud +
+      fagansvarlige per ytelse.
+- [ ] **Behandlingsgrunnlag for PDL-oppdatering (adresse og utenlandske
+      identifikatorer) dokumentert av PDL-eier.** Bekreft at forvalter av
+      PDL-behandlingen har skriftlig vurdering av grunnlaget for maskinell
+      oppdatering basert på SED-data. Eier av PDL-behandling + personvernombud.
+- [ ] **Avklart om noen aktiv BUC behandler opplysninger om straffedommer og
+      lovovertredelser.** Antagelsen er nei, men bekreft med personvernombud
+      slik at vi unngår at en sjelden BUC krever særskilt grunnlag uten at vi
+      har fanget det opp.
+
+## K103.2 – Personopplysninger skal kunne rettes
+
+- [ ] **Sentral rutine for retting/sletting/begrensning dekker EESSI-saker.**
+      Bekreft at Nav sin retningslinje for retting, sletting og begrensning er
+      oppdatert mot personvernforordningen og at den faktisk dekker
+      EESSI-flyten (rinasaker, SED-er, journalposter fra nEESSI). Personvernombud
+      / Juridisk.
+- [ ] **Rutine for å sende rettelses-SED når Nav oppdager feil.** Bekreft hvilke
+      X-/rettelses-SED-er som faktisk brukes per BUC når Nav oppdager at tidligere
+      utvekslede opplysninger var feil, og at saksbehandlere er kjent med
+      rutinen. Domeneansvarlig for EESSI + fagansvarlige per ytelse.
+- [ ] **Identifisering av berørte mottakerland ved retting i PDL.** Når en
+      personopplysning rettes i PDL, har vi i dag ingen automatisk kobling som
+      finner alle tidligere SED-mottakere for personen og varsler dem. Avklar
+      om dette skal håndteres manuelt av saksbehandler/fagansvarlig, eller om
+      det skal etableres støtte i nEESSI. Team eessibasis + fagansvarlige.
+- [ ] **Frist (én måned) for tilbakemelding på rettingskrav.** Bekreft at den
+      sentrale rutinen faktisk måler og rapporterer på fristen, og at
+      EESSI-spesifikke krav fanges opp i samme spor. Personvernombud.
+- [ ] **Validering av SED-innhold før utsending.** Besvarelsen sier at SED-er
+      valideres mot EESSI sine datamodeller før utsending. Bekreft hvor
+      omfattende denne valideringen faktisk er (skjema, obligatoriske felt,
+      konsistens) og om det er gap som bør tettes. Team eessibasis.
+
+## K116.1 – Behandling av personopplysninger må kunne begrenses
+
+- [ ] **Egen merke-/skjermfunksjon i nEESSI for begrensning.** nEESSI har i dag
+      ingen UI-funksjon som markerer en person eller en rinasak som "begrenset"
+      på tvers av saker. Dagens tiltak er stansing av pågående saksbehandling,
+      fritekstnotat i rinasaken og tilgangsstyring. Bekreft med personvernombud
+      / Juridisk om dette er tilstrekkelig, eller om vi må bygge eksplisitt
+      støtte. Team eessibasis + personvernombud.
+- [ ] **Stansing av pågående saksbehandling ved begrensningskrav.** Bekreft
+      hvilken konkret rutine saksbehandler skal følge i nEESSI når Juridisk
+      avdeling har besluttet begrensning – sette oppgaver på vent, ikke sende
+      utkast-SED, flytte sak til skjermet enhet – og at rutinen er dokumentert
+      og kjent. Team eessibasis + fagansvarlige per ytelse.
+- [ ] **Sentral rutine for begrensning dekker EESSI-saker.** Samme antagelse
+      som for K103.2: bekreft at Nav sin retningslinje for retting, sletting og
+      begrensning faktisk dekker rinasaker og SED-er, og at frister måles for
+      EESSI-spesifikke krav. Personvernombud / Juridisk.
+- [ ] **Varsling av mottakerland ved begrensning.** Vi antar at samme
+      rettelses-/X-SED-mekanisme som ved retting brukes for å varsle andre lands
+      myndigheter om begrensning. Bekreft hvilke SED-typer som faktisk brukes
+      per BUC når formålet er begrensning (ikke ren retting). Domeneansvarlig
+      EESSI + fagansvarlige.
+- [ ] **Identifisering av berørte mottakere ved begrensningskrav.** Som for
+      K103.2: ingen automatisk kobling som finner alle tidligere SED-mottakere
+      for en person. Avklar om manuell identifisering er akseptabelt, eller om
+      det bør bygges støtte i nEESSI. Team eessibasis + fagansvarlige.
+- [ ] **Heving av begrensning – varsel til den registrerte.** Veilederen sier
+      at den registrerte alltid skal ha beskjed før en begrensning heves.
+      Bekreft at den sentrale rutinen ivaretar dette, og hvem som faktisk sender
+      varselet. Personvernombud / Juridisk.
+
+## K111.1 – Behandling av personopplysninger skal være nødvendig og proporsjonal
+
+- [ ] **Formell PVK/DPIA for nEESSI-behandlinger.** Bekreft at nødvendighets-
+      og proporsjonalitetsvurderingen for behandling av personopplysninger i
+      EESSI faktisk er dokumentert (Behandlingskatalogen / Public 360) per
+      ytelse/BUC, og hent referanse til riktig dokument-ID. Personvernombud +
+      Juridisk + fagansvarlige per ytelse.
+- [ ] **Avgrensning av SED-felt mot BUC-krav.** Besvarelsen sier at nEESSI
+      ikke sender flere felt enn BUC-en forutsetter. Bekreft at dette stemmer i
+      praksis – at saksbehandler ikke har mulighet til å fylle ut og sende
+      "ekstra" personopplysninger som ikke er påkrevd. Domeneansvarlig for EESSI
+      + team eessibasis.
+- [ ] **Særlige kategorier i SED-er.** Bekreft og dokumenter hvilke BUC-er som
+      faktisk håndterer særlige kategorier av personopplysninger (helse, barn,
+      fagforening m.v.) og at det rettslige grunnlaget for disse er på plass.
+      Personvernombud + fagansvarlige per ytelse.
+- [ ] **Behandlingskatalogen oppdatert for EESSI.** Bekreft at alle aktive
+      EESSI-behandlinger er registrert i Behandlingskatalogen med riktig formål,
+      rettslig grunnlag og lagringstid. Personvernombud + fagansvarlige.
+
+## K113.2 – Den registrerte har krav på innsyn i hvilke personopplysninger Nav har registrert
+
+- [ ] **Melding til Nav Kontaktsenter om nEESSI som innsynskilde.** Send e-post
+      til nav.kontaktsenter.styringsenhet@nav.no med emne "K113.2 Innsyn" og
+      beskrivelse av nEESSI og hvilke typer personopplysninger som lagres i
+      plattformens egne baser (utover det som ligger i Joark). Team eessibasis
+      + personvernombud.
+- [ ] **Skriftlig rutine for uttrekk per innbygger fra nEESSI-baser.** Etabler
+      og dokumenter hvordan teamet henter ut personopplysninger om én bestemt
+      innbygger fra rinasaks-kobling, journaltreff, oppgaver, søkeindeks,
+      PDL-mappinger og eux-adresse-oppdatering – inkludert frist på én måned.
+      Team eessibasis.
+- [ ] **Avklaring av elektronisk innsynsomfang i nEESSI-interne data.** Avklar
+      hvilke nEESSI-spesifikke driftsopplysninger (utover SED-innhold på
+      "Min sak") som er meningsbærende for innbygger og kan eksponeres
+      elektronisk uten å gå på bekostning av sikkerhet eller andre personers
+      rettigheter. Team eessibasis + personvernombud.
+
+## K198.1 – Bruk av samtykke må oppfylle særskilte krav
+
+- [ ] **Ingen EESSI-behandling bruker samtykke som behandlingsgrunnlag.**
+      Besvarelsen forutsetter at samtykke ikke er listet som rettslig grunnlag
+      for noen aktiv EESSI-behandling i Behandlingskatalogen, og at ingen
+      fagsystemer som nEESSI integrerer mot benytter samtykke i en flyt som
+      involverer SED-utveksling. Bekreft med personvernombud + fagansvarlige
+      per ytelse.
+
+## K229.1 – Bruk av berettiget interesse må oppfylle særskilte krav
+
+- [ ] **Ingen EESSI-behandling bruker berettiget interesse som behandlingsgrunnlag.**
+      Besvarelsen forutsetter at berettiget interesse ikke er listet som
+      rettslig grunnlag for noen aktiv EESSI-behandling i Behandlingskatalogen,
+      og at all behandling i nEESSI hjemles i rettslig forpliktelse / offentlig
+      myndighet etter EØS-trygdeforordningene og nasjonal trygdelovgivning.
+      Bekreft med personvernombud.
+
 ## K220.1 – Dokumentasjonen skal være autentisk
 
 - [ ] **Verifisering av elektroniske signaturer på vedlegg.** Besvarelsen
@@ -141,6 +315,36 @@ Flere krav lener seg på de samme underliggende antagelsene. Disse bør avklares
       og videreformidler skjerming riktig, slik at sensitive opplysninger
       ikke vises til saksbehandlere uten tilgang. Team eessibasis + sikkerhet.
 
+## K262.1 – Behandling av personopplysninger må kunne protesteres mot
+
+- [ ] **Behandlingsgrunnlag per behandling i Behandlingskatalogen.** For å
+      avgjøre hvilke nEESSI-relaterte behandlinger som faktisk gir grunnlag
+      for protest (art. 6 nr. 1 bokstav e eller f), må vi gå gjennom
+      behandlingene per ytelse/BUC og bekrefte hvilket grunnlag som er
+      registrert. Fagansvarlige per ytelse + personvernombud.
+- [ ] **Sentral rutine dekker protest.** Bekreft at Nav sin retningslinje for
+      retting, sletting og begrensning også eksplisitt dekker protest etter
+      art. 21, og at frister måles for EESSI-spesifikke krav. Personvernombud /
+      Juridisk.
+- [ ] **Stansing av pågående saksbehandling ved tatt-til-følge-protest.**
+      Samme antagelse som for K116.1: bekreft konkret rutine for hvordan
+      saksbehandler stanser pågående utveksling i nEESSI og dokumenterer
+      stansingen. Team eessibasis + fagansvarlige.
+- [ ] **Varsling av mottakerland ved protest.** Antar at samme rettelses-/
+      X-SED-mekanisme som ved retting/begrensning brukes. Bekreft hvilke
+      SED-typer som faktisk brukes når formålet er protest. Domeneansvarlig
+      EESSI + fagansvarlige.
+- [ ] **Informasjonsplikt – uttrykkelig og atskilt.** Bekreft at Nav sin
+      sentrale personvernerklæring og kommunikasjonen i de berørte ytelsene
+      faktisk fremhever retten til å protestere uttrykkelig og atskilt fra
+      annen informasjon, senest ved første kommunikasjon. Personvernombud +
+      kommunikasjonsavdeling + fagansvarlige per ytelse.
+- [ ] **Avgrensning mot profilering i fagsystemer.** nEESSI gjør ikke
+      profilering selv, men formidler opplysninger til fagsystemer som
+      eventuelt gjør det. Bekreft at protest mot profilering håndteres i
+      fagsystemets eget løp og ikke faller mellom to stoler. Fagansvarlige +
+      personvernombud.
+
 ## K196.6 – WCAG 2.1 A og AA
 
 - [ ] **Full WCAG 2.1 A/AA-revisjon av nEESSI.** Vi bruker Aksel-komponenter
@@ -202,3 +406,11 @@ Flere krav lener seg på de samme underliggende antagelsene. Disse bør avklares
       felles identitetsløsning håndhever dette kravet for nEESSI, og at vi
       kan henvise til fellesløsningen i besvarelsen. Team eessibasis +
       identitet/plattform.
+- [ ] **Fødselsnummer på Kafka-topics.** PVK v1.3 omtaler ikke Kafka eller
+      meldingstopics eksplisitt. Bekreft med personvernombud at fnr på
+      interne Kafka-topics (RINA-events m.fl.) er dekket av eksisterende
+      PVK gjennom prinsippene om tilgangskontroll nær datakilden,
+      kryptering i transitt og logge-filtrering – eller om PVK må
+      oppdateres. Vurder samtidig om dataminimering og topic-retention er
+      satt riktig, og om konsumentkretsen er begrenset til EUX-tjenester.
+      Personvernombud + team eessibasis.

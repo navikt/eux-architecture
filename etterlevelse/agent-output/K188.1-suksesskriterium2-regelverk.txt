@@ -1,0 +1,1 @@
+Siden nEESSI ikke utfører profilering, er det ikke nødvendig å vurdere om underliggende regelverk åpner for det. Dersom et fagsystem på et senere tidspunkt skulle ønske å bygge profilering oppå data som nEESSI formidler, må fagansvarlig og personvernombud gjøre vurderingen av hjemmelsgrunnlag før en slik behandling settes i gang.

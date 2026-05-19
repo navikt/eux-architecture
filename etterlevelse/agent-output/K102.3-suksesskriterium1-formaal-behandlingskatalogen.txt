@@ -1,0 +1,14 @@
+Formålet med behandlingen av personopplysninger i nEESSI er å gjennomføre Norges forpliktelser etter EØS-avtalens regler om koordinering av trygdeytelser. Konkret betyr det at Nav skal kunne utveksle strukturerte trygdedokumenter (SED-er) elektronisk med trygdemyndigheter i andre EU/EØS-land, slik at personer som har bodd, arbeidet eller mottatt ytelser i flere land får riktige vedtak om norske ytelser med utenlandsk komponent, og for å hindre dobbeltutbetaling.
+
+Formålet er **spesifikt**, fordi det avgrenses til selve utvekslingen og saksstøtten rundt den (mottak, journalføring, distribusjon til fagsystem, henting av personopplysninger fra Persondataløsningen og maskinell vedlikehold av utenlandske identifikatorer og adresser). Det er **uttrykkelig angitt** i kontrollen som er beskrevet i Behandlingskatalogen og i Nav sin personvernerklæring under det aktuelle ytelsesområdet. Det er **berettiget**, fordi det følger direkte av forordning (EF) 883/2004 og 987/2009 og av nasjonal trygdelovgivning.
+
+Den enkelte behandlingen i Behandlingskatalogen er knyttet til den ytelsen SED-utvekslingen støtter (alderspensjon, uføretrygd, sykepenger, familieytelser m.fl.). Ansvar for å holde formål, rettslig grunnlag og lagringstid oppdatert per ytelse ligger hos fagansvarlig for ytelsen og personvernombud; team eessibasis (som forvalter nEESSI teknisk) sørger for at plattformen ikke utvider behandlingen ut over det formålet som er registrert.
+
+Når en ny BUC eller SED-type tas i bruk, eller et nytt fagområde kobles på nEESSI, vurderes det rutinemessig om Behandlingskatalogen må oppdateres. Endringer som påvirker formålet meldes til personvernombud før de settes i drift.
+
+Avgrensning mot integrasjonstjenestene:
+
+- eux-rina-api er middleware mot RINA CPI og bidrar kun til det samme formålet – utveksling av SED-er – uten å introdusere et eget behandlingsformål.
+- eux-adresse-oppdatering har et eget, avledet formål (oppdatere folkeregisterets opplysninger om utenlandsk adresse på grunnlag av mottatte SED-er). Dette er nært knyttet til hovedformålet og forutsetter forenelighetsvurdering, se suksesskriterium 2.
+
+Status: Oppfylt
