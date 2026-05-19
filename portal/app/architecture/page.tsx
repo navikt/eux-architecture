@@ -95,15 +95,15 @@ export default function ArchitecturePage() {
               Arkitekturoversikt
             </BodyShort>
             <Heading level="1" size="xlarge">
-              Slik snakker EUX med resten av Europa
+              Slik snakker NAV med resten av Europa
             </Heading>
             <BodyLong size="large">
               Når noen som bor i Norge har bodd eller jobbet i et annet
               EU/EØS-land — og nå trenger pensjon, sykepenger eller en
               familieytelse — kan ikke NAV bare slå opp svaret i et norsk
               register. Vi må spørre landet de kom fra, og de må spørre
-              oss. <strong>EUX</strong> er samlingen av om lag 24 små
-              tjenester som gjør de samtalene mulige.
+              oss. EUX er samlingen av om lag 24 små tjenester som gjør
+              de samtalene mulige.
             </BodyLong>
             <HStack gap="space-8" align="center" wrap>
               <Tag size="small" variant="info">EESSI</Tag>
@@ -136,15 +136,16 @@ export default function ArchitecturePage() {
           Hva er EUX?
         </Heading>
         <BodyLong size="large" className="portal-prose">
-          <strong>EUX</strong> (av og til skrevet <em>EUX/EESSI</em>) er
-          NAVs domene for trygdesamordning på tvers av landegrenser.
-          Funksjonelt er det et tynt lag NAV-tjenester som sitter mellom
-          norske saksbehandlere og den europeiske infrastrukturen som
-          heter EESSI/RINA. Driftsmessig eies det av teamet{" "}
-          <strong>eessibasis</strong> i NAV.
+          EUX er et teknisk samlebegrep for NAVs domene for
+          trygdesamordning på tvers av landegrenser. Funksjonelt er det
+          et tynt lag NAV-tjenester som sitter mellom norske
+          saksbehandlere og den europeiske infrastrukturen EESSI/RINA.
+          Saksbehandleren selv ser bare frontenden, som heter{" "}
+          <code>nEESSI</code>. Domenet eies av{" "}
+          <strong>Team EESSI Nav</strong>.
         </BodyLong>
         <BodyLong className="portal-prose">
-          Fra et utviklerperspektiv er EUX om lag to dusin tjenester på
+          Fra et utviklerperspektiv er det om lag to dusin tjenester på
           NAIS — en React/TypeScript-frontend, et knippe
           Spring-Boot-backender i Kotlin og Java, noen Kafka-konsumenter
           og noen planlagte jobber — alle koblet til den norske
@@ -156,10 +157,10 @@ export default function ArchitecturePage() {
             Én setning
           </Heading>
           <BodyLong>
-            EUX lar en norsk saksbehandler utveksle strukturerte
-            dokumenter (<strong>SED-er</strong>) med
-            trygdemyndigheter i andre EU/EØS-land — og holder samtidig
-            NAVs egne registre i synk i bakgrunnen.
+            nEESSI lar en norsk saksbehandler utveksle strukturerte
+            dokumenter (SED-er) med trygdemyndigheter i andre
+            EU/EØS-land — og holder samtidig NAVs egne registre i synk
+            i bakgrunnen.
           </BodyLong>
         </GuidePanel>
       </Section>
@@ -170,46 +171,46 @@ export default function ArchitecturePage() {
           EESSI — det europeiske nettverket
         </Heading>
         <BodyLong className="portal-prose">
-          <strong>EESSI</strong> (Electronic Exchange of Social Security
-          Information) er EUs nettverk for trygdesamordning på tvers av
-          land. Hvert EU/EØS-land har sitt eget nasjonale
-          kontaktpunkt. Når NAV trenger informasjon fra for eksempel
-          Tyskland, reiser forespørselen over EESSI og når den tyske
-          motparten til NAV. Programvaren hvert land kjører på sin side
-          av nettverket heter <strong>RINA</strong>.
+          EESSI (Electronic Exchange of Social Security Information) er
+          EUs nettverk for trygdesamordning på tvers av land. Hvert
+          EU/EØS-land har sitt eget nasjonale kontaktpunkt. Når NAV
+          trenger informasjon fra for eksempel Tyskland, reiser
+          forespørselen over EESSI og når den tyske motparten til NAV.
+          Programvaren hvert land kjører på sin side av nettverket heter
+          RINA.
         </BodyLong>
         <BodyLong className="portal-prose">
-          Arbeidsenheten i EESSI er en <strong>BUC</strong> (Business
-          Use Case) — for eksempel &laquo;P_BUC_01&raquo; for en
-          ordinær pensjonssøknad. En BUC er en liten arbeidsflyt som
-          definerer <em>hvilke</em> dokumenter som utveksles,{" "}
-          <em>av hvem</em> og <em>i hvilken rekkefølge</em>. Hvert
-          dokument i en BUC er en <strong>SED</strong> (Structured
-          Electronic Document) med et veldefinert skjema, f.eks.{" "}
-          <code>P2000</code> for søknad om alderspensjon.
+          Arbeidsenheten i EESSI er en BUC (Business Use Case) — for
+          eksempel &laquo;P_BUC_01&raquo; for en ordinær
+          pensjonssøknad. En BUC er en liten arbeidsflyt som definerer{" "}
+          <em>hvilke</em> dokumenter som utveksles, <em>av hvem</em> og{" "}
+          <em>i hvilken rekkefølge</em>. Hvert dokument i en BUC er en
+          SED (Structured Electronic Document) med et veldefinert
+          skjema, f.eks. <code>P2000</code> for søknad om
+          alderspensjon.
         </BodyLong>
         <ReadMore header="Mer om EESSI-begrepene">
           <ul className="portal-prose">
             <li>
-              <strong>SED</strong> — Structured Electronic Document.
-              Selve XML/JSON-meldingen som sendes mellom land.
+              <code>SED</code> — Structured Electronic Document. Selve
+              XML/JSON-meldingen som sendes mellom land.
             </li>
             <li>
-              <strong>BUC</strong> — Business Use Case. En arbeidsflyt
-              som kjeder sammen et sett SED-er.
+              <code>BUC</code> — Business Use Case. En arbeidsflyt som
+              kjeder sammen et sett SED-er.
             </li>
             <li>
-              <strong>RINA</strong> — Reference Implementation of a
+              <code>RINA</code> — Reference Implementation of a
               National Application. Den lokale UI-en og serveren hvert
               land bruker for å delta i EESSI.
             </li>
             <li>
-              <strong>CPI</strong> — Case Processing Interface.
-              REST-API-et til RINA. Det er dette{" "}
-              <code>eux-rina-api</code> snakker med.
+              <code>CPI</code> — Case Processing Interface. REST-API-et
+              til RINA. Det er dette <code>eux-rina-api</code> snakker
+              med.
             </li>
             <li>
-              <strong>NIE</strong> — National Interface Endpoint. Slik
+              <code>NIE</code> — National Interface Endpoint. Slik
               pusher RINA hendelser <em>ut</em> til nasjonale systemer
               — konsumeres av <code>eux-all-rina-events</code>.
             </li>
@@ -224,17 +225,16 @@ export default function ArchitecturePage() {
         </Heading>
         <BodyLong className="portal-prose">
           RINA leveres av EU-kommisjonen, men hvert medlemsland drifter
-          sin egen instans. NAV drifter NAV sin. Fra NAV sitt
-          synspunkt er RINA den andre enden av et REST-API
-          (<strong>CPI</strong>) og en push-kanal for hendelser
-          (<strong>NIE</strong>). Den norske saksbehandleren åpner
-          aldri RINA direkte — de bruker <code>nEESSI</code>, som
-          går via NAVs tjenester og først der når RINA.
+          sin egen instans. NAV drifter NAV sin. Fra NAVs side er RINA
+          den andre enden av et REST-API (<code>CPI</code>) og en
+          push-kanal for hendelser (<code>NIE</code>). Saksbehandleren
+          åpner aldri RINA direkte — de bruker <code>nEESSI</code>, som
+          går via NAVs egne tjenester og først der når RINA.
         </BodyLong>
         <BodyLong className="portal-prose">
           Det ene designvalget — &laquo;NAV-rettet UI på toppen av
-          RINA, ikke RINA selv&raquo; — er grunnen til at
-          EUX-plattformen har akkurat den formen den har.
+          RINA, ikke RINA selv&raquo; — er grunnen til at plattformen
+          har akkurat den formen den har.
         </BodyLong>
       </Section>
 
@@ -303,13 +303,11 @@ export default function ArchitecturePage() {
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                <code>nEESSI</code> har en Node.js-BFF som
-                håndterer innlogging og token-veksling — det er et
-                NAV-mønster. <code>eux-neessi</code> er en
-                domenespesifikk backend-for-frontend som skjuler den
-                EUX-interne tjenestegrafen for frontenden. Resultat:
-                React-appen forholder seg til <em>én</em> backend, og
-                tjenestene under kan utvikle seg uavhengig.
+                <code>eux-neessi</code> har en domenespesifikk
+                backend-for-frontend som skjuler den interne
+                tjenestegrafen for frontenden. Resultat: React-appen
+                forholder seg til <em>én</em> backend, og tjenestene
+                under kan utvikle seg uavhengig.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
@@ -386,7 +384,7 @@ export default function ArchitecturePage() {
                 <code>eux-legacy-rina-events</code> det nye topicet og
                 publiserer på nytt til <code>sedmottatt-v1</code> /{" "}
                 <code>sedsendt-v1</code>. Eldre tjenester som{" "}
-                <code>eux-journalfoering</code>,{" "}
+                <code>eux-fagmodul-journalfoering</code>,{" "}
                 <code>eux-person-oppdatering</code> og eksterne
                 konsumenter (f.eks. eessi-pensjon) lytter fremdeles
                 dit.
@@ -401,7 +399,7 @@ export default function ArchitecturePage() {
               <BodyLong>
                 Når en innkommende SED treffer{" "}
                 <code>sedmottatt-v1</code>, slår{" "}
-                <code>eux-journalfoering</code> personen opp i PDL,
+                <code>eux-fagmodul-journalfoering</code> personen opp i PDL,
                 finner saken i <code>eux-nav-rinasak</code>, skriver
                 en journalpost til Dokarkiv og oppretter en oppgave
                 for riktig NAV-enhet — alt uten et menneske i loopen,
@@ -432,44 +430,81 @@ export default function ArchitecturePage() {
           Plattformen i fire lag
         </Heading>
         <BodyLong className="portal-prose">
-          Mentalt grupperer de ~24 EUX-tjenestene seg i fire lag. Den
+          Mentalt grupperer de ~24 tjenestene seg i fire lag. Den
           fullstendige tabellen med beskrivelser og lenker finner du på{" "}
           <DsLink href="/applications">applikasjonssiden</DsLink>.
         </BodyLong>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
             gap: "1rem",
           }}
         >
           {[
             {
               title: "Frontend",
-              color: "portal-card portal-card--blue",
-              body: "nEESSI — det eneste saksbehandleren ser. React + TypeScript med en Node.js-BFF.",
+              cardClass: "portal-card portal-card--blue",
+              note: "Det eneste saksbehandleren ser. React + TypeScript med en Node.js-BFF.",
+              apps: ["nEESSI"],
             },
             {
               title: "Kjernetjenester",
-              color: "portal-card portal-card--green",
-              body: "eux-neessi, eux-rina-api, eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler, eux-rina-terminator-api, eux-rina-case-search.",
+              cardClass: "portal-card portal-card--green",
+              note: "Orkestrator-BFF, RINA-mellomvare og spesialiserte domenetjenester.",
+              apps: [
+                "eux-neessi",
+                "eux-rina-api",
+                "eux-nav-rinasak",
+                "eux-journal",
+                "eux-oppgave",
+                "eux-saksbehandler",
+                "eux-rina-terminator-api",
+                "eux-rina-case-search",
+              ],
             },
             {
               title: "Hendelsesinfrastruktur",
-              color: "portal-card portal-card--purple",
-              body: "eux-all-rina-events tar RINA-hendelser inn på Kafka; eux-legacy-rina-events bygger bro til det eldre topic-formatet.",
+              cardClass: "portal-card portal-card--purple",
+              note: "Tar RINA-hendelser inn på Kafka og bygger bro mellom nytt og gammelt format.",
+              apps: ["eux-all-rina-events", "eux-legacy-rina-events"],
             },
             {
               title: "Arbeidere og jobber",
-              color: "portal-card portal-card--orange",
-              body: "eux-journalfoering, eux-journalarkivar, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-adresse-oppdatering, eux-person-oppdatering, eux-barnetrygd — pluss NAIS-jobbene som trigger dem.",
+              cardClass: "portal-card portal-card--orange",
+              note: "Kafka-konsumenter og planlagte jobber — auto-journalføring, opprydding, oppdateringer.",
+              apps: [
+                "eux-fagmodul-journalfoering",
+                "eux-journalarkivar",
+                "eux-avslutt-rinasaker",
+                "eux-slett-usendte-rinasaker",
+                "eux-adresse-oppdatering",
+                "eux-person-oppdatering",
+                "eux-barnetrygd",
+              ],
             },
           ].map((c) => (
-            <div key={c.title} className={c.color}>
+            <div key={c.title} className={c.cardClass}>
               <Heading level="3" size="small" spacing>
                 {c.title}
               </Heading>
-              <BodyLong size="small">{c.body}</BodyLong>
+              <BodyShort size="small" style={subtleStyle}>
+                {c.note}
+              </BodyShort>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "0.4rem",
+                  marginTop: "0.75rem",
+                }}
+              >
+                {c.apps.map((a) => (
+                  <span key={a} className="portal-chip">
+                    {a}
+                  </span>
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -478,7 +513,7 @@ export default function ArchitecturePage() {
       {/* External */}
       <Section id="external">
         <Heading level="2" size="large">
-          Eksterne NAV-systemer EUX er avhengig av
+          Eksterne NAV-systemer plattformen er avhengig av
         </Heading>
         <Box className="portal-figure">
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -522,8 +557,8 @@ export default function ArchitecturePage() {
           Felles mønstre
         </Heading>
         <BodyLong className="portal-prose">
-          De fleste EUX-tjenester ser veldig like ut utenfra: Spring
-          Boot, Azure AD, NAIS, PostgreSQL (når de er stateful),{" "}
+          De fleste tjenestene ser veldig like ut utenfra: Spring Boot,
+          Azure AD, NAIS, PostgreSQL (når de er stateful),{" "}
           <code>/actuator/health</code>,{" "}
           <code>/actuator/prometheus</code>. Noen ting varierer
           bevisst.
@@ -536,12 +571,12 @@ export default function ArchitecturePage() {
             <Accordion.Content>
               <ul className="portal-prose">
                 <li>
-                  Tjeneste-til-tjeneste: <strong>Azure AD</strong>{" "}
-                  OAuth2 client-credentials eller on-behalf-of.
+                  Tjeneste-til-tjeneste: Azure AD OAuth2
+                  client-credentials eller on-behalf-of.
                 </li>
                 <li>
-                  Brukerinnlogging: <strong>Wonderwall</strong>-sidecar
-                  foran <code>nEESSI</code>.
+                  Brukerinnlogging: Wonderwall-sidecar foran{" "}
+                  <code>nEESSI</code>.
                 </li>
                 <li>
                   <code>eux-rina-api</code> → RINA CPI: shared-secret
@@ -622,14 +657,13 @@ export default function ArchitecturePage() {
             </Accordion.Header>
             <Accordion.Content>
               <BodyLong>
-                Klassen <code>EessiAcl.java</code> er{" "}
-                <strong>transformasjonslaget</strong> for SED-format —
-                den konverterer SED-er mellom NAVs interne format og
-                EU-formatet ved hjelp av kodemapping og maler. Hvis et
+                Klassen <code>EessiAcl.java</code> er
+                transformasjonslaget for SED-format — den konverterer
+                SED-er mellom NAVs interne format og EU-formatet ved
+                hjelp av kodemapping og maler. Hvis et
                 kodemappingsoppslag feiler, blir verdien stille mappet
-                til en <strong>tom streng</strong> og logget som en
-                warning. Data kan altså bli borte uten at det blir
-                kastet en feil.
+                til en tom streng og logget som en warning. Data kan
+                altså bli borte uten at det blir kastet en feil.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>
@@ -659,9 +693,8 @@ export default function ArchitecturePage() {
                 eller sender en SED, kaller den{" "}
                 <code>hentMuligeActions()</code> på RINA. Det er ingen
                 lås — saksstatusen i RINA kan endre seg mellom sjekken
-                og operasjonen, og du får{" "}
-                <strong>409 Conflict</strong>. Kallere bør forberedes
-                på å forsøke på nytt ved 409.
+                og operasjonen, og du får 409 Conflict. Kallere bør
+                forberedes på å forsøke på nytt ved 409.
               </BodyLong>
             </Accordion.Content>
           </Accordion.Item>

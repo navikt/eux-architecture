@@ -25,7 +25,7 @@ const cards: Card[] = [
     eyebrow: "Hvordan henger det sammen",
     title: "Arkitekturoversikt",
     description:
-      "En guidet tur gjennom EUX-tjenestene, Kafka-strømmene som binder dem sammen, og integrasjonene mot RINA, PDL, Dokarkiv og SAF.",
+      "En guidet tur gjennom tjenestene våre, Kafka-strømmene som binder dem sammen, og integrasjonene mot RINA, PDL, Dokarkiv og SAF.",
     cta: "Se arkitekturen →",
     className: "portal-card portal-card--blue",
   },
@@ -34,7 +34,7 @@ const cards: Card[] = [
     eyebrow: "Katalog",
     title: "Applikasjoner",
     description:
-      "Hver eneste EUX/EESSI-tjeneste vi drifter — hva den gjør, hva den er avhengig av, og hvor du finner kildekoden.",
+      "Hver eneste tjeneste vi drifter — hva den gjør, hva den er avhengig av, og hvor du finner kildekoden.",
     cta: "Bla i applikasjonene →",
     className: "portal-card portal-card--green",
   },
@@ -80,23 +80,23 @@ export default function Home() {
                 NAV · EUX · EESSI
               </BodyShort>
               <Heading level="1" size="xlarge">
-                EUX-arkitekturen — samlet på ett sted
+                Arkitekturen vår — samlet på ett sted
               </Heading>
               <BodyLong size="large">
                 Når noen som bor i Norge har bodd eller jobbet i et annet
                 EU/EØS-land, må NAV ofte utveksle informasjon med landet
                 de kom fra — en pensjonssøknad, en sykepengesak, en
-                familieytelse. Den utvekslingen skjer over{" "}
-                <strong>EESSI</strong>, EUs elektroniske nettverk for
-                trygdeinformasjon, gjennom et system som heter{" "}
-                <strong>RINA</strong>.
+                familieytelse. Den utvekslingen skjer over EESSI, EUs
+                elektroniske nettverk for trygdeinformasjon, gjennom et
+                system som heter RINA.
               </BodyLong>
               <BodyLong>
-                <strong>EUX</strong> er NAVs samling av tjenester som
-                sitter mellom norske saksbehandlere og RINA. Denne
-                portalen forklarer hva tjenestene er, hvordan de snakker
-                sammen, og hvor du skal lete når du trenger å dykke
-                dypere.
+                Saksbehandleren ser bare nEESSI — frontenden vår. Bak
+                den ligger om lag to dusin små tjenester (samlet kalt
+                EUX) som snakker med RINA og NAV-registre. Denne
+                portalen forklarer hva tjenestene er, hvordan de
+                snakker sammen, og hvor du skal lete når du trenger å
+                dykke dypere.
               </BodyLong>
               <HStack gap="space-8" align="center" wrap>
                 <Tag size="small" variant="info">

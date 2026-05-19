@@ -29,7 +29,7 @@ const events: App[] = [
 ];
 
 const workers: App[] = [
-  { name: "eux-journalfoering", tech: "Java / Spring Boot", db: "—", description: "Konsumerer sedmottatt/sedsendt. Auto-journalfører SED-er via Dokarkiv, PDL, eux-nav-rinasak, eux-oppgave." },
+  { name: "eux-fagmodul-journalfoering", tech: "Java / Spring Boot", db: "—", description: "Konsumerer sedmottatt/sedsendt. Auto-journalfører SED-er via Dokarkiv, PDL, eux-nav-rinasak, eux-oppgave." },
   { name: "eux-journalarkivar", tech: "Kotlin / Spring Boot", db: "—", description: "Orkestrerer ferdigstilling og feilregistrering av journalposter. Trigges av NAIS-jobber." },
   { name: "eux-avslutt-rinasaker", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Håndterer livssyklusen for lukking/arkivering av RINA-saker. Trigges av NAIS-jobber." },
   { name: "eux-slett-usendte-rinasaker", tech: "Kotlin / Spring Boot", db: "PostgreSQL", description: "Sletter RINA-saker som aldri fikk en SED. Trigges av NAIS-jobber." },
@@ -87,7 +87,7 @@ export default function ApplicationsPage() {
           Applikasjoner
         </Heading>
         <BodyLong size="large">
-          EUX-plattformen består av om lag to dusin små tjenester,
+          Plattformen består av om lag to dusin små tjenester,
           organisert i fire grupper. Klikk på et navn for å åpne
           GitHub-repoet.
         </BodyLong>

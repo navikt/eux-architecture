@@ -8,6 +8,7 @@ type NodeProps = {
   label: string;
   sub?: string;
   textColor?: string;
+  compact?: boolean;
 };
 
 function Node({
@@ -20,7 +21,10 @@ function Node({
   label,
   sub,
   textColor = "#1a1a1a",
+  compact = false,
 }: NodeProps) {
+  const labelSize = compact ? 11 : 12.5;
+  const subSize = compact ? 9.5 : 10.5;
   return (
     <g>
       <rect
@@ -36,9 +40,9 @@ function Node({
       />
       <text
         x={x + w / 2}
-        y={sub ? y + h / 2 - 4 : y + h / 2 + 5}
+        y={sub ? y + h / 2 - 3 : y + h / 2 + 5}
         textAnchor="middle"
-        fontSize={13}
+        fontSize={labelSize}
         fontWeight={600}
         fill={textColor}
         fontFamily="system-ui, sans-serif"
@@ -50,9 +54,9 @@ function Node({
           x={x + w / 2}
           y={y + h / 2 + 12}
           textAnchor="middle"
-          fontSize={10.5}
+          fontSize={subSize}
           fill={textColor}
-          opacity={0.7}
+          opacity={0.72}
           fontFamily="system-ui, sans-serif"
         >
           {sub}
@@ -68,6 +72,7 @@ function Arrow({
   x2,
   y2,
   label,
+  labelOffset = 0,
   dashed = false,
   color = "#525252",
 }: {
@@ -76,6 +81,7 @@ function Arrow({
   x2: number;
   y2: number;
   label?: string;
+  labelOffset?: number;
   dashed?: boolean;
   color?: string;
 }) {
@@ -89,16 +95,16 @@ function Arrow({
         x2={x2}
         y2={y2}
         stroke={color}
-        strokeWidth={1.5}
+        strokeWidth={1.4}
         strokeDasharray={dashed ? "5,4" : undefined}
         markerEnd="url(#arrowhead)"
       />
       {label && (
         <text
-          x={midX}
-          y={midY - 6}
+          x={midX + labelOffset}
+          y={midY - 5}
           textAnchor="middle"
-          fontSize={10.5}
+          fontSize={10}
           fill={color}
           fontFamily="system-ui, sans-serif"
           style={{ paintOrder: "stroke", stroke: "#fff", strokeWidth: 3 }}
@@ -140,47 +146,48 @@ const C = {
 export function SyncFlowDiagram() {
   return (
     <svg
-      viewBox="0 0 900 520"
+      viewBox="0 0 960 600"
       role="img"
-      aria-label="Synchronous request flow from caseworker through nEESSI, eux-neessi, and the specialised EUX services to RINA and external NAV systems."
+      aria-label="Synkron forespørselsflyt fra saksbehandler via nEESSI og eux-neessi til de spesialiserte tjenestene, RINA og eksterne NAV-systemer."
       width="100%"
       style={{ maxWidth: "100%", height: "auto" }}
     >
       <Defs />
-      {/* Caseworker */}
-      <Node x={370} y={10} w={160} h={48} label="Caseworker" sub="Browser" {...C.grey} />
-      <Arrow x1={450} y1={58} x2={450} y2={82} />
+
+      {/* Saksbehandler */}
+      <Node x={400} y={10} w={160} h={44} label="Saksbehandler" sub="Nettleser" {...C.grey} />
+      <Arrow x1={480} y1={54} x2={480} y2={88} />
 
       {/* nEESSI */}
-      <Node x={350} y={84} w={200} h={56} label="nEESSI" sub="React + Node.js BFF" {...C.blue} />
-      <Arrow x1={450} y1={140} x2={450} y2={164} label="OAuth2 on-behalf-of" />
+      <Node x={380} y={88} w={200} h={58} label="nEESSI" sub="React + Node.js BFF" {...C.blue} />
+      <Arrow x1={480} y1={146} x2={480} y2={210} label="OAuth2 OBO" />
 
       {/* eux-neessi */}
-      <Node x={340} y={166} w={220} h={62} label="eux-neessi" sub="Orchestrator BFF" {...C.purple} />
+      <Node x={370} y={210} w={220} h={62} label="eux-neessi" sub="Orkestrator-BFF" {...C.purple} />
 
-      {/* Downstream services row */}
-      <Arrow x1={395} y1={228} x2={120} y2={290} />
-      <Arrow x1={420} y1={228} x2={290} y2={290} />
-      <Arrow x1={450} y1={228} x2={450} y2={290} />
-      <Arrow x1={480} y1={228} x2={620} y2={290} />
-      <Arrow x1={505} y1={228} x2={780} y2={290} />
+      {/* Side branch right to external NAV systems */}
+      <Arrow x1={590} y1={241} x2={720} y2={241} label="PDL · Dokarkiv · SAF" />
+      <Node x={720} y={210} w={170} h={62} label="Eksterne" sub="NAV-systemer" {...C.orange} />
 
-      <Node x={40} y={292} w={160} h={58} label="eux-rina-api" sub="RINA middleware" {...C.blue} />
-      <Node x={210} y={292} w={160} h={58} label="eux-nav-rinasak" sub="Case linking · PG" {...C.green} />
-      <Node x={380} y={292} w={160} h={58} label="eux-journal" sub="Journal mgmt · PG" {...C.green} />
-      <Node x={550} y={292} w={160} h={58} label="eux-oppgave" sub="Task mgmt · PG" {...C.green} />
-      <Node x={720} y={292} w={160} h={58} label="eux-saksbehandler" sub="Preferences · PG" {...C.green} />
+      {/* Fan-out to specialised services */}
+      <Arrow x1={420} y1={272} x2={120} y2={332} />
+      <Arrow x1={445} y1={272} x2={290} y2={332} />
+      <Arrow x1={480} y1={272} x2={480} y2={332} />
+      <Arrow x1={515} y1={272} x2={670} y2={332} />
+      <Arrow x1={540} y1={272} x2={840} y2={332} />
 
-      {/* External NAV systems */}
-      <Arrow x1={120} y1={350} x2={120} y2={410} />
-      <Node x={40} y={412} w={160} h={50} label="RINA CPI" sub="EU infrastructure" {...C.red} />
+      <Node x={40} y={334} w={160} h={62} label="eux-rina-api" sub="RINA-mellomvare" {...C.blue} />
+      <Node x={210} y={334} w={160} h={62} label="eux-nav-rinasak" sub="Saksforbindelse · PG" {...C.green} />
+      <Node x={400} y={334} w={160} h={62} label="eux-journal" sub="Journal · PG" {...C.green} />
+      <Node x={590} y={334} w={160} h={62} label="eux-oppgave" sub="Oppgaver · PG" {...C.green} />
+      <Node x={760} y={334} w={160} h={62} label="eux-saksbehandler" sub="Innstillinger · PG" {...C.green} />
 
-      <Arrow x1={620} y1={350} x2={620} y2={410} />
-      <Node x={540} y={412} w={160} h={50} label="NAV Oppgave" sub="Task system" {...C.orange} />
+      {/* External systems below */}
+      <Arrow x1={120} y1={396} x2={120} y2={470} />
+      <Node x={40} y={472} w={160} h={50} label="RINA CPI" sub="EU-infrastruktur" {...C.red} />
 
-      {/* Side calls from neessi */}
-      <Arrow x1={560} y1={196} x2={780} y2={196} label="PDL · Dokarkiv · SAF" />
-      <Node x={780} y={166} w={100} h={62} label="External" sub="NAV systems" {...C.orange} />
+      <Arrow x1={670} y1={396} x2={670} y2={470} />
+      <Node x={590} y={472} w={160} h={50} label="NAV Oppgave" sub="Oppgavesystem" {...C.orange} />
     </svg>
   );
 }
@@ -188,70 +195,76 @@ export function SyncFlowDiagram() {
 export function EventFlowDiagram() {
   return (
     <svg
-      viewBox="0 0 900 520"
+      viewBox="0 0 960 620"
       role="img"
-      aria-label="Event-driven flow from RINA via eux-all-rina-events to three Kafka topics and the downstream worker services."
+      aria-label="Hendelsesflyt fra RINA via eux-all-rina-events til tre Kafka-topics, og videre til konsumentene som gjør jobben."
       width="100%"
       style={{ maxWidth: "100%", height: "auto" }}
     >
       <Defs />
+
       {/* RINA */}
-      <Node x={370} y={10} w={160} h={50} label="RINA CPI" sub="EU infrastructure" {...C.red} />
-      <Arrow x1={450} y1={60} x2={450} y2={84} label="NIE events (HTTP)" />
+      <Node x={400} y={10} w={160} h={46} label="RINA CPI" sub="EU-infrastruktur" {...C.red} />
+      <Arrow x1={480} y1={56} x2={480} y2={94} label="NIE-hendelser (HTTP)" />
 
-      {/* all-rina-events */}
-      <Node x={335} y={86} w={230} h={58} label="eux-all-rina-events" sub="HTTP → Kafka" {...C.blue} />
+      {/* eux-all-rina-events */}
+      <Node x={370} y={94} w={220} h={58} label="eux-all-rina-events" sub="HTTP → Kafka" {...C.blue} />
 
-      {/* Topics */}
-      <Arrow x1={400} y1={144} x2={150} y2={188} />
-      <Arrow x1={450} y1={144} x2={450} y2={188} />
-      <Arrow x1={500} y1={144} x2={750} y2={188} />
+      {/* Three topics */}
+      <Arrow x1={420} y1={152} x2={170} y2={200} />
+      <Arrow x1={480} y1={152} x2={480} y2={200} />
+      <Arrow x1={540} y1={152} x2={790} y2={200} />
 
-      <Node x={40} y={190} w={220} h={48} label="case-events-v1" sub="Kafka topic" {...C.purple} />
-      <Node x={340} y={190} w={220} h={48} label="document-events-v1" sub="Kafka topic" {...C.purple} />
-      <Node x={640} y={190} w={220} h={48} label="notification-events-v1" sub="Kafka topic" {...C.purple} />
+      <Node x={30} y={202} w={280} h={50} label="case-events-v1" sub="Kafka-topic" {...C.purple} />
+      <Node x={340} y={202} w={280} h={50} label="document-events-v1" sub="Kafka-topic" {...C.purple} />
+      <Node x={650} y={202} w={280} h={50} label="notification-events-v1" sub="Kafka-topic" {...C.purple} />
 
-      {/* legacy bridge */}
-      <Arrow x1={450} y1={238} x2={450} y2={272} />
-      <Node x={320} y={274} w={260} h={50} label="eux-legacy-rina-events" sub="Format bridge → legacy topics" {...C.blue} />
-      <Arrow x1={450} y1={324} x2={450} y2={350} />
-      <Node x={300} y={352} w={300} h={42} label="sedmottatt-v1 · sedsendt-v1" sub="Legacy Kafka topics" {...C.purple} />
+      {/* Legacy bridge */}
+      <Arrow x1={480} y1={252} x2={480} y2={296} />
+      <Node x={330} y={298} w={300} h={50} label="eux-legacy-rina-events" sub="Bygger bro til eldre topics" {...C.blue} />
+      <Arrow x1={480} y1={348} x2={480} y2={380} />
+      <Node x={300} y={382} w={360} h={46} label="sedmottatt-v1 · sedsendt-v1" sub="Eldre Kafka-topics" {...C.purple} />
 
-      {/* Consumers row */}
-      <Arrow x1={150} y1={238} x2={70} y2={420} />
-      <Arrow x1={150} y1={238} x2={70} y2={462} />
-      <Arrow x1={750} y1={238} x2={820} y2={420} />
-      <Arrow x1={450} y1={394} x2={300} y2={460} />
-      <Arrow x1={450} y1={394} x2={600} y2={460} />
+      {/* Consumers row 1 (from case-events-v1 and notification-events-v1) */}
+      <Arrow x1={170} y1={252} x2={90} y2={460} />
+      <Arrow x1={170} y1={252} x2={260} y2={460} />
+      <Arrow x1={170} y1={252} x2={430} y2={460} />
+      <Arrow x1={790} y1={252} x2={870} y2={460} />
 
-      <Node x={0} y={400} w={150} h={48} label="eux-rina-" sub="case-search" {...C.green} />
-      <Node x={0} y={460} w={150} h={48} label="eux-avslutt-" sub="rinasaker" {...C.green} />
-      <Node x={155} y={460} w={140} h={48} label="eux-slett-" sub="usendte-rinasaker" {...C.green} />
-      <Node x={300} y={460} w={150} h={48} label="eux-journal-" sub="foering" {...C.green} />
-      <Node x={460} y={460} w={150} h={48} label="eux-person-" sub="oppdatering" {...C.green} />
-      <Node x={620} y={460} w={150} h={48} label="eux-adresse-" sub="oppdatering" {...C.green} />
-      <Node x={760} y={400} w={140} h={48} label="External" sub="notif handlers" {...C.orange} />
+      {/* Consumers row 2 (from legacy topics and document-events-v1) */}
+      <Arrow x1={480} y1={428} x2={90} y2={544} />
+      <Arrow x1={480} y1={428} x2={260} y2={544} />
+      <Arrow x1={620} y1={227} x2={430} y2={544} />
+
+      <Node compact x={20} y={462} w={150} h={58} label="rina-case-search" sub="Søkeindeks" {...C.green} />
+      <Node compact x={190} y={462} w={150} h={58} label="avslutt-rinasaker" sub="Lukker saker" {...C.green} />
+      <Node compact x={360} y={462} w={150} h={58} label="slett-usendte-rinasaker" sub="Rydder bort tomme" {...C.green} />
+      <Node compact x={800} y={462} w={140} h={58} label="Eksterne" sub="eessi-pensjon m.fl." {...C.orange} />
+
+      <Node compact x={20} y={546} w={150} h={58} label="fagmodul-journalfoering" sub="Auto-journalføring" {...C.green} />
+      <Node compact x={190} y={546} w={150} h={58} label="person-oppdatering" sub="Utenlandske ID-er" {...C.green} />
+      <Node compact x={360} y={546} w={150} h={58} label="adresse-oppdatering" sub="PDL-adresser" {...C.green} />
     </svg>
   );
 }
 
 export function SedLifecycleDiagram() {
   const steps: { label: string; sub: string }[] = [
-    { label: "Open case", sub: "Caseworker starts" },
-    { label: "Create RINA case", sub: "via eux-rina-api" },
-    { label: "Fill SED", sub: "in nEESSI" },
-    { label: "Send SED", sub: "to counterpart" },
-    { label: "Document event", sub: "RINA → Kafka" },
+    { label: "Åpne sak", sub: "Saksbehandler starter" },
+    { label: "Opprett RINA-sak", sub: "via eux-rina-api" },
+    { label: "Fyll SED", sub: "i nEESSI" },
+    { label: "Send SED", sub: "til motpart" },
+    { label: "Dokumenthendelse", sub: "RINA → Kafka" },
     { label: "Auto-journal", sub: "Dokarkiv + Oppgave" },
-    { label: "Close case", sub: "Scheduled cleanup" },
+    { label: "Lukk sak", sub: "Planlagt opprydding" },
   ];
-  const w = 110;
+  const w = 118;
   const gap = 12;
   return (
     <svg
       viewBox={`0 0 ${(w + gap) * steps.length} 120`}
       role="img"
-      aria-label="The lifecycle of a SED — from opening a case to scheduled closure."
+      aria-label="Livssyklusen til en SED — fra åpning av sak til planlagt lukking."
       width="100%"
       style={{ maxWidth: "100%", height: "auto" }}
     >
@@ -259,6 +272,7 @@ export function SedLifecycleDiagram() {
       {steps.map((s, i) => (
         <g key={s.label}>
           <Node
+            compact
             x={i * (w + gap)}
             y={30}
             w={w}

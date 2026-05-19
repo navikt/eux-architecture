@@ -246,11 +246,10 @@ export default function EnvironmentsPage() {
               Test- og utviklingsmiljøer
             </Heading>
             <BodyLong size="large">
-              EUX-tjenestene kjører i to testmiljøer på NAIS:{" "}
-              <strong>Q1</strong> og <strong>Q2</strong>. Hvert miljø har
-              sin egen Norge-instans av RINA (med egen identifikator i
-              EESSI-nettverket), egen frontend for saksbehandlere og hver
-              sin kjede av EUX-tjenester.
+              Plattformen kjører i to testmiljøer på NAIS: Q1 og Q2.
+              Hvert miljø har sin egen Norge-instans av RINA (med egen
+              identifikator i EESSI-nettverket), egen frontend for
+              saksbehandlere og sin egen kjede av tjenester.
             </BodyLong>
             <HStack gap="space-8" align="center" wrap>
               <Tag size="small" variant="info">
@@ -415,8 +414,8 @@ export default function EnvironmentsPage() {
               </Accordion.Header>
               <Accordion.Content>
                 <BodyLong>
-                  Alle EUX-backendene som bruker springdoc har Swagger UI
-                  på <code>/swagger-ui/index.html</code> i Q1 og Q2 (slått
+                  Backendene som bruker springdoc har Swagger UI på{" "}
+                  <code>/swagger-ui/index.html</code> i Q1 og Q2 (slått
                   av i produksjon). Bruk lenkene i tabellen over —{" "}
                   &laquo;Swagger UI ↗&raquo; under hver tjeneste. Tilgang
                   krever NAV-pålogging via Wonderwall.
@@ -429,14 +428,14 @@ export default function EnvironmentsPage() {
               </Accordion.Header>
               <Accordion.Content>
                 <BodyLong>
-                  <strong>CPI</strong> (Case Processing Interface) er
-                  REST-API-et RINA tilbyr <em>inn</em> mot seg —{" "}
-                  <code>eux-rina-api</code> snakker med dette på vegne av
-                  alle EUX-tjenestene som trenger å lese eller skrive
-                  SED-er. <strong>NIE</strong> (National Interface
-                  Endpoint) er motsatt vei: hendelseskanalen RINA pusher
-                  hendelser <em>ut</em> på. NAV mottar disse via{" "}
-                  <code>eux-all-rina-events</code> og legger dem på Kafka.
+                  CPI (Case Processing Interface) er REST-API-et RINA
+                  tilbyr <em>inn</em> mot seg — <code>eux-rina-api</code>{" "}
+                  snakker med dette på vegne av alle tjenestene som
+                  trenger å lese eller skrive SED-er. NIE (National
+                  Interface Endpoint) er motsatt vei: hendelseskanalen
+                  RINA pusher hendelser <em>ut</em> på. NAV mottar disse
+                  via <code>eux-all-rina-events</code> og legger dem på
+                  Kafka.
                 </BodyLong>
               </Accordion.Content>
             </Accordion.Item>
