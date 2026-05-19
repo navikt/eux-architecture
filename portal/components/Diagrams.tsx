@@ -192,58 +192,159 @@ export function SyncFlowDiagram() {
   );
 }
 
+function SubscriberPanel({
+  x,
+  y,
+  w,
+  title = "Konsumenter",
+  items,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  title?: string;
+  items: { name: string; sub?: string }[];
+}) {
+  const headerH = 22;
+  const rowH = 44;
+  const padBottom = 10;
+  const h = headerH + items.length * rowH + padBottom;
+  return (
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={10}
+        ry={10}
+        fill="#fafafa"
+        stroke="#9a9a9a"
+        strokeDasharray="4,3"
+        strokeWidth={1.2}
+      />
+      <text
+        x={x + 12}
+        y={y + 15}
+        fontSize={9}
+        fill="#666"
+        letterSpacing={1.2}
+        fontFamily="system-ui, sans-serif"
+      >
+        {title.toUpperCase()}
+      </text>
+      {items.map((item, i) => {
+        const cy = y + headerH + i * rowH + rowH / 2;
+        return (
+          <g key={i}>
+            <text
+              x={x + w / 2}
+              y={cy - 2}
+              textAnchor="middle"
+              fontSize={11.5}
+              fontWeight={600}
+              fill="#1a1a1a"
+              fontFamily="system-ui, sans-serif"
+            >
+              {item.name}
+            </text>
+            {item.sub && (
+              <text
+                x={x + w / 2}
+                y={cy + 11}
+                textAnchor="middle"
+                fontSize={9.5}
+                opacity={0.72}
+                fill="#1a1a1a"
+                fontFamily="system-ui, sans-serif"
+              >
+                {item.sub}
+              </text>
+            )}
+            {i < items.length - 1 && (
+              <line
+                x1={x + 14}
+                y1={y + headerH + (i + 1) * rowH}
+                x2={x + w - 14}
+                y2={y + headerH + (i + 1) * rowH}
+                stroke="#e3e3e3"
+                strokeWidth={1}
+              />
+            )}
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
 export function EventFlowDiagram() {
   return (
     <svg
       viewBox="0 0 960 620"
       role="img"
-      aria-label="Hendelsesflyt fra RINA via eux-all-rina-events til tre Kafka-topics, og videre til konsumentene som gjør jobben."
+      aria-label="Hendelsesflyt fra RINA via eux-all-rina-events til tre Kafka-topics, og videre til konsumentgrupper per topic — uten krysninger."
       width="100%"
       style={{ maxWidth: "100%", height: "auto" }}
     >
       <Defs />
 
-      {/* RINA */}
+      {/* RINA → all-rina-events */}
       <Node x={400} y={10} w={160} h={46} label="RINA CPI" sub="EU-infrastruktur" {...C.red} />
-      <Arrow x1={480} y1={56} x2={480} y2={94} label="NIE-hendelser (HTTP)" />
+      <Arrow x1={480} y1={56} x2={480} y2={88} label="NIE-hendelser (HTTP)" />
+      <Node x={360} y={88} w={240} h={58} label="eux-all-rina-events" sub="HTTP → Kafka" {...C.blue} />
 
-      {/* eux-all-rina-events */}
-      <Node x={370} y={94} w={220} h={58} label="eux-all-rina-events" sub="HTTP → Kafka" {...C.blue} />
+      {/* Fan-out til tre topics */}
+      <Arrow x1={420} y1={146} x2={160} y2={190} />
+      <Arrow x1={480} y1={146} x2={480} y2={190} />
+      <Arrow x1={540} y1={146} x2={800} y2={190} />
 
-      {/* Three topics */}
-      <Arrow x1={420} y1={152} x2={170} y2={200} />
-      <Arrow x1={480} y1={152} x2={480} y2={200} />
-      <Arrow x1={540} y1={152} x2={790} y2={200} />
+      {/* Topics */}
+      <Node x={30} y={190} w={260} h={48} label="case-events-v1" sub="Kafka-topic" {...C.purple} />
+      <Node x={350} y={190} w={260} h={48} label="document-events-v1" sub="Kafka-topic" {...C.purple} />
+      <Node x={670} y={190} w={260} h={48} label="notification-events-v1" sub="Kafka-topic" {...C.purple} />
 
-      <Node x={30} y={202} w={280} h={50} label="case-events-v1" sub="Kafka-topic" {...C.purple} />
-      <Node x={340} y={202} w={280} h={50} label="document-events-v1" sub="Kafka-topic" {...C.purple} />
-      <Node x={650} y={202} w={280} h={50} label="notification-events-v1" sub="Kafka-topic" {...C.purple} />
+      {/* Venstre kolonne: konsumenter rett under case-events-v1 */}
+      <Arrow x1={160} y1={238} x2={160} y2={268} />
+      <SubscriberPanel
+        x={20}
+        y={268}
+        w={280}
+        items={[
+          { name: "eux-rina-case-search", sub: "Søkeindeks for saker" },
+          { name: "eux-avslutt-rinasaker", sub: "Lukker saker" },
+          { name: "eux-slett-usendte-rinasaker", sub: "Rydder bort tomme saker" },
+        ]}
+      />
 
-      {/* Legacy bridge */}
-      <Arrow x1={480} y1={252} x2={480} y2={296} />
-      <Node x={330} y={298} w={300} h={50} label="eux-legacy-rina-events" sub="Bygger bro til eldre topics" {...C.blue} />
-      <Arrow x1={480} y1={348} x2={480} y2={380} />
-      <Node x={300} y={382} w={360} h={46} label="sedmottatt-v1 · sedsendt-v1" sub="Eldre Kafka-topics" {...C.purple} />
+      {/* Midtre kolonne: bridge → legacy topic → konsumenter */}
+      <Arrow x1={480} y1={238} x2={480} y2={268} />
+      <Node x={360} y={268} w={240} h={52} label="eux-legacy-rina-events" sub="Bygger bro til eldre topics" {...C.blue} />
+      <Arrow x1={480} y1={320} x2={480} y2={344} />
+      <Node x={360} y={344} w={240} h={46} label="sedmottatt-v1 · sedsendt-v1" sub="Eldre Kafka-topics" {...C.purple} />
+      <Arrow x1={480} y1={390} x2={480} y2={414} />
+      <SubscriberPanel
+        x={340}
+        y={414}
+        w={280}
+        items={[
+          { name: "eux-fagmodul-journalfoering", sub: "Auto-journalføring" },
+          { name: "eux-person-oppdatering", sub: "Utenlandske ID-er → PDL" },
+          { name: "eux-adresse-oppdatering", sub: "Adresser → PDL" },
+        ]}
+      />
 
-      {/* Consumers row 1 (from case-events-v1 and notification-events-v1) */}
-      <Arrow x1={170} y1={252} x2={90} y2={460} />
-      <Arrow x1={170} y1={252} x2={260} y2={460} />
-      <Arrow x1={170} y1={252} x2={430} y2={460} />
-      <Arrow x1={790} y1={252} x2={870} y2={460} />
-
-      {/* Consumers row 2 (from legacy topics and document-events-v1) */}
-      <Arrow x1={480} y1={428} x2={90} y2={544} />
-      <Arrow x1={480} y1={428} x2={260} y2={544} />
-      <Arrow x1={620} y1={227} x2={430} y2={544} />
-
-      <Node compact x={20} y={462} w={150} h={58} label="rina-case-search" sub="Søkeindeks" {...C.green} />
-      <Node compact x={190} y={462} w={150} h={58} label="avslutt-rinasaker" sub="Lukker saker" {...C.green} />
-      <Node compact x={360} y={462} w={150} h={58} label="slett-usendte-rinasaker" sub="Rydder bort tomme" {...C.green} />
-      <Node compact x={800} y={462} w={140} h={58} label="Eksterne" sub="eessi-pensjon m.fl." {...C.orange} />
-
-      <Node compact x={20} y={546} w={150} h={58} label="fagmodul-journalfoering" sub="Auto-journalføring" {...C.green} />
-      <Node compact x={190} y={546} w={150} h={58} label="person-oppdatering" sub="Utenlandske ID-er" {...C.green} />
-      <Node compact x={360} y={546} w={150} h={58} label="adresse-oppdatering" sub="PDL-adresser" {...C.green} />
+      {/* Høyre kolonne: én ekstern konsument */}
+      <Arrow x1={800} y1={238} x2={800} y2={268} />
+      <SubscriberPanel
+        x={660}
+        y={268}
+        w={280}
+        title="Eksterne abonnenter"
+        items={[
+          { name: "eessi-pensjon m.fl.", sub: "Brukerrettede varsler" },
+        ]}
+      />
     </svg>
   );
 }
