@@ -5,9 +5,7 @@ import {
   BodyLong,
   BodyShort,
   VStack,
-  HStack,
   Box,
-  Tag,
   Accordion,
   GuidePanel,
   Detail,
@@ -250,16 +248,11 @@ function StateMachineDiagram() {
   );
 }
 
-/* ---------- Audience badge ---------- */
+/* ---------- Section eyebrow ---------- */
 
-function AudienceBadge({ kind }: { kind: "funksjonell" | "teknisk" }) {
-  const color = kind === "funksjonell" ? "alt1" : "info";
-  const label = kind === "funksjonell" ? "Funksjonelt" : "Teknisk";
-  return (
-    <Tag size="small" variant={color} style={{ alignSelf: "flex-start" }}>
-      {label}
-    </Tag>
-  );
+function SectionEyebrow({ kind }: { kind: "funksjonell" | "teknisk" }) {
+  const label = kind === "funksjonell" ? "For alle" : "For utviklere";
+  return <div style={eyebrow}>{label}</div>;
 }
 
 /* ---------- Page ---------- */
@@ -286,12 +279,12 @@ export default function Page() {
       {/* ---------------- Funksjonelt ---------------- */}
       <section id="funksjonelt">
         <VStack gap="space-16">
-          <HStack gap="space-8" align="center">
-            <AudienceBadge kind="funksjonell" />
+          <div>
+            <SectionEyebrow kind="funksjonell" />
             <Heading size="large" level="2">
               Hvorfor og hvordan
             </Heading>
-          </HStack>
+          </div>
 
           <BodyLong>
             Når en sak i RINA er ferdig — alle nødvendige SED-er er sendt eller
@@ -381,12 +374,12 @@ export default function Page() {
       {/* ---------------- Teknisk ---------------- */}
       <section id="teknisk">
         <VStack gap="space-16">
-          <HStack gap="space-8" align="center">
-            <AudienceBadge kind="teknisk" />
+          <div>
+            <SectionEyebrow kind="teknisk" />
             <Heading size="large" level="2">
               Teknisk beskrivelse
             </Heading>
-          </HStack>
+          </div>
 
           <BodyLong>
             <code>eux-avslutt-rinasaker</code> er en Kotlin/Spring Boot-app som
