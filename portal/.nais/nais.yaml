@@ -11,6 +11,18 @@ spec:
   ingresses:
     - {{ ingress.intern }}
   env:
+    - name: EUX_RINA_GATEWAY_Q1_BASE_URL
+      value: http://eux-rina-gateway-q1
+    - name: EUX_RINA_GATEWAY_Q1_SCOPE
+      value: api://dev-gcp.eessibasis.eux-rina-gateway-q1/.default
+    - name: EUX_RINA_GATEWAY_Q2_BASE_URL
+      value: http://eux-rina-gateway-q2
+    - name: EUX_RINA_GATEWAY_Q2_SCOPE
+      value: api://dev-gcp.eessibasis.eux-rina-gateway-q2/.default
+    - name: EUX_NEESSI_Q1_BASE_URL
+      value: https://eux-neessi-q1.intern.dev.nav.no
+    - name: EUX_NEESSI_Q2_BASE_URL
+      value: https://eux-neessi-q2.intern.dev.nav.no
     - name: NEXT_PUBLIC_ENV
       value: {{ env.label }}
     - name: NODE_ENV
@@ -55,7 +67,27 @@ spec:
       enabled: true
       autoLogin: true
       autoLoginIgnorePaths:
+        - /
+        - /architecture
+        - /architecture/**
+        - /applications
+        - /applications/**
+        - /environments
+        - /environments/**
         - /api/internal/**
+        - /favicon.ico
+        - /icon.*
+        - /apple-icon.*
+        - /_next/**
+  accessPolicy:
+    outbound:
+      rules:
+        - application: eux-rina-gateway-q1
+          namespace: eessibasis
+          cluster: dev-gcp
+        - application: eux-rina-gateway-q2
+          namespace: eessibasis
+          cluster: dev-gcp
   observability:
     autoInstrumentation:
       enabled: true

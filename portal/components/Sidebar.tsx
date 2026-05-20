@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const NAV_SECTIONS: { heading?: string; items: { href: string; label: string; external?: boolean }[] }[] = [
+const NAV_SECTIONS: { heading?: string; items: { href: string; label: string; external?: boolean; requiresLogin?: boolean }[] }[] = [
   {
     items: [{ href: "/", label: "Oversikt" }],
   },
@@ -13,6 +13,12 @@ const NAV_SECTIONS: { heading?: string; items: { href: string; label: string; ex
       { href: "/architecture", label: "Arkitektur" },
       { href: "/applications", label: "Applikasjoner" },
       { href: "/environments", label: "Miljøer" },
+    ],
+  },
+  {
+    heading: "Verktøy",
+    items: [
+      { href: "/tests", label: "Smoke-test", requiresLogin: true },
     ],
   },
   {
@@ -62,6 +68,15 @@ export function Sidebar() {
                 <li key={item.href}>
                   <Link href={item.href} className={className} aria-current={active ? "page" : undefined}>
                     {item.label}
+                    {item.requiresLogin && (
+                      <span
+                        aria-label="Krever innlogging"
+                        title="Krever innlogging"
+                        style={{ marginLeft: 6, opacity: 0.55, fontSize: "0.85em" }}
+                      >
+                        🔒
+                      </span>
+                    )}
                   </Link>
                 </li>
               );

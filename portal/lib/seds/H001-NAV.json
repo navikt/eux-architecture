@@ -1,0 +1,88 @@
+{
+  "sed": "H001",
+  "sedVer": "3",
+  "sedGVer": "4",
+  "nav": {
+    "bruker": {
+      "person": {
+        "fornavn": "AKUSTISK",
+        "etternavn": "GULLMYNT",
+        "fornavnvedfoedsel": "AKUSTISK",
+        "etternavnvedfoedsel": "GULLMYNT",
+        "kjoenn": "K",
+        "foedselsdato": "1987-07-23",
+        "statsborgerskap": [
+          { "land": "NO", "landkode": "NOR" }
+        ],
+        "pin": [
+          {
+            "identifikator": "23478743041",
+            "land": "NO",
+            "landkode": "NOR",
+            "sektor": "alle"
+          }
+        ],
+        "foedested": {
+          "by": "Oslo",
+          "region": "Oslo",
+          "land": "NO",
+          "landkode": "NOR"
+        }
+      },
+      "adresse": [
+        {
+          "type": "bosted",
+          "gate": "Karl Johans gate 22",
+          "bygning": "A",
+          "postnummer": "0026",
+          "by": "Oslo",
+          "region": "Oslo",
+          "land": "NO",
+          "landkode": "NOR"
+        },
+        {
+          "type": "opphold",
+          "gate": "Møllergata 5",
+          "bygning": "C",
+          "postnummer": "0179",
+          "by": "Oslo",
+          "region": "Oslo",
+          "land": "NO",
+          "landkode": "NOR"
+        }
+      ],
+      "mor": {
+        "person": {
+          "fornavn": "MAGNETISK",
+          "etternavnvedfoedsel": "GULLMYNT"
+        }
+      },
+      "far": {
+        "person": {
+          "fornavn": "ELEKTRISK",
+          "etternavnvedfoedsel": "GULLMYNT"
+        }
+      }
+    }
+  },
+  "horisontal": {
+    "bruker": {
+      "anmodning": {
+        "sed": "P2200",
+        "dato": "2026-04-26",
+        "info": "Bekreftelse på trygdeperiode i Norge for AKUSTISK GULLMYNT (fnr 23478743041). Vennligst oversend dokumentasjon for periode 2010-01-01 til dags dato.",
+        "dokumenter": "Vedtak om uføretrygd",
+        "personinfo": {
+          "identifikasjonsinformasjon": {
+            "type": ["fødselsdato", "kjønn"]
+          }
+        }
+      },
+      "status": {
+        "id": ["grensearbeider"]
+      },
+      "ytterligereinfo": "Sendt fra eux-rina-gateway-portal /tests for parity-test mot Q1.",
+      "ytterligereinfotype": "melding_om_mer_informasjon"
+    }
+  }
+}
