@@ -8,7 +8,7 @@ import { Theme, Box, HStack, Heading } from "@navikt/ds-react";
 import { Sidebar } from "@/components/Sidebar";
 
 export const metadata: Metadata = {
-  title: "EUX-arkitektur",
+  title: "Team EESSI Nav",
   description:
     "Arkitekturportal for NAVs EUX/EESSI-plattform — applikasjoner, integrasjoner, API-er og hvordan det henger sammen.",
 };

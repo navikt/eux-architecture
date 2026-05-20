@@ -22,7 +22,7 @@ type Card = {
 const cards: Card[] = [
   {
     href: "/architecture",
-    eyebrow: "Hvordan henger det sammen",
+    eyebrow: "Oversikt",
     title: "Arkitekturoversikt",
     description:
       "En guidet tur gjennom tjenestene våre, Kafka-strømmene som binder dem sammen, og integrasjonene mot RINA, PDL, Dokarkiv og SAF.",
