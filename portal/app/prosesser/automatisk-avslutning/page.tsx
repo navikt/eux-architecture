@@ -116,7 +116,7 @@ function LifecycleDiagram() {
 function StateMachineDiagram() {
   // Wide viewBox + generous column spacing so edge labels never collide with boxes.
   const w = 1480;
-  const h = 360;
+  const h = 380;
   const muted = "#5a6470";
 
   const boxW = 168;
@@ -296,15 +296,18 @@ function StateMachineDiagram() {
       });
     }
 
-    // SDU → UV (up into UV's bottom-left)
+    // SDU → UV: route the vertical through the gap between NY and UV,
+    // then enter UV from its left side. Avoids running along NY's bottom edge
+    // (which previously made it look like a stray NY → UV arrow).
     {
-      const a = anchor("SDU", "top", 0.5, 0.25);
-      const b = anchor("UV", "bottom", 0.5, 0.25);
-      const bend = a.x;
+      const a = anchor("SDU", "top", 0.5, 0.5);
+      const b = anchor("UV", "left", 0.75);
+      const nyRight = find("NY").x + boxW;
+      const bend = nyRight + 12; // sits in the empty gap between NY and UV
       list.push({
         d: ortho(a, b, bend),
         label: "slett utkast",
-        labelAt: { x: a.x + 8, y: (a.y + b.y) / 2 + 4 },
+        labelAt: { x: bend, y: a.y - 8 },
       });
     }
 
