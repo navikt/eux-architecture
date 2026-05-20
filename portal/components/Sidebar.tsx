@@ -16,6 +16,14 @@ const NAV_SECTIONS: { heading?: string; items: { href: string; label: string; ex
     ],
   },
   {
+    heading: "Prosesser",
+    items: [
+      { href: "/prosesser/automatisk-avslutning", label: "Automatisk avslutning" },
+      { href: "/prosesser/automatisk-sletting", label: "Automatisk sletting" },
+      { href: "/prosesser/journalfoering", label: "Journalføring" },
+    ],
+  },
+  {
     heading: "Verktøy",
     items: [
       { href: "/tests", label: "Smoke-test", requiresLogin: true },

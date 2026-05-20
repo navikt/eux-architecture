@@ -74,6 +74,8 @@ spec:
         - /applications/**
         - /environments
         - /environments/**
+        - /prosesser
+        - /prosesser/**
         - /api/internal/**
         - /favicon.ico
         - /icon.*
