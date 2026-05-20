@@ -114,27 +114,35 @@ function LifecycleDiagram() {
 /* ---------- Diagram: state machine (technical) ---------- */
 
 function StateMachineDiagram() {
-  const w = 940;
-  const h = 480;
-  const accent = "#0067c5";
-  const muted = "#666";
+  // Wide viewBox lets the SVG scale to the container without crowding.
+  const w = 1180;
+  const h = 360;
+  const muted = "#5a6470";
 
-  type N = { id: string; x: number; y: number; label: string; tone: "blue" | "amber" | "green" | "red" };
+  const boxW = 168;
+  const boxH = 42;
+
+  // Five tidy columns (left edges) and four rows (top edges).
+  const COL = { c0: 20, c1: 220, c2: 420, c3: 620, c4: 820, c5: 1000 };
+  const ROW = { top: 40, mid: 130, low: 220, deep: 290 };
+
+  type Tone = "blue" | "amber" | "green" | "red";
+  type N = { id: string; x: number; y: number; label: string; tone: Tone };
+
   const nodes: N[] = [
-    { id: "NY", x: 40, y: 30, label: "NY_SAK", tone: "blue" },
-    { id: "UV", x: 40, y: 130, label: "UVIRKSOM", tone: "amber" },
-    { id: "TAL", x: 270, y: 70, label: "TIL_AVSLUTNING_LOKALT", tone: "amber" },
-    { id: "TAG", x: 270, y: 145, label: "TIL_AVSLUTNING_GLOBALT", tone: "amber" },
-    { id: "AAM", x: 270, y: 220, label: "AVSLUTTES_AV_MOTPART", tone: "red" },
-    { id: "AL", x: 540, y: 70, label: "AVSLUTTET_LOKALT", tone: "green" },
-    { id: "AG", x: 540, y: 145, label: "AVSLUTTET_GLOBALT", tone: "green" },
-    { id: "TAR", x: 540, y: 295, label: "TIL_ARKIVERING", tone: "amber" },
-    { id: "AR", x: 770, y: 295, label: "ARKIVERT", tone: "green" },
-    { id: "SDU", x: 40, y: 295, label: "SLETT_DOKUMENTUTKAST", tone: "red" },
-    { id: "HF", x: 770, y: 145, label: "HANDLING_FEILET", tone: "red" },
+    { id: "NY", x: COL.c0, y: ROW.mid, label: "NY_SAK", tone: "blue" },
+    { id: "SDU", x: COL.c0, y: ROW.deep, label: "SLETT_DOKUMENTUTKAST", tone: "red" },
+    { id: "UV", x: COL.c1, y: ROW.mid, label: "UVIRKSOM", tone: "amber" },
+    { id: "TAL", x: COL.c2, y: ROW.top, label: "TIL_AVSLUTNING_LOKALT", tone: "amber" },
+    { id: "TAG", x: COL.c2, y: ROW.mid, label: "TIL_AVSLUTNING_GLOBALT", tone: "amber" },
+    { id: "AAM", x: COL.c2, y: ROW.low, label: "AVSLUTTES_AV_MOTPART", tone: "red" },
+    { id: "AL", x: COL.c3, y: ROW.top, label: "AVSLUTTET_LOKALT", tone: "green" },
+    { id: "AG", x: COL.c3, y: ROW.mid, label: "AVSLUTTET_GLOBALT", tone: "green" },
+    { id: "TAR", x: COL.c4, y: (ROW.top + ROW.mid) / 2, label: "TIL_ARKIVERING", tone: "amber" },
+    { id: "AR", x: COL.c5, y: (ROW.top + ROW.mid) / 2, label: "ARKIVERT", tone: "green" },
   ];
 
-  const tone = (t: N["tone"]) => {
+  const tone = (t: Tone) => {
     switch (t) {
       case "blue": return { fill: "#e6f0fa", stroke: "#0067c5" };
       case "amber": return { fill: "#fff4e1", stroke: "#c77300" };
@@ -143,106 +151,274 @@ function StateMachineDiagram() {
     }
   };
 
-  const boxW = 200;
-  const boxH = 44;
-
   const find = (id: string) => nodes.find((n) => n.id === id)!;
 
-  type E = { from: string; to: string; label?: string; side?: "top" | "bottom" };
-  const edges: E[] = [
-    { from: "NY", to: "UV", label: "sett-uvirksom" },
-    { from: "UV", to: "TAL", label: "lokal scope" },
-    { from: "UV", to: "TAG", label: "global scope" },
-    { from: "UV", to: "AAM", label: "ingen scope" },
-    { from: "TAL", to: "AL", label: "avslutt" },
-    { from: "TAG", to: "AG", label: "avslutt" },
-    { from: "AL", to: "TAR", label: "etter ~180 dager" },
-    { from: "AG", to: "TAR" },
-    { from: "TAR", to: "AR", label: "arkiver" },
-    { from: "SDU", to: "UV", label: "slett utkast" },
-  ];
-
-  const edgePath = (e: E) => {
-    const a = find(e.from);
-    const b = find(e.to);
-    const ax = a.x + boxW / 2;
-    const ay = a.y + boxH / 2;
-    const bx = b.x + boxW / 2;
-    const by = b.y + boxH / 2;
-    // Connect on edges
-    let x1 = ax, y1 = ay, x2 = bx, y2 = by;
-    if (Math.abs(bx - ax) > Math.abs(by - ay)) {
-      x1 = ax + Math.sign(bx - ax) * (boxW / 2);
-      x2 = bx - Math.sign(bx - ax) * (boxW / 2);
-    } else {
-      y1 = ay + Math.sign(by - ay) * (boxH / 2);
-      y2 = by - Math.sign(by - ay) * (boxH / 2);
+  // Anchor points on a box. yFrac lets us place several arrows on the same side
+  // without overlap (e.g. three lines leaving UVIRKSOM).
+  type Side = "left" | "right" | "top" | "bottom";
+  const anchor = (id: string, side: Side, yFrac = 0.5, xFrac = 0.5) => {
+    const n = find(id);
+    switch (side) {
+      case "right": return { x: n.x + boxW, y: n.y + boxH * yFrac };
+      case "left": return { x: n.x, y: n.y + boxH * yFrac };
+      case "top": return { x: n.x + boxW * xFrac, y: n.y };
+      case "bottom": return { x: n.x + boxW * xFrac, y: n.y + boxH };
     }
-    return { x1, y1, x2, y2 };
   };
 
+  // Build an orthogonal (right-angle) path between two anchor points.
+  // bendAt is the x of the vertical segment; defaults to the midpoint.
+  const ortho = (
+    a: { x: number; y: number },
+    b: { x: number; y: number },
+    bendAt?: number,
+  ) => {
+    const bx = bendAt ?? (a.x + b.x) / 2;
+    return `M ${a.x} ${a.y} H ${bx} V ${b.y} H ${b.x}`;
+  };
+
+  // Each edge is a pre-shaped path so we can place labels precisely.
+  type Edge = {
+    d: string;
+    label?: string;
+    labelAt: { x: number; y: number };
+    dashed?: boolean;
+  };
+
+  const edges: Edge[] = (() => {
+    const list: Edge[] = [];
+
+    // NY → UV (straight, mid row)
+    {
+      const a = anchor("NY", "right");
+      const b = anchor("UV", "left");
+      list.push({
+        d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
+        label: "sett-uvirksom",
+        labelAt: { x: (a.x + b.x) / 2, y: a.y - 8 },
+      });
+    }
+
+    // UV → TAL  (up-right; uses upper third of UV.right)
+    {
+      const a = anchor("UV", "right", 0.25);
+      const b = anchor("TAL", "left");
+      const bend = a.x + 24;
+      list.push({
+        d: ortho(a, b, bend),
+        label: "lokal",
+        labelAt: { x: (bend + b.x) / 2, y: b.y - 8 },
+      });
+    }
+
+    // UV → TAG  (straight)
+    {
+      const a = anchor("UV", "right", 0.5);
+      const b = anchor("TAG", "left");
+      list.push({
+        d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
+        label: "global",
+        labelAt: { x: (a.x + b.x) / 2, y: a.y - 8 },
+      });
+    }
+
+    // UV → AAM  (down-right; uses lower third of UV.right)
+    {
+      const a = anchor("UV", "right", 0.75);
+      const b = anchor("AAM", "left");
+      const bend = a.x + 24;
+      list.push({
+        d: ortho(a, b, bend),
+        label: "ingen scope",
+        labelAt: { x: (bend + b.x) / 2, y: b.y - 8 },
+      });
+    }
+
+    // TAL → AL
+    {
+      const a = anchor("TAL", "right");
+      const b = anchor("AL", "left");
+      list.push({
+        d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
+        label: "avslutt",
+        labelAt: { x: (a.x + b.x) / 2, y: a.y - 8 },
+      });
+    }
+
+    // TAG → AG
+    {
+      const a = anchor("TAG", "right");
+      const b = anchor("AG", "left");
+      list.push({
+        d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
+        label: "avslutt",
+        labelAt: { x: (a.x + b.x) / 2, y: a.y - 8 },
+      });
+    }
+
+    // AL → TAR  (down-right into TAR's top-left)
+    {
+      const a = anchor("AL", "right");
+      const b = anchor("TAR", "left", 0.25);
+      const bend = a.x + 24;
+      list.push({
+        d: ortho(a, b, bend),
+        labelAt: { x: 0, y: 0 },
+      });
+    }
+
+    // AG → TAR (up-right into TAR's bottom-left)
+    {
+      const a = anchor("AG", "right");
+      const b = anchor("TAR", "left", 0.75);
+      const bend = a.x + 24;
+      list.push({
+        d: ortho(a, b, bend),
+        labelAt: { x: 0, y: 0 },
+      });
+    }
+
+    // Single shared label for the AL/AG → TAR fan-in
+    list.push({
+      d: "",
+      label: "etter ~180 dager",
+      labelAt: { x: anchor("TAR", "left").x - 24, y: anchor("TAR", "left").y - 32 },
+    });
+
+    // TAR → AR
+    {
+      const a = anchor("TAR", "right");
+      const b = anchor("AR", "left");
+      list.push({
+        d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
+        label: "arkiver",
+        labelAt: { x: (a.x + b.x) / 2, y: a.y - 8 },
+      });
+    }
+
+    // SDU → UV (up into UV's bottom-left)
+    {
+      const a = anchor("SDU", "top", 0.5, 0.25);
+      const b = anchor("UV", "bottom", 0.5, 0.25);
+      const bend = a.x;
+      list.push({
+        d: ortho(a, b, bend),
+        label: "slett utkast",
+        labelAt: { x: a.x + 8, y: (a.y + b.y) / 2 + 4 },
+      });
+    }
+
+    return list;
+  })();
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Statusmaskin for eux-avslutt-rinasaker" style={{ width: "100%", height: "auto" }}>
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      role="img"
+      aria-label="Statusmaskin for eux-avslutt-rinasaker"
+      style={{ width: "100%", height: "auto", display: "block" }}
+    >
       <defs>
-        <marker id="arr-state" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <marker id="arr-state" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
           <path d="M0,0 L10,5 L0,10 z" fill={muted} />
         </marker>
       </defs>
 
-      {edges.map((e, i) => {
-        const p = edgePath(e);
-        return (
-          <g key={i}>
-            <line
-              x1={p.x1}
-              y1={p.y1}
-              x2={p.x2}
-              y2={p.y2}
-              stroke={muted}
-              strokeWidth={1.4}
-              markerEnd="url(#arr-state)"
-            />
-            {e.label && (
-              <text
-                x={(p.x1 + p.x2) / 2}
-                y={(p.y1 + p.y2) / 2 - 5}
-                textAnchor="middle"
-                fontSize={10}
-                fill={muted}
-                style={{ paintOrder: "stroke", stroke: "#ffffff", strokeWidth: 3 }}
-              >
-                {e.label}
-              </text>
-            )}
-          </g>
-        );
-      })}
+      {/* Edges first so boxes sit on top */}
+      {edges.map((e, i) =>
+        e.d ? (
+          <path
+            key={`e${i}`}
+            d={e.d}
+            fill="none"
+            stroke={muted}
+            strokeWidth={1.4}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            markerEnd="url(#arr-state)"
+          />
+        ) : null
+      )}
 
+      {/* Edge labels */}
+      {edges.map((e, i) =>
+        e.label ? (
+          <text
+            key={`l${i}`}
+            x={e.labelAt.x}
+            y={e.labelAt.y}
+            textAnchor="middle"
+            fontSize={10.5}
+            fill={muted}
+            style={{ paintOrder: "stroke", stroke: "#ffffff", strokeWidth: 4 }}
+          >
+            {e.label}
+          </text>
+        ) : null
+      )}
+
+      {/* Nodes */}
       {nodes.map((n) => {
         const c = tone(n.tone);
         return (
           <g key={n.id}>
-            <rect x={n.x} y={n.y} width={boxW} height={boxH} rx={10} ry={10} fill={c.fill} stroke={c.stroke} strokeWidth={1.4} />
-            <text x={n.x + boxW / 2} y={n.y + boxH / 2 + 4} textAnchor="middle" fontSize={12} fontWeight={600} fill="#1a1a1a">
+            <rect
+              x={n.x}
+              y={n.y}
+              width={boxW}
+              height={boxH}
+              rx={10}
+              ry={10}
+              fill={c.fill}
+              stroke={c.stroke}
+              strokeWidth={1.4}
+            />
+            <text
+              x={n.x + boxW / 2}
+              y={n.y + boxH / 2 + 4}
+              textAnchor="middle"
+              fontSize={11.5}
+              fontWeight={600}
+              fill="#1a1a1a"
+            >
               {n.label}
             </text>
           </g>
         );
       })}
 
-      {/* legend */}
-      <g transform={`translate(40, ${h - 50})`}>
-        <text x={0} y={0} fontSize={11} fontWeight={600} fill="#444">
-          Tone:
+      {/* Note about error status (no edge — keeps the diagram readable) */}
+      <g transform={`translate(${COL.c4 - 6}, ${ROW.low + 32})`}>
+        <rect
+          x={0}
+          y={0}
+          width={340}
+          height={36}
+          rx={8}
+          ry={8}
+          fill="#fde8e8"
+          stroke="#b32525"
+          strokeDasharray="4 3"
+          strokeWidth={1.2}
+        />
+        <text x={14} y={15} fontSize={11} fontWeight={600} fill="#7a1414">
+          Hvis et kall mot RINA feiler
         </text>
-        <rect x={40} y={-10} width={12} height={12} rx={3} fill="#e6f0fa" stroke="#0067c5" />
-        <text x={58} y={0} fontSize={11} fill="#333">start</text>
-        <rect x={110} y={-10} width={12} height={12} rx={3} fill="#fff4e1" stroke="#c77300" />
-        <text x={128} y={0} fontSize={11} fill="#333">venter / overgang</text>
-        <rect x={260} y={-10} width={12} height={12} rx={3} fill="#e3f5e8" stroke="#067a3a" />
-        <text x={278} y={0} fontSize={11} fill="#333">avsluttet / arkivert</text>
-        <rect x={420} y={-10} width={12} height={12} rx={3} fill="#fde8e8" stroke="#b32525" />
-        <text x={438} y={0} fontSize={11} fill="#333">terminal / feil</text>
+        <text x={14} y={29} fontSize={11} fill="#7a1414">
+          ⇒ saken settes til <tspan fontFamily="var(--ax-font-mono, monospace)">HANDLING_FEILET</tspan>
+        </text>
+      </g>
+
+      {/* Legend */}
+      <g transform={`translate(20, ${h - 18})`}>
+        <rect x={0} y={-10} width={12} height={12} rx={3} fill="#e6f0fa" stroke="#0067c5" />
+        <text x={18} y={0} fontSize={11} fill="#333">start</text>
+        <rect x={70} y={-10} width={12} height={12} rx={3} fill="#fff4e1" stroke="#c77300" />
+        <text x={88} y={0} fontSize={11} fill="#333">overgang</text>
+        <rect x={170} y={-10} width={12} height={12} rx={3} fill="#e3f5e8" stroke="#067a3a" />
+        <text x={188} y={0} fontSize={11} fill="#333">avsluttet / arkivert</text>
+        <rect x={320} y={-10} width={12} height={12} rx={3} fill="#fde8e8" stroke="#b32525" />
+        <text x={338} y={0} fontSize={11} fill="#333">terminal / feil</text>
       </g>
     </svg>
   );
