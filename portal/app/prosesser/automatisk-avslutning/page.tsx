@@ -114,16 +114,16 @@ function LifecycleDiagram() {
 /* ---------- Diagram: state machine (technical) ---------- */
 
 function StateMachineDiagram() {
-  // Wide viewBox lets the SVG scale to the container without crowding.
-  const w = 1180;
+  // Wide viewBox + generous column spacing so edge labels never collide with boxes.
+  const w = 1480;
   const h = 360;
   const muted = "#5a6470";
 
   const boxW = 168;
   const boxH = 42;
 
-  // Five tidy columns (left edges) and four rows (top edges).
-  const COL = { c0: 20, c1: 220, c2: 420, c3: 620, c4: 820, c5: 1000 };
+  // Six columns spaced ~260px apart → ~92px gap between boxes for labels.
+  const COL = { c0: 20, c1: 280, c2: 540, c3: 800, c4: 1060, c5: 1300 };
   const ROW = { top: 40, mid: 130, low: 220, deep: 290 };
 
   type Tone = "blue" | "amber" | "green" | "red";
@@ -340,23 +340,6 @@ function StateMachineDiagram() {
         ) : null
       )}
 
-      {/* Edge labels */}
-      {edges.map((e, i) =>
-        e.label ? (
-          <text
-            key={`l${i}`}
-            x={e.labelAt.x}
-            y={e.labelAt.y}
-            textAnchor="middle"
-            fontSize={10.5}
-            fill={muted}
-            style={{ paintOrder: "stroke", stroke: "#ffffff", strokeWidth: 4 }}
-          >
-            {e.label}
-          </text>
-        ) : null
-      )}
-
       {/* Nodes */}
       {nodes.map((n) => {
         const c = tone(n.tone);
@@ -386,6 +369,23 @@ function StateMachineDiagram() {
           </g>
         );
       })}
+
+      {/* Edge labels — rendered AFTER nodes so the white halo sits on top */}
+      {edges.map((e, i) =>
+        e.label ? (
+          <text
+            key={`l${i}`}
+            x={e.labelAt.x}
+            y={e.labelAt.y}
+            textAnchor="middle"
+            fontSize={11}
+            fill={muted}
+            style={{ paintOrder: "stroke", stroke: "#ffffff", strokeWidth: 5 }}
+          >
+            {e.label}
+          </text>
+        ) : null
+      )}
 
       {/* Note about error status (no edge — keeps the diagram readable) */}
       <g transform={`translate(${COL.c4 - 6}, ${ROW.low + 32})`}>
