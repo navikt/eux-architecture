@@ -2,7 +2,7 @@
 
 A small Next.js / React / TypeScript / Aksel web app that explains the EUX (EESSI) platform: what the services are, how they talk to each other, and where to find Swagger/OpenAPI specs and other developer resources.
 
-Ingress (dev): https://architecture.intern.dev.nav.no
+Ingress (dev): https://eux-docs.intern.dev.nav.no
 
 ## Stack
 

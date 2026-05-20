@@ -106,7 +106,7 @@ export default function Home() {
                   Testmiljø
                 </Tag>
                 <BodyShort size="small" style={subtleStyle}>
-                  architecture.intern.dev.nav.no
+                  eux-docs.intern.dev.nav.no
                 </BodyShort>
               </HStack>
             </VStack>
