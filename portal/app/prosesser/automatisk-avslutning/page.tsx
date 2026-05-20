@@ -480,66 +480,54 @@ export default function Page() {
             <LifecycleDiagram />
           </Box>
 
+          <BodyLong>
+            For hver type sak (BUC) er det definert regler som beskriver hva
+            «ferdig» betyr — typisk at en bestemt avslutnings-SED er sendt
+            eller mottatt, at et bestemt skjema finnes i saken, eller — som en
+            siste sikkerhet — at saken har ligget urørt veldig lenge.
+          </BodyLong>
+
+          <BodyLong>
+            En RINA-sak deles ofte mellom flere land. <i>Lokal</i> avslutning
+            betyr at NAV lukker saken kun for vår egen del — motparten kan
+            fortsatt jobbe videre. <i>Global</i> avslutning betyr at saken
+            lukkes for alle parter samtidig. Hvilken type som velges, avhenger
+            av BUC-en og om NAV er sakseier eller motpart. Har vi ikke
+            grunnlag for å lukke globalt, venter plattformen heller på at
+            motparten gjør det.
+          </BodyLong>
+
+          <BodyLong>
+            Hele løpet — fra siste aktivitet til arkivering — tar typisk flere
+            måneder. Det er bevisst, slik at en saksbehandler får god tid til
+            å gjenåpne hvis det dukker opp noe nytt. Kommer det en ny SED på
+            en sak som er markert som uvirksom, hopper saken automatisk
+            tilbake til start og må kvalifisere på nytt før avslutning vurderes
+            igjen.
+          </BodyLong>
+
           <Accordion>
             <Accordion.Item>
-              <Accordion.Header>Hvordan vet plattformen at en sak er ferdig?</Accordion.Header>
+              <Accordion.Header>Mer om reglene per BUC</Accordion.Header>
               <Accordion.Content>
-                <BodyLong spacing>
-                  For hver type sak (BUC) er det definert regler som beskriver
-                  hva «ferdig» betyr. Det kan være at en bestemt avslutnings-SED
-                  er sendt eller mottatt, at et bestemt skjema finnes i saken,
-                  eller — som en siste sikkerhet — at saken rett og slett har
-                  ligget urørt veldig lenge.
-                </BodyLong>
                 <BodyLong>
                   Reglene ligger som kode i applikasjonen og kan justeres per
-                  BUC. Det betyr at en H_BUC_01 og en S_BUC_24 kan ha helt ulike
-                  kriterier for hva som regnes som avsluttet.
+                  BUC. Det betyr at en H_BUC_01 og en S_BUC_24 kan ha helt
+                  ulike kriterier for hva som regnes som avsluttet. Endringer
+                  går via en vanlig kodeendring og pull request mot{" "}
+                  <code>eux-avslutt-rinasaker</code>.
                 </BodyLong>
               </Accordion.Content>
             </Accordion.Item>
 
             <Accordion.Item>
-              <Accordion.Header>Hva betyr «lokal» og «global» avslutning?</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  En RINA-sak deles ofte mellom flere land. <b>Lokal</b>{" "}
-                  avslutning betyr at NAV lukker saken kun for vår egen del —
-                  motparten kan fortsatt jobbe videre. <b>Global</b> avslutning
-                  betyr at saken lukkes for alle parter samtidig.
-                </BodyLong>
-                <BodyLong>
-                  Hvilken type som velges avhenger av BUC-en og om NAV er
-                  sakseier eller motpart. Hvis NAV ikke har grunnlag for å
-                  lukke saken globalt, venter plattformen heller på at
-                  motparten gjør det.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>Når skjer det noe?</Accordion.Header>
+              <Accordion.Header>Hva med saker som havner i feil?</Accordion.Header>
               <Accordion.Content>
                 <BodyLong>
-                  Alle stegene kjøres som planlagte jobber om natten. Først
-                  identifiseres saker som har vært uvirksomme lenge, deretter
-                  evalueres avslutningsregler, så lukkes saken i RINA, og til
-                  slutt arkiveres den. Hele løpet tar typisk flere måneder fra
-                  siste aktivitet til arkivering — det er bevisst, slik at en
-                  saksbehandler får god tid til å gjenåpne hvis det dukker opp
-                  noe nytt.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>Kan en sak gjenoppstå?</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong>
-                  Ja. Hvis det kommer en ny SED eller annen aktivitet på en sak
-                  som er markert som <code>UVIRKSOM</code>, hopper saken
-                  tilbake til <code>NY_SAK</code> og må kvalifisere på nytt før
-                  avslutning vurderes igjen.
+                  Hvis et kall mot RINA feiler underveis, settes saken til en
+                  feilstatus og hoppes over av neste jobb. Det går en
+                  månedsrapport til Slack med oversikt — disse må undersøkes
+                  manuelt og kan ikke ryddes opp i av applikasjonen selv.
                 </BodyLong>
               </Accordion.Content>
             </Accordion.Item>
@@ -562,9 +550,18 @@ export default function Page() {
             holder sin egen tilstandsmaskin per RINA-sak i PostgreSQL. Den
             populeres fra Kafka, og driften framover skjer via en samling
             NAIS-jobber (<code>eux-avslutt-rinasaker-naisjob</code>) som hver
-                natt kaller HTTP-endepunkter på appen. Selve handlingen mot RINA
+            natt kaller HTTP-endepunkter på appen. Selve handlingen mot RINA
             gjøres via <code>eux-rina-api</code> og{" "}
             <code>eux-rina-terminator-api</code>.
+          </BodyLong>
+
+          <BodyLong>
+            <code>PopulerService</code> lytter på sak- og dokument-events fra
+            Kafka og oppretter eller oppdaterer rader i den lokale databasen.
+            Når noe skjer på en sak, settes status tilbake til{" "}
+            <code>NY_SAK</code> slik at en eventuell uvirksom-vurdering må
+            gjøres på nytt. Appen lagrer ikke SED-innhold — kun metadata om
+            BUC, eierskap, sist endret og hvilke SED-er som finnes.
           </BodyLong>
 
           <Box
@@ -582,75 +579,97 @@ export default function Page() {
             </Detail>
           </Box>
 
+          <Heading size="small" level="3">
+            Prosessene og når de kjøres
+          </Heading>
+          <BodyLong>
+            Hver prosess kjøres som en egen NAIS-jobb med fast cron, og bruker
+            tilsvarende service-klasse i applikasjonen.
+          </BodyLong>
+          <Box
+            style={{ background: "var(--ax-bg-default, #fff)" }}
+            borderRadius="8"
+            padding="space-12"
+            borderColor="neutral-subtle"
+            borderWidth="1"
+          >
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+              <thead>
+                <tr style={{ textAlign: "left", borderBottom: "1px solid var(--ax-border-subtle)" }}>
+                  <th style={{ padding: "6px 8px" }}>Prosess</th>
+                  <th style={{ padding: "6px 8px" }}>Cron (prod)</th>
+                  <th style={{ padding: "6px 8px" }}>Hva den gjør</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["sett-uvirksom", "01:00", "Markerer saker som ikke har hatt aktivitet på antallDagerBeforeUvirksom dager"],
+                  ["til-avslutning", "02:00", "Evaluerer avslutningsregler på UVIRKSOM-saker"],
+                  ["avslutt", "03:00", "Kaller RINA og lukker saken (lokalt eller globalt)"],
+                  ["til-arkivering", "04:00", "Markerer avsluttede saker for arkivering etter antallDagerBeforeArkivering"],
+                  ["arkiver", "05:00", "Tar saken ut av aktiv portefølje"],
+                  ["slett-dokumentutkast", "14:42", "Sletter X001-utkast via eux-rina-terminator-api"],
+                  ["rapport", "1. i mnd kl 00:05", "Genererer rapport til Slack via RapportService"],
+                ].map(([p, c, d]) => (
+                  <tr key={p} style={{ borderBottom: "1px solid var(--ax-border-subtle)" }}>
+                    <td style={{ padding: "6px 8px", fontFamily: "var(--ax-font-mono, monospace)" }}>{p}</td>
+                    <td style={{ padding: "6px 8px", fontFamily: "var(--ax-font-mono, monospace)" }}>{c}</td>
+                    <td style={{ padding: "6px 8px" }}>{d}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Box>
+          <BodyShort size="small" style={subtle}>
+            Tidspunktene er hentet fra <code>eux-avslutt-rinasaker-naisjob/.nais/&lt;prosess&gt;/prod.yaml</code>.
+          </BodyShort>
+
+          <Heading size="small" level="3">
+            Beslutningslogikk for «til avslutning»
+          </Heading>
+          <BodyLong>
+            Når en sak er <code>UVIRKSOM</code> ser{" "}
+            <code>TilAvslutningService</code> først på rollen NAV har, og går
+            deretter gjennom kriteriene i denne rekkefølgen:
+          </BodyLong>
+          <ol style={{ margin: 0, paddingInlineStart: "1.5rem" }}>
+            <li>Velg scope: <code>bucAvsluttScopeSakseier</code> hvis NAV eier saken, ellers <code>bucAvsluttScopeMotpart</code>.</li>
+            <li>Er scope <code>null</code> ⇒ saken settes til <code>AVSLUTTES_AV_MOTPART</code> og rører ikke RINA.</li>
+            <li>Ellers evalueres kriteriene (<code>sisteSedForAvslutning</code>, <code>sedExists</code>, <code>mottattSedExists</code>, <code>sentSedExists</code>) — første match vinner.</li>
+            <li>Ingen match, men <code>avsluttUvirksomBucEtterAntallDager</code> er passert ⇒ avslutt likevel.</li>
+            <li>Resultat: <code>TIL_AVSLUTNING_LOKALT</code> eller <code>TIL_AVSLUTNING_GLOBALT</code>, klar for neste jobb.</li>
+          </ol>
+
+          <Heading size="small" level="3">
+            API
+          </Heading>
+          <BodyLong>
+            Appen eksponerer ett operasjonelt endepunkt som NAIS-jobbene
+            kaller med Azure AD-token:
+          </BodyLong>
+          <Box
+            borderRadius="8"
+            padding="space-12"
+            borderColor="neutral-subtle"
+            borderWidth="1"
+            style={{
+              background: "var(--ax-bg-default, #fff)",
+              fontFamily: "var(--ax-font-mono, monospace)",
+              fontSize: 13,
+            }}
+          >
+            POST /api/v1/prosesser/&#123;prosess&#125;/execute
+          </Box>
+          <BodyShort size="small" style={subtle}>
+            Gyldige verdier for <code>prosess</code>: <code>sett-uvirksom</code>,{" "}
+            <code>til-avslutning</code>, <code>avslutt</code>,{" "}
+            <code>til-arkivering</code>, <code>arkiver</code>,{" "}
+            <code>slett-dokumentutkast</code>.
+          </BodyShort>
+
           <Accordion>
             <Accordion.Item>
-              <Accordion.Header>Populering — hvordan saker kommer inn</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  <code>PopulerService</code> lytter på sak- og dokument-events
-                  fra Kafka og oppretter eller oppdaterer rader i sin lokale
-                  database. Hver gang det skjer noe på en sak settes status
-                  tilbake til <code>NY_SAK</code>, slik at en eventuell
-                  uvirksom-vurdering må gjøres på nytt.
-                </BodyLong>
-                <BodyLong>
-                  Appen lagrer ikke SED-innhold; den lagrer akkurat nok
-                  metadata til å kunne evaluere reglene (BUC, eierskap, sist
-                  endret, hvilke SED-er som finnes).
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>Prosessene og rekkefølgen deres</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  Hver prosess kjøres som en egen NAIS-jobb med fast cron, og
-                  bruker tilsvarende service-klasse i applikasjonen.
-                </BodyLong>
-                <Box
-                  as="div"
-                  style={{ background: "var(--ax-bg-default, #fff)" }}
-                  borderRadius="8"
-                  padding="space-12"
-                  borderColor="neutral-subtle"
-                  borderWidth="1"
-                >
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-                    <thead>
-                      <tr style={{ textAlign: "left", borderBottom: "1px solid var(--ax-border-subtle)" }}>
-                        <th style={{ padding: "6px 8px" }}>Prosess</th>
-                        <th style={{ padding: "6px 8px" }}>Cron (prod)</th>
-                        <th style={{ padding: "6px 8px" }}>Hva den gjør</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        ["sett-uvirksom", "01:00", "Markerer saker som ikke har hatt aktivitet på antallDagerBeforeUvirksom dager"],
-                        ["til-avslutning", "02:00", "Evaluerer avslutningsregler på UVIRKSOM-saker"],
-                        ["avslutt", "03:00", "Kaller RINA og lukker saken (lokalt eller globalt)"],
-                        ["til-arkivering", "04:00", "Markerer avsluttede saker for arkivering etter antallDagerBeforeArkivering"],
-                        ["arkiver", "05:00", "Tar saken ut av aktiv portefølje"],
-                        ["slett-dokumentutkast", "14:42", "Sletter X001-utkast via eux-rina-terminator-api"],
-                        ["rapport", "1. i mnd kl 00:05", "Genererer rapport til Slack via RapportService"],
-                      ].map(([p, c, d]) => (
-                        <tr key={p} style={{ borderBottom: "1px solid var(--ax-border-subtle)" }}>
-                          <td style={{ padding: "6px 8px", fontFamily: "var(--ax-font-mono, monospace)" }}>{p}</td>
-                          <td style={{ padding: "6px 8px", fontFamily: "var(--ax-font-mono, monospace)" }}>{c}</td>
-                          <td style={{ padding: "6px 8px" }}>{d}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Box>
-                <BodyShort size="small" style={{ ...subtle, marginTop: 8 }}>
-                  Tidspunktene er hentet fra <code>eux-avslutt-rinasaker-naisjob/.nais/&lt;prosess&gt;/prod.yaml</code>.
-                </BodyShort>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>BUC-konfigurasjon (avslutningsregler)</Accordion.Header>
+              <Accordion.Header>BUC-konfigurasjon — alle feltene</Accordion.Header>
               <Accordion.Content>
                 <BodyLong spacing>
                   Reglene defineres i <code>Buc.kt</code> som en liste{" "}
@@ -666,7 +685,7 @@ export default function Page() {
                   <li><code>bucAvsluttScopeSakseier</code> / <code>bucAvsluttScopeMotpart</code> — om avslutning skal være lokal eller global, avhengig av om NAV er sakseier eller motpart. <code>null</code> betyr «ikke avslutt automatisk».</li>
                   <li><code>avsluttUvirksomBucEtterAntallDager</code> — fallback: avslutt uansett etter så mange dager uten aktivitet.</li>
                 </ul>
-                <ReadMore header="Hvilke BUC-er er konfigurert i dag?" size="small">
+                <ReadMore header="Eksempler på BUC-konfig" size="small">
                   <BodyLong spacing>
                     Konfigurasjonen dekker fire BUC-familier — H, FB, UB og S —
                     med til sammen 17 BUC-typer. Eksempler:
@@ -685,66 +704,14 @@ export default function Page() {
             </Accordion.Item>
 
             <Accordion.Item>
-              <Accordion.Header>Beslutningslogikk for «til avslutning»</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  Når en sak er <code>UVIRKSOM</code> ser{" "}
-                  <code>TilAvslutningService</code> først på rollen NAV har:
-                </BodyLong>
-                <ol style={{ margin: 0, paddingInlineStart: "1.5rem" }}>
-                  <li>Velg riktig scope: <code>bucAvsluttScopeSakseier</code> hvis NAV eier saken, ellers <code>bucAvsluttScopeMotpart</code>.</li>
-                  <li>Hvis scope er <code>null</code> ⇒ saken settes til <code>AVSLUTTES_AV_MOTPART</code> og rører ikke RINA.</li>
-                  <li>Ellers evalueres kriteriene (<code>sisteSedForAvslutning</code>, <code>sedExists</code>, <code>mottattSedExists</code>, <code>sentSedExists</code>) — første match vinner.</li>
-                  <li>Ingen match, men <code>avsluttUvirksomBucEtterAntallDager</code> er passert ⇒ avslutt likevel.</li>
-                  <li>Resultatet blir <code>TIL_AVSLUTNING_LOKALT</code> eller <code>TIL_AVSLUTNING_GLOBALT</code>, klar for neste jobb.</li>
-                </ol>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>API og integrasjoner</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  Appen eksponerer ett operasjonelt endepunkt:
-                </BodyLong>
-                <Box
-                  borderRadius="8"
-                  padding="space-12"
-                  borderColor="neutral-subtle"
-                  borderWidth="1"
-                  style={{
-                    background: "var(--ax-bg-default, #fff)",
-                    fontFamily: "var(--ax-font-mono, monospace)",
-                    fontSize: 13,
-                  }}
-                >
-                  POST /api/v1/prosesser/&#123;prosess&#125;/execute
-                </Box>
-                <BodyLong spacing style={{ marginTop: 12 }}>
-                  Gyldige verdier for <code>prosess</code>:{" "}
-                  <code>sett-uvirksom</code>, <code>til-avslutning</code>,{" "}
-                  <code>avslutt</code>, <code>til-arkivering</code>,{" "}
-                  <code>arkiver</code>, <code>slett-dokumentutkast</code>.
-                </BodyLong>
-                <BodyLong>
-                  Appen kaller <code>eux-rina-api</code> for status- og
-                  avslutningsoperasjoner, og{" "}
-                  <code>eux-rina-terminator-api</code> for sletting av
-                  X001-utkast. Rapporter sendes til Slack via{" "}
-                  <code>SlackService</code>.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
               <Accordion.Header>Feilhåndtering</Accordion.Header>
               <Accordion.Content>
                 <BodyLong>
                   Når et kall mot RINA feiler settes saken til{" "}
                   <code>HANDLING_FEILET</code> (og — avhengig av kontekst —{" "}
-                  <code>HANDLING_MANGLER</code>). Saker i feilstatus rapporteres
-                  månedlig og må undersøkes manuelt; appen prøver ikke om igjen
-                  av seg selv.
+                  <code>HANDLING_MANGLER</code>). Saker i feilstatus
+                  rapporteres månedlig og må undersøkes manuelt; appen prøver
+                  ikke om igjen av seg selv.
                 </BodyLong>
               </Accordion.Content>
             </Accordion.Item>
