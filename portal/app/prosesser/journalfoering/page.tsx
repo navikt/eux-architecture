@@ -9,6 +9,7 @@ import {
   Detail,
   GuidePanel,
   Heading,
+  HGrid,
   Link as DsLink,
   ReadMore,
   Table,
@@ -410,6 +411,33 @@ function CodeBlock({ children }: { children: ReactNode }) {
   );
 }
 
+function InfoCard({
+  title,
+  children,
+  tone = "blue",
+}: {
+  title: string;
+  children: ReactNode;
+  tone?: Tone;
+}) {
+  const c = palette[tone];
+  return (
+    <Box
+      borderRadius="8"
+      borderWidth="1"
+      padding="space-16"
+      style={{ background: c.fill, borderColor: c.stroke }}
+    >
+      <VStack gap="space-8">
+        <Heading size="xsmall" level="3">
+          {title}
+        </Heading>
+        <BodyLong size="small">{children}</BodyLong>
+      </VStack>
+    </Box>
+  );
+}
+
 const serviceRows: [string, string, string][] = [
   [
     "eux-fagmodul-journalfoering",
@@ -477,6 +505,107 @@ const statusRows: [string, string, string][] = [
   ["KORRUPT", "eux-journalarkivar", "Andre forsøk feilet; må undersøkes manuelt."],
 ];
 
+const userRows: [string, string, string][] = [
+  [
+    "Inngående SED på kjent fagsak",
+    "Dokumentet journalføres på saken og saksbehandler får normalt en BEH_SED-oppgave.",
+    "Raskeste og mest ønskede flyt: arkiv, fagsak og oppgave peker på samme behandling.",
+  ],
+  [
+    "Inngående SED uten trygg bruker eller fagsak",
+    "Journalpost kan bli midlertidig, og oppgaven blir JFR eller FDR avhengig av enhet og personkobling.",
+    "Saksbehandler eller fordeling må avklare før dokumentet kan ferdigstilles riktig.",
+  ],
+  [
+    "Utgående SED sendt fra NAV",
+    "Dokarkiv får en utgående journalpost. Fagmodulen forsøker ferdigstilling direkte.",
+    "Gir arkivspor for det NAV allerede har sendt, normalt uten å lage ny oppgave.",
+  ],
+  [
+    "SED som ikke bør auto-journalføres",
+    "Fagmodulen hopper over eller lager manuell oppgave når et annet system eller en BUC-regel eier løpet.",
+    "Bedre å stoppe trygt enn å journalføre på feil bruker, feil fagsak eller feil systemansvar.",
+  ],
+];
+
+const principleRows: [string, string, Tone][] = [
+  [
+    "Ikke mist dokumentet",
+    "SED og vedlegg hentes fra RINA og sendes til Dokarkiv. Hvis en journalpost allerede finnes, brukes den videre i stedet for å lage duplikat.",
+    "green",
+  ],
+  [
+    "Ikke gjett for hardt",
+    "Når person, fagsak eller ferdigstilling er usikker, lager systemet heller oppgave eller lar journalarkivar følge opp senere.",
+    "orange",
+  ],
+  [
+    "Bruk eksisterende kontekst",
+    "Eksisterende nav-rinasak, tidligere journalposter og SAF-fagsaker brukes før systemet faller tilbake på generelle regler.",
+    "blue",
+  ],
+  [
+    "Skjerm sensitive saker",
+    "Beskyttet adresse rutes til Vikafossen (2103), og RINA-saken markeres sensitiv når fagmodulen avdekker behovet.",
+    "red",
+  ],
+];
+
+const decisionRows: [string, string, string][] = [
+  [
+    "Finn person",
+    "navBruker fra hendelsen, PDL-oppslag, H020/H021 pin-fallback og egen UB_BUC_01/Litauen-håndtering.",
+    "Uten trygg person kan journalposten bli midlertidig og oppgaven havne hos fordeling.",
+  ],
+  [
+    "Finn fagsak",
+    "Eksisterende nav-rinasak, nyeste tilknyttede journalpost i SAF eller nyeste fagsak for personen.",
+    "Manglende fagsak stopper ikke alltid journalpost, men påvirker om den kan ferdigstilles.",
+  ],
+  [
+    "Velg tema og behandling",
+    "Sektor, SED-type, BUC og sakseierrolle bestemmer tema, behandlingstema og behandlingstype.",
+    "Dette styrer både journalpostmetadata og hvilken oppgave som blir gyldig.",
+  ],
+  [
+    "Velg enhet",
+    "Beskyttet adresse, sektor, spesial-SED-er, overstyrt enhet og NORG/PDL-geografi vurderes i rekkefølge.",
+    "Feil enhet gir feil oppgaveflyt, derfor er reglene eksplisitte i fagmodulen.",
+  ],
+  [
+    "Avgjør ferdigstilling",
+    "Utgående forsøker ferdigstilling direkte. Inngående avhenger av BUC og om saken allerede har journalført dokument.",
+    "Hvis det ikke er trygt å ferdigstille nå, overtar oppgave eller nattlig etterløp.",
+  ],
+];
+
+const storyRows: [string, string, string, string][] = [
+  [
+    "Svar på en pågående sykepengesak",
+    "En SED kommer inn på en RINA-sak som allerede er koblet til fagsak.",
+    "Fagmodulen bruker nav-rinasak-koblingen, journalfører dokumentet, oppretter BEH_SED og lagrer dokumentInfoId.",
+    "Saksbehandler finner dokumentet på saken og får en behandlingsoppgave.",
+  ],
+  [
+    "Første dokument i en ny dagpengesak",
+    "Det finnes ikke alltid en ferdig fagsakskobling når første UB-SED mottas.",
+    "Systemet prøver PDL/SAF og egne UB-regler, og kan opprette midlertidig journalpost eller fordelingsoppgave.",
+    "Fordeling eller saksbehandler får avklart riktig kobling før videre behandling.",
+  ],
+  [
+    "NAV sender H001",
+    "Utgående H001 sendes fra NAV til motpart i EESSI.",
+    "SED-en journalføres som utgående. Hvis Dokarkiv ikke ferdigstiller den, settes journalposten til avbryt.",
+    "Saksbildet får arkivspor uten at det lages unødvendig oppgave.",
+  ],
+  [
+    "Gammel UKJENT journalstatus",
+    "En journalpost ble opprettet, men ble ikke ferdigstilt i første forsøk.",
+    "Journalarkivar forsøker senere å bruke en ferdigstilt journalpost på samme RINA-sak som fasit for sak, bruker og tema.",
+    "Når koblingen er trygg, ferdigstilles journalposten og eventuell oppgave ryddes opp.",
+  ],
+];
+
 export default function Page() {
   return (
     <VStack gap="space-32">
@@ -526,6 +655,105 @@ export default function Page() {
         </Box>
       </section>
 
+      <section id="navigasjon">
+        <Box
+          borderRadius="12"
+          borderColor="neutral-subtle"
+          borderWidth="1"
+          padding="space-16"
+          style={{ background: "var(--ax-bg-default, #fff)" }}
+        >
+          <VStack gap="space-12">
+            <Heading size="small" level="2">
+              På denne siden
+            </Heading>
+            <HGrid gap="space-12" columns={{ xs: 1, md: 2, lg: 4 }}>
+              <DsLink href="#saksbehandler">For saksbehandler og fag</DsLink>
+              <DsLink href="#funksjonelt">Flyt, valg og eksempler</DsLink>
+              <DsLink href="#teknisk">Teknisk beskrivelse</DsLink>
+              <DsLink href="#etterlop">Etterløp og avvik</DsLink>
+            </HGrid>
+          </VStack>
+        </Box>
+      </section>
+
+      <section id="saksbehandler">
+        <VStack gap="space-16">
+          <div>
+            <SectionEyebrow kind="funksjonell" />
+            <Heading size="large" level="2">
+              Hva betyr journalføring i arbeidshverdagen?
+            </Heading>
+          </div>
+
+          <BodyLong>
+            For saksbehandleren skal journalføringen gjøre EESSI-dokumentet
+            mulig å finne, vurdere og dokumentere videre i NAV. Den viktigste
+            brukeropplevelsen er derfor ikke selve Dokarkiv-kallet, men at
+            dokumentet havner på riktig bruker og fagsak, at oppgaven går til
+            riktig enhet, og at usikre saker ikke ser ferdige ut før de faktisk
+            er avklart.
+          </BodyLong>
+
+          <HGrid gap="space-12" columns={{ xs: 1, md: 2 }}>
+            <InfoCard title="Journalposten er arkivsporet" tone="green">
+              Den gjør SED-en og vedleggene sporbare i Dokarkiv med kanal{" "}
+              <code>EESSI</code>. Journalposten er det varige beviset på hva NAV
+              har mottatt eller sendt i EESSI.
+            </InfoCard>
+            <InfoCard title="Oppgaven er arbeidsflaten" tone="blue">
+              Inngående SED-er kan gi <code>BEH_SED</code>, <code>JFR</code>{" "}
+              eller <code>FDR</code>. Oppgavetypen forteller om dokumentet kan
+              behandles, må journalføres ferdig eller må fordeles først.
+            </InfoCard>
+            <InfoCard title="Fagsaken gir konteksten" tone="purple">
+              Når systemet finner en relevant fagsak, kan journalpost, oppgave
+              og senere saksbehandling peke samme vei. Uten fagsak må systemet
+              være mer forsiktig.
+            </InfoCard>
+            <InfoCard title="Statusen viser hva som gjenstår" tone="orange">
+              <code>JOURNALFOERT</code> betyr at arkivdelen er ferdig.{" "}
+              <code>UKJENT</code>, feilet-statusene og <code>KORRUPT</code>{" "}
+              betyr at automatikk eller manuell oppfølging fortsatt må rydde opp.
+            </InfoCard>
+          </HGrid>
+
+          <Box
+            style={{ background: "var(--ax-bg-default, #fff)" }}
+            borderRadius="8"
+            padding="space-12"
+            borderColor="neutral-subtle"
+            borderWidth="1"
+          >
+            <Table>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell scope="col">Situasjon</Table.HeaderCell>
+                  <Table.HeaderCell scope="col">Hva saksbehandler merker</Table.HeaderCell>
+                  <Table.HeaderCell scope="col">Hvorfor det er riktig</Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {userRows.map(([situation, userImpact, reason]) => (
+                  <Table.Row key={situation}>
+                    <Table.DataCell>{situation}</Table.DataCell>
+                    <Table.DataCell>{userImpact}</Table.DataCell>
+                    <Table.DataCell>{reason}</Table.DataCell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          </Box>
+
+          <BodyLong>
+            Målet er høy automatikk når grunnlaget er trygt, og tydelig manuell
+            oppfølging når grunnlaget ikke er trygt. Det er bedre at en SED blir
+            liggende med en synlig oppgave enn at den ferdigstilles på feil
+            person, feil fagsak eller feil systemansvar.
+          </BodyLong>
+        </VStack>
+      </section>
+
       <section id="funksjonelt">
         <VStack gap="space-16">
           <div>
@@ -541,6 +769,17 @@ export default function Page() {
             journalpost i Dokarkiv, en fagsakskobling der det finnes grunnlag,
             og en oppgave når en saksbehandler skal behandle dokumentet videre.
           </BodyLong>
+
+          <Heading size="medium" level="3">
+            Funksjonelle prinsipper
+          </Heading>
+          <HGrid gap="space-12" columns={{ xs: 1, md: 2 }}>
+            {principleRows.map(([title, text, tone]) => (
+              <InfoCard key={title} title={title} tone={tone}>
+                {text}
+              </InfoCard>
+            ))}
+          </HGrid>
 
           <Figure>
             <OverviewDiagram />
@@ -596,6 +835,64 @@ export default function Page() {
             <DirectionDiagram />
           </Figure>
 
+          <Heading size="medium" level="3">
+            De viktigste beslutningspunktene
+          </Heading>
+          <BodyLong>
+            Fagmodulen gjør flere valg før den sender noe til Dokarkiv eller
+            oppretter oppgave. Disse valgene er grunnen til at journalføring er
+            mer enn en teknisk arkivoperasjon.
+          </BodyLong>
+
+          <Box
+            style={{ background: "var(--ax-bg-default, #fff)" }}
+            borderRadius="8"
+            padding="space-12"
+            borderColor="neutral-subtle"
+            borderWidth="1"
+          >
+            <Table>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell scope="col">Valg</Table.HeaderCell>
+                  <Table.HeaderCell scope="col">Hva systemet vurderer</Table.HeaderCell>
+                  <Table.HeaderCell scope="col">Funksjonell konsekvens</Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {decisionRows.map(([decision, source, consequence]) => (
+                  <Table.Row key={decision}>
+                    <Table.DataCell>{decision}</Table.DataCell>
+                    <Table.DataCell>{source}</Table.DataCell>
+                    <Table.DataCell>{consequence}</Table.DataCell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          </Box>
+
+          <Heading size="medium" level="3">
+            Typiske funksjonelle historier
+          </Heading>
+          <Accordion>
+            {storyRows.map(([title, start, system, outcome]) => (
+              <Accordion.Item key={title}>
+                <Accordion.Header>{title}</Accordion.Header>
+                <Accordion.Content>
+                  <BodyLong spacing>
+                    <strong>Utgangspunkt:</strong> {start}
+                  </BodyLong>
+                  <BodyLong spacing>
+                    <strong>Systemflyt:</strong> {system}
+                  </BodyLong>
+                  <BodyLong>
+                    <strong>Resultat:</strong> {outcome}
+                  </BodyLong>
+                </Accordion.Content>
+              </Accordion.Item>
+            ))}
+          </Accordion>
+
           <Accordion>
             <Accordion.Item>
               <Accordion.Header>Hva betyr «automatisk» her?</Accordion.Header>
@@ -630,8 +927,8 @@ export default function Page() {
                   <code>S055</code> og <code>S005</code>.
                 </BodyLong>
                 <BodyLong>
-                  Enhet velges deretter. Beskyttet adresse rutes til{" "}
-                  <code>2103</code>, dagpenger til <code>4470</code>,{" "}
+                  Enhet velges deretter. Beskyttet adresse rutes til Vikafossen{" "}
+                  (<code>2103</code>), dagpenger til <code>4470</code>,{" "}
                   <code>H070</code> til <code>4803</code>, <code>S055</code>{" "}
                   til <code>0393</code>, <code>S005</code> til{" "}
                   <code>4461</code>, og sykdom/horisontal bruker enten overstyrt
@@ -780,7 +1077,7 @@ export default function Page() {
             </BodyLong>
           </ReadMore>
 
-          <Heading size="medium" level="3">
+          <Heading id="etterlop" size="medium" level="3">
             Etterløp: ferdigstilling og feilregistrering
           </Heading>
           <BodyLong>
