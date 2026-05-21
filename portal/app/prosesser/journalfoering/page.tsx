@@ -542,15 +542,7 @@ export default function Page() {
             og en oppgave når en saksbehandler skal behandle dokumentet videre.
           </BodyLong>
 
-          <Figure
-            caption={
-              <>
-                Diagrammet er tegnet med separate vertikale drop-linjer fra en
-                felles buss for å unngå linjekryss. Dokarkiv-kallet fra
-                journalarkivar er stiplet fordi det bare skjer i etterløpet.
-              </>
-            }
-          >
+          <Figure>
             <OverviewDiagram />
           </Figure>
 
@@ -600,15 +592,7 @@ export default function Page() {
             fra NAV, og journalføres først og fremst for arkivspor og sakshistorikk.
           </BodyLong>
 
-          <Figure
-            caption={
-              <>
-                Løpene er tegnet som to uavhengige baner med dupliserte
-                Dokarkiv- og statusbokser. Det gir mer luft og unngår kryssende
-                piler mellom inngående og utgående retning.
-              </>
-            }
-          >
+          <Figure>
             <DirectionDiagram />
           </Figure>
 
@@ -808,15 +792,7 @@ export default function Page() {
             bruker-kobling.
           </BodyLong>
 
-          <Figure
-            caption={
-              <>
-                Ferdigstilling og feilregistrering er tegnet som separate baner
-                med egne feilbokser. Det gjenspeiler at de trigges av hver sin
-                NAIS-jobb og at retry-statusene ikke deles.
-              </>
-            }
-          >
+          <Figure>
             <FollowUpDiagram />
           </Figure>
 
