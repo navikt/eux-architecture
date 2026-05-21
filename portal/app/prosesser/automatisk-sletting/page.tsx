@@ -25,7 +25,7 @@ const eyebrow = {
 function LifecycleDiagram() {
   const muted = "#7a7a7a";
   const w = 800;
-  const h = 280;
+  const h = 300;
   const cardW = 155;
   const cardH = 70;
   const mainY = 55;
