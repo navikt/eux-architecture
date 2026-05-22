@@ -53,7 +53,8 @@ spec:
           cluster: dev-gcp
   observability:
     autoInstrumentation:
-      enabled: false
+      enabled: true
+      runtime: java
   env:
     - name: PORTAL_KAFKA_ENABLED
       value: "false"
