@@ -77,6 +77,12 @@ function formatDate(iso: string) {
   }
 }
 
+function maskFnr(value: string | undefined): string {
+  if (!value) return "–";
+  if (value.length >= 6) return "••••••" + value.slice(6);
+  return "••••••";
+}
+
 /* ── Connection status indicator ────────────────────── */
 
 type ConnectionStatus = "connecting" | "connected" | "disconnected";
@@ -147,8 +153,11 @@ function useSedHendelserSSE(onMessage: (record: SedHendelseRecord) => void) {
 
   useEffect(() => {
     let source: EventSource | null = null;
+    let closed = false;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
     function connect() {
+      if (closed) return;
       setStatus("connecting");
       source = new EventSource("/api/kafka/sed-hendelser/stream");
 
@@ -170,15 +179,18 @@ function useSedHendelserSSE(onMessage: (record: SedHendelseRecord) => void) {
       source.onerror = () => {
         setStatus("disconnected");
         source?.close();
-        setTimeout(connect, 5000);
+        if (!closed) {
+          reconnectTimer = setTimeout(connect, 5000);
+        }
       };
     }
 
     connect();
 
     return () => {
+      closed = true;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
       source?.close();
-      setStatus("disconnected");
     };
   }, []);
 
@@ -192,16 +204,23 @@ export default function SedHendelserPage() {
   const [envFilter, setEnvFilter] = useState<string>("alle");
   const [dirFilter, setDirFilter] = useState<string>("alle");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch initial snapshot
   useEffect(() => {
     fetch("/api/kafka/sed-hendelser")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data: SedHendelseRecord[]) => {
         setRecords(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        setError(err.message ?? "Kunne ikke hente hendelser");
+        setLoading(false);
+      });
   }, []);
 
   // Live SSE updates
@@ -263,6 +282,10 @@ export default function SedHendelserPage() {
         <HStack justify="center" style={{ padding: "2rem" }}>
           <Loader size="xlarge" />
         </HStack>
+      ) : error ? (
+        <Alert variant="error" size="small">
+          Kunne ikke koble til portal-core: {error}
+        </Alert>
       ) : filtered.length === 0 ? (
         <Alert variant="info" size="small">
           Ingen SED-hendelser mottatt ennå. Nye meldinger vises automatisk.
@@ -348,7 +371,7 @@ export default function SedHendelserPage() {
                     </span>
                   </Table.DataCell>
                   <Table.DataCell>
-                    {r.hendelse.navBruker ?? "–"}
+                    {maskFnr(r.hendelse.navBruker)}
                   </Table.DataCell>
                 </Table.Row>
               ))}

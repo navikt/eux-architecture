@@ -1,14 +1,14 @@
 package no.nav.eux.portal.core.sse
 
-import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.util.concurrent.ConcurrentHashMap
 
-private val log = KotlinLogging.logger {}
-
 @Component
 class SseEmitterRegistry {
+
+    val log = logger {}
 
     private val emitters = ConcurrentHashMap.newKeySet<SseEmitter>()
 

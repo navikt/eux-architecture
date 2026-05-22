@@ -1,15 +1,15 @@
 package no.nav.eux.portal.core.sse
 
-import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-
-private val log = KotlinLogging.logger {}
 
 @Component
 class SseHeartbeatScheduler(
     private val sseRegistry: SseEmitterRegistry,
 ) {
+
+    val log = logger {}
 
     @Scheduled(fixedDelay = 30_000)
     fun sendHeartbeats() {

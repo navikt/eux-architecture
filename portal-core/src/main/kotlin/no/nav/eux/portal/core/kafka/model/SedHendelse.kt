@@ -1,5 +1,8 @@
 package no.nav.eux.portal.core.kafka.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class SedHendelse(
     val id: String? = null,
     val sedId: String? = null,

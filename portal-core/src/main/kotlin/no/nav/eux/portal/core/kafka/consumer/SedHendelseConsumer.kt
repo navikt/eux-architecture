@@ -1,24 +1,24 @@
 package no.nav.eux.portal.core.kafka.consumer
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import no.nav.eux.portal.core.kafka.model.SedHendelse
 import no.nav.eux.portal.core.kafka.model.SedHendelseRecord
 import no.nav.eux.portal.core.kafka.store.SedHendelseStore
 import no.nav.eux.portal.core.sse.SseEmitterRegistry
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import java.time.Instant
 
-private val log = KotlinLogging.logger {}
-
-@Component
+@Service
 class SedHendelseConsumer(
     private val objectMapper: ObjectMapper,
     private val store: SedHendelseStore,
     private val sseRegistry: SseEmitterRegistry,
 ) {
+
+    val log = logger {}
 
     @KafkaListener(
         topics = [

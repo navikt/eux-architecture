@@ -5,7 +5,10 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   const portalCoreUrl = process.env.EUX_PORTAL_CORE_BASE_URL;
   if (!portalCoreUrl) {
-    return Response.json([], { status: 200 });
+    return Response.json(
+      { error: "portal-core ikke konfigurert" },
+      { status: 503 },
+    );
   }
 
   const url = new URL(request.url);
@@ -20,9 +23,17 @@ export async function GET(request: Request) {
       `${portalCoreUrl}/api/kafka/sed-hendelser?${params}`,
       { cache: "no-store" },
     );
-    if (!res.ok) return Response.json([], { status: 200 });
+    if (!res.ok) {
+      return Response.json(
+        { error: "Feil fra portal-core" },
+        { status: res.status },
+      );
+    }
     return Response.json(await res.json());
   } catch {
-    return Response.json([], { status: 200 });
+    return Response.json(
+      { error: "Kan ikke nå portal-core" },
+      { status: 502 },
+    );
   }
 }
