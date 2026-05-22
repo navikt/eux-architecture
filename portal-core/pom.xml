@@ -104,7 +104,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <jvmTarget>25</jvmTarget>
+                    <jvmTarget>21</jvmTarget>
                     <compilerPlugins>
                         <plugin>spring</plugin>
                     </compilerPlugins>
