@@ -36,6 +36,8 @@ spec:
     requests:
       cpu: {{ resources.requests.cpu }}
       memory: {{ resources.requests.memory }}
+  kafka:
+    pool: {{ kafka.pool }}
   azure:
     application:
       enabled: true
@@ -51,7 +53,8 @@ spec:
           cluster: dev-gcp
   observability:
     autoInstrumentation:
-      enabled: false
+      enabled: true
+      runtime: java
   env:
     - name: KAFKA_TOPICS_SEDMOTTATT_V1_Q1
       value: {{ kafka.topics.sedmottatt-v1-q1 }}
