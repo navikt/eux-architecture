@@ -2,6 +2,12 @@ spring:
   main:
     banner-mode: "off"
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+
 logging:
   structured:
     format:
