@@ -7,11 +7,13 @@ import no.nav.eux.portal.core.kafka.model.SedHendelseRecord
 import no.nav.eux.portal.core.kafka.store.SedHendelseStore
 import no.nav.eux.portal.core.sse.SseEmitterRegistry
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service
+@ConditionalOnExpression("'\${spring.kafka.bootstrap-servers:}'.length() > 0")
 class SedHendelseConsumer(
     private val objectMapper: ObjectMapper,
     private val store: SedHendelseStore,

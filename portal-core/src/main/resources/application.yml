@@ -2,29 +2,19 @@ spring:
   main:
     banner-mode: "off"
   kafka:
-    bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}
-    consumer:
-      group-id: eux-portal-core
-      auto-offset-reset: latest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    listener:
-      missing-topics-fatal: false
+    bootstrap-servers: ${KAFKA_BROKERS:}
     properties:
-      security.protocol: SSL
-      ssl.keystore.type: PKCS12
       ssl.keystore.location: ${KAFKA_KEYSTORE_PATH:}
       ssl.keystore.password: ${KAFKA_CREDSTORE_PASSWORD:}
-      ssl.truststore.type: PKCS12
       ssl.truststore.location: ${KAFKA_TRUSTSTORE_PATH:}
       ssl.truststore.password: ${KAFKA_CREDSTORE_PASSWORD:}
 
 kafka:
   topics:
-    sedmottatt-v1-q1: ${KAFKA_TOPICS_SEDMOTTATT_V1_Q1}
-    sedmottatt-v1-q2: ${KAFKA_TOPICS_SEDMOTTATT_V1_Q2}
-    sedsendt-v1-q1: ${KAFKA_TOPICS_SEDSENDT_V1_Q1}
-    sedsendt-v1-q2: ${KAFKA_TOPICS_SEDSENDT_V1_Q2}
+    sedmottatt-v1-q1: ${KAFKA_TOPICS_SEDMOTTATT_V1_Q1:eessibasis.sedmottatt-v1-q1}
+    sedmottatt-v1-q2: ${KAFKA_TOPICS_SEDMOTTATT_V1_Q2:eessibasis.sedmottatt-v1-q2}
+    sedsendt-v1-q1: ${KAFKA_TOPICS_SEDSENDT_V1_Q1:eessibasis.sedsendt-v1-q1}
+    sedsendt-v1-q2: ${KAFKA_TOPICS_SEDSENDT_V1_Q2:eessibasis.sedsendt-v1-q2}
 
 management:
   endpoints:
