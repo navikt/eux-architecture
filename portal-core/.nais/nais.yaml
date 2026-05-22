@@ -55,6 +55,8 @@ spec:
     autoInstrumentation:
       enabled: false
   env:
+    - name: PORTAL_KAFKA_ENABLED
+      value: "false"
     - name: KAFKA_TOPICS_SEDMOTTATT_V1_Q1
       value: {{ kafka.topics.sedmottatt-v1-q1 }}
     - name: KAFKA_TOPICS_SEDMOTTATT_V1_Q2

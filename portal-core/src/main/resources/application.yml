@@ -9,6 +9,10 @@ spring:
       ssl.truststore.location: ${KAFKA_TRUSTSTORE_PATH:}
       ssl.truststore.password: ${KAFKA_CREDSTORE_PASSWORD:}
 
+portal:
+  kafka:
+    enabled: ${PORTAL_KAFKA_ENABLED:false}
+
 kafka:
   topics:
     sedmottatt-v1-q1: ${KAFKA_TOPICS_SEDMOTTATT_V1_Q1:eessibasis.sedmottatt-v1-q1}

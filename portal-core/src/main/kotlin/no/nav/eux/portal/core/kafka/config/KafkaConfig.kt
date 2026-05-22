@@ -6,7 +6,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig.*
 import org.apache.kafka.common.config.SslConfigs.*
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafka
@@ -19,7 +19,7 @@ import java.time.Duration.ofSeconds
 
 @Configuration
 @EnableKafka
-@ConditionalOnExpression("'\${spring.kafka.bootstrap-servers:}'.length() > 0")
+@ConditionalOnProperty(name = ["portal.kafka.enabled"], havingValue = "true")
 class KafkaConfig(
     @Value("\${spring.kafka.bootstrap-servers}")
     val bootstrapServers: String,
