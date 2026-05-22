@@ -27,6 +27,8 @@ spec:
       value: {{ env.label }}
     - name: NODE_ENV
       value: production
+    - name: EUX_PORTAL_CORE_BASE_URL
+      value: http://eux-portal-core
   liveness:
     path: /api/internal/health/live
     port: 3000
@@ -88,6 +90,9 @@ spec:
           namespace: eessibasis
           cluster: dev-gcp
         - application: eux-rina-gateway-q2
+          namespace: eessibasis
+          cluster: dev-gcp
+        - application: eux-portal-core
           namespace: eessibasis
           cluster: dev-gcp
   observability:

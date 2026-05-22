@@ -1,9 +1,13 @@
 name: eux-portal-core
 ingress: https://eux-portal-core.intern.dev.nav.no
 
-replicas:
-  min: 1
-  max: 2
+kafka:
+  pool: nav-dev
+  topics:
+    sedmottatt-v1-q1: eessibasis.sedmottatt-v1-q1
+    sedmottatt-v1-q2: eessibasis.sedmottatt-v1-q2
+    sedsendt-v1-q1: eessibasis.sedsendt-v1-q1
+    sedsendt-v1-q2: eessibasis.sedsendt-v1-q2
 
 resources:
   limits:

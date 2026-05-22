@@ -24,6 +24,12 @@ const NAV_SECTIONS: { heading?: string; items: { href: string; label: string; ex
     ],
   },
   {
+    heading: "Kafka",
+    items: [
+      { href: "/kafka/sed-hendelser", label: "SED-hendelser" },
+    ],
+  },
+  {
     heading: "Verktøy",
     items: [
       { href: "/tests", label: "Smoke-test", requiresLogin: true },
