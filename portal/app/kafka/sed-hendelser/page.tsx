@@ -140,7 +140,10 @@ function EnvBadge({ env }: { env: string }) {
 function useSedHendelserSSE(onMessage: (record: SedHendelseRecord) => void) {
   const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const onMessageRef = useRef(onMessage);
-  onMessageRef.current = onMessage;
+
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  });
 
   useEffect(() => {
     let source: EventSource | null = null;
