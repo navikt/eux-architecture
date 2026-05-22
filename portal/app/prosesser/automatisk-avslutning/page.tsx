@@ -9,7 +9,6 @@ import {
   Accordion,
   GuidePanel,
   Detail,
-  ReadMore,
   Link as DsLink,
 } from "@navikt/ds-react";
 
@@ -418,6 +417,110 @@ function SectionEyebrow({ kind }: { kind: "funksjonell" | "teknisk" }) {
   return <div style={eyebrow}>{label}</div>;
 }
 
+/* ---------- BUC rules data (from Buc.kt in eux-avslutt-rinasaker) ---------- */
+
+const bucFamilies = [
+  {
+    id: "h",
+    label: "H-BUC-er",
+    bucs: [
+      { navn: "H_BUC_01", uvirksom: 180, kriterium: "Siste SED er H002", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
+    ],
+  },
+  {
+    id: "fb",
+    label: "FB-BUC-er",
+    bucs: [
+      { navn: "FB_BUC_01", uvirksom: 120, kriterium: "Siste SED er F002, sendt fra NAV", sakseier: "Global", motpart: "—", merknad: "Fallback: avslutt etter 270 d uten aktivitet. Arkivering etter 400 d." },
+      { navn: "FB_BUC_02", uvirksom: 90, kriterium: "Siste SED er F017", sakseier: "Global", motpart: "—", merknad: "" },
+      { navn: "FB_BUC_04", uvirksom: 90, kriterium: "F003 finnes i saken", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
+    ],
+  },
+  {
+    id: "ub",
+    label: "UB-BUC-er",
+    bucs: [
+      { navn: "UB_BUC_01", uvirksom: 90, kriterium: "Mottatt U002, U004 eller U017", sakseier: "Global", motpart: "—", merknad: "" },
+      { navn: "UB_BUC_02", uvirksom: 180, kriterium: "Mottatt U008, U014 eller H070, eller sendt U009 eller H070", sakseier: "Global", motpart: "—", merknad: "" },
+      { navn: "UB_BUC_03", uvirksom: 90, kriterium: "Mottatt U019 eller H070, eller sendt H070", sakseier: "Global", motpart: "—", merknad: "" },
+      { navn: "UB_BUC_04", uvirksom: 90, kriterium: "U024 finnes i saken", sakseier: "Global", motpart: "—", merknad: "" },
+    ],
+  },
+  {
+    id: "s",
+    label: "S-BUC-er",
+    bucs: [
+      { navn: "S_BUC_12", uvirksom: 90, kriterium: "Siste SED er S055", sakseier: "—", motpart: "Lokal", merknad: "" },
+      { navn: "S_BUC_14", uvirksom: 90, kriterium: "Siste SED er S046", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
+      { navn: "S_BUC_14a", uvirksom: 90, kriterium: "Siste SED er S047", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
+      { navn: "S_BUC_14b", uvirksom: 90, kriterium: "Siste SED er S048", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
+      { navn: "S_BUC_15", uvirksom: 90, kriterium: "Siste SED er S057", sakseier: "Lokal", motpart: "—", merknad: "" },
+      { navn: "S_BUC_17", uvirksom: 90, kriterium: "Siste SED er S003", sakseier: "Lokal", motpart: "—", merknad: "" },
+      { navn: "S_BUC_17a", uvirksom: 90, kriterium: "Siste SED er S005", sakseier: "—", motpart: "Lokal", merknad: "" },
+      { navn: "S_BUC_24", uvirksom: 90, kriterium: "Siste SED er S041", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
+    ],
+  },
+];
+
+function ScopeBadge({ value }: { value: string }) {
+  if (value === "—") return <span style={{ color: "#999" }}>—</span>;
+  const isGlobal = value === "Global";
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        padding: "1px 8px",
+        borderRadius: 4,
+        fontSize: 12,
+        fontWeight: 500,
+        background: isGlobal ? "#e6f0fa" : "#f4f4f4",
+        color: isGlobal ? "#0067c5" : "#444",
+        border: `1px solid ${isGlobal ? "#b8d4ec" : "#ddd"}`,
+      }}
+    >
+      {value}
+    </span>
+  );
+}
+
+function BucFamilyTable({ bucs }: { bucs: typeof bucFamilies[number]["bucs"] }) {
+  const th = { padding: "8px 10px", textAlign: "left" as const, whiteSpace: "nowrap" as const, fontWeight: 600, fontSize: 13 };
+  const td = { padding: "7px 10px", verticalAlign: "top" as const };
+  const mono = { ...td, fontFamily: "var(--ax-font-mono, monospace)", fontSize: 13, whiteSpace: "nowrap" as const };
+
+  return (
+    <div style={{ overflowX: "auto" as const }}>
+      <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: 14 }}>
+        <thead>
+          <tr style={{ borderBottom: "2px solid var(--ax-border-subtle, #ddd)" }}>
+            <th style={th}>BUC</th>
+            <th style={{ ...th, textAlign: "right" as const }}>Uvirksom</th>
+            <th style={th}>Avslutningskriterium</th>
+            <th style={{ ...th, textAlign: "center" as const }}>Sakseier</th>
+            <th style={{ ...th, textAlign: "center" as const }}>Motpart</th>
+          </tr>
+        </thead>
+        <tbody>
+          {bucs.map((b) => (
+            <tr key={b.navn} style={{ borderBottom: "1px solid var(--ax-border-subtle, #eee)" }}>
+              <td style={mono}>{b.navn}</td>
+              <td style={{ ...mono, textAlign: "right" as const }}>{b.uvirksom}&thinsp;d</td>
+              <td style={td}>
+                {b.kriterium}
+                {b.merknad && (
+                  <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>↳ {b.merknad}</div>
+                )}
+              </td>
+              <td style={{ ...td, textAlign: "center" as const }}><ScopeBadge value={b.sakseier} /></td>
+              <td style={{ ...td, textAlign: "center" as const }}><ScopeBadge value={b.motpart} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 /* ---------- Page ---------- */
 
 export default function Page() {
@@ -672,21 +775,10 @@ export default function Page() {
                   <li><code>bucAvsluttScopeSakseier</code> / <code>bucAvsluttScopeMotpart</code> — om avslutning skal være lokal eller global, avhengig av om NAV er sakseier eller motpart. <code>null</code> betyr «ikke avslutt automatisk».</li>
                   <li><code>avsluttUvirksomBucEtterAntallDager</code> — fallback: avslutt uansett etter så mange dager uten aktivitet.</li>
                 </ul>
-                <ReadMore header="Eksempler på BUC-konfig" size="small">
-                  <BodyLong spacing>
-                    Konfigurasjonen dekker fire BUC-familier — H, FB, UB og S —
-                    med til sammen 17 BUC-typer. Eksempler:
-                  </BodyLong>
-                  <ul style={{ margin: 0, paddingInlineStart: "1.5rem" }}>
-                    <li><code>H_BUC_01</code> — 180 dager uvirksom, avslutter lokalt for begge roller, trigger: siste SED er H002.</li>
-                    <li><code>FB_BUC_01</code> — 120 dager uvirksom, global avslutning som sakseier, trigger: siste SED er F002 sendt fra NAV. Fallback etter 270 dager.</li>
-                    <li><code>UB_BUC_02</code> — 180 dager uvirksom, global avslutning, trigger: mottatt U008/U014/H070 eller sendt U009/H070.</li>
-                    <li><code>S_BUC_*</code> — pensjons-BUC-er, hver med egen siste-SED (S003, S005, S041, S046–S057 osv.).</li>
-                  </ul>
-                  <BodyShort size="small" style={{ ...subtle, marginTop: 8 }}>
-                    Fasit ligger i <code>Buc.kt</code> — sjekk koden før du baserer beslutninger på det som står her.
-                  </BodyShort>
-                </ReadMore>
+                <BodyLong>
+                  Se seksjonen <i>Regler per BUC-type</i> lenger ned for komplett
+                  oversikt over alle 16 BUC-typene og deres konfigurasjon.
+                </BodyLong>
               </Accordion.Content>
             </Accordion.Item>
 
@@ -720,6 +812,57 @@ export default function Page() {
               .
             </BodyLong>
           </GuidePanel>
+        </VStack>
+      </section>
+
+      {/* ---------------- Regler per BUC-type ---------------- */}
+      <section id="buc-regler">
+        <VStack gap="space-16">
+          <div>
+            <div style={eyebrow}>Oppslagsverk</div>
+            <Heading size="large" level="2">
+              Regler per BUC-type
+            </Heading>
+          </div>
+
+          <BodyLong>
+            Tabellene viser gjeldende konfigurasjon for de{" "}
+            {bucFamilies.reduce((sum, f) => sum + f.bucs.length, 0)} BUC-typene
+            som dekkes av automatisk avslutning. Kilde:{" "}
+            <DsLink
+              href="https://github.com/navikt/eux-avslutt-rinasaker/blob/main/src/main/kotlin/no/nav/eux/avslutt/rinasaker/model/buc/Buc.kt"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Buc.kt
+            </DsLink>
+          </BodyLong>
+
+          <Detail textColor="subtle">
+            <b>Uvirksom</b> = dager uten aktivitet før saken vurderes for avslutning.{" "}
+            <b>Sakseier / Motpart</b> = avslutningsscope når NAV har den rollen.{" "}
+            Lokal = bare NAVs side lukkes. Global = saken lukkes for alle parter.{" "}
+            «—» = ingen automatisk avslutning i den rollen.{" "}
+            Arkivering skjer 180 dager etter avslutning, med mindre annet er oppgitt.
+          </Detail>
+
+          <Accordion>
+            {bucFamilies.map((fam) => (
+              <Accordion.Item key={fam.id}>
+                <Accordion.Header>
+                  {fam.label} ({fam.bucs.length})
+                </Accordion.Header>
+                <Accordion.Content>
+                  <BucFamilyTable bucs={fam.bucs} />
+                </Accordion.Content>
+              </Accordion.Item>
+            ))}
+          </Accordion>
+
+          <BodyShort size="small" style={subtle}>
+            Hentet fra <code>Buc.kt</code> i{" "}
+            <code>eux-avslutt-rinasaker</code>. Verifiser mot kildekoden ved avvik.
+          </BodyShort>
         </VStack>
       </section>
     </VStack>
