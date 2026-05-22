@@ -13,17 +13,13 @@ spec:
   liveness:
     path: /actuator/health
     port: 8080
-    initialDelay: 30
-    timeout: 5
-    periodSeconds: 10
-    failureThreshold: 6
+    initialDelay: 60
+    timeout: 110
   readiness:
     path: /actuator/health
     port: 8080
-    initialDelay: 15
-    timeout: 5
-    periodSeconds: 10
-    failureThreshold: 6
+    initialDelay: 60
+    timeout: 110
   prometheus:
     enabled: true
     path: /actuator/prometheus
@@ -57,7 +53,7 @@ spec:
       runtime: java
   env:
     - name: PORTAL_KAFKA_ENABLED
-      value: "false"
+      value: "true"
     - name: KAFKA_TOPICS_SEDMOTTATT_V1_Q1
       value: {{ kafka.topics.sedmottatt-v1-q1 }}
     - name: KAFKA_TOPICS_SEDMOTTATT_V1_Q2

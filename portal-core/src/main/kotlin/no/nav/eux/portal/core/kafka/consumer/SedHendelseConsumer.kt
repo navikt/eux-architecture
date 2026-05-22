@@ -30,6 +30,7 @@ class SedHendelseConsumer(
             "\${kafka.topics.sedsendt-v1-q2}",
         ],
         groupId = "eux-portal-core",
+        containerFactory = "sedHendelseKafkaListenerContainerFactory",
     )
     fun consume(record: ConsumerRecord<String, String>) {
         try {
