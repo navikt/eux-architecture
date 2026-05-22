@@ -2,20 +2,22 @@ spring:
   main:
     banner-mode: "off"
   kafka:
-    bootstrap-servers: ${KAFKA_BROKERS}
+    bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}
     consumer:
       group-id: eux-portal-core
       auto-offset-reset: latest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      missing-topics-fatal: false
     properties:
       security.protocol: SSL
       ssl.keystore.type: PKCS12
-      ssl.keystore.location: ${KAFKA_KEYSTORE_PATH}
-      ssl.keystore.password: ${KAFKA_CREDSTORE_PASSWORD}
+      ssl.keystore.location: ${KAFKA_KEYSTORE_PATH:}
+      ssl.keystore.password: ${KAFKA_CREDSTORE_PASSWORD:}
       ssl.truststore.type: PKCS12
-      ssl.truststore.location: ${KAFKA_TRUSTSTORE_PATH}
-      ssl.truststore.password: ${KAFKA_CREDSTORE_PASSWORD}
+      ssl.truststore.location: ${KAFKA_TRUSTSTORE_PATH:}
+      ssl.truststore.password: ${KAFKA_CREDSTORE_PASSWORD:}
 
 kafka:
   topics:
