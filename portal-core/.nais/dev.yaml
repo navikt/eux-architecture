@@ -1,0 +1,13 @@
+name: eux-portal-core
+ingress: https://eux-portal-core.intern.dev.nav.no
+
+replicas:
+  min: 1
+  max: 2
+
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    cpu: 50m
+    memory: 256Mi
