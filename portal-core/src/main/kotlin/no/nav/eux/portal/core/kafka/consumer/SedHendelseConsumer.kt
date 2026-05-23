@@ -9,6 +9,7 @@ import no.nav.eux.portal.core.kafka.store.SedHendelseStore
 import no.nav.eux.portal.core.sse.SseEmitterRegistry
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
@@ -19,12 +20,12 @@ private const val GROUP_ID = "eux-portal-core"
 private const val RETRY_DELAY_MS = 10_000L
 
 @Service
+@ConditionalOnProperty(name = ["portal.kafka.enabled"], havingValue = "true")
 class SedHendelseConsumer(
     private val objectMapper: ObjectMapper,
     private val store: SedHendelseStore,
     private val sseRegistry: SseEmitterRegistry,
     private val kafkaConfig: KafkaConfig,
-    @param:Value("\${portal.kafka.enabled:false}") private val kafkaEnabled: Boolean,
     @param:Value("\${kafka.topics.sedmottatt-v1-q1}") private val topicMottattQ1: String,
     @param:Value("\${kafka.topics.sedmottatt-v1-q2}") private val topicMottattQ2: String,
     @param:Value("\${kafka.topics.sedsendt-v1-q1}") private val topicSendtQ1: String,
@@ -38,11 +39,6 @@ class SedHendelseConsumer(
 
     @EventListener(ApplicationReadyEvent::class)
     fun startPolling() {
-        if (!kafkaEnabled) {
-            log.info { "Kafka-polling deaktivert (portal.kafka.enabled=false)" }
-            return
-        }
-
         val topics = listOf(topicMottattQ1, topicMottattQ2, topicSendtQ1, topicSendtQ2)
         log.info { "Starter Kafka-polling for $topics" }
 

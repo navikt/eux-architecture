@@ -13,13 +13,17 @@ spec:
   liveness:
     path: /actuator/health
     port: 8080
-    initialDelay: 60
-    timeout: 110
+    initialDelay: 30
+    timeout: 5
+    periodSeconds: 10
+    failureThreshold: 6
   readiness:
     path: /actuator/health
     port: 8080
-    initialDelay: 60
-    timeout: 110
+    initialDelay: 15
+    timeout: 5
+    periodSeconds: 10
+    failureThreshold: 6
   prometheus:
     enabled: true
     path: /actuator/prometheus
