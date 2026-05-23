@@ -53,7 +53,7 @@ spec:
       runtime: java
   env:
     - name: PORTAL_KAFKA_ENABLED
-      value: "true"
+      value: "false"
     - name: KAFKA_TOPICS_SEDMOTTATT_V1_Q1
       value: {{ kafka.topics.sedmottatt-v1-q1 }}
     - name: KAFKA_TOPICS_SEDMOTTATT_V1_Q2
