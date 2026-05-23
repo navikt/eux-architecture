@@ -2,31 +2,33 @@ package no.nav.eux.portal.core.kafka.consumer
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
+import no.nav.eux.portal.core.kafka.config.KafkaConfig
 import no.nav.eux.portal.core.kafka.model.SedHendelse
 import no.nav.eux.portal.core.kafka.model.SedHendelseRecord
 import no.nav.eux.portal.core.kafka.store.SedHendelseStore
 import no.nav.eux.portal.core.sse.SseEmitterRegistry
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.Instant
-import java.util.Properties
+
+private const val GROUP_ID = "eux-portal-core"
+private const val RETRY_DELAY_MS = 10_000L
 
 @Service
 class SedHendelseConsumer(
     private val objectMapper: ObjectMapper,
     private val store: SedHendelseStore,
     private val sseRegistry: SseEmitterRegistry,
-    @Qualifier("kafkaConsumerProperties") private val kafkaConsumerProperties: Properties,
-    @Value("\${portal.kafka.enabled:false}") private val kafkaEnabled: Boolean,
-    @Value("\${kafka.topics.sedmottatt-v1-q1}") private val topicMottattQ1: String,
-    @Value("\${kafka.topics.sedmottatt-v1-q2}") private val topicMottattQ2: String,
-    @Value("\${kafka.topics.sedsendt-v1-q1}") private val topicSendtQ1: String,
-    @Value("\${kafka.topics.sedsendt-v1-q2}") private val topicSendtQ2: String,
+    private val kafkaConfig: KafkaConfig,
+    @param:Value("\${portal.kafka.enabled:false}") private val kafkaEnabled: Boolean,
+    @param:Value("\${kafka.topics.sedmottatt-v1-q1}") private val topicMottattQ1: String,
+    @param:Value("\${kafka.topics.sedmottatt-v1-q2}") private val topicMottattQ2: String,
+    @param:Value("\${kafka.topics.sedsendt-v1-q1}") private val topicSendtQ1: String,
+    @param:Value("\${kafka.topics.sedsendt-v1-q2}") private val topicSendtQ2: String,
 ) {
 
     val log = logger {}
@@ -37,23 +39,20 @@ class SedHendelseConsumer(
     @EventListener(ApplicationReadyEvent::class)
     fun startPolling() {
         if (!kafkaEnabled) {
-            log.info { "Kafka polling er deaktivert (portal.kafka.enabled=false)" }
+            log.info { "Kafka-polling deaktivert (portal.kafka.enabled=false)" }
             return
         }
 
         val topics = listOf(topicMottattQ1, topicMottattQ2, topicSendtQ1, topicSendtQ2)
-        log.info { "Starter Kafka-polling for topics: $topics" }
+        log.info { "Starter Kafka-polling for $topics" }
 
         Thread({
             while (running) {
                 try {
                     pollLoop(topics)
                 } catch (e: Exception) {
-                    log.error(e) { "Kafka polling feilet, prøver igjen om 10 sekunder" }
-                    Thread.sleep(10_000)
-                } catch (t: Throwable) {
-                    log.error(t) { "Alvorlig feil i Kafka polling, prøver igjen om 30 sekunder" }
-                    Thread.sleep(30_000)
+                    log.error(e) { "Kafka-polling feilet, prøver igjen om ${RETRY_DELAY_MS / 1000}s" }
+                    Thread.sleep(RETRY_DELAY_MS)
                 }
             }
         }, "kafka-sed-poller").apply {
@@ -63,15 +62,13 @@ class SedHendelseConsumer(
     }
 
     private fun pollLoop(topics: List<String>) {
-        KafkaConsumer<String, String>(kafkaConsumerProperties).use { consumer ->
+        KafkaConsumer<String, String>(kafkaConfig.consumerProperties(GROUP_ID)).use { consumer ->
             consumer.subscribe(topics)
-            log.info { "Kafka consumer abonnerer på ${topics.size} topics" }
+            log.info { "Kafka-consumer abonnerer på ${topics.size} topics" }
 
             while (running) {
                 val records = consumer.poll(Duration.ofSeconds(5))
-                for (record in records) {
-                    processRecord(record.topic(), record.value(), record.offset(), record.partition())
-                }
+                records.forEach { processRecord(it.topic(), it.value(), it.offset(), it.partition()) }
             }
         }
     }
@@ -80,7 +77,7 @@ class SedHendelseConsumer(
         try {
             val hendelse = objectMapper.readValue(value, SedHendelse::class.java)
             val (environment, direction) = parseTopicMetadata(topic)
-            val hendelseRecord = SedHendelseRecord(
+            val record = SedHendelseRecord(
                 hendelse = hendelse,
                 topic = topic,
                 environment = environment,
@@ -89,9 +86,9 @@ class SedHendelseConsumer(
                 offset = offset,
                 partition = partition,
             )
-            store.add(hendelseRecord)
-            sseRegistry.broadcast("sed-hendelse", hendelseRecord)
-            log.debug { "SED hendelse fra $topic: ${hendelse.sedType} rinaSakId=${hendelse.rinaSakId}" }
+            store.add(record)
+            sseRegistry.broadcast("sed-hendelse", record)
+            log.debug { "SED-hendelse fra $topic: ${hendelse.sedType} rinaSakId=${hendelse.rinaSakId}" }
         } catch (e: Exception) {
             log.warn(e) { "Feil ved prosessering av Kafka-melding fra $topic" }
         }
