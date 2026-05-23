@@ -7,6 +7,7 @@ import no.nav.eux.portal.core.kafka.model.SedHendelseRecord
 import no.nav.eux.portal.core.kafka.store.SedHendelseStore
 import no.nav.eux.portal.core.sse.SseEmitterRegistry
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
@@ -20,7 +21,7 @@ class SedHendelseConsumer(
     private val objectMapper: ObjectMapper,
     private val store: SedHendelseStore,
     private val sseRegistry: SseEmitterRegistry,
-    private val kafkaConsumerProperties: Properties,
+    @Qualifier("kafkaConsumerProperties") private val kafkaConsumerProperties: Properties,
     @Value("\${portal.kafka.enabled:false}") private val kafkaEnabled: Boolean,
     @Value("\${kafka.topics.sedmottatt-v1-q1}") private val topicMottattQ1: String,
     @Value("\${kafka.topics.sedmottatt-v1-q2}") private val topicMottattQ2: String,
