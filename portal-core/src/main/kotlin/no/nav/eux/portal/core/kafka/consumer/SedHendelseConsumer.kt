@@ -6,11 +6,15 @@ import no.nav.eux.portal.core.kafka.model.SedHendelse
 import no.nav.eux.portal.core.kafka.model.SedHendelseRecord
 import no.nav.eux.portal.core.kafka.store.SedHendelseStore
 import no.nav.eux.portal.core.sse.SseEmitterRegistry
-import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.time.Instant
+import java.util.Properties
 
 @Service
 @ConditionalOnProperty(name = ["portal.kafka.enabled"], havingValue = "true")
@@ -18,38 +22,70 @@ class SedHendelseConsumer(
     private val objectMapper: ObjectMapper,
     private val store: SedHendelseStore,
     private val sseRegistry: SseEmitterRegistry,
+    private val kafkaConsumerProperties: Properties,
+    @Value("\${kafka.topics.sedmottatt-v1-q1}") private val topicMottattQ1: String,
+    @Value("\${kafka.topics.sedmottatt-v1-q2}") private val topicMottattQ2: String,
+    @Value("\${kafka.topics.sedsendt-v1-q1}") private val topicSendtQ1: String,
+    @Value("\${kafka.topics.sedsendt-v1-q2}") private val topicSendtQ2: String,
 ) {
 
     val log = logger {}
 
-    @KafkaListener(
-        topics = [
-            "\${kafka.topics.sedmottatt-v1-q1}",
-            "\${kafka.topics.sedmottatt-v1-q2}",
-            "\${kafka.topics.sedsendt-v1-q1}",
-            "\${kafka.topics.sedsendt-v1-q2}",
-        ],
-        groupId = "eux-portal-core",
-        containerFactory = "sedHendelseKafkaListenerContainerFactory",
-    )
-    fun consume(record: ConsumerRecord<String, String>) {
+    @Volatile
+    private var running = true
+
+    @EventListener(ApplicationReadyEvent::class)
+    fun startPolling() {
+        val topics = listOf(topicMottattQ1, topicMottattQ2, topicSendtQ1, topicSendtQ2)
+        log.info { "Starter Kafka-polling for topics: $topics" }
+
+        Thread({
+            while (running) {
+                try {
+                    pollLoop(topics)
+                } catch (e: Exception) {
+                    log.error(e) { "Kafka polling feilet, prøver igjen om 10 sekunder" }
+                    Thread.sleep(10_000)
+                }
+            }
+        }, "kafka-sed-poller").apply {
+            isDaemon = true
+            start()
+        }
+    }
+
+    private fun pollLoop(topics: List<String>) {
+        KafkaConsumer<String, String>(kafkaConsumerProperties).use { consumer ->
+            consumer.subscribe(topics)
+            log.info { "Kafka consumer abonnerer på ${topics.size} topics" }
+
+            while (running) {
+                val records = consumer.poll(Duration.ofSeconds(5))
+                for (record in records) {
+                    processRecord(record.topic(), record.value(), record.offset(), record.partition())
+                }
+            }
+        }
+    }
+
+    private fun processRecord(topic: String, value: String, offset: Long, partition: Int) {
         try {
-            val hendelse = objectMapper.readValue(record.value(), SedHendelse::class.java)
-            val (environment, direction) = parseTopicMetadata(record.topic())
+            val hendelse = objectMapper.readValue(value, SedHendelse::class.java)
+            val (environment, direction) = parseTopicMetadata(topic)
             val hendelseRecord = SedHendelseRecord(
                 hendelse = hendelse,
-                topic = record.topic(),
+                topic = topic,
                 environment = environment,
                 direction = direction,
                 receivedAt = Instant.now(),
-                offset = record.offset(),
-                partition = record.partition(),
+                offset = offset,
+                partition = partition,
             )
             store.add(hendelseRecord)
             sseRegistry.broadcast("sed-hendelse", hendelseRecord)
-            log.debug { "SED hendelse fra ${record.topic()}: ${hendelse.sedType} rinaSakId=${hendelse.rinaSakId}" }
+            log.debug { "SED hendelse fra $topic: ${hendelse.sedType} rinaSakId=${hendelse.rinaSakId}" }
         } catch (e: Exception) {
-            log.warn(e) { "Feil ved prosessering av Kafka-melding fra ${record.topic()}" }
+            log.warn(e) { "Feil ved prosessering av Kafka-melding fra $topic" }
         }
     }
 
