@@ -8,7 +8,6 @@ import no.nav.eux.portal.core.kafka.store.SedHendelseStore
 import no.nav.eux.portal.core.sse.SseEmitterRegistry
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
@@ -17,12 +16,12 @@ import java.time.Instant
 import java.util.Properties
 
 @Service
-@ConditionalOnProperty(name = ["portal.kafka.enabled"], havingValue = "true")
 class SedHendelseConsumer(
     private val objectMapper: ObjectMapper,
     private val store: SedHendelseStore,
     private val sseRegistry: SseEmitterRegistry,
     private val kafkaConsumerProperties: Properties,
+    @Value("\${portal.kafka.enabled:false}") private val kafkaEnabled: Boolean,
     @Value("\${kafka.topics.sedmottatt-v1-q1}") private val topicMottattQ1: String,
     @Value("\${kafka.topics.sedmottatt-v1-q2}") private val topicMottattQ2: String,
     @Value("\${kafka.topics.sedsendt-v1-q1}") private val topicSendtQ1: String,
@@ -36,6 +35,11 @@ class SedHendelseConsumer(
 
     @EventListener(ApplicationReadyEvent::class)
     fun startPolling() {
+        if (!kafkaEnabled) {
+            log.info { "Kafka polling er deaktivert (portal.kafka.enabled=false)" }
+            return
+        }
+
         val topics = listOf(topicMottattQ1, topicMottattQ2, topicSendtQ1, topicSendtQ2)
         log.info { "Starter Kafka-polling for topics: $topics" }
 
@@ -46,6 +50,9 @@ class SedHendelseConsumer(
                 } catch (e: Exception) {
                     log.error(e) { "Kafka polling feilet, prøver igjen om 10 sekunder" }
                     Thread.sleep(10_000)
+                } catch (t: Throwable) {
+                    log.error(t) { "Alvorlig feil i Kafka polling, prøver igjen om 30 sekunder" }
+                    Thread.sleep(30_000)
                 }
             }
         }, "kafka-sed-poller").apply {

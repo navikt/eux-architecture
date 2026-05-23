@@ -5,13 +5,11 @@ import org.apache.kafka.clients.consumer.ConsumerConfig.*
 import org.apache.kafka.common.config.SslConfigs.*
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.util.Properties
 
 @Configuration
-@ConditionalOnProperty(name = ["portal.kafka.enabled"], havingValue = "true")
 class KafkaConfig(
     @param:Value("\${kafka.bootstrap-servers}")
     val bootstrapServers: String,
