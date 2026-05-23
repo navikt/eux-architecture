@@ -6,34 +6,49 @@ import org.apache.kafka.common.config.SslConfigs.*
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.stereotype.Component
-import java.util.Properties
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
+import org.springframework.kafka.core.ConsumerFactory
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 
-@Component
+@Configuration
 @ConditionalOnProperty(name = ["portal.kafka.enabled"], havingValue = "true")
 class KafkaConfig(
     @param:Value("\${kafka.bootstrap-servers}")
-    val bootstrapServers: String,
+    private val bootstrapServers: String,
     @param:Value("\${kafka.properties.security.protocol}")
-    val securityProtocol: String,
-    val kafkaSslProperties: KafkaSslProperties,
+    private val securityProtocol: String,
+    private val ssl: KafkaSslProperties,
 ) {
 
-    fun consumerProperties(groupId: String): Properties = Properties().apply {
-        put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
-        put(GROUP_ID_CONFIG, groupId)
-        put(AUTO_OFFSET_RESET_CONFIG, "latest")
-        put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java.name)
-        put(VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java.name)
-        put(ENABLE_AUTO_COMMIT_CONFIG, "true")
-        put(SECURITY_PROTOCOL_CONFIG, securityProtocol)
-        if (kafkaSslProperties.keystore.location.isNotBlank()) {
-            put(SSL_KEYSTORE_TYPE_CONFIG, kafkaSslProperties.keystore.type)
-            put(SSL_KEYSTORE_LOCATION_CONFIG, kafkaSslProperties.keystore.location)
-            put(SSL_KEYSTORE_PASSWORD_CONFIG, kafkaSslProperties.keystore.password)
-            put(SSL_TRUSTSTORE_TYPE_CONFIG, kafkaSslProperties.truststore.type)
-            put(SSL_TRUSTSTORE_LOCATION_CONFIG, kafkaSslProperties.truststore.location)
-            put(SSL_TRUSTSTORE_PASSWORD_CONFIG, kafkaSslProperties.truststore.password)
+    @Bean
+    fun sedHendelseConsumerFactory(): ConsumerFactory<String, String> {
+        val props = mutableMapOf<String, Any>(
+            BOOTSTRAP_SERVERS_CONFIG to bootstrapServers,
+            KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            AUTO_OFFSET_RESET_CONFIG to "latest",
+            ENABLE_AUTO_COMMIT_CONFIG to true,
+            SECURITY_PROTOCOL_CONFIG to securityProtocol,
+        )
+        if (ssl.keystore.location.isNotBlank()) {
+            props[SSL_KEYSTORE_TYPE_CONFIG] = ssl.keystore.type
+            props[SSL_KEYSTORE_LOCATION_CONFIG] = ssl.keystore.location
+            props[SSL_KEYSTORE_PASSWORD_CONFIG] = ssl.keystore.password
+            props[SSL_TRUSTSTORE_TYPE_CONFIG] = ssl.truststore.type
+            props[SSL_TRUSTSTORE_LOCATION_CONFIG] = ssl.truststore.location
+            props[SSL_TRUSTSTORE_PASSWORD_CONFIG] = ssl.truststore.password
         }
+        return DefaultKafkaConsumerFactory(props)
+    }
+
+    @Bean
+    fun sedHendelseKafkaListenerContainerFactory(
+        sedHendelseConsumerFactory: ConsumerFactory<String, String>,
+    ): ConcurrentKafkaListenerContainerFactory<String, String> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
+        factory.setConsumerFactory(sedHendelseConsumerFactory)
+        return factory
     }
 }
