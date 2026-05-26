@@ -55,6 +55,10 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
   env:
     - name: PORTAL_KAFKA_ENABLED
       value: "true"
