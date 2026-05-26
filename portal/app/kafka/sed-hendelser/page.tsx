@@ -7,12 +7,15 @@ import {
   Box,
   VStack,
   HStack,
+  HGrid,
   Table,
   ToggleGroup,
   Tag,
   Alert,
   Detail,
+  Label,
   Loader,
+  CopyButton,
   Link as DsLink,
 } from "@navikt/ds-react";
 
@@ -77,10 +80,19 @@ function formatDate(iso: string) {
   }
 }
 
-function maskFnr(value: string | undefined): string {
-  if (!value) return "–";
-  if (value.length >= 6) return "••••••" + value.slice(6);
-  return "••••••";
+function formatDateTime(iso: string) {
+  try {
+    return new Date(iso).toLocaleString("nb-NO", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
 }
 
 /* ── Connection status indicator ────────────────────── */
@@ -197,6 +209,97 @@ function useSedHendelserSSE(onMessage: (record: SedHendelseRecord) => void) {
   return status;
 }
 
+/* ── Expanded row details ───────────────────────────── */
+
+function Field({ label, value, mono }: { label: string; value?: string; mono?: boolean }) {
+  const display = value && value.length > 0 ? value : "–";
+  const hasValue = Boolean(value);
+  return (
+    <VStack gap="space-1">
+      <Label size="small" textColor="subtle">
+        {label}
+      </Label>
+      <HStack gap="space-1" align="center" wrap={false}>
+        <BodyShort
+          size="small"
+          style={{
+            fontFamily: mono ? "var(--ax-font-family-mono, ui-monospace, monospace)" : undefined,
+            wordBreak: "break-all",
+          }}
+        >
+          {display}
+        </BodyShort>
+        {hasValue && (
+          <CopyButton
+            size="xsmall"
+            copyText={value!}
+            variant="action"
+            title={`Kopier ${label.toLowerCase()}`}
+          />
+        )}
+      </HStack>
+    </VStack>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <VStack gap="space-2">
+      <Heading size="xsmall" level="3">
+        {title}
+      </Heading>
+      <HGrid gap="space-4" columns={{ xs: 1, sm: 2, lg: 3 }}>
+        {children}
+      </HGrid>
+    </VStack>
+  );
+}
+
+function HendelseDetails({ record }: { record: SedHendelseRecord }) {
+  const h = record.hendelse;
+  return (
+    <Box paddingBlock="space-4" paddingInline="space-2">
+      <VStack gap="space-6">
+        <Section title="SED">
+          <Field label="SED-ID" value={h.sedId} mono />
+          <Field label="SED-type" value={h.sedType} />
+          <Field label="Sektor" value={h.sektorKode} />
+          <Field label="BUC-type" value={h.bucType} />
+          <Field label="Hendelse-ID" value={h.id} mono />
+          <Field label="RINA-dokument-ID" value={h.rinaDokumentId} mono />
+          <Field label="Dokumentversjon" value={h.rinaDokumentVersjon} />
+        </Section>
+
+        <Section title="Sak og bruker">
+          <Field label="RINA-sak" value={h.rinaSakId} mono />
+          <Field label="NAV-bruker" value={h.navBruker} mono />
+        </Section>
+
+        <Section title="Avsender">
+          <Field label="Navn" value={h.avsenderNavn} />
+          <Field label="ID" value={h.avsenderId} mono />
+          <Field label="Land" value={h.avsenderLand} />
+        </Section>
+
+        <Section title="Mottaker">
+          <Field label="Navn" value={h.mottakerNavn} />
+          <Field label="ID" value={h.mottakerId} mono />
+          <Field label="Land" value={h.mottakerLand} />
+        </Section>
+
+        <Section title="Kafka-metadata">
+          <Field label="Topic" value={record.topic} mono />
+          <Field label="Partisjon" value={String(record.partition)} />
+          <Field label="Offset" value={String(record.offset)} />
+          <Field label="Mottatt" value={formatDateTime(record.receivedAt)} />
+          <Field label="Miljø" value={record.environment.toUpperCase()} />
+          <Field label="Retning" value={record.direction} />
+        </Section>
+      </VStack>
+    </Box>
+  );
+}
+
 /* ── Page component ─────────────────────────────────── */
 
 export default function SedHendelserPage() {
@@ -298,13 +401,15 @@ export default function SedHendelserPage() {
             border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
           }}
         >
-          <Table size="small" zebraStripes>
+          <Table size="small">
             <Table.Header>
               <Table.Row>
+                <Table.HeaderCell />
                 <Table.HeaderCell>Tid</Table.HeaderCell>
                 <Table.HeaderCell>Miljø</Table.HeaderCell>
                 <Table.HeaderCell>Retning</Table.HeaderCell>
                 <Table.HeaderCell>SED-type</Table.HeaderCell>
+                <Table.HeaderCell>SED-ID</Table.HeaderCell>
                 <Table.HeaderCell>BUC-type</Table.HeaderCell>
                 <Table.HeaderCell>RINA-sak</Table.HeaderCell>
                 <Table.HeaderCell>Avsender</Table.HeaderCell>
@@ -314,7 +419,11 @@ export default function SedHendelserPage() {
             </Table.Header>
             <Table.Body>
               {filtered.map((r, i) => (
-                <Table.Row key={`${r.topic}-${r.partition}-${r.offset}-${i}`}>
+                <Table.ExpandableRow
+                  key={`${r.topic}-${r.partition}-${r.offset}-${i}`}
+                  expandOnRowClick
+                  content={<HendelseDetails record={r} />}
+                >
                   <Table.DataCell>
                     <Detail>
                       {formatDate(r.receivedAt)}{" "}
@@ -330,6 +439,11 @@ export default function SedHendelserPage() {
                   <Table.DataCell>
                     <strong>{r.hendelse.sedType ?? "–"}</strong>
                   </Table.DataCell>
+                  <Table.DataCell>
+                    <code style={{ fontSize: "0.85em" }}>
+                      {r.hendelse.sedId ?? "–"}
+                    </code>
+                  </Table.DataCell>
                   <Table.DataCell>{r.hendelse.bucType ?? "–"}</Table.DataCell>
                   <Table.DataCell>
                     {r.hendelse.rinaSakId ? (
@@ -337,6 +451,7 @@ export default function SedHendelserPage() {
                         href={neessiSakUrl(r.environment, r.hendelse.rinaSakId)}
                         target="_blank"
                         rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         {r.hendelse.rinaSakId}
                         <span
@@ -371,9 +486,9 @@ export default function SedHendelserPage() {
                     </span>
                   </Table.DataCell>
                   <Table.DataCell>
-                    {maskFnr(r.hendelse.navBruker)}
+                    {r.hendelse.navBruker ?? "–"}
                   </Table.DataCell>
-                </Table.Row>
+                </Table.ExpandableRow>
               ))}
             </Table.Body>
           </Table>
