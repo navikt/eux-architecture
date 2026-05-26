@@ -1,9 +1,7 @@
 package no.nav.eux.portal.core.kafka.config
 
-import org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG
-import org.apache.kafka.clients.consumer.ConsumerConfig.*
-import org.apache.kafka.common.config.SslConfigs.*
-import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET_CONFIG
+import org.apache.kafka.clients.consumer.ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -19,27 +17,19 @@ class KafkaConfig(
     private val bootstrapServers: String,
     @param:Value("\${kafka.properties.security.protocol}")
     private val securityProtocol: String,
-    private val ssl: KafkaSslProperties,
+    private val propsBuilder: KafkaConsumerPropsBuilder,
 ) {
 
     @Bean
     fun sedHendelseConsumerFactory(): ConsumerFactory<String, String> {
-        val props = mutableMapOf<String, Any>(
-            BOOTSTRAP_SERVERS_CONFIG to bootstrapServers,
-            KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-            VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-            AUTO_OFFSET_RESET_CONFIG to "latest",
-            ENABLE_AUTO_COMMIT_CONFIG to true,
-            SECURITY_PROTOCOL_CONFIG to securityProtocol,
+        val props = propsBuilder.build(
+            bootstrapServers = bootstrapServers,
+            securityProtocol = securityProtocol,
+            extra = mapOf(
+                AUTO_OFFSET_RESET_CONFIG to "latest",
+                ENABLE_AUTO_COMMIT_CONFIG to true,
+            ),
         )
-        if (ssl.keystore.location.isNotBlank()) {
-            props[SSL_KEYSTORE_TYPE_CONFIG] = ssl.keystore.type
-            props[SSL_KEYSTORE_LOCATION_CONFIG] = ssl.keystore.location
-            props[SSL_KEYSTORE_PASSWORD_CONFIG] = ssl.keystore.password
-            props[SSL_TRUSTSTORE_TYPE_CONFIG] = ssl.truststore.type
-            props[SSL_TRUSTSTORE_LOCATION_CONFIG] = ssl.truststore.location
-            props[SSL_TRUSTSTORE_PASSWORD_CONFIG] = ssl.truststore.password
-        }
         return DefaultKafkaConsumerFactory(props)
     }
 

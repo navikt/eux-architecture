@@ -2,6 +2,7 @@ package no.nav.eux.portal.core.kafka.consumer
 
 import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
+import no.nav.eux.portal.core.kafka.TopicMetadata
 import no.nav.eux.portal.core.kafka.model.SedHendelse
 import no.nav.eux.portal.core.kafka.model.SedHendelseRecord
 import no.nav.eux.portal.core.kafka.store.SedHendelseStore
@@ -35,7 +36,7 @@ class SedHendelseConsumer(
     fun onSedHendelse(record: ConsumerRecord<String, String>) {
         try {
             val hendelse = objectMapper.readValue(record.value(), SedHendelse::class.java)
-            val (environment, direction) = parseTopicMetadata(record.topic())
+            val (environment, direction) = TopicMetadata.parse(record.topic())
             val sedRecord = SedHendelseRecord(
                 hendelse = hendelse,
                 topic = record.topic(),
@@ -51,19 +52,5 @@ class SedHendelseConsumer(
         } catch (e: Exception) {
             log.warn(e) { "Feil ved prosessering av Kafka-melding fra ${record.topic()} offset=${record.offset()}" }
         }
-    }
-
-    private fun parseTopicMetadata(topic: String): Pair<String, String> {
-        val environment = when {
-            topic.endsWith("-q1") -> "q1"
-            topic.endsWith("-q2") -> "q2"
-            else -> "unknown"
-        }
-        val direction = when {
-            topic.contains("sedmottatt") -> "mottatt"
-            topic.contains("sedsendt") -> "sendt"
-            else -> "unknown"
-        }
-        return environment to direction
     }
 }

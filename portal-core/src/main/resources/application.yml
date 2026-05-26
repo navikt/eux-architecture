@@ -5,6 +5,9 @@ spring:
 portal:
   kafka:
     enabled: ${PORTAL_KAFKA_ENABLED:false}
+    backfill:
+      per-topic: ${PORTAL_KAFKA_BACKFILL_PER_TOPIC:10}
+      poll-timeout-ms: ${PORTAL_KAFKA_BACKFILL_POLL_TIMEOUT_MS:2000}
 
 kafka:
   bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}
