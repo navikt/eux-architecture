@@ -1,6 +1,6 @@
 package no.nav.eux.portal.core.kafka.consumer
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import no.nav.eux.portal.core.kafka.model.SedHendelse
 import no.nav.eux.portal.core.kafka.model.SedHendelseRecord
