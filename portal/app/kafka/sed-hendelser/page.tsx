@@ -69,17 +69,6 @@ function formatTime(iso: string) {
   }
 }
 
-function formatDate(iso: string) {
-  try {
-    return new Date(iso).toLocaleDateString("nb-NO", {
-      day: "2-digit",
-      month: "2-digit",
-    });
-  } catch {
-    return "";
-  }
-}
-
 function formatDateTime(iso: string) {
   try {
     return new Date(iso).toLocaleString("nb-NO", {
@@ -90,6 +79,39 @@ function formatDateTime(iso: string) {
       minute: "2-digit",
       second: "2-digit",
     });
+  } catch {
+    return iso;
+  }
+}
+
+function formatDayHeading(iso: string) {
+  try {
+    const d = new Date(iso);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    const sameDay = (a: Date, b: Date) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+    const formatted = d.toLocaleDateString("nb-NO", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+    if (sameDay(d, today)) return `I dag · ${formatted}`;
+    if (sameDay(d, yesterday)) return `I går · ${formatted}`;
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  } catch {
+    return iso;
+  }
+}
+
+function dayKey(iso: string) {
+  try {
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   } catch {
     return iso;
   }
@@ -340,6 +362,25 @@ export default function SedHendelserPage() {
     return true;
   });
 
+  // Sort newest first by receivedAt. This guarantees correct ordering
+  // both for live SSE updates and for the startup backfill (where records
+  // from multiple topics may arrive interleaved into the backend store).
+  const sorted = [...filtered].sort(
+    (a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime(),
+  );
+
+  // Group into one table per day, preserving the sorted (newest-first) order.
+  const groups: { key: string; heading: string; rows: SedHendelseRecord[] }[] = [];
+  for (const r of sorted) {
+    const key = dayKey(r.receivedAt);
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) {
+      last.rows.push(r);
+    } else {
+      groups.push({ key, heading: formatDayHeading(r.receivedAt), rows: [r] });
+    }
+  }
+
   return (
     <VStack gap="space-6" className="portal-page--wide">
       <Box>
@@ -389,115 +430,129 @@ export default function SedHendelserPage() {
         <Alert variant="error" size="small">
           Kunne ikke koble til portal-core: {error}
         </Alert>
-      ) : filtered.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <Alert variant="info" size="small">
           Ingen SED-hendelser mottatt ennå. Nye meldinger vises automatisk.
         </Alert>
       ) : (
-        <Box
-          className="sed-hendelser-table"
-          style={{
-            borderRadius: 8,
-            border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-          }}
-        >
-          <Table size="small">
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell />
-                <Table.HeaderCell>Tid</Table.HeaderCell>
-                <Table.HeaderCell>Miljø</Table.HeaderCell>
-                <Table.HeaderCell>Retning</Table.HeaderCell>
-                <Table.HeaderCell>SED-type</Table.HeaderCell>
-                <Table.HeaderCell>SED-ID</Table.HeaderCell>
-                <Table.HeaderCell>BUC-type</Table.HeaderCell>
-                <Table.HeaderCell>RINA-sak</Table.HeaderCell>
-                <Table.HeaderCell>Avsender</Table.HeaderCell>
-                <Table.HeaderCell>Mottaker</Table.HeaderCell>
-                <Table.HeaderCell>Bruker</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {filtered.map((r, i) => (
-                <Table.ExpandableRow
-                  key={`${r.topic}-${r.partition}-${r.offset}-${i}`}
-                  expandOnRowClick
-                  content={<HendelseDetails record={r} />}
-                >
-                  <Table.DataCell>
-                    <Detail>
-                      {formatDate(r.receivedAt)}{" "}
-                      <strong>{formatTime(r.receivedAt)}</strong>
-                    </Detail>
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    <EnvBadge env={r.environment} />
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    <DirectionBadge direction={r.direction} />
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    <strong>{r.hendelse.sedType ?? "–"}</strong>
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    <code style={{ fontSize: "0.85em" }}>
-                      {r.hendelse.sedId ?? "–"}
-                    </code>
-                  </Table.DataCell>
-                  <Table.DataCell>{r.hendelse.bucType ?? "–"}</Table.DataCell>
-                  <Table.DataCell>
-                    {r.hendelse.rinaSakId ? (
-                      <DsLink
-                        href={neessiSakUrl(r.environment, r.hendelse.rinaSakId)}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(e) => e.stopPropagation()}
+        <VStack gap="space-8">
+          {groups.map((group) => (
+            <VStack key={group.key} gap="space-2">
+              <HStack gap="space-2" align="center" wrap>
+                <Heading size="small" level="2">
+                  {group.heading}
+                </Heading>
+                <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
+                  {group.rows.length}{" "}
+                  {group.rows.length === 1 ? "hendelse" : "hendelser"}
+                </Detail>
+              </HStack>
+              <Box
+                className="sed-hendelser-table"
+                style={{
+                  borderRadius: 8,
+                  border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
+                }}
+              >
+                <Table size="small">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.HeaderCell />
+                      <Table.HeaderCell>Tid</Table.HeaderCell>
+                      <Table.HeaderCell>Miljø</Table.HeaderCell>
+                      <Table.HeaderCell>Retning</Table.HeaderCell>
+                      <Table.HeaderCell>SED-type</Table.HeaderCell>
+                      <Table.HeaderCell>SED-ID</Table.HeaderCell>
+                      <Table.HeaderCell>BUC-type</Table.HeaderCell>
+                      <Table.HeaderCell>RINA-sak</Table.HeaderCell>
+                      <Table.HeaderCell>Avsender</Table.HeaderCell>
+                      <Table.HeaderCell>Mottaker</Table.HeaderCell>
+                      <Table.HeaderCell>Bruker</Table.HeaderCell>
+                    </Table.Row>
+                  </Table.Header>
+                  <Table.Body>
+                    {group.rows.map((r, i) => (
+                      <Table.ExpandableRow
+                        key={`${r.topic}-${r.partition}-${r.offset}-${i}`}
+                        expandOnRowClick
+                        content={<HendelseDetails record={r} />}
                       >
-                        {r.hendelse.rinaSakId}
-                        <span
-                          aria-hidden="true"
-                          style={{ marginLeft: 4, opacity: 0.6, fontSize: "0.85em" }}
-                        >
-                          ↗
-                        </span>
-                      </DsLink>
-                    ) : (
-                      "–"
-                    )}
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    <span title={r.hendelse.avsenderId ?? ""}>
-                      {r.hendelse.avsenderNavn ?? r.hendelse.avsenderId ?? "–"}
-                      {r.hendelse.avsenderLand && (
-                        <Detail as="span" style={{ marginLeft: 4 }}>
-                          ({r.hendelse.avsenderLand})
-                        </Detail>
-                      )}
-                    </span>
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    <span title={r.hendelse.mottakerId ?? ""}>
-                      {r.hendelse.mottakerNavn ?? r.hendelse.mottakerId ?? "–"}
-                      {r.hendelse.mottakerLand && (
-                        <Detail as="span" style={{ marginLeft: 4 }}>
-                          ({r.hendelse.mottakerLand})
-                        </Detail>
-                      )}
-                    </span>
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    {r.hendelse.navBruker ?? "–"}
-                  </Table.DataCell>
-                </Table.ExpandableRow>
-              ))}
-            </Table.Body>
-          </Table>
-        </Box>
+                        <Table.DataCell>
+                          <Detail>
+                            <strong>{formatTime(r.receivedAt)}</strong>
+                          </Detail>
+                        </Table.DataCell>
+                        <Table.DataCell>
+                          <EnvBadge env={r.environment} />
+                        </Table.DataCell>
+                        <Table.DataCell>
+                          <DirectionBadge direction={r.direction} />
+                        </Table.DataCell>
+                        <Table.DataCell>
+                          <strong>{r.hendelse.sedType ?? "–"}</strong>
+                        </Table.DataCell>
+                        <Table.DataCell>
+                          <code style={{ fontSize: "0.85em" }}>
+                            {r.hendelse.sedId ?? "–"}
+                          </code>
+                        </Table.DataCell>
+                        <Table.DataCell>{r.hendelse.bucType ?? "–"}</Table.DataCell>
+                        <Table.DataCell>
+                          {r.hendelse.rinaSakId ? (
+                            <DsLink
+                              href={neessiSakUrl(r.environment, r.hendelse.rinaSakId)}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {r.hendelse.rinaSakId}
+                              <span
+                                aria-hidden="true"
+                                style={{ marginLeft: 4, opacity: 0.6, fontSize: "0.85em" }}
+                              >
+                                ↗
+                              </span>
+                            </DsLink>
+                          ) : (
+                            "–"
+                          )}
+                        </Table.DataCell>
+                        <Table.DataCell>
+                          <span title={r.hendelse.avsenderId ?? ""}>
+                            {r.hendelse.avsenderNavn ?? r.hendelse.avsenderId ?? "–"}
+                            {r.hendelse.avsenderLand && (
+                              <Detail as="span" style={{ marginLeft: 4 }}>
+                                ({r.hendelse.avsenderLand})
+                              </Detail>
+                            )}
+                          </span>
+                        </Table.DataCell>
+                        <Table.DataCell>
+                          <span title={r.hendelse.mottakerId ?? ""}>
+                            {r.hendelse.mottakerNavn ?? r.hendelse.mottakerId ?? "–"}
+                            {r.hendelse.mottakerLand && (
+                              <Detail as="span" style={{ marginLeft: 4 }}>
+                                ({r.hendelse.mottakerLand})
+                              </Detail>
+                            )}
+                          </span>
+                        </Table.DataCell>
+                        <Table.DataCell>
+                          {r.hendelse.navBruker ?? "–"}
+                        </Table.DataCell>
+                      </Table.ExpandableRow>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </Box>
+            </VStack>
+          ))}
+        </VStack>
       )}
 
       <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
-        Viser siste {filtered.length} av maks 500 hendelser. Oppdateres automatisk via
-        SSE.
+        Viser {sorted.length} av maks 500 hendelser, gruppert per dag. Oppdateres
+        automatisk via SSE.
       </Detail>
     </VStack>
   );
