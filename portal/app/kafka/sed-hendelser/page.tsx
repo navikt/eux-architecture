@@ -69,6 +69,17 @@ function formatTime(iso: string) {
   }
 }
 
+/**
+ * Trims `text` to at most `max` characters. Short values like
+ * "NAV ACC 06" pass through untouched; long values like
+ * "National Social Security Office (NSSO) - LA" get an ellipsis.
+ * The full text remains accessible via the title attribute on the cell.
+ */
+function truncate(text: string, max: number) {
+  if (text.length <= max) return text;
+  return text.slice(0, max - 1).trimEnd() + "…";
+}
+
 function formatDateTime(iso: string) {
   try {
     return new Date(iso).toLocaleString("nb-NO", {
@@ -450,12 +461,12 @@ export default function SedHendelserPage() {
                 <Table.HeaderCell>Miljø</Table.HeaderCell>
                 <Table.HeaderCell>Retning</Table.HeaderCell>
                 <Table.HeaderCell>SED-type</Table.HeaderCell>
-                <Table.HeaderCell>SED-ID</Table.HeaderCell>
                 <Table.HeaderCell>BUC-type</Table.HeaderCell>
                 <Table.HeaderCell>RINA-sak</Table.HeaderCell>
                 <Table.HeaderCell>Avsender</Table.HeaderCell>
                 <Table.HeaderCell>Mottaker</Table.HeaderCell>
                 <Table.HeaderCell>Bruker</Table.HeaderCell>
+                <Table.HeaderCell>SED-ID</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -501,11 +512,6 @@ export default function SedHendelserPage() {
                     <Table.DataCell>
                       <strong>{r.hendelse.sedType ?? "–"}</strong>
                     </Table.DataCell>
-                    <Table.DataCell>
-                      <code style={{ fontSize: "0.85em" }}>
-                        {r.hendelse.sedId ?? "–"}
-                      </code>
-                    </Table.DataCell>
                     <Table.DataCell>{r.hendelse.bucType ?? "–"}</Table.DataCell>
                     <Table.DataCell>
                       {r.hendelse.rinaSakId ? (
@@ -528,27 +534,48 @@ export default function SedHendelserPage() {
                       )}
                     </Table.DataCell>
                     <Table.DataCell>
-                      <span title={r.hendelse.avsenderId ?? ""}>
-                        {r.hendelse.avsenderNavn ?? r.hendelse.avsenderId ?? "–"}
-                        {r.hendelse.avsenderLand && (
-                          <Detail as="span" style={{ marginLeft: 4 }}>
-                            ({r.hendelse.avsenderLand})
-                          </Detail>
-                        )}
-                      </span>
+                      {(() => {
+                        const name = r.hendelse.avsenderNavn ?? r.hendelse.avsenderId ?? "–";
+                        const fullTitle = [name, r.hendelse.avsenderId, r.hendelse.avsenderLand]
+                          .filter(Boolean)
+                          .join(" · ");
+                        return (
+                          <span title={fullTitle} style={{ whiteSpace: "nowrap" }}>
+                            {truncate(name, 18)}
+                            {r.hendelse.avsenderLand && (
+                              <Detail as="span" style={{ marginLeft: 4 }}>
+                                ({r.hendelse.avsenderLand})
+                              </Detail>
+                            )}
+                          </span>
+                        );
+                      })()}
                     </Table.DataCell>
                     <Table.DataCell>
-                      <span title={r.hendelse.mottakerId ?? ""}>
-                        {r.hendelse.mottakerNavn ?? r.hendelse.mottakerId ?? "–"}
-                        {r.hendelse.mottakerLand && (
-                          <Detail as="span" style={{ marginLeft: 4 }}>
-                            ({r.hendelse.mottakerLand})
-                          </Detail>
-                        )}
-                      </span>
+                      {(() => {
+                        const name = r.hendelse.mottakerNavn ?? r.hendelse.mottakerId ?? "–";
+                        const fullTitle = [name, r.hendelse.mottakerId, r.hendelse.mottakerLand]
+                          .filter(Boolean)
+                          .join(" · ");
+                        return (
+                          <span title={fullTitle} style={{ whiteSpace: "nowrap" }}>
+                            {truncate(name, 18)}
+                            {r.hendelse.mottakerLand && (
+                              <Detail as="span" style={{ marginLeft: 4 }}>
+                                ({r.hendelse.mottakerLand})
+                              </Detail>
+                            )}
+                          </span>
+                        );
+                      })()}
                     </Table.DataCell>
                     <Table.DataCell>
                       {r.hendelse.navBruker ?? "–"}
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <code style={{ fontSize: "0.85em" }}>
+                        {r.hendelse.sedId ?? "–"}
+                      </code>
                     </Table.DataCell>
                   </Table.ExpandableRow>
                 )),
