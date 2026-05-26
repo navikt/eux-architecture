@@ -435,119 +435,127 @@ export default function SedHendelserPage() {
           Ingen SED-hendelser mottatt ennå. Nye meldinger vises automatisk.
         </Alert>
       ) : (
-        <VStack gap="space-8">
-          {groups.map((group) => (
-            <VStack key={group.key} gap="space-2">
-              <HStack gap="space-2" align="center" wrap>
-                <Heading size="small" level="2">
-                  {group.heading}
-                </Heading>
-                <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
-                  {group.rows.length}{" "}
-                  {group.rows.length === 1 ? "hendelse" : "hendelser"}
-                </Detail>
-              </HStack>
-              <Box
-                className="sed-hendelser-table"
-                style={{
-                  borderRadius: 8,
-                  border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-                }}
-              >
-                <Table size="small">
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.HeaderCell />
-                      <Table.HeaderCell>Tid</Table.HeaderCell>
-                      <Table.HeaderCell>Miljø</Table.HeaderCell>
-                      <Table.HeaderCell>Retning</Table.HeaderCell>
-                      <Table.HeaderCell>SED-type</Table.HeaderCell>
-                      <Table.HeaderCell>SED-ID</Table.HeaderCell>
-                      <Table.HeaderCell>BUC-type</Table.HeaderCell>
-                      <Table.HeaderCell>RINA-sak</Table.HeaderCell>
-                      <Table.HeaderCell>Avsender</Table.HeaderCell>
-                      <Table.HeaderCell>Mottaker</Table.HeaderCell>
-                      <Table.HeaderCell>Bruker</Table.HeaderCell>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    {group.rows.map((r, i) => (
-                      <Table.ExpandableRow
-                        key={`${r.topic}-${r.partition}-${r.offset}-${i}`}
-                        expandOnRowClick
-                        content={<HendelseDetails record={r} />}
-                      >
-                        <Table.DataCell>
-                          <Detail>
-                            <strong>{formatTime(r.receivedAt)}</strong>
+        <Box
+          className="sed-hendelser-table"
+          style={{
+            borderRadius: 8,
+            border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
+          }}
+        >
+          <Table size="small">
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell />
+                <Table.HeaderCell>Tid</Table.HeaderCell>
+                <Table.HeaderCell>Miljø</Table.HeaderCell>
+                <Table.HeaderCell>Retning</Table.HeaderCell>
+                <Table.HeaderCell>SED-type</Table.HeaderCell>
+                <Table.HeaderCell>SED-ID</Table.HeaderCell>
+                <Table.HeaderCell>BUC-type</Table.HeaderCell>
+                <Table.HeaderCell>RINA-sak</Table.HeaderCell>
+                <Table.HeaderCell>Avsender</Table.HeaderCell>
+                <Table.HeaderCell>Mottaker</Table.HeaderCell>
+                <Table.HeaderCell>Bruker</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {groups.flatMap((group) => [
+                <Table.Row key={`day-${group.key}`}>
+                  <Table.DataCell
+                    colSpan={11}
+                    style={{
+                      background: "var(--ax-bg-neutral-soft, #f1f3f5)",
+                      borderTop:
+                        "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
+                      padding: "0.5rem 1rem",
+                    }}
+                  >
+                    <HStack gap="space-2" align="center" wrap>
+                      <Label size="small" style={{ textTransform: "none" }}>
+                        {group.heading}
+                      </Label>
+                      <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
+                        {group.rows.length}{" "}
+                        {group.rows.length === 1 ? "hendelse" : "hendelser"}
+                      </Detail>
+                    </HStack>
+                  </Table.DataCell>
+                </Table.Row>,
+                ...group.rows.map((r, i) => (
+                  <Table.ExpandableRow
+                    key={`${r.topic}-${r.partition}-${r.offset}-${i}`}
+                    expandOnRowClick
+                    content={<HendelseDetails record={r} />}
+                  >
+                    <Table.DataCell>
+                      <Detail>
+                        <strong>{formatTime(r.receivedAt)}</strong>
+                      </Detail>
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <EnvBadge env={r.environment} />
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <DirectionBadge direction={r.direction} />
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <strong>{r.hendelse.sedType ?? "–"}</strong>
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <code style={{ fontSize: "0.85em" }}>
+                        {r.hendelse.sedId ?? "–"}
+                      </code>
+                    </Table.DataCell>
+                    <Table.DataCell>{r.hendelse.bucType ?? "–"}</Table.DataCell>
+                    <Table.DataCell>
+                      {r.hendelse.rinaSakId ? (
+                        <DsLink
+                          href={neessiSakUrl(r.environment, r.hendelse.rinaSakId)}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {r.hendelse.rinaSakId}
+                          <span
+                            aria-hidden="true"
+                            style={{ marginLeft: 4, opacity: 0.6, fontSize: "0.85em" }}
+                          >
+                            ↗
+                          </span>
+                        </DsLink>
+                      ) : (
+                        "–"
+                      )}
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <span title={r.hendelse.avsenderId ?? ""}>
+                        {r.hendelse.avsenderNavn ?? r.hendelse.avsenderId ?? "–"}
+                        {r.hendelse.avsenderLand && (
+                          <Detail as="span" style={{ marginLeft: 4 }}>
+                            ({r.hendelse.avsenderLand})
                           </Detail>
-                        </Table.DataCell>
-                        <Table.DataCell>
-                          <EnvBadge env={r.environment} />
-                        </Table.DataCell>
-                        <Table.DataCell>
-                          <DirectionBadge direction={r.direction} />
-                        </Table.DataCell>
-                        <Table.DataCell>
-                          <strong>{r.hendelse.sedType ?? "–"}</strong>
-                        </Table.DataCell>
-                        <Table.DataCell>
-                          <code style={{ fontSize: "0.85em" }}>
-                            {r.hendelse.sedId ?? "–"}
-                          </code>
-                        </Table.DataCell>
-                        <Table.DataCell>{r.hendelse.bucType ?? "–"}</Table.DataCell>
-                        <Table.DataCell>
-                          {r.hendelse.rinaSakId ? (
-                            <DsLink
-                              href={neessiSakUrl(r.environment, r.hendelse.rinaSakId)}
-                              target="_blank"
-                              rel="noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {r.hendelse.rinaSakId}
-                              <span
-                                aria-hidden="true"
-                                style={{ marginLeft: 4, opacity: 0.6, fontSize: "0.85em" }}
-                              >
-                                ↗
-                              </span>
-                            </DsLink>
-                          ) : (
-                            "–"
-                          )}
-                        </Table.DataCell>
-                        <Table.DataCell>
-                          <span title={r.hendelse.avsenderId ?? ""}>
-                            {r.hendelse.avsenderNavn ?? r.hendelse.avsenderId ?? "–"}
-                            {r.hendelse.avsenderLand && (
-                              <Detail as="span" style={{ marginLeft: 4 }}>
-                                ({r.hendelse.avsenderLand})
-                              </Detail>
-                            )}
-                          </span>
-                        </Table.DataCell>
-                        <Table.DataCell>
-                          <span title={r.hendelse.mottakerId ?? ""}>
-                            {r.hendelse.mottakerNavn ?? r.hendelse.mottakerId ?? "–"}
-                            {r.hendelse.mottakerLand && (
-                              <Detail as="span" style={{ marginLeft: 4 }}>
-                                ({r.hendelse.mottakerLand})
-                              </Detail>
-                            )}
-                          </span>
-                        </Table.DataCell>
-                        <Table.DataCell>
-                          {r.hendelse.navBruker ?? "–"}
-                        </Table.DataCell>
-                      </Table.ExpandableRow>
-                    ))}
-                  </Table.Body>
-                </Table>
-              </Box>
-            </VStack>
-          ))}
-        </VStack>
+                        )}
+                      </span>
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <span title={r.hendelse.mottakerId ?? ""}>
+                        {r.hendelse.mottakerNavn ?? r.hendelse.mottakerId ?? "–"}
+                        {r.hendelse.mottakerLand && (
+                          <Detail as="span" style={{ marginLeft: 4 }}>
+                            ({r.hendelse.mottakerLand})
+                          </Detail>
+                        )}
+                      </span>
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      {r.hendelse.navBruker ?? "–"}
+                    </Table.DataCell>
+                  </Table.ExpandableRow>
+                )),
+              ])}
+            </Table.Body>
+          </Table>
+        </Box>
       )}
 
       <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
