@@ -341,7 +341,7 @@ export default function SedHendelserPage() {
   });
 
   return (
-    <VStack gap="space-6">
+    <VStack gap="space-6" className="portal-page--wide">
       <Box>
         <HStack gap="space-4" align="center" wrap>
           <Heading size="large" level="1">
@@ -395,8 +395,8 @@ export default function SedHendelserPage() {
         </Alert>
       ) : (
         <Box
+          className="sed-hendelser-table"
           style={{
-            overflowX: "auto",
             borderRadius: 8,
             border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
           }}

@@ -279,6 +279,21 @@ main code {
   min-height: calc(100vh - 64px);
 }
 
+main:has(.portal-page--wide) {
+  max-width: none !important;
+}
+
+.portal-page--wide {
+  width: 100%;
+}
+
+/* SED-hendelser monitor: keep each row on a single visual line.
+   The detail panel inside Table.ExpandableRow stays free to wrap. */
+.sed-hendelser-table tr:not(.aksel-table__expanded-row) > th,
+.sed-hendelser-table tr:not(.aksel-table__expanded-row) > td {
+  white-space: nowrap;
+}
+
 @media (min-width: 900px) {
   .portal-shell {
     grid-template-columns: 240px 1fr;
