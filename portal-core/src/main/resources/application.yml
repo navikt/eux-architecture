@@ -1,0 +1,38 @@
+spring:
+  main:
+    banner-mode: "off"
+
+portal:
+  kafka:
+    enabled: ${PORTAL_KAFKA_ENABLED:false}
+
+kafka:
+  bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}
+  topics:
+    sedmottatt-v1-q1: ${KAFKA_TOPICS_SEDMOTTATT_V1_Q1:eessibasis.sedmottatt-v1-q1}
+    sedmottatt-v1-q2: ${KAFKA_TOPICS_SEDMOTTATT_V1_Q2:eessibasis.sedmottatt-v1-q2}
+    sedsendt-v1-q1: ${KAFKA_TOPICS_SEDSENDT_V1_Q1:eessibasis.sedsendt-v1-q1}
+    sedsendt-v1-q2: ${KAFKA_TOPICS_SEDSENDT_V1_Q2:eessibasis.sedsendt-v1-q2}
+  properties:
+    security:
+      protocol: SSL
+    ssl:
+      keystore:
+        type: PKCS12
+        location: ${KAFKA_KEYSTORE_PATH:}
+        password: ${KAFKA_CREDSTORE_PASSWORD:}
+      truststore:
+        type: PKCS12
+        location: ${KAFKA_TRUSTSTORE_PATH:}
+        password: ${KAFKA_CREDSTORE_PASSWORD:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+
+logging:
+  structured:
+    format:
+      console: logstash

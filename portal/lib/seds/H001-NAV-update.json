@@ -1,0 +1,88 @@
+{
+  "sed": "H001",
+  "sedVer": "3",
+  "sedGVer": "4",
+  "nav": {
+    "bruker": {
+      "person": {
+        "fornavn": "AKUSTISK",
+        "etternavn": "GULLMYNT",
+        "fornavnvedfoedsel": "AKUSTISK",
+        "etternavnvedfoedsel": "GULLMYNT",
+        "kjoenn": "K",
+        "foedselsdato": "1987-07-23",
+        "statsborgerskap": [
+          { "land": "NO", "landkode": "NOR" }
+        ],
+        "pin": [
+          {
+            "identifikator": "23478743041",
+            "land": "NO",
+            "landkode": "NOR",
+            "sektor": "alle"
+          }
+        ],
+        "foedested": {
+          "by": "Oslo",
+          "region": "Oslo",
+          "land": "NO",
+          "landkode": "NOR"
+        }
+      },
+      "adresse": [
+        {
+          "type": "bosted",
+          "gate": "Storgata 1",
+          "bygning": "B",
+          "postnummer": "0155",
+          "by": "Oslo",
+          "region": "Oslo",
+          "land": "NO",
+          "landkode": "NOR"
+        },
+        {
+          "type": "opphold",
+          "gate": "Karl Johans gate 22",
+          "bygning": "A",
+          "postnummer": "0026",
+          "by": "Oslo",
+          "region": "Oslo",
+          "land": "NO",
+          "landkode": "NOR"
+        }
+      ],
+      "mor": {
+        "person": {
+          "fornavn": "MAGNETISK",
+          "etternavnvedfoedsel": "GULLMYNT"
+        }
+      },
+      "far": {
+        "person": {
+          "fornavn": "ELEKTRISK",
+          "etternavnvedfoedsel": "GULLMYNT"
+        }
+      }
+    }
+  },
+  "horisontal": {
+    "bruker": {
+      "anmodning": {
+        "sed": "P2200",
+        "dato": "2026-04-26",
+        "info": "OPPDATERT av portal-test: vi trenger også arbeidsgiverhistorikk for perioden 2015-01-01 til 2020-12-31, samt kopi av siste skattemelding. Adressene er nå Storgata 1 (bosted) og Karl Johans gate 22 (opphold).",
+        "dokumenter": "Vedtak om uføretrygd og siste skattemelding",
+        "personinfo": {
+          "identifikasjonsinformasjon": {
+            "type": ["fødselsdato", "kjønn", "fødested"]
+          }
+        }
+      },
+      "status": {
+        "id": ["grensearbeider"]
+      },
+      "ytterligereinfo": "Oppdatert fra eux-rina-gateway-portal /tests — to nye adresser, mer info.",
+      "ytterligereinfotype": "melding_om_mer_informasjon"
+    }
+  }
+}

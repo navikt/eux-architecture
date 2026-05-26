@@ -1,0 +1,72 @@
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: {{ name }}
+  namespace: eessibasis
+  labels:
+    team: eessibasis
+spec:
+  image: {{ image }}
+  port: 8080
+  ingresses:
+    - {{ ingress }}
+  liveness:
+    path: /actuator/health
+    port: 8080
+    initialDelay: 30
+    timeout: 5
+    periodSeconds: 10
+    failureThreshold: 6
+  readiness:
+    path: /actuator/health
+    port: 8080
+    initialDelay: 15
+    timeout: 5
+    periodSeconds: 10
+    failureThreshold: 6
+  prometheus:
+    enabled: true
+    path: /actuator/prometheus
+  replicas:
+    min: 1
+    max: 1
+  resources:
+    limits:
+      memory: {{ resources.limits.memory }}
+    requests:
+      cpu: {{ resources.requests.cpu }}
+      memory: {{ resources.requests.memory }}
+  kafka:
+    pool: {{ kafka.pool }}
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+      claims:
+        extra:
+          - "NAVident"
+  accessPolicy:
+    inbound:
+      rules:
+        - application: eux-architecture-portal
+          namespace: eessibasis
+          cluster: dev-gcp
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
+  env:
+    - name: PORTAL_KAFKA_ENABLED
+      value: "true"
+    - name: KAFKA_TOPICS_SEDMOTTATT_V1_Q1
+      value: {{ kafka.topics.sedmottatt-v1-q1 }}
+    - name: KAFKA_TOPICS_SEDMOTTATT_V1_Q2
+      value: {{ kafka.topics.sedmottatt-v1-q2 }}
+    - name: KAFKA_TOPICS_SEDSENDT_V1_Q1
+      value: {{ kafka.topics.sedsendt-v1-q1 }}
+    - name: KAFKA_TOPICS_SEDSENDT_V1_Q2
+      value: {{ kafka.topics.sedsendt-v1-q2 }}

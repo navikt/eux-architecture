@@ -1,0 +1,101 @@
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: {{ name }}
+  namespace: eessibasis
+  labels:
+    team: eessibasis
+spec:
+  image: {{ image }}
+  port: 3000
+  ingresses:
+    - {{ ingress.intern }}
+  env:
+    - name: EUX_RINA_GATEWAY_Q1_BASE_URL
+      value: http://eux-rina-gateway-q1
+    - name: EUX_RINA_GATEWAY_Q1_SCOPE
+      value: api://dev-gcp.eessibasis.eux-rina-gateway-q1/.default
+    - name: EUX_RINA_GATEWAY_Q2_BASE_URL
+      value: http://eux-rina-gateway-q2
+    - name: EUX_RINA_GATEWAY_Q2_SCOPE
+      value: api://dev-gcp.eessibasis.eux-rina-gateway-q2/.default
+    - name: EUX_NEESSI_Q1_BASE_URL
+      value: https://eux-neessi-q1.intern.dev.nav.no
+    - name: EUX_NEESSI_Q2_BASE_URL
+      value: https://eux-neessi-q2.intern.dev.nav.no
+    - name: NEXT_PUBLIC_ENV
+      value: {{ env.label }}
+    - name: NODE_ENV
+      value: production
+    - name: EUX_PORTAL_CORE_BASE_URL
+      value: http://eux-portal-core
+  liveness:
+    path: /api/internal/health/live
+    port: 3000
+    initialDelay: 20
+    timeout: 5
+    periodSeconds: 10
+    failureThreshold: 6
+  readiness:
+    path: /api/internal/health/ready
+    port: 3000
+    initialDelay: 10
+    timeout: 5
+    periodSeconds: 10
+    failureThreshold: 6
+  prometheus:
+    enabled: true
+    path: /api/internal/metrics
+  replicas:
+    min: {{ replicas.min }}
+    max: {{ replicas.max }}
+    cpuThresholdPercentage: 80
+  resources:
+    limits:
+      memory: {{ resources.limits.memory }}
+    requests:
+      cpu: {{ resources.requests.cpu }}
+      memory: {{ resources.requests.memory }}
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+      replyURLs:
+        - "{{ ingress.intern }}/oauth2/callback"
+      claims:
+        extra:
+          - "NAVident"
+    sidecar:
+      enabled: true
+      autoLogin: true
+      autoLoginIgnorePaths:
+        - /
+        - /architecture
+        - /architecture/**
+        - /applications
+        - /applications/**
+        - /environments
+        - /environments/**
+        - /prosesser
+        - /prosesser/**
+        - /api/internal/**
+        - /favicon.ico
+        - /icon.*
+        - /apple-icon.*
+        - /_next/**
+  accessPolicy:
+    outbound:
+      rules:
+        - application: eux-rina-gateway-q1
+          namespace: eessibasis
+          cluster: dev-gcp
+        - application: eux-rina-gateway-q2
+          namespace: eessibasis
+          cluster: dev-gcp
+        - application: eux-portal-core
+          namespace: eessibasis
+          cluster: dev-gcp
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: nodejs
