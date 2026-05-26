@@ -55,7 +55,7 @@ function neessiSakUrl(env: string, rinaSakId: string) {
   return `https://eux-neessi-${env}.intern.dev.nav.no/svarsed/view/sak/${rinaSakId}`;
 }
 
-/* ── Helpers ────────────────────────────────────────── */
+/* ── Helpers ─────────────────────────────────────────── */
 
 function formatTime(iso: string) {
   try {
