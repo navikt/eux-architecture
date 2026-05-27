@@ -2,6 +2,7 @@ name: eux-architecture-portal
 
 ingress:
   intern: https://eux-docs.intern.dev.nav.no
+  ansatt: https://eux-docs.ansatt.dev.nav.no
 
 env:
   label: dev

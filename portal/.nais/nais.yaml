@@ -10,6 +10,7 @@ spec:
   port: 3000
   ingresses:
     - {{ ingress.intern }}
+    - {{ ingress.ansatt }}
   env:
     - name: EUX_RINA_GATEWAY_Q1_BASE_URL
       value: http://eux-rina-gateway-q1
@@ -62,6 +63,7 @@ spec:
       allowAllUsers: true
       replyURLs:
         - "{{ ingress.intern }}/oauth2/callback"
+        - "{{ ingress.ansatt }}/oauth2/callback"
       claims:
         extra:
           - "NAVident"
