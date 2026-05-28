@@ -160,7 +160,7 @@ export default function TestsClient() {
           <code>eux-rina-api</code> i Q1 eller Q2: oppretter en{" "}
           <code>H_BUC_01</code>-sak med en <code>H001</code> SED, verifiserer
           sak-oversikten, leser NAV-formatert SED tilbake, oppdaterer den med
-          to nye adresser og verifiserer på nytt.
+          to nye adresser, verifiserer på nytt og sender SED-en til mottaker.
         </BodyLong>
         <BodyLong>
           Saken blir <strong>liggende</strong> i RINA — ingen sletting. Velg
