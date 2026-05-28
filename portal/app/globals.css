@@ -295,7 +295,7 @@ main:has(.portal-page--wide) {
 }
 
 /* Pair-highlight: rows that share a RINA-dokument-ID + Dokumentversjon get the
-   same background tint. Intensity fades from full → 0 over 7 minutes, with a
+   same background tint. Intensity fades from full → 0 over 1 minute, with a
    short flash on first arrival. Text color is forced dark to keep contrast
    readable on the light pastel tints in both light and dark mode. */
 .sed-hendelser-table tr.sed-tint > td {
