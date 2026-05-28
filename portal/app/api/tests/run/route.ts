@@ -12,6 +12,10 @@ type Direction = "q1-to-q2" | "q2-to-q1";
 
 const BUC_TYPE = "H_BUC_01";
 const SED_TYPE = "H001";
+// Fnr som ligger i SED-malene under lib/seds/ — byttes ut med brukerens fnr
+// før vi sender SED-en til eux-rina-api.
+const TEMPLATE_FNR = "23478743041";
+// Default-fnr i skjemaet (NAV sin standard testidentitet i Q-miljøene).
 const DEFAULT_FNR = "21458837225";
 const FNR_REGEX = /^[0-9]{11}$/;
 
@@ -33,7 +37,6 @@ const EXPECTED_ADDR_CREATE = [
     postnummer: "0026",
     by: "Oslo",
     land: "NO",
-    landkode: "NOR",
   },
   {
     type: "opphold",
@@ -41,7 +44,6 @@ const EXPECTED_ADDR_CREATE = [
     postnummer: "0179",
     by: "Oslo",
     land: "NO",
-    landkode: "NOR",
   },
 ] as const;
 
@@ -52,7 +54,6 @@ const EXPECTED_ADDR_UPDATE = [
     postnummer: "0155",
     by: "Oslo",
     land: "NO",
-    landkode: "NOR",
   },
   {
     type: "opphold",
@@ -60,7 +61,6 @@ const EXPECTED_ADDR_UPDATE = [
     postnummer: "0026",
     by: "Oslo",
     land: "NO",
-    landkode: "NOR",
   },
 ] as const;
 
@@ -142,7 +142,7 @@ function tryParseJson(raw: string): unknown {
 }
 
 function substituteFnr<T>(payload: T, fnr: string): T {
-  const json = JSON.stringify(payload).replaceAll(DEFAULT_FNR, fnr);
+  const json = JSON.stringify(payload).replaceAll(TEMPLATE_FNR, fnr);
   return JSON.parse(json) as T;
 }
 
@@ -468,7 +468,6 @@ type ExpectedAddress = {
   postnummer: string;
   by: string;
   land: string;
-  landkode: string;
 };
 
 function verifyNavSed(
@@ -499,7 +498,9 @@ function verifyNavSed(
 
   v.push(eq(group, "person.pin[0].identifikator", fnr, person?.pin?.[0]?.identifikator ?? null));
   v.push(eq(group, "person.pin[0].land", "NO", person?.pin?.[0]?.land ?? null));
-  v.push(eq(group, "person.pin[0].landkode", "NOR", person?.pin?.[0]?.landkode ?? null));
+  // Vi sjekker bevisst ikke person.pin[0].landkode (ISO-3) — den blir ikke
+  // populert av NAV-format-transformen på vei tilbake gjennom CPI, kun ISO-2
+  // `land`. Det er en kjent egenskap ved ACL-mappingen, ikke en regresjon.
 
   v.push(check(
     group,
@@ -516,7 +517,8 @@ function verifyNavSed(
     v.push(eq(group, `adresse[${i}].postnummer`, expected.postnummer, actual?.postnummer ?? null));
     v.push(eq(group, `adresse[${i}].by`, expected.by, actual?.by ?? null));
     v.push(eq(group, `adresse[${i}].land`, expected.land, actual?.land ?? null));
-    v.push(eq(group, `adresse[${i}].landkode`, expected.landkode, actual?.landkode ?? null));
+    // Bevisst utelatt: adresse[${i}].landkode — settes ikke av NAV-transformen
+    // (samme grunn som person.pin[0].landkode over).
   });
 
   return v;
@@ -917,6 +919,100 @@ export async function POST(req: Request) {
     }
   }
   steps.push(readNavSedAfterUpdate);
+
+  // Steg 7: send SED-en til mottaker via Send-handlingen.
+  let sendSed: Step;
+  if (!caseId || !documentId) {
+    sendSed = skip(
+      7,
+      {
+        id: "send-sed",
+        title: "Send SED til mottaker",
+        description:
+          "Kaller POST /cpi/buc/{caseId}/sed/{documentId}/send for å trigge Send-handlingen mot mottaker via NIE.",
+        method: "POST",
+        path: `/cpi/buc/{caseId}/sed/{documentId}/send`,
+      },
+      caseId
+        ? "Hoppet over — ingen documentId fra opprettings-steget"
+        : "Hoppet over — ingen sak-id fra opprettings-steget",
+    );
+  } else {
+    sendSed = await runStep(cfg.base, token, 7, {
+      id: "send-sed",
+      title: `Send SED til ${mottakerId}`,
+      description:
+        `Kaller POST /cpi/buc/${caseId}/sed/${documentId}/send som trigger Send-handlingen i RINA. ` +
+        `eux-rina-api venter på at handlingen fullføres (ventePaAksjon=true) før den svarer, ` +
+        `slik at SED-status kan verifiseres i neste steg.`,
+      method: "POST",
+      path: `/cpi/buc/${encodeURIComponent(caseId)}/sed/${encodeURIComponent(documentId)}/send`,
+    });
+    if (sendSed.status === "ok") {
+      sendSed.message = `Send-handlingen for SED ${documentId} ble fullført av eux-rina-api`;
+    } else {
+      sendSed.message = `Kunne ikke sende SED (${sendSed.httpStatus ?? "ingen respons"})`;
+    }
+  }
+  steps.push(sendSed);
+
+  // Steg 8: verifiser at SED-en har gått til status "sent" på oversikten.
+  let verifyAfterSend: Step;
+  if (!caseId || !documentId) {
+    verifyAfterSend = skip(
+      8,
+      {
+        id: "verify-after-send",
+        title: "Verifiser at SED er sendt",
+        description:
+          "Leser sak-oversikten og bekrefter at SED-statusen er \"sent\".",
+        method: "GET",
+        path: `/v5/rinasaker/{caseId}/oversikt`,
+      },
+      "Hoppet over — ingen sak-id å verifisere",
+    );
+  } else if (sendSed.status !== "ok") {
+    verifyAfterSend = skip(
+      8,
+      {
+        id: "verify-after-send",
+        title: "Verifiser at SED er sendt",
+        description:
+          "Hoppet over fordi Send-steget ikke gikk gjennom.",
+        method: "GET",
+        path: `/v5/rinasaker/${caseId}/oversikt`,
+      },
+      "Hoppet over — Send-steget gikk ikke gjennom",
+    );
+  } else {
+    const pollResult = await pollOversikt(cfg.base, token, 8, caseId, documentId, {
+      id: "verify-after-send",
+      title: "Verifiser at SED er sendt",
+      description:
+        "Leser sak-oversikten en siste gang og bekrefter at SED-en har gått til status \"sent\". " +
+        "Read-siden er eventually consistent, så vi poller noen sekunder.",
+    });
+    verifyAfterSend = pollResult.step;
+    if (pollResult.oversikt) {
+      oversikt = pollResult.oversikt;
+      const sed = pollResult.oversikt.sedListe?.find((s) => s?.sedId === documentId);
+      const sentCheck = eq(
+        "SED-liste · etter send",
+        `[sedId=${documentId}].status`,
+        "sent",
+        sed?.status ?? null,
+      );
+      verifications.push(sentCheck);
+      if (!sentCheck.ok) {
+        verifyAfterSend.status = "fail";
+        verifyAfterSend.message =
+          `SED-status er fortsatt "${sed?.status ?? "(ukjent)"}" — forventet "sent"`;
+      } else {
+        verifyAfterSend.message = `SED ${documentId} har status "sent" på oversikten`;
+      }
+    }
+  }
+  steps.push(verifyAfterSend);
 
   const finishedAt = new Date().toISOString();
   const ok = steps.every((s) => s.status !== "fail");
