@@ -149,7 +149,7 @@ const PAIR_PALETTE = [
   "#e9d5ff", // purple
 ] as const;
 
-const HIGHLIGHT_WINDOW_MS = 7 * 60 * 1000;
+const HIGHLIGHT_WINDOW_MS = 60 * 1000;
 const FLASH_DURATION_MS = 1100;
 const TICK_MS = 3000;
 
@@ -181,7 +181,7 @@ function recordKey(r: SedHendelseRecord): string {
   return `${r.topic}|${r.partition}|${r.offset}`;
 }
 
-/** Eased alpha: stays vivid for the first minute, fades to 0 at 7 min. */
+/** Eased alpha: starts vivid, fades to 0 at 1 min. */
 function tintAlpha(ageMs: number): number {
   if (ageMs <= 0) return 1;
   if (ageMs >= HIGHLIGHT_WINDOW_MS) return 0;
