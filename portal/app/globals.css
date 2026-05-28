@@ -343,6 +343,49 @@ main:has(.portal-page--wide) {
   }
 }
 
+/* SED-kobling page: keep each row on a single visual line */
+.sed-kobling-table tr:not(.aksel-table__expanded-row) > th,
+.sed-kobling-table tr:not(.aksel-table__expanded-row) > td {
+  white-space: nowrap;
+}
+
+/* Waiting rows: subtle left border accent */
+.sed-kobling-table tr.sed-kobling-row--waiting > td:first-child {
+  border-left: 3px solid var(--ax-border-warning, #c77300);
+}
+
+.sed-kobling-table tr.sed-kobling-row--missing > td:first-child {
+  border-left: 3px solid var(--ax-border-neutral, #888);
+}
+
+/* Pulse animation for waiting badge */
+.sed-kobling-pulse {
+  animation: sed-kobling-pulse-anim 2s ease-in-out infinite;
+}
+
+@keyframes sed-kobling-pulse-anim {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* Waiting text subtle animation */
+.sed-kobling-waiting-text {
+  color: var(--ax-text-warning, #c77300);
+  animation: sed-kobling-pulse-anim 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sed-kobling-pulse,
+  .sed-kobling-waiting-text {
+    animation: none;
+  }
+}
+
 @media (min-width: 900px) {
   .portal-shell {
     grid-template-columns: 240px 1fr;

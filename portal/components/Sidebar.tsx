@@ -27,6 +27,7 @@ const NAV_SECTIONS: { heading?: string; items: { href: string; label: string; ex
     heading: "Kafka",
     items: [
       { href: "/kafka/sed-hendelser", label: "SED-hendelser" },
+      { href: "/kafka/sed-kobling", label: "SED-kobling" },
     ],
   },
   {
