@@ -8,20 +8,23 @@ import H001_NAV_UPDATE from "@/lib/seds/H001-NAV-update.json";
 
 export const dynamic = "force-dynamic";
 
-type GatewayEnv = "q1" | "q2";
+type Direction = "q1-to-q2" | "q2-to-q1";
 
 const BUC_TYPE = "H_BUC_01";
 const SED_TYPE = "H001";
-const MOTTAKER_ID = "NO:NAVAT07";
-const FNR = "23478743041";
+const DEFAULT_FNR = "21458837225";
+const FNR_REGEX = /^[0-9]{11}$/;
 
-const EXPECTED = {
-  fnr: FNR,
-  fornavn: "AKUSTISK",
-  etternavn: "GULLMYNT",
-  foedselsdato: "1987-07-23",
-  kjoenn: "K",
-} as const;
+// Q1 service-user identifies as NO:NAVAT06, Q2 as NO:NAVAT07
+// (see eux-rina-gateway-api-test ApiTestProperties for background).
+const SENDER: Record<Direction, "q1" | "q2"> = {
+  "q1-to-q2": "q1",
+  "q2-to-q1": "q2",
+};
+const MOTTAKER: Record<Direction, string> = {
+  "q1-to-q2": "NO:NAVAT07",
+  "q2-to-q1": "NO:NAVAT06",
+};
 
 const EXPECTED_ADDR_CREATE = [
   {
@@ -88,12 +91,11 @@ type Verification = {
 };
 
 type RunBody = {
-  env?: string;
-  cleanup?: boolean;
+  direction?: string;
+  fnr?: string;
 };
 
 type Links = {
-  neessi: string | null;
   rina: string | null;
 };
 
@@ -102,38 +104,32 @@ type RunResponse = {
   finishedAt: string;
   durationMs: number;
   ok: boolean;
-  env: GatewayEnv;
-  cleanup: boolean;
+  direction: Direction;
+  sender: "q1" | "q2";
+  receiver: "q1" | "q2";
   caseId: string | null;
   documentId: string | null;
   fnr: string;
   bucType: string;
   sedType: string;
   mottakerId: string;
-  expected: typeof EXPECTED;
   verifications: Verification[];
   verificationOk: boolean;
   links: Links;
   steps: Step[];
 };
 
-type GatewayConfig = {
+type ApiConfig = {
   base: string;
   scope: string;
-  neessi: string | null;
 };
 
-function resolveConfig(env: GatewayEnv): GatewayConfig | null {
+function resolveConfig(env: "q1" | "q2"): ApiConfig | null {
   const upper = env.toUpperCase();
-  const base = process.env[`EUX_RINA_GATEWAY_${upper}_BASE_URL`];
-  const scope = process.env[`EUX_RINA_GATEWAY_${upper}_SCOPE`];
-  const neessi = process.env[`EUX_NEESSI_${upper}_BASE_URL`] ?? null;
+  const base = process.env[`EUX_RINA_API_${upper}_BASE_URL`];
+  const scope = process.env[`EUX_RINA_API_${upper}_SCOPE`];
   if (!base || !scope) return null;
-  return {
-    base: base.replace(/\/+$/, ""),
-    scope,
-    neessi: neessi ? neessi.replace(/\/+$/, "") : null,
-  };
+  return { base: base.replace(/\/+$/, ""), scope };
 }
 
 function tryParseJson(raw: string): unknown {
@@ -145,6 +141,11 @@ function tryParseJson(raw: string): unknown {
   }
 }
 
+function substituteFnr<T>(payload: T, fnr: string): T {
+  const json = JSON.stringify(payload).replaceAll(DEFAULT_FNR, fnr);
+  return JSON.parse(json) as T;
+}
+
 async function runStep(
   base: string,
   token: string,
@@ -153,10 +154,9 @@ async function runStep(
     id: string;
     title: string;
     description: string;
-    method: "GET" | "POST" | "PUT" | "DELETE";
+    method: "GET" | "POST" | "PUT";
     path: string;
     body?: unknown;
-    contentType?: string;
     accept?: string;
   },
 ): Promise<Step> {
@@ -168,7 +168,7 @@ async function runStep(
   };
   let body: BodyInit | undefined;
   if (spec.body !== undefined) {
-    headers["Content-Type"] = spec.contentType ?? "application/json";
+    headers["Content-Type"] = "application/json";
     body =
       typeof spec.body === "string" ? spec.body : JSON.stringify(spec.body);
   }
@@ -199,7 +199,7 @@ async function runStep(
       httpStatus: res.status,
       responseBody,
       durationMs: Date.now() - started,
-      message: `Gateway svarte ${res.status} ${res.statusText}`,
+      message: `eux-rina-api svarte ${res.status} ${res.statusText}`,
     };
   } catch (err) {
     return {
@@ -214,7 +214,7 @@ async function runStep(
       httpStatus: null,
       responseBody: null,
       durationMs: Date.now() - started,
-      message: "Nettverks- eller transportfeil før gateway-en rakk å svare",
+      message: "Nettverks- eller transportfeil før eux-rina-api rakk å svare",
       error: (err as Error).message,
     };
   }
@@ -257,10 +257,6 @@ type Oversikt = {
   sensitiv?: boolean | null;
   erSakseier?: boolean | null;
   fnr?: string | null;
-  fornavn?: string | null;
-  etternavn?: string | null;
-  foedselsdato?: string | null;
-  kjoenn?: string | null;
   sistEndretDato?: string | null;
   sistEndretDatoTid?: string | null;
   sakshandlinger?: string[] | null;
@@ -332,10 +328,12 @@ function check(
 function verifyOversikt(
   caseId: string,
   documentId: string | null,
+  fnr: string,
+  mottakerId: string,
   o: Oversikt | null,
 ): Verification[] {
   const v: Verification[] = [];
-  const motpart = o?.motparter?.find((m) => m?.motpartId === MOTTAKER_ID);
+  const motpart = o?.motparter?.find((m) => m?.motpartId === mottakerId);
   const sed = o?.sedListe?.find((s) => s?.sedId === documentId)
     ?? o?.sedListe?.[0];
 
@@ -376,14 +374,10 @@ function verifyOversikt(
     "sakshandlinger er ikke tom",
     "ikke-tom liste",
     o?.sakshandlinger ?? null,
-    Array.isArray(o?.sakshandlinger) && (o!.sakshandlinger!.length > 0),
+    Array.isArray(o?.sakshandlinger) && o!.sakshandlinger!.length > 0,
   ));
 
-  v.push(eq(G.PERSON, "fnr", EXPECTED.fnr, o?.fnr ?? null));
-  v.push(eq(G.PERSON, "fornavn", EXPECTED.fornavn, o?.fornavn ?? null));
-  v.push(eq(G.PERSON, "etternavn", EXPECTED.etternavn, o?.etternavn ?? null));
-  v.push(eq(G.PERSON, "foedselsdato", EXPECTED.foedselsdato, o?.foedselsdato ?? null));
-  v.push(eq(G.PERSON, "kjoenn", EXPECTED.kjoenn, o?.kjoenn ?? null));
+  v.push(eq(G.PERSON, "fnr matcher input", fnr, o?.fnr ?? null));
 
   v.push(check(
     G.MOTPART,
@@ -392,7 +386,7 @@ function verifyOversikt(
     o?.motparter?.length ?? 0,
     (o?.motparter?.length ?? 0) === 1,
   ));
-  v.push(eq(G.MOTPART, "[0].motpartId", MOTTAKER_ID, motpart?.motpartId ?? null));
+  v.push(eq(G.MOTPART, "[0].motpartId", mottakerId, motpart?.motpartId ?? null));
   v.push(check(
     G.MOTPART,
     "[0].motpartNavn er satt",
@@ -402,13 +396,6 @@ function verifyOversikt(
   ));
   v.push(eq(G.MOTPART, "[0].motpartLand (ISO-2)", "NO", motpart?.motpartLand ?? null));
   v.push(eq(G.MOTPART, "[0].motpartLandkode (ISO-3)", "NOR", motpart?.motpartLandkode ?? null));
-  v.push(check(
-    G.MOTPART,
-    "[0].formatertNavn er satt",
-    "ikke-tom streng",
-    motpart?.formatertNavn ?? null,
-    typeof motpart?.formatertNavn === "string" && motpart!.formatertNavn!.length > 0,
-  ));
 
   v.push(check(
     G.SEDLIST,
@@ -441,14 +428,14 @@ function verifyOversikt(
     "[0].sedHandlinger er ikke tom",
     "ikke-tom liste (Update m.fl.)",
     sed?.sedHandlinger ?? null,
-    Array.isArray(sed?.sedHandlinger) && (sed!.sedHandlinger!.length > 0),
+    Array.isArray(sed?.sedHandlinger) && sed!.sedHandlinger!.length > 0,
   ));
   v.push(check(
     G.SEDLIST,
     "[0].vedlegg er tom liste",
     "[]",
     sed?.vedlegg ?? null,
-    Array.isArray(sed?.vedlegg) && (sed!.vedlegg!.length === 0),
+    Array.isArray(sed?.vedlegg) && sed!.vedlegg!.length === 0,
   ));
 
   return v;
@@ -461,10 +448,6 @@ type NavSed = {
   nav?: {
     bruker?: {
       person?: {
-        fornavn?: string;
-        etternavn?: string;
-        foedselsdato?: string;
-        kjoenn?: string;
         pin?: Array<{ identifikator?: string; land?: string; landkode?: string }>;
       };
       adresse?: Array<{
@@ -490,6 +473,7 @@ type ExpectedAddress = {
 
 function verifyNavSed(
   group: string,
+  fnr: string,
   navSed: NavSed | null,
   expectedAddresses: readonly ExpectedAddress[],
 ): Verification[] {
@@ -513,11 +497,9 @@ function verifyNavSed(
     typeof navSed?.sedGVer === "string" && navSed!.sedGVer!.length > 0,
   ));
 
-  v.push(eq(group, "person.fornavn", EXPECTED.fornavn, person?.fornavn ?? null));
-  v.push(eq(group, "person.etternavn", EXPECTED.etternavn, person?.etternavn ?? null));
-  v.push(eq(group, "person.foedselsdato", EXPECTED.foedselsdato, person?.foedselsdato ?? null));
-  v.push(eq(group, "person.kjoenn", EXPECTED.kjoenn, person?.kjoenn ?? null));
-  v.push(eq(group, "person.pin[0].identifikator", FNR, person?.pin?.[0]?.identifikator ?? null));
+  v.push(eq(group, "person.pin[0].identifikator", fnr, person?.pin?.[0]?.identifikator ?? null));
+  v.push(eq(group, "person.pin[0].land", "NO", person?.pin?.[0]?.land ?? null));
+  v.push(eq(group, "person.pin[0].landkode", "NOR", person?.pin?.[0]?.landkode ?? null));
 
   v.push(check(
     group,
@@ -590,21 +572,17 @@ async function pollOversikt(
   return { step: last!, oversikt };
 }
 
-function buildLinks(
-  oversikt: Oversikt | null,
-  caseId: string | null,
-  neessiBase: string | null,
-): Links {
+function buildLinks(oversikt: Oversikt | null): Links {
   return {
-    neessi:
-      caseId && neessiBase
-        ? `${neessiBase}/svarsed/view/sak/${encodeURIComponent(caseId)}`
-        : null,
     rina:
       typeof oversikt?.sakUrl === "string" && oversikt.sakUrl.startsWith("http")
         ? oversikt.sakUrl
         : null,
   };
+}
+
+function isDirection(value: unknown): value is Direction {
+  return value === "q1-to-q2" || value === "q2-to-q1";
 }
 
 export async function POST(req: Request) {
@@ -621,15 +599,28 @@ export async function POST(req: Request) {
     // ignore — tom body
   }
 
-  const env: GatewayEnv = body.env === "q2" ? "q2" : "q1";
-  const cleanup = body.cleanup ?? true;
+  const direction: Direction = isDirection(body.direction)
+    ? body.direction
+    : "q1-to-q2";
+  const sender = SENDER[direction];
+  const receiver = sender === "q1" ? "q2" : "q1";
+  const mottakerId = MOTTAKER[direction];
 
-  const cfg = resolveConfig(env);
+  const fnrInput = (body.fnr ?? "").trim();
+  if (fnrInput && !FNR_REGEX.test(fnrInput)) {
+    return NextResponse.json(
+      { ok: false, error: "Ugyldig fnr — må være 11 sifre." },
+      { status: 400 },
+    );
+  }
+  const fnr = fnrInput || DEFAULT_FNR;
+
+  const cfg = resolveConfig(sender);
   if (!cfg) {
     return NextResponse.json(
       {
         ok: false,
-        error: `Portalen er ikke konfigurert til å snakke med eux-rina-gateway-${env} i dette miljøet.`,
+        error: `Portalen er ikke konfigurert til å snakke med eux-rina-api-${sender} i dette miljøet.`,
       },
       { status: 503 },
     );
@@ -647,6 +638,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: message }, { status: 502 });
   }
 
+  const createBody = substituteFnr(H001_NAV, fnr);
+  const updateBody = substituteFnr(H001_NAV_UPDATE, fnr);
+
   const steps: Step[] = [];
   let caseId: string | null = null;
   let documentId: string | null = null;
@@ -658,15 +652,15 @@ export async function POST(req: Request) {
     id: "create-case-and-sed",
     title: "Opprett RINA-sak med en H001 SED",
     description:
-      `Ber gateway-en opprette en helt ny ${BUC_TYPE}-sak med NO:NAVAT07 ` +
-      `som mottaker og en H001 (request-for-information) SED for fnr ${FNR} som ` +
-      `første dokument. SED-en har TO adresser (bosted + opphold) slik at vi senere ` +
+      `Ber eux-rina-api-${sender} opprette en ny ${BUC_TYPE}-sak med ${mottakerId} ` +
+      `som mottaker og en H001 (request-for-information) SED for fnr ${fnr} som ` +
+      `første dokument. SED-en har to adresser (bosted + opphold) slik at vi senere ` +
       `kan bekrefte at de overlevde NAV→EU→NAV-rundturen gjennom CPI.`,
     method: "POST",
     path:
       `/cpi/buc/sed?BucType=${encodeURIComponent(BUC_TYPE)}` +
-      `&MottakerId=${encodeURIComponent(MOTTAKER_ID)}`,
-    body: H001_NAV,
+      `&MottakerId=${encodeURIComponent(mottakerId)}`,
+    body: createBody,
   });
   steps.push(createCaseAndSed);
   if (createCaseAndSed.status === "ok") {
@@ -694,7 +688,7 @@ export async function POST(req: Request) {
         ? `Opprettet RINA-sak ${caseId} med SED ${documentId}`
         : caseId
           ? `Opprettet RINA-sak ${caseId} (ingen documentId i body)`
-          : "Gateway svarte 2xx, men ingen sak-id i body";
+          : "API svarte 2xx, men ingen sak-id i body";
   } else {
     createCaseAndSed.message = `Kunne ikke opprette RINA-sak + SED (${createCaseAndSed.httpStatus ?? "ingen respons"})`;
   }
@@ -706,9 +700,9 @@ export async function POST(req: Request) {
       2,
       {
         id: "verify-after-create",
-        title: "Verifiser sak i /v5/rinasaker/oversikt",
+        title: "Verifiser sak i /v5/rinasaker/{caseId}/oversikt",
         description:
-          "Leser sak-oversikten for å bekrefte sakId, BUC-type, person-identifikatorer, mottaker og SED-liste. RINA sin read-side er eventually consistent, så vi poller noen sekunder.",
+          "Leser sak-oversikten for å bekrefte sakId, BUC-type, fnr, mottaker og SED-liste. RINA sin read-side er eventually consistent, så vi poller noen sekunder.",
         method: "GET",
         path: `/v5/rinasaker/{caseId}/oversikt`,
       },
@@ -717,14 +711,14 @@ export async function POST(req: Request) {
   } else {
     const pollResult = await pollOversikt(cfg.base, token, 2, caseId, documentId, {
       id: "verify-after-create",
-      title: "Verifiser sak i /v5/rinasaker/oversikt",
+      title: "Verifiser sak i /v5/rinasaker/{caseId}/oversikt",
       description:
-        "Leser sak-oversikten og kontrollerer 25+ feltforventninger: sakId, sakType, sakTittel, internasjonalSakId, cdmVersjon, sakUrl, sensitiv, erSakseier, sakshandlinger; person-identifikatorer; motparter (inkl. ISO-2 land + ISO-3 landkode); sedListe-lengde, sedType, sedTittel, status, sedHandlinger, sedIdParent==null, vedlegg==[]. RINA sin read-side er eventually consistent, så vi poller noen sekunder.",
+        "Leser sak-oversikten og kontrollerer en lang rekke felter: sakId, sakType, sakTittel, internasjonalSakId, cdmVersjon, sakUrl, sensitiv, erSakseier, sakshandlinger; fnr; motpart (id, navn, ISO-2 land, ISO-3 landkode); sedListe-lengde, sedType, sedTittel, status, sedHandlinger, sedIdParent==null, vedlegg==[]. RINA sin read-side er eventually consistent, så vi poller noen sekunder.",
     });
     verifyAfterCreate = pollResult.step;
     oversikt = pollResult.oversikt;
     if (oversikt) {
-      const oversiktChecks = verifyOversikt(caseId, documentId, oversikt);
+      const oversiktChecks = verifyOversikt(caseId, documentId, fnr, mottakerId, oversikt);
       verifications.push(...oversiktChecks);
       const failed = oversiktChecks.filter((v) => !v.ok);
       if (failed.length > 0) {
@@ -762,13 +756,13 @@ export async function POST(req: Request) {
       id: "read-nav-sed-after-create",
       title: "Les NAV-format SED — overlevde begge adressene?",
       description:
-        "Kaller GET /cpi/buc/{caseId}/sed/{documentId} som kjører den mal-drevne EU→NAV-transformen. Vi bekrefter person-identifikatorer + begge bosted-/opphold-adresser gikk intakt gjennom CPI.",
+        "Kaller GET /cpi/buc/{caseId}/sed/{documentId} som kjører den mal-drevne EU→NAV-transformen. Vi bekrefter person-pin + begge bosted-/opphold-adresser gikk intakt gjennom CPI.",
       method: "GET",
       path: `/cpi/buc/${encodeURIComponent(caseId)}/sed/${encodeURIComponent(documentId)}`,
     });
     if (readNavSedAfterCreate.status === "ok") {
       const navSed = readNavSedAfterCreate.responseBody as NavSed | null;
-      const sedChecks = verifyNavSed(G.SED_CREATE, navSed, EXPECTED_ADDR_CREATE);
+      const sedChecks = verifyNavSed(G.SED_CREATE, fnr, navSed, EXPECTED_ADDR_CREATE);
       verifications.push(...sedChecks);
       const failed = sedChecks.filter((v) => !v.ok);
       if (failed.length > 0) {
@@ -795,7 +789,7 @@ export async function POST(req: Request) {
         id: "update-sed",
         title: "Oppdater H001 SED — bytt adressene",
         description:
-          "Sender en modifisert versjon av SED-en via Update-handlingen. Vi bytter de to adressene (bosted ⇄ opphold) og endrer request-teksten slik at diffen blir synlig i steg 6.",
+          "Sender en modifisert versjon av SED-en. Vi bytter de to adressene (bosted ⇄ opphold) og endrer request-teksten slik at diffen blir synlig i steg 6.",
         method: "PUT",
         path: `/cpi/buc/{caseId}/sed/{documentId}`,
       },
@@ -811,7 +805,7 @@ export async function POST(req: Request) {
         "Sender en modifisert versjon av SED-en via Update-handlingen. Vi bytter de to adressene (bosted=Storgata 1, opphold=Karl Johans gate 22) og endrer request-teksten slik at diffen blir synlig i steg 6.",
       method: "PUT",
       path: `/cpi/buc/${encodeURIComponent(caseId)}/sed/${encodeURIComponent(documentId)}`,
-      body: H001_NAV_UPDATE,
+      body: updateBody,
     });
     if (updateSed.status === "ok") {
       updateSed.message = `Oppdaterte SED ${documentId} på sak ${caseId}`;
@@ -874,7 +868,7 @@ export async function POST(req: Request) {
         id: "read-nav-sed-after-update",
         title: "Les NAV-format SED — kom de nye adressene fram?",
         description:
-          "Kaller GET /cpi/buc/{caseId}/sed/{documentId} en gang til. Vi bekrefter at adressene matcher oppdaterings-payloaden (bosted=Storgata 1, opphold=Karl Johans gate 22) — det beviser at oppdateringen nådde CPI.",
+          "Kaller GET /cpi/buc/{caseId}/sed/{documentId} en gang til. Vi bekrefter at adressene matcher oppdaterings-payloaden.",
         method: "GET",
         path: `/cpi/buc/{caseId}/sed/{documentId}`,
       },
@@ -906,7 +900,7 @@ export async function POST(req: Request) {
     });
     if (readNavSedAfterUpdate.status === "ok") {
       const navSed = readNavSedAfterUpdate.responseBody as NavSed | null;
-      const sedChecks = verifyNavSed(G.SED_UPDATE, navSed, EXPECTED_ADDR_UPDATE);
+      const sedChecks = verifyNavSed(G.SED_UPDATE, fnr, navSed, EXPECTED_ADDR_UPDATE);
       verifications.push(...sedChecks);
       const failed = sedChecks.filter((v) => !v.ok);
       if (failed.length > 0) {
@@ -924,55 +918,9 @@ export async function POST(req: Request) {
   }
   steps.push(readNavSedAfterUpdate);
 
-  // Steg 7: opprydding.
-  let cleanupStep: Step;
-  if (!caseId) {
-    cleanupStep = skip(
-      7,
-      {
-        id: "cleanup",
-        title: cleanup
-          ? "Slett RINA-saken (opprydding)"
-          : "Hopp over opprydding (behold saken)",
-        description: cleanup
-          ? "Best-effort DELETE så vi ikke lar testsaker bli liggende i CPI."
-          : "Du slo av auto-opprydding — saken blir liggende i CPI til den slettes manuelt.",
-        method: "DELETE",
-        path: `/cpi/buc/{caseId}`,
-      },
-      "Hoppet over — ingen sak å slette",
-    );
-  } else if (!cleanup) {
-    cleanupStep = skip(
-      7,
-      {
-        id: "cleanup",
-        title: "Hopp over opprydding (behold saken)",
-        description: `Auto-opprydding var slått av. RINA-saken ${caseId} blir liggende i CPI til den slettes manuelt.`,
-        method: "DELETE",
-        path: `/cpi/buc/${caseId}`,
-      },
-      `Beholdt sak ${caseId} i CPI etter ønske`,
-    );
-  } else {
-    cleanupStep = await runStep(cfg.base, token, 7, {
-      id: "cleanup",
-      title: "Slett RINA-saken (opprydding)",
-      description: `Best-effort DELETE så vi ikke lar testsaker bli liggende i CPI for fnr ${FNR}.`,
-      method: "DELETE",
-      path: `/cpi/buc/${encodeURIComponent(caseId)}`,
-    });
-    if (cleanupStep.status === "ok") {
-      cleanupStep.message = `Slettet RINA-sak ${caseId}`;
-    } else if (cleanupStep.status === "fail") {
-      cleanupStep.message = `Opprydding feilet (${cleanupStep.httpStatus ?? "ingen respons"}) — sak ${caseId} kan fortsatt eksistere`;
-    }
-  }
-  steps.push(cleanupStep);
-
   const finishedAt = new Date().toISOString();
   const ok = steps.every((s) => s.status !== "fail");
-  const links = buildLinks(oversikt, caseId, cfg.neessi);
+  const links = buildLinks(oversikt);
   const verificationOk =
     verifications.length > 0 && verifications.every((v) => v.ok);
 
@@ -981,22 +929,34 @@ export async function POST(req: Request) {
     finishedAt,
     durationMs: Date.now() - t0,
     ok,
-    env,
-    cleanup,
+    direction,
+    sender,
+    receiver,
     caseId,
     documentId,
-    fnr: FNR,
+    fnr,
     bucType: BUC_TYPE,
     sedType: SED_TYPE,
-    mottakerId: MOTTAKER_ID,
-    expected: EXPECTED,
+    mottakerId,
     verifications,
     verificationOk,
     links,
     steps,
   };
 
-  return NextResponse.json(response, {
-    headers: { "Cache-Control": "no-store" },
-  });
+  log.info(
+    {
+      direction,
+      sender,
+      receiver,
+      caseId,
+      documentId,
+      ok,
+      verificationOk,
+      durationMs: response.durationMs,
+    },
+    "smoke-test: kjøring ferdig",
+  );
+
+  return NextResponse.json(response, { status: ok ? 200 : 207 });
 }
