@@ -128,6 +128,116 @@ function dayKey(iso: string) {
   }
 }
 
+/* ── Pair-highlight ─────────────────────────────────── */
+
+/**
+ * Light pastel palette used to colour paired SED events. Hues are spread
+ * around the wheel so two adjacent palette slots are easy to tell apart, and
+ * lightness/saturation are chosen so dark text (#1a1a1a) keeps a contrast
+ * ratio well above 7:1 on every tint.
+ */
+const PAIR_PALETTE = [
+  "#fbcfe8", // pink
+  "#ddd6fe", // lavender
+  "#bfdbfe", // blue
+  "#a7f3d0", // mint
+  "#fde68a", // amber
+  "#fecaca", // rose
+  "#c7d2fe", // periwinkle
+  "#bbf7d0", // green
+  "#fed7aa", // peach
+  "#e9d5ff", // purple
+] as const;
+
+const HIGHLIGHT_WINDOW_MS = 7 * 60 * 1000;
+const FLASH_DURATION_MS = 1100;
+const TICK_MS = 3000;
+
+/** Stable string → 32-bit hash (FNV-1a-ish), used to pick a palette slot. */
+function hashString(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/**
+ * Returns the pair-key for a record. Two records share a key iff they
+ * represent the same RINA document revision (typical Q1→Q2 round-trip).
+ * If the document fields are missing we fall back to a per-record key so the
+ * row still gets its own colour but never accidentally pairs with another.
+ */
+function pairKey(r: SedHendelseRecord): string {
+  const docId = r.hendelse.rinaDokumentId;
+  const docVer = r.hendelse.rinaDokumentVersjon;
+  if (docId && docVer) return `doc:${docId}|${docVer}`;
+  return `rec:${r.topic}|${r.partition}|${r.offset}`;
+}
+
+/** Unique key for a single record (used as Map key for first-seen / render). */
+function recordKey(r: SedHendelseRecord): string {
+  return `${r.topic}|${r.partition}|${r.offset}`;
+}
+
+/** Eased alpha: stays vivid for the first minute, fades to 0 at 7 min. */
+function tintAlpha(ageMs: number): number {
+  if (ageMs <= 0) return 1;
+  if (ageMs >= HIGHLIGHT_WINDOW_MS) return 0;
+  const remaining = 1 - ageMs / HIGHLIGHT_WINDOW_MS;
+  return Math.pow(remaining, 0.7);
+}
+
+interface RowTint {
+  color: string;
+  alpha: number;
+  flash: boolean;
+}
+
+/**
+ * Computes per-row tint info for the visible records.
+ *
+ * - Each pair gets one palette colour, chosen deterministically from the
+ *   pair key so the same pair always uses the same colour across reloads.
+ * - The pair's tint alpha is driven by the *newest* member's age, so when a
+ *   fresh partner arrives the older partner re-lights with it (the "pair
+ *   exception" in the spec).
+ * - A row's `flash` flag is set for the first ~1.1s after it was first
+ *   observed on the client. Backfilled rows are seeded with their original
+ *   `receivedAt`, so the page does NOT flash everything on load.
+ */
+function computePairTints(
+  records: SedHendelseRecord[],
+  firstSeenAt: Map<string, number>,
+  now: number,
+): Map<string, RowTint> {
+  const newestByPair = new Map<string, number>();
+  for (const r of records) {
+    const t = new Date(r.receivedAt).getTime();
+    const k = pairKey(r);
+    const prev = newestByPair.get(k);
+    if (prev === undefined || t > prev) newestByPair.set(k, t);
+  }
+
+  const out = new Map<string, RowTint>();
+  for (const r of records) {
+    const k = pairKey(r);
+    const newest = newestByPair.get(k) ?? 0;
+    const age = now - newest;
+    const alpha = tintAlpha(age);
+    if (alpha <= 0) continue;
+
+    const color = PAIR_PALETTE[hashString(k) % PAIR_PALETTE.length];
+    const rk = recordKey(r);
+    const firstSeen = firstSeenAt.get(rk);
+    const flash =
+      firstSeen !== undefined && now - firstSeen < FLASH_DURATION_MS;
+    out.set(rk, { color, alpha, flash });
+  }
+  return out;
+}
+
 /* ── Connection status indicator ────────────────────── */
 
 type ConnectionStatus = "connecting" | "connected" | "disconnected";
@@ -342,6 +452,22 @@ export default function SedHendelserPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Wall-clock timestamp (ms) when each record was first observed in this
+  // browser session. Backfilled rows use their original receivedAt so they
+  // do NOT flash on page load; SSE-pushed rows use Date.now() so they do.
+  const [firstSeenAt, setFirstSeenAt] = useState<Map<string, number>>(
+    () => new Map(),
+  );
+
+  // Tick state — bumped every TICK_MS so tint alphas re-compute and the
+  // flash class falls off after ~1.1s. The CSS `transition` smooths between
+  // ticks so the visible fade is continuous, not stepped.
+  const [now, setNow] = useState<number>(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), TICK_MS);
+    return () => clearInterval(id);
+  }, []);
+
   // Fetch initial snapshot
   useEffect(() => {
     fetch("/api/kafka/sed-hendelser")
@@ -350,6 +476,14 @@ export default function SedHendelserPage() {
         return res.json();
       })
       .then((data: SedHendelseRecord[]) => {
+        setFirstSeenAt((prev) => {
+          const next = new Map(prev);
+          for (const r of data) {
+            const k = recordKey(r);
+            if (!next.has(k)) next.set(k, new Date(r.receivedAt).getTime());
+          }
+          return next;
+        });
         setRecords(data);
         setLoading(false);
       })
@@ -361,10 +495,22 @@ export default function SedHendelserPage() {
 
   // Live SSE updates
   const handleNewRecord = useCallback((record: SedHendelseRecord) => {
+    const k = recordKey(record);
+    setFirstSeenAt((prev) => {
+      if (prev.has(k)) return prev;
+      const next = new Map(prev);
+      next.set(k, Date.now());
+      return next;
+    });
     setRecords((prev) => [record, ...prev].slice(0, 500));
   }, []);
 
   const sseStatus = useSedHendelserSSE(handleNewRecord);
+
+  // Pair-tint info is computed against *all* records (pre-filter) so the
+  // colour for a given pair stays stable when the user toggles env/dir
+  // filters. The render below looks up the tint by record key.
+  const tints = computePairTints(records, firstSeenAt, now);
 
   // Filter
   const filtered = records.filter((r) => {
@@ -492,12 +638,27 @@ export default function SedHendelserPage() {
                     </HStack>
                   </Table.DataCell>
                 </Table.Row>,
-                ...group.rows.map((r, i) => (
-                  <Table.ExpandableRow
-                    key={`${r.topic}-${r.partition}-${r.offset}-${i}`}
-                    expandOnRowClick
-                    content={<HendelseDetails record={r} />}
-                  >
+                ...group.rows.map((r, i) => {
+                  const tint = tints.get(recordKey(r));
+                  const tintClass = tint
+                    ? tint.flash
+                      ? "sed-tint sed-tint--flash"
+                      : "sed-tint"
+                    : undefined;
+                  const tintStyle = tint
+                    ? ({
+                        "--row-tint": tint.color,
+                        "--row-tint-alpha": tint.alpha,
+                      } as React.CSSProperties)
+                    : undefined;
+                  return (
+                    <Table.ExpandableRow
+                      key={`${r.topic}-${r.partition}-${r.offset}-${i}`}
+                      expandOnRowClick
+                      content={<HendelseDetails record={r} />}
+                      className={tintClass}
+                      style={tintStyle}
+                    >
                     <Table.DataCell>
                       <Detail>
                         <strong>{formatTime(r.receivedAt)}</strong>
@@ -578,7 +739,8 @@ export default function SedHendelserPage() {
                       </code>
                     </Table.DataCell>
                   </Table.ExpandableRow>
-                )),
+                  );
+                }),
               ])}
             </Table.Body>
           </Table>

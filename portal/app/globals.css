@@ -294,6 +294,55 @@ main:has(.portal-page--wide) {
   white-space: nowrap;
 }
 
+/* Pair-highlight: rows that share a RINA-dokument-ID + Dokumentversjon get the
+   same background tint. Intensity fades from full → 0 over 7 minutes, with a
+   short flash on first arrival. Text color is forced dark to keep contrast
+   readable on the light pastel tints in both light and dark mode. */
+.sed-hendelser-table tr.sed-tint > td {
+  background-color: color-mix(
+    in srgb,
+    var(--row-tint, transparent) calc(var(--row-tint-alpha, 0) * 100%),
+    transparent
+  );
+  color: #1a1a1a;
+  transition: background-color 1.2s ease-out;
+}
+
+.sed-hendelser-table tr.sed-tint > td a,
+.sed-hendelser-table tr.sed-tint > td code,
+.sed-hendelser-table tr.sed-tint > td strong {
+  color: inherit;
+}
+
+.sed-hendelser-table tr.sed-tint--flash > td {
+  animation: sed-row-flash 1100ms ease-out;
+}
+
+@keyframes sed-row-flash {
+  0% {
+    background-color: #ffffff;
+  }
+  15% {
+    background-color: var(--row-tint, transparent);
+  }
+  100% {
+    background-color: color-mix(
+      in srgb,
+      var(--row-tint, transparent) calc(var(--row-tint-alpha, 0) * 100%),
+      transparent
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sed-hendelser-table tr.sed-tint > td {
+    transition: none;
+  }
+  .sed-hendelser-table tr.sed-tint--flash > td {
+    animation: none;
+  }
+}
+
 @media (min-width: 900px) {
   .portal-shell {
     grid-template-columns: 240px 1fr;
