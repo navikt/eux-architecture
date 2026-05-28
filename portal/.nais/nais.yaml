@@ -12,14 +12,14 @@ spec:
     - {{ ingress.intern }}
     - {{ ingress.ansatt }}
   env:
-    - name: EUX_RINA_GATEWAY_Q1_BASE_URL
-      value: http://eux-rina-gateway-q1
-    - name: EUX_RINA_GATEWAY_Q1_SCOPE
-      value: api://dev-gcp.eessibasis.eux-rina-gateway-q1/.default
-    - name: EUX_RINA_GATEWAY_Q2_BASE_URL
-      value: http://eux-rina-gateway-q2
-    - name: EUX_RINA_GATEWAY_Q2_SCOPE
-      value: api://dev-gcp.eessibasis.eux-rina-gateway-q2/.default
+    - name: EUX_RINA_API_Q1_BASE_URL
+      value: http://eux-rina-api-q1
+    - name: EUX_RINA_API_Q1_SCOPE
+      value: api://dev-gcp.eessibasis.eux-rina-api-q1/.default
+    - name: EUX_RINA_API_Q2_BASE_URL
+      value: http://eux-rina-api-q2
+    - name: EUX_RINA_API_Q2_SCOPE
+      value: api://dev-gcp.eessibasis.eux-rina-api-q2/.default
     - name: EUX_NEESSI_Q1_BASE_URL
       value: https://eux-neessi-q1.intern.dev.nav.no
     - name: EUX_NEESSI_Q2_BASE_URL
@@ -88,10 +88,10 @@ spec:
   accessPolicy:
     outbound:
       rules:
-        - application: eux-rina-gateway-q1
+        - application: eux-rina-api-q1
           namespace: eessibasis
           cluster: dev-gcp
-        - application: eux-rina-gateway-q2
+        - application: eux-rina-api-q2
           namespace: eessibasis
           cluster: dev-gcp
         - application: eux-portal-core

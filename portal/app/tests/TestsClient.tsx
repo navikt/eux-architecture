@@ -6,11 +6,11 @@ import {
   BodyLong,
   BodyShort,
   Button,
-  Checkbox,
   Heading,
   HStack,
   Loader,
   Tag,
+  TextField,
   ToggleGroup,
   VStack,
 } from "@navikt/ds-react";
@@ -42,19 +42,19 @@ type Verification = {
 };
 
 type Links = {
-  neessi: string | null;
   rina: string | null;
 };
 
-type GatewayEnv = "q1" | "q2";
+type Direction = "q1-to-q2" | "q2-to-q1";
 
 type RunResponse = {
   startedAt: string;
   finishedAt: string;
   durationMs: number;
   ok: boolean;
-  env: GatewayEnv;
-  cleanup: boolean;
+  direction: Direction;
+  sender: "q1" | "q2";
+  receiver: "q1" | "q2";
   caseId: string | null;
   documentId: string | null;
   fnr: string;
@@ -67,10 +67,10 @@ type RunResponse = {
   steps: Step[];
 };
 
-const STATUS_VARIANT: Record<
-  StepStatus,
-  "success" | "error" | "neutral"
-> = {
+const DEFAULT_FNR = "21458837225";
+const FNR_REGEX = /^[0-9]{11}$/;
+
+const STATUS_VARIANT: Record<StepStatus, "success" | "error" | "neutral"> = {
   ok: "success",
   fail: "error",
   skipped: "neutral",
@@ -82,9 +82,9 @@ const STATUS_LABEL: Record<StepStatus, string> = {
   skipped: "Hoppet over",
 };
 
-const ENV_ACCENT: Record<GatewayEnv, string> = {
-  q1: "#0067c5",
-  q2: "#634689",
+const DIRECTION_LABEL: Record<Direction, string> = {
+  "q1-to-q2": "Q1 → Q2",
+  "q2-to-q1": "Q2 → Q1",
 };
 
 function formatDuration(ms: number): string {
@@ -110,21 +110,22 @@ function methodColor(method: string): string {
       return "var(--ax-bg-success-strong, #06893a)";
     case "PUT":
       return "var(--ax-bg-warning-strong, #b35900)";
-    case "DELETE":
-      return "var(--ax-bg-danger-strong, #b51331)";
     default:
       return "var(--ax-text-subtle, #555)";
   }
 }
 
 export default function TestsClient() {
-  const [env, setEnv] = useState<GatewayEnv>("q1");
-  const [cleanup, setCleanup] = useState(true);
+  const [direction, setDirection] = useState<Direction>("q1-to-q2");
+  const [fnr, setFnr] = useState(DEFAULT_FNR);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RunResponse | null>(null);
 
+  const fnrValid = FNR_REGEX.test(fnr);
+
   const run = useCallback(async () => {
+    if (!fnrValid) return;
     setRunning(true);
     setError(null);
     setResult(null);
@@ -132,10 +133,10 @@ export default function TestsClient() {
       const res = await fetch("/api/tests/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ env, cleanup }),
+        body: JSON.stringify({ direction, fnr }),
       });
       const json = (await res.json()) as RunResponse | { error?: string };
-      if (!res.ok) {
+      if (res.status >= 400 && res.status !== 207) {
         const e = (json as { error?: string }).error ?? `HTTP ${res.status}`;
         setError(e);
       } else {
@@ -146,88 +147,73 @@ export default function TestsClient() {
     } finally {
       setRunning(false);
     }
-  }, [env, cleanup]);
-
-  const accent = ENV_ACCENT[env];
+  }, [direction, fnr, fnrValid]);
 
   return (
     <VStack gap="space-32" style={{ maxWidth: "62rem" }}>
       <VStack gap="space-12">
         <Heading level="1" size="xlarge">
-          Smoke-test mot eux-rina-gateway
+          Smoke-test mot eux-rina-api
         </Heading>
         <BodyLong size="large">
-          Ett klikk og portalen gjør, på ekte, det samme som det
-          automatiske smoke-test-jobben gjør ved hver deploy: oppretter en
-          RINA-sak med en <code>H001</code> SED i en <code>H_BUC_01</code>,
-          verifiserer sak-oversikten, leser SED-en tilbake i NAV-format,
-          oppdaterer den med to nye adresser, verifiserer på nytt — og
-          rydder opp. Hvert steg vises med en linjes oppsummering; klikk
-          på et steg for å se rå request og response.
+          Ett klikk og portalen kjører en ekte ende-til-ende smoke-test mot{" "}
+          <code>eux-rina-api</code> i Q1 eller Q2: oppretter en{" "}
+          <code>H_BUC_01</code>-sak med en <code>H001</code> SED, verifiserer
+          sak-oversikten, leser NAV-formatert SED tilbake, oppdaterer den med
+          to nye adresser og verifiserer på nytt.
         </BodyLong>
         <BodyLong>
-          Vi bruker NAV sin standard testidentitet{" "}
-          <code>23478743041</code> og sender SED-en til{" "}
-          <code>NO:NAVAT07</code>. Velg miljø øverst — Q1 eller Q2 — så
-          går alle kallene mot tilhørende gateway. Ingenting her rører
-          produksjon.
+          Saken blir <strong>liggende</strong> i RINA — ingen sletting. Velg
+          retning og angi fnr (default er NAV sin standard testidentitet{" "}
+          <code>{DEFAULT_FNR}</code>). Ingenting her rører produksjon.
         </BodyLong>
       </VStack>
 
-      <section className="portal-runner" style={{ borderColor: `${accent}40` }}>
-        <VStack gap="space-16">
-          <HStack
-            gap="space-16"
-            align="center"
-            wrap
-            justify="space-between"
-          >
-            <VStack gap="space-4">
-              <Heading level="2" size="small">
-                Smoke-test · {`H_BUC_01`} · {`H001`}
-              </Heading>
-              <BodyShort size="small" className="portal-subtle">
-                Opprett sak + SED · verifiser oversikt · les NAV-SED ·
-                oppdater SED · verifiser på nytt · les NAV-SED igjen ·
-                opprydding.
-              </BodyShort>
-            </VStack>
-
-            <VStack gap="space-8" align="end">
+      <section className="portal-runner">
+        <VStack gap="space-20">
+          <HStack gap="space-16" align="end" wrap>
+            <VStack gap="space-4" style={{ flex: "1 1 18rem" }}>
               <ToggleGroup
-                size="small"
-                value={env}
-                onChange={(value) => setEnv(value as GatewayEnv)}
-                label="Miljø"
+                size="medium"
+                value={direction}
+                onChange={(value) => setDirection(value as Direction)}
+                label="Retning"
               >
-                <ToggleGroup.Item value="q1" label="Q1" />
-                <ToggleGroup.Item value="q2" label="Q2" />
+                <ToggleGroup.Item value="q1-to-q2" label="Q1 → Q2" />
+                <ToggleGroup.Item value="q2-to-q1" label="Q2 → Q1" />
               </ToggleGroup>
               <BodyShort size="small" className="portal-subtle">
-                Mål: <code>eux-rina-gateway-{env}</code>
+                Avsender: <code>eux-rina-api-{direction === "q1-to-q2" ? "q1" : "q2"}</code>
+                {" · "}
+                Mottaker:{" "}
+                <code>{direction === "q1-to-q2" ? "NO:NAVAT07" : "NO:NAVAT06"}</code>
               </BodyShort>
             </VStack>
-          </HStack>
 
-          <HStack gap="space-16" align="center" wrap justify="space-between">
-            <Checkbox
-              checked={cleanup}
-              onChange={(e) => setCleanup(e.target.checked)}
+            <TextField
+              label="Bruker (fnr)"
+              description="11 sifre"
+              value={fnr}
+              onChange={(e) => setFnr(e.target.value.trim())}
+              error={
+                fnr && !fnrValid ? "fnr må være 11 sifre" : undefined
+              }
+              size="medium"
+              inputMode="numeric"
+              maxLength={11}
+              style={{ minWidth: "12rem" }}
               disabled={running}
+            />
+
+            <Button
+              onClick={run}
+              loading={running}
+              disabled={running || !fnrValid}
+              size="medium"
             >
-              Slett saken automatisk etterpå
-            </Checkbox>
-            <Button onClick={run} loading={running} disabled={running}>
-              {running ? "Kjører…" : result ? "Kjør på nytt" : "Kjør test"}
+              {running ? "Kjører…" : result ? "Kjør på nytt" : "Kjør smoke-test"}
             </Button>
           </HStack>
-
-          {!cleanup && !running && (
-            <Alert variant="warning" inline>
-              Auto-opprydding er av. Saken blir liggende i RINA CPI{" "}
-              {env.toUpperCase()} til du sletter den manuelt.
-            </Alert>
-          )}
 
           {error && (
             <Alert variant="error">
@@ -239,8 +225,8 @@ export default function TestsClient() {
             <HStack gap="space-12" align="center">
               <Loader size="small" />
               <BodyShort>
-                Snakker med eux-rina-gateway-{env} — dette tar vanligvis
-                noen sekunder…
+                Snakker med eux-rina-api-{direction === "q1-to-q2" ? "q1" : "q2"}{" "}
+                — dette tar vanligvis noen sekunder…
               </BodyShort>
             </HStack>
           )}
@@ -255,9 +241,8 @@ export default function TestsClient() {
             Feltsjekker
           </Heading>
           <BodyShort size="small" className="portal-subtle-block">
-            Hver eneste forventning testen stilte til gateway-respons,
-            gruppert etter hvor den kom fra. Klikk for å åpne en gruppe —
-            grupper med feil åpner seg automatisk.
+            Hver eneste forventning testen stilte til API-respons, gruppert
+            etter hvor den kom fra. Grupper med feil åpner seg automatisk.
           </BodyShort>
           <VerificationGroups verifications={result.verifications} />
         </VStack>
@@ -310,7 +295,7 @@ function ResultSummary({ result }: { result: RunResponse }) {
       <Alert variant={variant}>
         <VStack gap="space-4">
           <Heading level="3" size="xsmall">
-            {headline} · {result.env.toUpperCase()}
+            {headline} · {DIRECTION_LABEL[result.direction]}
           </Heading>
           <BodyShort size="small">
             {result.steps.length} steg · {formatDuration(result.durationMs)}
@@ -321,10 +306,10 @@ function ResultSummary({ result }: { result: RunResponse }) {
                 {result.verifications.length === 1 ? "" : "er"} matchet
               </>
             )}
-            {!result.cleanup && result.caseId && (
+            {result.caseId && (
               <>
                 {" "}
-                · <strong>ikke ryddet opp</strong>
+                · saken blir liggende i RINA
               </>
             )}
           </BodyShort>
@@ -338,31 +323,19 @@ function ResultSummary({ result }: { result: RunResponse }) {
           <ResultStat label="BUC" value={result.bucType} />
           <ResultStat label="SED" value={result.sedType} />
           <ResultStat label="Mottaker" value={result.mottakerId} mono />
-          <ResultStat label="Person fnr" value={result.fnr} mono />
+          <ResultStat label="Bruker (fnr)" value={result.fnr} mono />
         </div>
 
-        {(result.links.rina || result.links.neessi) && (
+        {result.links.rina && (
           <HStack gap="space-12" wrap>
-            {result.links.neessi && (
-              <a
-                className="portal-result__link portal-result__link--neessi"
-                href={result.links.neessi}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                <span aria-hidden>↗</span> Åpne i nEESSI
-              </a>
-            )}
-            {result.links.rina && (
-              <a
-                className="portal-result__link portal-result__link--rina"
-                href={result.links.rina}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                <span aria-hidden>↗</span> Åpne i RINA
-              </a>
-            )}
+            <a
+              className="portal-result__link"
+              href={result.links.rina}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <span aria-hidden>↗</span> Åpne i RINA
+            </a>
           </HStack>
         )}
       </div>
@@ -395,7 +368,9 @@ function ResultSummary({ result }: { result: RunResponse }) {
           text-decoration: none;
           font-weight: 600;
           font-size: 0.92rem;
-          border: 1px solid transparent;
+          background: white;
+          color: var(--ax-text-default, #1a1a1a);
+          border: 1px solid var(--ax-border-strong, rgba(0, 0, 0, 0.2));
           transition:
             transform 80ms ease,
             box-shadow 80ms ease;
@@ -403,15 +378,6 @@ function ResultSummary({ result }: { result: RunResponse }) {
         .portal-result__link:hover {
           transform: translateY(-1px);
           box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.25);
-        }
-        .portal-result__link--neessi {
-          background: var(--ax-bg-info-strong, #2c5cab);
-          color: white;
-        }
-        .portal-result__link--rina {
-          background: white;
-          color: var(--ax-text-default, #1a1a1a);
-          border-color: var(--ax-border-strong, rgba(0, 0, 0, 0.2));
         }
       `}</style>
     </VStack>
