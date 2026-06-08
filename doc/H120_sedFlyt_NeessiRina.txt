@@ -1,0 +1,72 @@
+1.1.1.		H120Dto.bruker.personInfo.etternavn				$nav.bruker.person.etternavn										H120.Person.PersonIdentification.familyName
+1.1.2.		H120Dto.bruker.personInfo.fornavn				$nav.bruker.person.fornavn										H120.Person.PersonIdentification.forename
+1.1.3.		H120Dto.bruker.personInfo.foedselsdato				$nav.bruker.person.foedselsdato										H120.Person.PersonIdentification.dateBirth
+1.1.4.		H120Dto.bruker.personInfo.kjoenn				$nav.bruker.person.kjoenn										H120.Person.PersonIdentification.sex.value[0]
+1.1.5.		H120Dto.bruker.personInfo.pinMangler.etternavnVedFoedsel	$nav.bruker.person.etternavnvedfoedsel									H120.Person.PersonIdentification.familyNameAtBirth
+1.1.6.		H120Dto.bruker.personInfo.pinMangler.fornavnVedFoedsel		$nav.bruker.person.fornavnvedfoedsel									H120.Person.PersonIdentification.forenameAtBirth
+1.1.7.1.1.	H120Dto.bruker.personInfo.pin[].landkode			$nav.bruker.person.pin[x].land										H120.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+		H120Dto.bruker.personInfo.pin[].landkode			$nav.bruker.person.pin[x].landkode
+1.1.7.1.2.	H120Dto.bruker.personInfo.pin[].identifikator			$nav.bruker.person.pin[x].identifikator									H120.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+1.1.7.1.3.	H120Dto.bruker.personInfo.pin[].sektor				$nav.bruker.person.pin[x].sektor									H120.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+1.1.7.1.4.1.	H120Dto.bruker.personInfo.pin[].institusjonsid			$nav.bruker.person.pin[x].institusjonsid								H120.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+1.1.7.1.4.2.	H120Dto.bruker.personInfo.pin[].institusjonsnavn		$nav.bruker.person.pin[x].institusjonsnavn								H120.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+1.1.8.1.1.	H120Dto.bruker.personInfo.pinMangler.foedested.by		$nav.bruker.person.foedested.by										H120.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+1.1.8.1.2.	H120Dto.bruker.personInfo.pinMangler.foedested.region		$nav.bruker.person.foedested.region									H120.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+1.1.8.1.3.	H120Dto.bruker.personInfo.pinMangler.foedested.landkode		$nav.bruker.person.foedested.land									H120.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+		H120Dto.bruker.personInfo.pinMangler.foedested.landkode		$nav.bruker.person.foedested.landkode
+1.1.8.2.	H120Dto.bruker.personInfo.pinMangler.far.etternavnVedFoedsel	$nav.bruker.far.person.etternavnvedfoedsel								H120.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+1.1.8.3.	H120Dto.bruker.personInfo.pinMangler.far.fornavn		$nav.bruker.far.person.fornavn										H120.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+1.1.8.4.	H120Dto.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel	$nav.bruker.mor.person.etternavnvedfoedsel								H120.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+1.1.8.5.	H120Dto.bruker.personInfo.pinMangler.mor.fornavn		$nav.bruker.mor.person.fornavn										H120.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+1.2.1.		H120Dto.bruker.personInfo.statsborgerskap[].landkode		$nav.bruker.person.statsborgerskap[x].land								H120.Person.AdditionalInformationPerson.nationality.value[0]
+		H120Dto.bruker.personInfo.statsborgerskap[].landkode		$nav.bruker.person.statsborgerskap[x].landkode
+1.2.2.		H120Dto.bruker.personInfo.tidligereEtternavn			$nav.bruker.person.tidligereetternavn									H120.Person.AdditionalInformationPerson.previousFamilyName
+1.2.3.		H120Dto.bruker.personInfo.tidligereFornavn			$nav.bruker.person.tidligerefornavn									H120.Person.AdditionalInformationPerson.previousForename
+1.2.4.1.	H120Dto.bruker.adresse.gate					$nav.bruker.bostedsadresse.gate										H120.Person.AdditionalInformationPerson.Address.street
+1.2.4.2.	H120Dto.bruker.adresse.bygning					$nav.bruker.bostedsadresse.bygning									H120.Person.AdditionalInformationPerson.Address.buildingName
+1.2.4.3.	H120Dto.bruker.adresse.by					$nav.bruker.bostedsadresse.by										H120.Person.AdditionalInformationPerson.Address.town
+1.2.4.4.	H120Dto.bruker.adresse.postnummer				$nav.bruker.bostedsadresse.postnummer									H120.Person.AdditionalInformationPerson.Address.postalCode
+1.2.4.5.	H120Dto.bruker.adresse.region					$nav.bruker.bostedsadresse.region									H120.Person.AdditionalInformationPerson.Address.region
+1.2.4.6.	H120Dto.bruker.adresse.landkode					$nav.bruker.bostedsadresse.land										H120.Person.AdditionalInformationPerson.Address.country.value[0]
+		H120Dto.bruker.adresse.landkode					$nav.bruker.bostedsadresse.landkode
+1.2.5.1.1.1.	H120Dto.bruker.personInfo.kontakt.telefon[].type		$nav.bruker.person.kontakt.telefon[x].type								H120.Person.AdditionalInformationPerson.ContactInformationPerson.TelephoneNumbers.TelephoneNumber[0].type.value[0]
+1.2.5.1.1.2.	H120Dto.bruker.personInfo.kontakt.telefon[].nummer		$nav.bruker.person.kontakt.telefon[x].nummer								H120.Person.AdditionalInformationPerson.ContactInformationPerson.TelephoneNumbers.TelephoneNumber[0].number
+1.2.5.2.1.1.	H120Dto.bruker.personInfo.kontakt.email[].adresse		$nav.bruker.person.kontakt.email[x].adresse								H120.Person.AdditionalInformationPerson.ContactInformationPerson.EmailAddresses.EmailAddress[0].email
+
+2.1.		H120Dto.beroertYtelse						$horisontal.anmodningmedisinskinformasjon.beroertytelse							H120.TheBenefitConcerned.typeBenefitInReferWhichMedicalInformationRequested.value[0]
+
+3.1.		H120Dto.anmodningensArt.etterspurtHandling			$horisontal.anmodningmedisinskinformasjon.etterspurthandling[x]						H120.NatureRequest.weAskTo.value[0]
+3.2.		H120Dto.anmodningensArt.etterspurtDokumentasjon			$horisontal.anmodningmedisinskinformasjon.etterspurtdokumentasjon[x]					H120.NatureRequest.pleaseProvide.value[0]
+3.3.1.		H120Dto.anmodningensArt.annenDokumentasjon			$horisontal.anmodningmedisinskinformasjon.annendokumentasjon						H120.NatureRequest.FillInIfPleaseProvideOtherMedical.otherMedicalEvidence
+3.4.		H120Dto.anmodningensArt.spesielleKravTilDokumentasjon		$horisontal.anmodningmedisinskinformasjon.spesiellekravtildokumentasjon					H120.NatureRequest.specialRequirementsPointsCoveredFromMedicalExamination
+
+4.1.1.1.	H120Dto.arbeidsufoer.periodeStartdato				$horisontal.anmodningmedisinskinformasjon.relevantperiode.startdato					H120.DetailsRequest.TheRequestConcernsIncapacityForWork.TheRequestedMedicalEvidenceExaminationConcern.startDate
+4.1.1.2.	H120Dto.arbeidsufoer.periodeSluttdato				$horisontal.anmodningmedisinskinformasjon.relevantperiode.sluttdato					H120.DetailsRequest.TheRequestConcernsIncapacityForWork.TheRequestedMedicalEvidenceExaminationConcern.endDate
+4.1.2.		H120Dto.arbeidsufoer.dekkesKostnader				$horisontal.anmodningmedisinskinformasjon.samtykke.dekningkostnader					H120.DetailsRequest.TheRequestConcernsIncapacityForWork.weAgreeCoverCostsMedicalEvidenceexamination.value[0]
+4.2.1.		H120Dto.arbeidsdyktig.dekkesKostnader				$horisontal.anmodning_ikkemedisinskinformasjon.samtykke.dekningkostnader				H120.DetailsRequest.TheRequestDoesNotConcernIncapacityForWork.weAgreeCoverCostsMedicalEvidenceexamination.value[0]
+
+5.1.		H120Dto.familieYtelse.etterspurtDokumentasjon			$horisontal.anmodningmedisinskinformasjon.familie.etterspurtdokumentasjon[x]				H120.QuestionsForFamilyBenefitsOnly.requestedInformation.value[0]
+5.2.		H120Dto.familieYtelse.annenDokumentasjon			$horisontal.anmodningmedisinskinformasjon.familie.annendokumentasjon					H120.QuestionsForFamilyBenefitsOnly.additionalInformationMedicalReport
+
+6.1.1.		H120Dto.yrkesskade.type						$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.type					H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.thisSEDRelatedTo.value[0]
+6.1.2.		H120Dto.yrkesskade.dato						$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.dato					H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.date
+6.1.3.		H120Dto.yrkesskade.sykdomKode					$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.sykdom.kode				H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.accidentDiseaseCode
+6.1.4.		H120Dto.yrkesskade.sykdomKodingssystem				$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.sykdom.kodingssystem			H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.accidentDiseaseCodingSystem
+6.1.5.		H120Dto.yrkesskade.konsekvensEllerBeskrivelse			$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.konsekvensellerbeskrivelse		H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.consequencesAccidentKindOrShortDescriptionDisease
+6.1.6.		H120Dto.yrkesskade.brukerStatus					$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.bruker.status.id			H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.statusPerson.value[0]
+6.1.7.1.	H120Dto.yrkesskade.brukerStatusAnnet				$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.status.annet				H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.PleaseFillInFollowingIfStatusPersonOther.statusPersonIfOther
+6.1.8.1.	H120Dto.yrkesskade.arbeidsgiver.navn				$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.arbeidsgiver.navn			H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.Employer.name
+6.1.8.2.1.1.	H120Dto.yrkesskade.arbeidsgiver.identifikator[].id		$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.arbeidsgiver.identifikator[x].id	H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.Employer.IdentificationNumbers.IdentificationNumber[0].number
+6.1.8.2.1.2.	H120Dto.yrkesskade.arbeidsgiver.identifikator[].type		$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.arbeidsgiver.identifikator[x].type	H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.Employer.IdentificationNumbers.IdentificationNumber[0].type.value[0]
+6.1.8.3.1.	H120Dto.yrkesskade.arbeidsgiver.adresse.gate			$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.arbeidsgiver.adresse.gate		H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.Employer.Address.street
+6.1.8.3.2.	H120Dto.yrkesskade.arbeidsgiver.adresse.bygning			$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.arbeidsgiver.adresse.bygning		H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.Employer.Address.buildingName
+6.1.8.3.3.	H120Dto.yrkesskade.arbeidsgiver.adresse.by			$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.arbeidsgiver.adresse.by		H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.Employer.Address.town
+6.1.8.3.4.	H120Dto.yrkesskade.arbeidsgiver.adresse.postnummer		$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.arbeidsgiver.adresse.postnummer	H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.Employer.Address.postalCode
+6.1.8.3.5.	H120Dto.yrkesskade.arbeidsgiver.adresse.region			$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.arbeidsgiver.adresse.region		H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.Employer.Address.region
+6.1.8.3.6.	H120Dto.yrkesskade.arbeidsgiver.adresse.landkode		$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.arbeidsgiver.adresse.land		H120.QuestionsForAWODOnly.FillInSectionOnlyIfRequestConcerns.Employer.Address.country.value[0]
+		H120Dto.yrkesskade.arbeidsgiver.adresse.landkode		$horisontal.anmodningmedisinskinformasjon.arbeidsulykkeyrkessykdom.arbeidsgiver.adresse.landkode
+
+7.1.		H120Dto.ytterligereInfo						$nav.ytterligereinformasjon										H120.AdditionalInformation.additionalInformation
+		H120Dto.sedType							(metadata, ikkje i ACL)
+		H120Dto.sedVersjon						(metadata, ikkje i ACL)
+		H120Dto.bruker.personInfo.adressebeskyttelsesgrad		(beriking frå PDL, ikkje i ACL)
