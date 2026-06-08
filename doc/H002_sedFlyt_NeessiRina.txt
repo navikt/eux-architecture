@@ -1,0 +1,105 @@
+1.1.1.1.1.		H002.bruker.personInfo.etternavn						$nav.bruker.person.etternavn																				H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.familyName
+1.1.1.1.2.		H002.bruker.personInfo.fornavn							$nav.bruker.person.fornavn																				H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.forename
+1.1.1.1.3.		H002.bruker.personInfo.foedselsdato						$nav.bruker.person.foedselsdato																				H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.dateBirth
+1.1.1.1.4.		H002.bruker.personInfo.kjoenn							$nav.bruker.person.kjoenn																				H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.sex.value[0]
+1.1.1.1.5.		H002.bruker.personInfo.pinMangler.etternavnVedFoedsel				$nav.bruker.person.etternavnvedfoedsel																			H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.familyNameAtBirth
+1.1.1.1.6.		H002.bruker.personInfo.pinMangler.fornavnVedFoedsel				$nav.bruker.person.fornavnvedfoedsel																			H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.forenameAtBirth
+1.1.1.1.7.1.1.		H002.bruker.personInfo.pinListe[].landkode					$nav.bruker.person.pin[x].land																				H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+			H002.bruker.personInfo.pinListe[].landkode					$nav.bruker.person.pin[x].landkode																			H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+1.1.1.1.7.1.2.		H002.bruker.personInfo.pinListe[].identifikator					$nav.bruker.person.pin[x].identifikator																			H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+1.1.1.1.7.1.3.		H002.bruker.personInfo.pinListe[].sektor					$nav.bruker.person.pin[x].sektor																			H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+1.1.1.1.7.1.4.1.	H002.bruker.personInfo.pinListe[].institusjonsid				$nav.bruker.person.pin[x].institusjonsid																		H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+1.1.1.1.7.1.4.2.	H002.bruker.personInfo.pinListe[].institusjonsnavn				$nav.bruker.person.pin[x].institusjonsnavn																		H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+1.1.1.1.8.1.1.		H002.bruker.personInfo.pinMangler.foedested.by					$nav.bruker.person.foedested.by																				H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+1.1.1.1.8.1.2.		H002.bruker.personInfo.pinMangler.foedested.region				$nav.bruker.person.foedested.region																			H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+1.1.1.1.8.1.3.		H002.bruker.personInfo.pinMangler.foedested.land				$nav.bruker.person.foedested.land																			H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+			H002.bruker.personInfo.pinMangler.foedested.landkode				$nav.bruker.person.foedested.landkode																			H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+1.1.1.1.8.2.		H002.bruker.personInfo.pinMangler.far.etternavnVedFoedsel			$nav.bruker.far.person.etternavnvedfoedsel																		H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+1.1.1.1.8.3.		H002.bruker.personInfo.pinMangler.far.fornavn					$nav.bruker.far.person.fornavn																				H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+1.1.1.1.8.4.		H002.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel			$nav.bruker.mor.person.etternavnvedfoedsel																		H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+1.1.1.1.8.5.		H002.bruker.personInfo.pinMangler.mor.fornavn					$nav.bruker.mor.person.fornavn																				H002.ReplyRequestForInformation.Person.PersonIdentification.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+1.1.1.2.1.		H002.bruker.personInfo.statsborgerskap[].land					$nav.bruker.person.statsborgerskap[x].land																		H002.ReplyRequestForInformation.Person.PersonIdentification.AdditionalInformationPerson.nationality.value[0]
+			H002.bruker.personInfo.statsborgerskap[].landkode				$nav.bruker.person.statsborgerskap[x].landkode																		H002.ReplyRequestForInformation.Person.PersonIdentification.AdditionalInformationPerson.nationality.value[0]
+1.1.1.2.2.		$horisontal.bruker.status.id[x]							H002.ReplyRequestForInformation.Person.PersonIdentification.AdditionalInformationPerson.statusPerson.value[0]
+1.1.1.2.3.1.		$horisontal.bruker.status.annet							H002.ReplyRequestForInformation.Person.PersonIdentification.AdditionalInformationPerson.PleaseFillInIfStatusPersonOther.other
+1.1.2.1.1.		H002.bruker.adresser[].type							$nav.bruker.adresse[x].type																				H002.ReplyRequestForInformation.Person.AddressPerson.AddressPerson[0].typeAddress.value[0]
+1.1.2.1.2.1.		H002.bruker.adresser[].gate							$nav.bruker.adresse[x].gate																				H002.ReplyRequestForInformation.Person.AddressPerson.AddressPerson[0].Address.street
+1.1.2.1.2.2.		H002.bruker.adresser[].bygning							$nav.bruker.adresse[x].bygning																				H002.ReplyRequestForInformation.Person.AddressPerson.AddressPerson[0].Address.buildingName
+1.1.2.1.2.3.		H002.bruker.adresser[].by							$nav.bruker.adresse[x].by																				H002.ReplyRequestForInformation.Person.AddressPerson.AddressPerson[0].Address.town
+1.1.2.1.2.4.		H002.bruker.adresser[].postnummer						$nav.bruker.adresse[x].postnummer																			H002.ReplyRequestForInformation.Person.AddressPerson.AddressPerson[0].Address.postalCode
+1.1.2.1.2.5.		H002.bruker.adresser[].region							$nav.bruker.adresse[x].region																				H002.ReplyRequestForInformation.Person.AddressPerson.AddressPerson[0].Address.region
+1.1.2.1.2.6.		H002.bruker.adresser[].land							$nav.bruker.adresse[x].land																				H002.ReplyRequestForInformation.Person.AddressPerson.AddressPerson[0].Address.country.value[0]
+			H002.bruker.adresser[].landkode							$nav.bruker.adresse[x].landkode																				H002.ReplyRequestForInformation.Person.AddressPerson.AddressPerson[0].Address.country.value[0]
+1.1.3.1.1.		$horisontal.bruker.identifisering.personinfo.etternavn				H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.familyName
+1.1.3.1.2.		$horisontal.bruker.identifisering.personinfo.fornavn				H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.forename
+1.1.3.1.3.		$horisontal.bruker.identifisering.personinfo.foedselsdato			H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.birthDate
+1.1.3.1.4.		$horisontal.bruker.identifisering.personinfo.kjoenn				H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.sex.value[0]
+1.1.3.1.5.		$horisontal.bruker.identifisering.personinfo.etternavnvedfoedsel		H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.familyNameAtBirth
+1.1.3.1.6.		$horisontal.bruker.identifisering.personinfo.fornavnvedfoedsel			H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.forenameAtBirth
+1.1.3.1.7.1.		$horisontal.bruker.identifisering.personinfo.foedested.by			H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.PlaceBirth.town
+1.1.3.1.7.2.		$horisontal.bruker.identifisering.personinfo.foedested.region			H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.PlaceBirth.region
+1.1.3.1.7.3.		$horisontal.bruker.identifisering.personinfo.foedested.land			H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.PlaceBirth.country.value[0]
+1.1.3.1.8.		$horisontal.bruker.identifisering.far.person.etternavnvedfoedsel		H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.fatherFamilyNameAtBirth
+1.1.3.1.9.		$horisontal.bruker.identifisering.far.person.fornavn				H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.forenameFather
+1.1.3.1.10.		$horisontal.bruker.identifisering.mor.person.etternavnvedfoedsel		H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.motherFamilyNameAtBirth
+1.1.3.1.11.		$horisontal.bruker.identifisering.mor.person.fornavn				H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.forenameMother
+1.1.3.1.12.		$horisontal.bruker.identifisering.personinfo.tidligereetternavn			H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.previousFamilyName
+1.1.3.1.13.		$horisontal.bruker.identifisering.personinfo.tidligerefornavn			H002.ReplyRequestForInformation.Person.InformationForIdentificationPerson.Person.previousForename
+1.1.4.1.1.		$horisontal.bruker.identifisering.personinfo.pin.alle				H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.all
+1.1.4.1.2.		$horisontal.bruker.identifisering.personinfo.pin.sykepengerkontakt		H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.sicknessInCash
+1.1.4.1.3.		$horisontal.bruker.identifisering.personinfo.pin.sykepengergodtgjoerelse	H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.sicknessInKind
+1.1.4.1.4.		$horisontal.bruker.identifisering.personinfo.pin.pensjon			H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.pension
+1.1.4.1.5.		$horisontal.bruker.identifisering.personinfo.pin.arbeidsledighet		H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.unemployment
+1.1.4.1.6.		$horisontal.bruker.identifisering.personinfo.pin.yrkessykdomkontant		H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.occupationalDiseaseAccidentAtWorkBenefitsInCash
+1.1.4.1.7.		$horisontal.bruker.identifisering.personinfo.pin.yrkessykdomgodtgjoerelse	H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.occupationalDiseaseAccidentAtWorkBenefitsInKind
+1.1.4.1.8.		$horisontal.bruker.identifisering.personinfo.pin.familieytelser			H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.familyBenefits
+1.1.4.1.9.		$horisontal.bruker.identifisering.personinfo.pin.tilbakebetaling		H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.recovery
+1.1.4.1.10.		$horisontal.bruker.identifisering.personinfo.nasjonaltskattenummer		H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.nationalTaxNumber
+1.1.4.1.11.		$horisontal.bruker.identifisering.personinfo.pin.annet				H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.SectorPINPersonalIdentificationNumberSending.otherSectorPIN
+1.1.4.2.1.		$horisontal.bruker.identifisering.personinfo.pin.annensektor.beskrivelse	H002.ReplyRequestForInformation.Person.SectorPINPersonalIdentificationNumberSending.PleaseFillInFollowingIfSectorPINOtherSectorPIN.descriptionOtherSector
+1.1.5.1.1.		H002.positivtSvar.dokument							$horisontal.bruker.positivtsvar.dokument																		H002.ReplyRequestForInformation.Person.PositiveReplyRequestedInformation.WeAreEnclosing.theFollowingDocument
+1.1.5.1.2.		H002.positivtSvar.informasjon							$horisontal.bruker.positivtsvar.informasjon																		H002.ReplyRequestForInformation.Person.PositiveReplyRequestedInformation.WeAreEnclosing.theFollowingInformation
+1.1.5.1.3.		H002.positivtSvar.sed								$horisontal.bruker.positivtsvar.sed																			H002.ReplyRequestForInformation.Person.PositiveReplyRequestedInformation.WeAreEnclosing.theFollowingSED
+1.1.6.1.1.		H002.negativtSvar.dokument							$horisontal.bruker.negativesvar[x].dokument																		H002.ReplyRequestForInformation.Person.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].theFollowingDocument
+1.1.6.1.2.		H002.negativtSvar.informasjon							$horisontal.bruker.negativesvar[x].informasjon																		H002.ReplyRequestForInformation.Person.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].theFollowingInformation
+1.1.6.1.3.		H002.negativtSvar.sed								$horisontal.bruker.negativesvar[x].sed																			H002.ReplyRequestForInformation.Person.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].theFollowingSED
+1.1.6.1.4.		H002.negativtSvar.grunn								$horisontal.bruker.negativesvar[x].grunn																		H002.ReplyRequestForInformation.Person.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].reasons
+1.1.7.1.		H002.ytterligereInfo								$horisontal.bruker.ytterligereinfo																			H002.ReplyRequestForInformation.Person.AdditionalInformation.additionalInformation
+1.1.8.1.		H002.vedlagteDokumenttyper.dokumenttyper[]					$horisontal.bruker.vedlegg.dokumenttyper[x]																		H002.ReplyRequestForInformation.Person.PleaseFindAttachedFollowingDocuments.predefinedDocuments.value[0]
+1.1.8.2.1.1.		H002.vedlagteDokumenttyper.andreDokumenttyper[]					$horisontal.bruker.vedlegg.andredokumenttyper[x]																	H002.ReplyRequestForInformation.Person.PleaseFindAttachedFollowingDocuments.OtherDocumentsAttached.OtherDocument[0].document
+1.2.1.1.		$nav.arbeidsgiver.navn								H002.ReplyRequestForInformation.Employer.Employer.name
+1.2.1.2.1.1.		$nav.arbeidsgiver.identifikator[x].id						H002.ReplyRequestForInformation.Employer.Employer.IdentificationNumbers.IdentificationNumber[0].number
+1.2.1.2.1.2.		$nav.arbeidsgiver.identifikator[x].type42					H002.ReplyRequestForInformation.Employer.Employer.IdentificationNumbers.IdentificationNumber[0].type.value[0]
+1.2.1.3.1.		$nav.arbeidsgiver.adresse.gate							H002.ReplyRequestForInformation.Employer.Employer.Address.street
+1.2.1.3.2.		$nav.arbeidsgiver.adresse.bygning						H002.ReplyRequestForInformation.Employer.Employer.Address.buildingName
+1.2.1.3.3.		$nav.arbeidsgiver.adresse.by							H002.ReplyRequestForInformation.Employer.Employer.Address.town
+1.2.1.3.4.		$nav.arbeidsgiver.adresse.postnummer						H002.ReplyRequestForInformation.Employer.Employer.Address.postalCode
+1.2.1.3.5.		$nav.arbeidsgiver.adresse.region						H002.ReplyRequestForInformation.Employer.Employer.Address.region
+1.2.1.3.6.		$nav.arbeidsgiver.adresse.land							H002.ReplyRequestForInformation.Employer.Employer.Address.country.value[0]
+1.2.2.1.1.		$horisontal.arbeidsgiver.positivtsvar.dokument					H002.ReplyRequestForInformation.Employer.PositiveReplyRequestedInformation.WeAreEnclosing.theFollowingDocument
+1.2.2.1.2.		$horisontal.arbeidsgiver.positivtsvar.informasjon				H002.ReplyRequestForInformation.Employer.PositiveReplyRequestedInformation.WeAreEnclosing.theFollowingInformation
+1.2.2.1.3.		$horisontal.arbeidsgiver.positivtsvar.sed					H002.ReplyRequestForInformation.Employer.PositiveReplyRequestedInformation.WeAreEnclosing.theFollowingSED
+1.2.3.1.1.		$horisontal.arbeidsgiver.negativtsvar[x].dokument				H002.ReplyRequestForInformation.Employer.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].theFollowingDocument
+1.2.3.1.2.		$horisontal.arbeidsgiver.negativtsvar[x].informasjon				H002.ReplyRequestForInformation.Employer.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].theFollowingInformation
+1.2.3.1.3.		$horisontal.arbeidsgiver.negativtsvar[x].sed					H002.ReplyRequestForInformation.Employer.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].theFollowingSED
+1.2.3.1.4.		$horisontal.arbeidsgiver.negativtsvar[x].grunn					H002.ReplyRequestForInformation.Employer.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].reasons
+1.2.4.1.		$horisontal.arbeidsgiver.ytterligereinfo					H002.ReplyRequestForInformation.Employer.AdditionalInformation.additionalInformation
+1.2.5.1.		$horisontal.arbeidsgiver.vedlegg.dokumenttyper[x]				H002.ReplyRequestForInformation.Employer.PleaseFindAttachedFollowingDocuments.predefinedDocuments.value[0]
+1.2.5.2.1.1.		$horisontal.arbeidsgiver.vedlegg.andredokumenttyper[x]				H002.ReplyRequestForInformation.Employer.PleaseFindAttachedFollowingDocuments.OtherDocumentsAttached.OtherDocument[0].document
+1.3.1.1.		$nav.tilbakebetaling.identifikasjon						H002.ReplyRequestForInformation.ReimbursementBulkSED.ReimbursementIdentification.reimbursementRequestID
+1.3.2.1.1.		$horisontal.tilbakebetaling.positivtsvar.dokument				H002.ReplyRequestForInformation.ReimbursementBulkSED.PositiveReplyRequestedInformation.WeAreEnclosing.theFollowingDocument
+1.3.2.1.2.		$horisontal.tilbakebetaling.positivtsvar.informasjon				H002.ReplyRequestForInformation.ReimbursementBulkSED.PositiveReplyRequestedInformation.WeAreEnclosing.theFollowingInformation
+1.3.2.1.3.		$horisontal.tilbakebetaling.positivtsvar.sed					H002.ReplyRequestForInformation.ReimbursementBulkSED.PositiveReplyRequestedInformation.WeAreEnclosing.theFollowingSED
+1.3.3.1.1.		$horisontal.tilbakebetaling.negativtsvar[x].dokument				H002.ReplyRequestForInformation.ReimbursementBulkSED.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].theFollowingDocument
+1.3.3.1.2.		$horisontal.tilbakebetaling.negativtsvar[x].informasjon				H002.ReplyRequestForInformation.ReimbursementBulkSED.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].theFollowingInformation
+1.3.3.1.3.		$horisontal.tilbakebetaling.negativtsvar[x].sed					H002.ReplyRequestForInformation.ReimbursementBulkSED.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].theFollowingSED
+1.3.3.1.4.		$horisontal.tilbakebetaling.negativtsvar[x].grunn				H002.ReplyRequestForInformation.ReimbursementBulkSED.NegativeReplyRequestedInformation.InformationOnInabilityToSend[0].reasons
+1.3.4.1.		$horisontal.tilbakebetaling.ytterligereinfo					H002.ReplyRequestForInformation.ReimbursementBulkSED.AdditionalInformation.additionalInformation
+1.3.5.1.		$horisontal.tilbakebetaling.vedlegg.dokumenttyper[x]				H002.ReplyRequestForInformation.ReimbursementBulkSED.PleaseFindAttachedFollowingDocuments.predefinedDocuments.value[0]
+1.3.5.2.1.1.		$horisontal.tilbakebetaling.vedlegg.andredokumenttyper[x]			H002.ReplyRequestForInformation.ReimbursementBulkSED.PleaseFindAttachedFollowingDocuments.OtherDocumentsAttached.OtherDocument[0].document
+			H002.sedVersjon									(metadata, ikkje i ACL)
+			H002.tema									(metadata, ikkje i ACL)
+			H002.fagsakId									(metadata, ikkje i ACL)
+			H002.enhetId									(metadata, ikkje i ACL)
+			H002.bruker.personInfo.adressebeskyttelse					(beriking frå PDL, ikkje i ACL)
+			H002.bruker.personInfo.statsborgerskap[].fraDato				(ikkje i H002 ACL)

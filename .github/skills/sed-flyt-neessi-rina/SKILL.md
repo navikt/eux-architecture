@@ -1,10 +1,15 @@
 ---
-name: sedFlyt_NeessiRina
+name: sed-flyt-neessi-rina
 description: >-
-  Generates a file showing how the content of a SED is mapped between Neessi-dto, ACL-SED and RINA-SED. Input: SED type (e.g. H120).
+  Generates a file showing how the content of a SED is mapped between
+  Neessi-dto, ACL-SED and RINA-SED. Use this when asked to generate
+  a SED flow mapping, sedFlyt, or field mapping for any SED type
+  (e.g. H120, F001, H065).
+allowed-tools: github-mcp-server-get_file_contents
+license: "Internal / NAV"
 ---
 
-# sedFlyt_NeessiRina — SED Flow Mapping Generator
+# sed-flyt-neessi-rina — SED Flow Mapping Generator
 
 Generates a tab-aligned mapping file for a given SED type showing the relationship between:
 - **indeks** — field position from dokumentasjon (Rina)
@@ -20,13 +25,15 @@ The user provides any SED type, e.g. `H065`, `H120`, `F001`, `U001`, `X008`.
 
 ## Source data locations
 
-All source files are in the local clone at `~/github/eux-acl-generator`:
+All source files are fetched from GitHub (organization: `navikt`). Use the `github-mcp-server-get_file_contents` tool to retrieve them.
+
+**From `navikt/eux-acl-generator`:**
 
 - **nyAclMal_basis.txt**: `src/main/resources/endringer/cdmAclMaler/v44/<letter>/<SED>/nyAclMal_basis.txt`
   where `<letter>` is the first letter(s) of the SED type (H, F, X, etc.)
 - **dokumentasjon JSON**: `src/main/resources/resultater/dokumentasjon/v44/<letter-lowercase>/<SED>_dokumentasjon.json`
 
-DTO, Service, and model class files (if they exist) are in `~/github/eux-neessi`:
+**From `navikt/eux-neessi`** (these are optional — many SED types have neither):
 
 - **DTO**: `src/main/java/no/nav/eux/neessi/restapi/sed/dto/<SED>Dto.java`
 - **Service**: `src/main/java/no/nav/eux/neessi/service/sed/<SED>Service.java`
@@ -36,19 +43,23 @@ DTO, Service, and model class files (if they exist) are in `~/github/eux-neessi`
 
 ### 1. Locate source files
 
+Fetch the following from GitHub using `github-mcp-server-get_file_contents` (owner: `navikt`):
+
 ```
-acl_dir = ~/github/eux-acl-generator/src/main/resources/endringer/cdmAclMaler/v44
-acl_file = <acl_dir>/<LETTER>/<SED>/nyAclMal_basis.txt
-dok_file = ~/github/eux-acl-generator/src/main/resources/resultater/dokumentasjon/v44/<letter>/<SED>_dokumentasjon.json
-dto_file = ~/github/eux-neessi/src/main/java/no/nav/eux/neessi/restapi/sed/dto/<SED>Dto.java  (may not exist)
-svc_file = ~/github/eux-neessi/src/main/java/no/nav/eux/neessi/service/sed/<SED>Service.java  (may not exist)
-model_file = ~/github/eux-neessi/src/main/java/no/nav/eux/neessi/model/sed/<letter>/<SED>.java  (may not exist)
+# From repo: eux-acl-generator
+acl_file = src/main/resources/endringer/cdmAclMaler/v44/<LETTER>/<SED>/nyAclMal_basis.txt
+dok_file = src/main/resources/resultater/dokumentasjon/v44/<letter>/<SED>_dokumentasjon.json
+
+# From repo: eux-neessi (all optional — may not exist)
+dto_file = src/main/java/no/nav/eux/neessi/restapi/sed/dto/<SED>Dto.java
+svc_file = src/main/java/no/nav/eux/neessi/service/sed/<SED>Service.java
+model_file = src/main/java/no/nav/eux/neessi/model/sed/<letter>/<SED>.java
 ```
 
-Verify that `acl_file` and `dok_file` exist. If not, abort with an error message.
+Verify that `acl_file` and `dok_file` exist (the GitHub tool returns an error for missing files). If not, abort with an error message.
 The `dto_file`, `svc_file`, and `model_file` are optional — many SED types have neither.
 
-**Priority**: If `dto_file` exists, use the DTO approach (step 4a). Otherwise, if `model_file` exists, use the model class approach (step 4b). If neither exists, produce a 3-column output (indeks, aclSedSti, ACL path).
+**Priority**: If `dto_file` exists, use the DTO approach (step 4a). Otherwise, if `model_file` exists, use the model class approach (step 4b, see `model-classes.md`). Otherwise, if the SED is one of **F003, F026, F027**, use the `FamilieSed` class approach (step 4c, see `familiesed-mapping.md`). If none of the above apply, produce a 3-column output (indeks, aclSedSti, ACL path).
 
 ### 2. Parse nyAclMal_basis.txt
 
@@ -86,34 +97,11 @@ If `<SED>Dto.java` exists:
 
 ### 4b. Build model class mapping (if model class exists but no DTO)
 
-If `<SED>.java` exists (e.g. `H001.java`):
+See `model-classes.md` for the full model class hierarchy, field tracing rules, and mapping gotchas.
 
-1. Read the model class and identify its fields and parent class hierarchy.
-2. Trace the constructor (which reads from navSed JSON) and `lagNavSed()` (which writes to navSed JSON) to determine which ACL paths each field reads/writes.
-3. Follow the class hierarchy — typically: `<SED>` → `<Letter>Sed` → `Sed`, plus model classes like `PersonInfo`, `Pin`, `Statsborgerskap`, `PinMangler`, `Adresse`, `Anmodning`, etc.
-4. Build a dict: `{ aclSedSti: model_field_path }`.
+### 4c. Build FamilieSed mapping (for F003, F026, F027)
 
-**How to trace ACL paths to fields:**
-- `lesVerdiNode(sedNode, "/horisontal/bruker/ytterligereinfo")` → ACL path `$horisontal.bruker.ytterligereinfo`
-- `sedNode.at("/nav/bruker")` used as context → fields read relative to that become `$nav.bruker.<relative_path>`
-- Array iteration (`.forEach`) → `[x]` in ACL, `[]` in field path
-
-**Field path format:** `<SED>.<field>.<subfield>...` e.g. `H001.bruker.personInfo.pinListe[].landkode`
-
-**Key model classes** (in `~/github/eux-neessi/src/main/java/no/nav/eux/neessi/model/`):
-- `PersonInfo.java` — fornavn, etternavn, kjoenn, foedselsdato, statsborgerskap, pinListe, pinMangler, adressebeskyttelse
-- `Pin.java` — landkode, sektor, identifikator, institusjonsid, institusjonsnavn
-- `Statsborgerskap.java` — land, landkode, fraDato
-- `PinMangler.java` — etternavnVedFoedsel, fornavnVedFoedsel, foedested (by/region/land/landkode), far, mor
-- `Adresse.java` — type, gate, postnummer, by, land, landkode, bygning, region
-- `sed/h/Anmodning.java` — dokumentasjon (informasjon/dokument/sed), adresse (adresseTyper)
-- `sed/h/BrukerH.java` — extends PersonType, adds adresser list
-
-**Key mapping gotchas for model classes:**
-- nyAclMal_basis uses `.land` but `Pin.java` only has field `landkode` — map anyway (same logical data).
-- `Statsborgerskap`, `Adresse`, `PinMangler.Foedested` have BOTH `.land` and `.landkode` fields.
-- The model class may read from a slightly different JSON path than what the ACL maps to (e.g. H001 reads adresser from `/nav/bruker/adresse` but ACL maps to `$nav.bruker.meldinger[x].adresser[x].*`). Map these based on field correspondence.
-- Model classes often handle only a subset of the SED fields (e.g. H001 handles person/anmodning/ytterligereInfo but NOT employer, reimbursement, or notification sections).
+See `familiesed-mapping.md` for FamilieSed fields, supporting classes, and mapping rules.
 
 ### 5. Handle `.land` / `.landkode` variants
 
@@ -159,11 +147,10 @@ Find fields in the DTO/model class not covered by any ACL row. Add them at the b
 
 If neither DTO nor model class exists, use 3 columns (indeks, aclSedSti, ACL path).
 
-**Tab alignment:**
+**Tab alignment:** Use the `format-output.py` script in this skill's directory. It reads tab-separated rows from stdin and applies correct tab alignment:
 - `tab_size = 8`
 - For each column, compute minimum fixed width: `target = ((max_width // 8) + 1) * 8`
 - Tabs needed per cell: `max(1, ceil((target - cell_length) / 8))`
-- This gives the narrowest possible fixed column widths with tab alignment.
 
 **Section separators:** Insert a blank line between rows where the first digit of the indeks changes (i.e. between sections 1, 2, 3, etc.).
 

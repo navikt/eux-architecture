@@ -1,0 +1,51 @@
+1.1.1.		H065Dto.bruker.personInfo.etternavn				$nav.bruker.person.etternavn					H065.Person.PersonIdentification.familyName
+1.1.2.		H065Dto.bruker.personInfo.fornavn				$nav.bruker.person.fornavn					H065.Person.PersonIdentification.forename
+1.1.3.		H065Dto.bruker.personInfo.foedselsdato				$nav.bruker.person.foedselsdato					H065.Person.PersonIdentification.dateBirth
+1.1.4.		H065Dto.bruker.personInfo.kjoenn				$nav.bruker.person.kjoenn					H065.Person.PersonIdentification.sex.value[0]
+1.1.5.		H065Dto.bruker.personInfo.pinMangler.etternavnVedFoedsel	$nav.bruker.person.etternavnvedfoedsel				H065.Person.PersonIdentification.familyNameAtBirth
+1.1.6.		H065Dto.bruker.personInfo.pinMangler.fornavnVedFoedsel		$nav.bruker.person.fornavnvedfoedsel				H065.Person.PersonIdentification.forenameAtBirth
+1.1.7.1.1.	H065Dto.bruker.personInfo.pin[].landkode			$nav.bruker.person.pin[x].land					H065.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+		$nav.bruker.person.pin[x].landkode
+1.1.7.1.2.	H065Dto.bruker.personInfo.pin[].identifikator			$nav.bruker.person.pin[x].identifikator				H065.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+1.1.7.1.3.	H065Dto.bruker.personInfo.pin[].sektor				$nav.bruker.person.pin[x].sektor				H065.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+1.1.7.1.4.1.	H065Dto.bruker.personInfo.pin[].institusjonsid			$nav.bruker.person.pin[x].institusjonsid			H065.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+1.1.7.1.4.2.	H065Dto.bruker.personInfo.pin[].institusjonsnavn		$nav.bruker.person.pin[x].institusjonsnavn			H065.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+1.1.8.1.1.	H065Dto.bruker.personInfo.pinMangler.foedested.by		$nav.bruker.person.foedested.by					H065.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+1.1.8.1.2.	H065Dto.bruker.personInfo.pinMangler.foedested.region		$nav.bruker.person.foedested.region				H065.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+1.1.8.1.3.	H065Dto.bruker.personInfo.pinMangler.foedested.land		$nav.bruker.person.foedested.land				H065.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+		H065Dto.bruker.personInfo.pinMangler.foedested.landkode		$nav.bruker.person.foedested.landkode
+1.1.8.2.	H065Dto.bruker.personInfo.pinMangler.far.etternavnVedFoedsel	$nav.bruker.far.person.etternavnvedfoedsel			H065.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+1.1.8.3.	H065Dto.bruker.personInfo.pinMangler.far.fornavn		$nav.bruker.far.person.fornavn					H065.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+1.1.8.4.	H065Dto.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel	$nav.bruker.mor.person.etternavnvedfoedsel			H065.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+1.1.8.5.	H065Dto.bruker.personInfo.pinMangler.mor.fornavn		$nav.bruker.mor.person.fornavn					H065.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+1.2.1.		H065Dto.bruker.personInfo.statsborgerskap[].landkode		$nav.bruker.person.statsborgerskap[x].land			H065.Person.AdditionalInformationPerson.nationality.value[0]
+		$nav.bruker.person.statsborgerskap[x].landkode
+
+2.1.1.		H065Dto.bruker.adresser[].type					$nav.bruker.adresse[x].type					H065.AddressPerson.AddressPerson[0].typeAddress.value[0]
+2.1.2.1.	H065Dto.bruker.adresser[].gate					$nav.bruker.adresse[x].gate					H065.AddressPerson.AddressPerson[0].Address.street
+2.1.2.2.	H065Dto.bruker.adresser[].bygning				$nav.bruker.adresse[x].bygning					H065.AddressPerson.AddressPerson[0].Address.buildingName
+2.1.2.3.	H065Dto.bruker.adresser[].by					$nav.bruker.adresse[x].by					H065.AddressPerson.AddressPerson[0].Address.town
+2.1.2.4.	H065Dto.bruker.adresser[].postnummer				$nav.bruker.adresse[x].postnummer				H065.AddressPerson.AddressPerson[0].Address.postalCode
+2.1.2.5.	H065Dto.bruker.adresser[].region				$nav.bruker.adresse[x].region					H065.AddressPerson.AddressPerson[0].Address.region
+2.1.2.6.	H065Dto.bruker.adresser[].land					$nav.bruker.adresse[x].land					H065.AddressPerson.AddressPerson[0].Address.country.value[0]
+		H065Dto.bruker.adresser[].landkode				$nav.bruker.adresse[x].landkode
+
+3.1.1.		H065Dto.overfoeringInfo.informasjonAngaarYtelse.type		$horisontal.overfoeringinfo.informasjonangaarytelse.type	H065.AdditionalInformationConcerning.AdditionalInformationConcerning.claimDocumentInformationConcerns.value[0]
+3.1.2.1.	H065Dto.overfoeringInfo.informasjonAngaarYtelse.andre		$horisontal.overfoeringinfo.informasjonangaarytelse.andre	H065.AdditionalInformationConcerning.AdditionalInformationConcerning.FillInIfClaimDocumentInformation.otherBenefits
+3.2.1.		H065Dto.overfoeringInfo.annenKorrespondanse.type		$horisontal.overfoeringinfo.annenkorresponanse.type		H065.AdditionalInformationConcerning.OtherCorrespondence.otherInformation.value[0]
+3.2.2.1.	H065Dto.overfoeringInfo.annenKorrespondanse.andre		$horisontal.overfoeringinfo.annenkorresponanse.andre		H065.AdditionalInformationConcerning.OtherCorrespondence.PleaseFillInFollowingIfOtherCorrespondenceOther.typeCorrespondence
+3.3.1.		H065Dto.overfoeringInfo.til.type				$horisontal.overfoeringinfo.til.type				H065.AdditionalInformationConcerning.TransferClaimDocumentInformationTo.transferClaimDocumentInformationTo.value[0]
+3.3.2.		H065Dto.overfoeringInfo.til.institusjon.id			$horisontal.overfoeringinfo.til.institusjon.id			H065.AdditionalInformationConcerning.TransferClaimDocumentInformationTo.institutionCode
+3.3.3.		H065Dto.overfoeringInfo.til.institusjon.navn			$horisontal.overfoeringinfo.til.institusjon.navn		H065.AdditionalInformationConcerning.TransferClaimDocumentInformationTo.institutionName
+3.4.		H065Dto.overfoeringInfo.mottaksdato				$horisontal.overfoeringinfo.mottaksdato				H065.AdditionalInformationConcerning.dateReceiptClaimDocumentInformation
+3.5.		H065Dto.overfoeringInfo.erBrukerSoekeren			$horisontal.overfoeringinfo.erbrukersoekeren			H065.AdditionalInformationConcerning.thePersonClaimantIndicator.value[0]
+
+4.1.		H065Dto.overfoeringInfo.grunnerForOverfoering			$horisontal.overfoeringinfo.grunnerforoverfoering		H065.ReasonsForTransmission.reasons
+
+5.1.		H065Dto.overfoeringInfo.dokumenterVedlagt.type[]		$horisontal.overfoeringinfo.dokumentervedlagt.type[x]		H065.PleaseFindAttachedFollowingDocuments.predefinedDocuments.value[0]
+5.2.1.1.	H065Dto.overfoeringInfo.dokumenterVedlagt.annet[]		$horisontal.overfoeringinfo.dokumentervedlagt.annet[x]		H065.PleaseFindAttachedFollowingDocuments.OtherDocumentsAttached.OtherDocument[0].document
+
+6.1.		H065Dto.ytterligereInfo						$nav.ytterligereinformasjon					H065.AdditionalInformation.additionalInformation
+		H065Dto.sedType							(metadata, ikkje i ACL)
+		H065Dto.sedVersjon						(metadata, ikkje i ACL)
+		H065Dto.bruker.personInfo.adressebeskyttelsesgrad		(beriking frå PDL, ikkje i ACL)
