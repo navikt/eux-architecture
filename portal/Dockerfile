@@ -4,11 +4,9 @@
 FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/node:22-dev AS builder
 
 ENV CI=true \
-    NEXT_TELEMETRY_DISABLED=1 \
-    PNPM_HOME=/pnpm \
-    PATH=/pnpm:$PATH
+    NEXT_TELEMETRY_DISABLED=1
 
-RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN npm install -g pnpm@10
 
 WORKDIR /app
 
