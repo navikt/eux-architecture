@@ -1,0 +1,47 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /portal
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: Europe/Oslo
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      navikt-patch-minor:
+        patterns:
+          - "@navikt/*"
+        update-types:
+          - patch
+          - minor
+      navikt-major:
+        patterns:
+          - "@navikt/*"
+        update-types:
+          - major
+      dependencies-patch:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@navikt/*"
+        update-types:
+          - patch
+      dependencies-minor:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@navikt/*"
+        update-types:
+          - minor
+      dependencies-major:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@navikt/*"
+        update-types:
+          - major
