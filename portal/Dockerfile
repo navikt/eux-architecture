@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.10
 
 # ---------- Build stage ----------
-FROM node:22-alpine AS builder
+FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/node:22-dev AS builder
 
 ENV CI=true \
     NEXT_TELEMETRY_DISABLED=1 \
@@ -21,7 +21,7 @@ COPY . .
 RUN pnpm build
 
 # ---------- Runtime stage ----------
-FROM gcr.io/distroless/nodejs22-debian12:nonroot
+FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/node:22-slim
 
 ENV NODE_ENV=production \
     PORT=3000 \
