@@ -1,0 +1,44 @@
+Filtrer:
+28058
+Testing i produksjon når vi ikke greier å reprodusere i test
+I utgangspunktet skal ingen testing foregå i produksjonsmiljøet. For enkelte innrapporterte hendelser er det imidlertid nødvendig at noen av våre fagressurser logger inn i produksjonssystemet for å verifisere at systemet fungerer som forventet. I slike tilfeller kan det forekomme at de får tilgang til mer informasjon enn det som normalt ville vært innenfor tjenstlig behov.
+S: 3
+K: 2
+Kun utføre testing i produksjon når absolutt nødvendig
+Fortsatt bevisstgjøring av hva fagresursser har lov og ikke lov til å gjøre i produksjon
+28057
+Mangler oversikt over logg- og overvåkningsverdikjeden
+En stor del av loggløsningen og overvåkningen er utviklet og driftet av NAIS-plattformteamet, som har svært god kontroll på egne systemer. Samtidig kan endringer som gjøres av plattformteamet skje uten at vi umiddelbart blir varslet, noe som kan føre til feilkonfigurasjon i våre løsninger. En slik feil kan medføre at sensitiv informasjon utilsiktet sendes til systemer eller kanaler der den ikke burde vært lagret eller behandlet. Dette representerer en potensiell risiko for brudd på personvern og informasjonssikkerhet.
+S: 3
+K: 4
+Implementere Team logs
+Sjekke logger etter deploy
+Fortsette å følge forbedrede rutiner for håndtering av applikasjonslogging
+28056
+Feil håndtering av kode 6/7 og egne ansatte
+Feil håndtering av kode 6- og kode 7-brukere samt egne ansatte er avgjørende for å ivareta konfidensialitet og hindre uautorisert innsyn. Det må sikres at slike brukere håndteres i tråd med gjeldende retningslinjer og tilgangsbegrensninger, slik at informasjon kun gjøres tilgjengelig for saksbehandlere med tjenstlig behov. Feil håndtering kan medføre alvorlige brudd på taushetsplikten og personvernet.
+S: 3
+K: 5
+Ha gode rutiner og en bevisstgjøring i teamet rundt problematikken.
+28055
+Manglende kapasitet til å patche frontend
+Teamet har svært begrensede ressurser til utvikling og vedlikehold av front-end. Dette medfører utfordringer knyttet til rask utbedring av kjente sårbarheter i rammeverk. Samtidig har teamet god oversikt over identifiserte sårbarheter gjennom NAIS Console, noe som muliggjør målrettet prioritering og håndtering ved behov — selv om dette kan gå på bekostning av fremdriften i utviklingen av nye funksjoner i klienten.
+S: 3
+K: 3
+Tiltak vil være å sørge for riktig prioritering og fortsatt gode rutiner for overvåking av sårbarheter.
+28054
+APIer kan returnere utilsiktet informasjon til front-end
+Ved utvikling av nye API-er kan det oppstå risiko for at mer informasjon enn nødvendig formidles til front-end. Dette kan føre til at saksbehandlere får innsyn i data som ikke er relevante eller tillatt i den aktuelle konteksten, noe som utgjør et brudd på prinsippet om minste nødvendige tilgang og kan medføre personvernkonsekvenser.
+S: 2
+K: 2
+Ha gode rutiner og en bevisstgjøring i teamet rundt problematikken.
+28050
+Utviklere sine påloggningsdetaljer på avveie
+Utviklere har omfattende tilganger som gir mulighet til å deployere applikasjoner til produksjonsmiljøet. Dersom uvedkommende får tilgang til en utviklers påloggingsinformasjon, vil dette utgjøre en svært alvorlig sikkerhetshendelse.
+S: 2
+K: 5
+Si fra dersom noen har åpne pc'er
+Ikke dele passord
+Utløpsdato på tokens, ikke kryss  av på alle rettigheter
+
+Alle endringer er lagret

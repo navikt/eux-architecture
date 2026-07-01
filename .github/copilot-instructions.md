@@ -1,9 +1,20 @@
-This is a documentation-only repository. It contains no application code, no tests, and no build system.
-Its purpose is to document the architecture of the EUX/EESSI platform at NAV (team eessibasis).
+This repository documents the architecture of the EUX/EESSI platform at NAV (team eessibasis) and hosts the **EUX Architecture Portal** — a small web app (`portal/`) backed by a Kotlin/Spring Boot service (`portal-core/`) that surfaces this documentation at https://eux-docs.intern.dev.nav.no.
 
 ## Key context
 
-Read README.md before making any changes — it is the single source of truth for the EUX architecture.
+Read README.md before making any changes — it is the single source of truth for the EUX architecture. The `portal/` and `portal-core/` apps are deployed to NAIS via the workflows in `.github/workflows/`.
+
+## Build / test / lint
+
+- **portal** (Next.js 16, React 19, Aksel 8, pnpm, Node ≥22):
+  - `cd portal && pnpm install` (set `READER_TOKEN` to a PAT with `read:packages` to fetch `@navikt/*` from GitHub Packages)
+  - `pnpm dev` / `pnpm build` / `pnpm start`
+  - `pnpm typecheck` (`tsc --noEmit`) and `pnpm lint` (ESLint)
+- **portal-core** (Kotlin/Spring Boot via `no.nav.eux:parent-pom`, Java 25 toolchain):
+  - Compile: `cd portal-core && mvn -q -DskipTests compile`
+  - Full build + tests: `mvn -q verify`
+  - Single test: `mvn -q -Dtest=ClassName#methodName test`
+- No build is required for README.md or other docs changes.
 
 ## Domain terminology (official EU definitions)
 
@@ -34,8 +45,13 @@ Read README.md before making any changes — it is the single source of truth fo
 
 ## Repository structure
 
-- `README.md` — The architecture document. This is the main deliverable.
+- `README.md` — The architecture document. The main documentation deliverable.
+- `portal/` — Next.js/React/TypeScript web app that renders the architecture portal (App Router, standalone output, Aksel design system, pino logging, Prometheus metrics on `/api/internal/metrics`).
+- `portal-core/` — Kotlin/Spring Boot backend for the portal. Modules: `api` (REST), `kafka` (consumers + config), `sse` (server-sent events).
+- `doc/` — Supporting docs (e.g. BUC/SED dependencies, lessons learned).
+- `etterlevelse/` — NAV compliance documentation (Norwegian).
 - `.github/copilot-instructions.md` — This file. Instructions for AI assistants.
+- `.github/workflows/portal-build-deploy.yaml`, `portal-core-build-deploy.yaml` — NAIS deploy pipelines.
 - `.github/agents/eux-java-dev.agent.md` — Copilot agent for Java EUX projects.
 - `.github/agents/eux-kotlin-dev.agent.md` — Copilot agent for Kotlin EUX projects.
 - `.github/agents/eux-full-stack-dev.agent.md` — Copilot agent for full-stack EUX work (React + Java/Kotlin).
