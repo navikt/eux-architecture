@@ -6,6 +6,7 @@ import no.nav.eux.portal.core.kafka.config.KafkaConsumerPropsBuilder
 import no.nav.eux.portal.core.kafka.model.SedHendelse
 import no.nav.eux.portal.core.kafka.model.SedHendelseRecord
 import no.nav.eux.portal.core.kafka.store.SedHendelseStore
+import no.nav.eux.portal.core.navrinasak.correlation.NavRinasakSentCorrelator
 import org.apache.kafka.clients.consumer.ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -35,6 +36,7 @@ class SedHendelseBackfill(
     private val objectMapper: ObjectMapper,
     private val store: SedHendelseStore,
     private val propsBuilder: KafkaConsumerPropsBuilder,
+    private val navRinasakSentCorrelator: NavRinasakSentCorrelator,
     @param:Value("\${kafka.bootstrap-servers}")
     private val bootstrapServers: String,
     @param:Value("\${kafka.properties.security.protocol}")
@@ -139,7 +141,12 @@ class SedHendelseBackfill(
         // Sort ascending by Kafka timestamp; store.add() uses addFirst,
         // so the newest record ends up at the front of the deque.
         collected.sortBy { it.receivedAt }
-        collected.forEach { store.add(it) }
+        collected.forEach { record ->
+            store.add(record)
+            if (record.direction == "sendt") {
+                navRinasakSentCorrelator.onSedSendt(record.environment, record.hendelse, broadcast = false)
+            }
+        }
         log.info { "Backfill: la til ${collected.size} historiske meldinger fra topic=$topic" }
     }
 }

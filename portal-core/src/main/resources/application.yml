@@ -8,6 +8,17 @@ portal:
     backfill:
       per-topic: ${PORTAL_KAFKA_BACKFILL_PER_TOPIC:10}
       poll-timeout-ms: ${PORTAL_KAFKA_BACKFILL_POLL_TIMEOUT_MS:2000}
+  navrinasak:
+    enabled: ${PORTAL_NAVRINASAK_ENABLED:false}
+    poll-interval-ms: ${PORTAL_NAVRINASAK_POLL_INTERVAL_MS:5000}
+    antall: ${PORTAL_NAVRINASAK_ANTALL:200}
+    environments:
+      q1:
+        base-url: ${NAVRINASAK_Q1_BASE_URL:}
+        scope: ${NAVRINASAK_Q1_SCOPE:}
+      q2:
+        base-url: ${NAVRINASAK_Q2_BASE_URL:}
+        scope: ${NAVRINASAK_Q2_SCOPE:}
 
 kafka:
   bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}

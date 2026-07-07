@@ -13,6 +13,24 @@ Ingress (dev): https://eux-docs.intern.dev.nav.no
 - pino + @navikt/next-logger
 - prom-client (Prometheus metrics on `/api/internal/metrics`)
 
+## Live monitors
+
+Besides the static architecture docs, the portal hosts a few live monitors backed by
+**portal-core** (Kotlin/Spring Boot). The frontend proxies to portal-core via
+`EUX_PORTAL_CORE_BASE_URL` and streams updates over SSE.
+
+| Page | Route | Source | Purpose |
+|---|---|---|---|
+| SED-hendelser | `/kafka/sed-hendelser` | Kafka (`sedmottatt`/`sedsendt` Q1/Q2) | Live feed of SED events sent/received. |
+| SED-kobling | `/kafka/sed-kobling` | Kafka (same topics) | Pairs the Q1→Q2 round-trip of a SED. |
+| SED-er i nEESSI | `/nav-rinasak/sed-er` | Polls **eux-nav-rinasak** (Q1/Q2) | SEDs *created* in nEESSI, highlighting those **not yet sent**. Sent-status is correlated (best-effort) against the `sedsendt` Kafka events. |
+
+The **SED-er i nEESSI** page relies on portal-core polling
+`eux-nav-rinasak`'s `GET /api/v1/rinasaker/nyeste` per environment (Azure AD
+client-credentials). This requires the outbound access policy + `NAVRINASAK_*`
+env vars in `portal-core/.nais/nais.yaml` and a matching inbound rule on
+eux-nav-rinasak.
+
 ## Local development
 
 ```bash
