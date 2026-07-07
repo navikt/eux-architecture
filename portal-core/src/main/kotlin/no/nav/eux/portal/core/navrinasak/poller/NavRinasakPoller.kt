@@ -6,6 +6,7 @@ import no.nav.eux.portal.core.navrinasak.config.NavRinasakProperties
 import no.nav.eux.portal.core.navrinasak.model.NavRinasakSed
 import no.nav.eux.portal.core.navrinasak.model.NavRinasakSedRecord
 import no.nav.eux.portal.core.navrinasak.model.SentStatus
+import no.nav.eux.portal.core.navrinasak.rina.RinaDocumentInfoIndex
 import no.nav.eux.portal.core.navrinasak.sse.NavRinasakSseRegistry
 import no.nav.eux.portal.core.navrinasak.store.NavRinasakSedStore
 import no.nav.eux.portal.core.navrinasak.store.SentSedIndex
@@ -34,6 +35,7 @@ class NavRinasakPoller(
     private val store: NavRinasakSedStore,
     private val sentSedIndex: SentSedIndex,
     private val sseRegistry: NavRinasakSseRegistry,
+    private val documentInfoIndex: RinaDocumentInfoIndex,
 ) {
 
     private val log = logger {}
@@ -55,10 +57,11 @@ class NavRinasakPoller(
         val isInitial = initialized.add(environment)
         var added = 0
         seds.reversed().forEach { sed ->
-            val sentStatus = sentStatusFor(environment, sed)
-            val receivedAt = if (isInitial) creationInstant(sed) else Instant.now()
+            val enrichedSed = enrichFromDocumentEvents(environment, sed)
+            val sentStatus = sentStatusFor(environment, enrichedSed)
+            val receivedAt = if (isInitial) creationInstant(enrichedSed) else Instant.now()
             val record = NavRinasakSedRecord(
-                sed = sed,
+                sed = enrichedSed,
                 environment = environment,
                 receivedAt = receivedAt,
                 sentStatus = sentStatus,
@@ -67,12 +70,16 @@ class NavRinasakPoller(
                 added++
                 if (!isInitial) sseRegistry.broadcast("nav-rinasak-sed", record)
                 // A real SED (journalført dokument) supersedes the case placeholder.
-                if (!sed.isPlaceholder && store.removePlaceholderFor(environment, sed.rinasakId) && !isInitial) {
+                if (!enrichedSed.isPlaceholder && store.removePlaceholderFor(environment, sed.rinasakId) && !isInitial) {
                     sseRegistry.broadcast(
                         "nav-rinasak-sed-removed",
                         mapOf("environment" to environment, "rinasakId" to sed.rinasakId),
                     )
                 }
+            } else if (sed.isPlaceholder) {
+                // Placeholder already stored — enrich it if the SED type has since
+                // been learned from the RINA document-events stream.
+                enrichStoredPlaceholder(environment, sed.rinasakId, broadcast = !isInitial)
             }
         }
         if (isInitial) {
@@ -80,6 +87,31 @@ class NavRinasakPoller(
         } else if (added > 0) {
             log.info { "nav-rinasak $environment: $added nye SED-er" }
         }
+    }
+
+    /** Fills a case placeholder's SED type/BUC from the RINA document-events index. */
+    private fun enrichFromDocumentEvents(environment: String, sed: NavRinasakSed): NavRinasakSed {
+        if (!sed.isPlaceholder) return sed
+        val info = documentInfoIndex.get(environment, sed.rinasakId) ?: return sed
+        return sed.copy(
+            sedType = sed.sedType ?: info.sedType,
+            bucType = sed.bucType ?: info.bucType,
+            opprettetBruker = sed.opprettetBruker ?: info.creator,
+            opprettetTidspunkt = sed.opprettetTidspunkt ?: info.creationDate,
+        )
+    }
+
+    private fun enrichStoredPlaceholder(environment: String, rinasakId: Int, broadcast: Boolean) {
+        val info = documentInfoIndex.get(environment, rinasakId) ?: return
+        val updated = store.enrichPlaceholder(
+            environment = environment,
+            rinasakId = rinasakId,
+            sedType = info.sedType,
+            bucType = info.bucType,
+            opprettetBruker = info.creator,
+            opprettetTidspunkt = info.creationDate,
+        )
+        if (updated != null && broadcast) sseRegistry.broadcast("nav-rinasak-sed", updated)
     }
 
     private fun sentStatusFor(environment: String, sed: NavRinasakSed): SentStatus =

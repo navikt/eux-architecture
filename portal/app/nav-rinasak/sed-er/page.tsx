@@ -56,6 +56,7 @@ interface NavRinasakSed {
   navRinasakOpprettetTidspunkt?: string;
   fagsak?: FagsakInfo;
   initiellFagsak?: InitiellFagsakInfo;
+  bucType?: string | null;
 }
 
 type SentStatus = "SENDT" | "IKKE_SENDT" | "UKJENT";
@@ -387,14 +388,32 @@ function SedDetails({ record }: { record: NavRinasakSedRecord }) {
       <VStack gap="space-6">
         {placeholder && (
           <Alert variant="info" size="small" inline>
-            Saken er opprettet i nEESSI, men SED-en er ikke journalført i{" "}
-            <code>eux-nav-rinasak</code> ennå, så SED-type, SED-ID og
-            dokument-info mangler. Raden oppdateres automatisk når SED-en blir
-            journalført. Åpne saken i nEESSI for detaljer.
+            {s.sedType ? (
+              <>
+                SED-typen <strong>{s.sedType}</strong>
+                {s.bucType ? (
+                  <>
+                    {" "}(BUC <code>{s.bucType}</code>)
+                  </>
+                ) : null}{" "}
+                er hentet fra RINA-hendelser. Saken er opprettet i nEESSI, men
+                SED-en er ikke journalført i <code>eux-nav-rinasak</code> ennå, så
+                SED-ID og dokument-info mangler fortsatt. Raden oppdateres
+                automatisk når SED-en blir journalført.
+              </>
+            ) : (
+              <>
+                Saken er opprettet i nEESSI, men SED-en er ikke journalført i{" "}
+                <code>eux-nav-rinasak</code> ennå, så SED-type, SED-ID og
+                dokument-info mangler. Raden oppdateres automatisk når SED-en blir
+                journalført. Åpne saken i nEESSI for detaljer.
+              </>
+            )}
           </Alert>
         )}
         <Section title="SED">
           <Field label="SED-type" value={s.sedType} />
+          <Field label="BUC-type" value={s.bucType} />
           <Field label="SED-ID (setId i RINA)" value={s.sedId} mono />
           <Field
             label="SED-versjon"
@@ -530,7 +549,15 @@ export default function NavRinasakSedPage() {
       return next;
     });
     setRecords((prev) => {
-      if (prev.some((r) => recordKey(r) === k)) return prev;
+      const idx = prev.findIndex((r) => recordKey(r) === k);
+      if (idx >= 0) {
+        // Same row (e.g. a placeholder enriched with its SED type from the RINA
+        // document-events stream) — replace it in place, keeping its position so
+        // the "new row" flash does not re-trigger.
+        const next = [...prev];
+        next[idx] = record;
+        return next;
+      }
       return [record, ...prev].slice(0, 500);
     });
   }, []);
@@ -584,6 +611,7 @@ export default function NavRinasakSedPage() {
       const haystack = [
         String(r.sed.rinasakId),
         r.sed.sedType,
+        r.sed.bucType,
         r.sed.sedId,
         r.sed.opprettetBruker,
         r.sed.navRinasakOpprettetBruker,
@@ -812,14 +840,32 @@ export default function NavRinasakSedPage() {
                       </Table.DataCell>
                       <Table.DataCell>
                         {r.sed.sedType ? (
-                          <strong>{r.sed.sedType}</strong>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.35rem",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <strong>{r.sed.sedType}</strong>
+                            {isPlaceholder(r) && (
+                              <Tag
+                                size="xsmall"
+                                variant="info-moderate"
+                                title="SED-type er hentet fra RINA-hendelser. SED-en er opprettet i nEESSI, men ikke journalført i eux-nav-rinasak ennå."
+                              >
+                                ikke journalført
+                              </Tag>
+                            )}
+                          </span>
                         ) : (
                           <Tag
                             size="xsmall"
-                            variant="info"
-                            title="Saken er opprettet i nEESSI, men SED-en er ikke journalført i eux-nav-rinasak ennå"
+                            variant="neutral"
+                            title="Saken er opprettet i nEESSI, men SED-type er ikke kjent ennå (verken journalført i eux-nav-rinasak eller sett i RINA-hendelser)"
                           >
-                            SED ikke journalført
+                            Ukjent type
                           </Tag>
                         )}
                       </Table.DataCell>

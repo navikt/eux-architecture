@@ -27,6 +27,8 @@ kafka:
     sedmottatt-v1-q2: ${KAFKA_TOPICS_SEDMOTTATT_V1_Q2:eessibasis.sedmottatt-v1-q2}
     sedsendt-v1-q1: ${KAFKA_TOPICS_SEDSENDT_V1_Q1:eessibasis.sedsendt-v1-q1}
     sedsendt-v1-q2: ${KAFKA_TOPICS_SEDSENDT_V1_Q2:eessibasis.sedsendt-v1-q2}
+    rina-document-events-v1-q1: ${KAFKA_TOPICS_RINA_DOCUMENT_EVENTS_V1_Q1:eessibasis.eux-rina-document-events-v1-q1}
+    rina-document-events-v1-q2: ${KAFKA_TOPICS_RINA_DOCUMENT_EVENTS_V1_Q2:eessibasis.eux-rina-document-events-v1-q2}
   properties:
     security:
       protocol: SSL

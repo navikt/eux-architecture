@@ -29,6 +29,7 @@ data class NavRinasakSed(
     val navRinasakOpprettetTidspunkt: String?,
     val fagsak: FagsakInfo?,
     val initiellFagsak: InitiellFagsakInfo?,
+    val bucType: String? = null,
 ) {
     /** True when this row is a case placeholder with no dokument recorded yet. */
     val isPlaceholder: Boolean get() = sedId == null
@@ -70,10 +71,12 @@ enum class SentStatus {
  * whole backlog); for SEDs discovered on later polls it is the observation time.
  *
  * [sentStatus] is mutable so the sedsendt-correlation can flip a row from
- * IKKE_SENDT to SENDT live without rebuilding the store.
+ * IKKE_SENDT to SENDT live without rebuilding the store. [sed] is mutable so a
+ * case placeholder can be enriched in place with the SED type learned from the
+ * RINA document-events stream before the SED is journalført.
  */
 data class NavRinasakSedRecord(
-    val sed: NavRinasakSed,
+    @Volatile var sed: NavRinasakSed,
     val environment: String,
     val receivedAt: Instant,
     @Volatile var sentStatus: SentStatus,

@@ -57,6 +57,36 @@ class NavRinasakSedStore {
         return removed
     }
 
+    /**
+     * Enriches a case's placeholder row (null sedId) in place with details learned
+     * from the RINA document-events stream (SED type / BUC / creator) before the
+     * SED is journalført. Only fills fields that are still blank so a later real
+     * SED is never overwritten. Returns the updated record when something changed,
+     * else null.
+     */
+    fun enrichPlaceholder(
+        environment: String,
+        rinasakId: Int,
+        sedType: String?,
+        bucType: String?,
+        opprettetBruker: String?,
+        opprettetTidspunkt: String?,
+    ): NavRinasakSedRecord? {
+        val record = buffer.firstOrNull {
+            it.environment == environment && it.sed.rinasakId == rinasakId && it.sed.sedId == null
+        } ?: return null
+        val current = record.sed
+        val enriched = current.copy(
+            sedType = current.sedType ?: sedType,
+            bucType = current.bucType ?: bucType,
+            opprettetBruker = current.opprettetBruker ?: opprettetBruker,
+            opprettetTidspunkt = current.opprettetTidspunkt ?: opprettetTidspunkt,
+        )
+        if (enriched == current) return null
+        record.sed = enriched
+        return record
+    }
+
     fun getAll(): List<NavRinasakSedRecord> = buffer.toList()
 
     fun getFiltered(environment: String?, onlyNotSent: Boolean): List<NavRinasakSedRecord> =
