@@ -34,42 +34,72 @@ class NavRinasakClient(
         return response.navRinasaker.flatMap { it.toSeds() }
     }
 
-    private fun NavRinasakDto.toSeds(): List<NavRinasakSed> =
-        (dokumenter ?: emptyList()).map { dokument ->
-            NavRinasakSed(
-                rinasakId = rinasakId,
-                overstyrtEnhetsnummer = overstyrtEnhetsnummer,
-                sedId = dokument.sedId,
-                sedVersjon = dokument.sedVersjon,
-                sedType = dokument.sedType,
-                dokumentInfoId = dokument.dokumentInfoId,
-                opprettetBruker = dokument.opprettetBruker,
-                opprettetTidspunkt = dokument.opprettetTidspunkt,
-                navRinasakOpprettetBruker = opprettetBruker,
-                navRinasakOpprettetTidspunkt = opprettetTidspunkt,
-                fagsak = fagsak?.let {
-                    FagsakInfo(
-                        tema = it.tema,
-                        type = it.type,
-                        system = it.system,
-                        nr = it.nr,
-                        fnr = it.fnr,
-                        opprettetTidspunkt = it.opprettetTidspunkt,
-                        endretTidspunkt = it.endretTidspunkt,
-                    )
-                },
-                initiellFagsak = initiellFagsak?.let {
-                    InitiellFagsakInfo(
-                        id = it.id,
-                        tema = it.tema,
-                        type = it.type,
-                        system = it.system,
-                        nr = it.nr,
-                        arkiv = it.arkiv,
-                        fnr = it.fnr,
-                        opprettetTidspunkt = it.opprettetTidspunkt,
-                    )
-                },
-            )
-        }
+    /**
+     * Flattens a nav-rinasak into one row per dokument (journalført SED). A case
+     * with no dokumenter yet — the normal state for a SED just created in nEESSI,
+     * since the dokument is only recorded once the SED is journalført — produces a
+     * single **placeholder** row (null SED fields) so the freshly-created case is
+     * still visible. Once a dokument arrives, the poller replaces the placeholder
+     * with the real SED row.
+     */
+    private fun NavRinasakDto.toSeds(): List<NavRinasakSed> {
+        val dokumenter = dokumenter ?: emptyList()
+        if (dokumenter.isEmpty()) return listOf(toPlaceholderSed())
+        return dokumenter.map { toSed(it) }
+    }
+
+    private fun NavRinasakDto.toPlaceholderSed(): NavRinasakSed =
+        NavRinasakSed(
+            rinasakId = rinasakId,
+            overstyrtEnhetsnummer = overstyrtEnhetsnummer,
+            sedId = null,
+            sedVersjon = null,
+            sedType = null,
+            dokumentInfoId = null,
+            opprettetBruker = null,
+            opprettetTidspunkt = null,
+            navRinasakOpprettetBruker = opprettetBruker,
+            navRinasakOpprettetTidspunkt = opprettetTidspunkt,
+            fagsak = fagsak?.toInfo(),
+            initiellFagsak = initiellFagsak?.toInfo(),
+        )
+
+    private fun NavRinasakDto.toSed(dokument: DokumentDto): NavRinasakSed =
+        NavRinasakSed(
+            rinasakId = rinasakId,
+            overstyrtEnhetsnummer = overstyrtEnhetsnummer,
+            sedId = dokument.sedId,
+            sedVersjon = dokument.sedVersjon,
+            sedType = dokument.sedType,
+            dokumentInfoId = dokument.dokumentInfoId,
+            opprettetBruker = dokument.opprettetBruker,
+            opprettetTidspunkt = dokument.opprettetTidspunkt,
+            navRinasakOpprettetBruker = opprettetBruker,
+            navRinasakOpprettetTidspunkt = opprettetTidspunkt,
+            fagsak = fagsak?.toInfo(),
+            initiellFagsak = initiellFagsak?.toInfo(),
+        )
+
+    private fun FagsakDto.toInfo() =
+        FagsakInfo(
+            tema = tema,
+            type = type,
+            system = system,
+            nr = nr,
+            fnr = fnr,
+            opprettetTidspunkt = opprettetTidspunkt,
+            endretTidspunkt = endretTidspunkt,
+        )
+
+    private fun InitiellFagsakDto.toInfo() =
+        InitiellFagsakInfo(
+            id = id,
+            tema = tema,
+            type = type,
+            system = system,
+            nr = nr,
+            arkiv = arkiv,
+            fnr = fnr,
+            opprettetTidspunkt = opprettetTidspunkt,
+        )
 }

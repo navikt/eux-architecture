@@ -46,9 +46,9 @@ interface InitiellFagsakInfo {
 interface NavRinasakSed {
   rinasakId: number;
   overstyrtEnhetsnummer?: string;
-  sedId: string;
-  sedVersjon: number;
-  sedType: string;
+  sedId?: string | null;
+  sedVersjon?: number | null;
+  sedType?: string | null;
   dokumentInfoId?: string;
   opprettetBruker?: string;
   opprettetTidspunkt?: string;
@@ -159,9 +159,14 @@ function isToday(iso: string) {
   }
 }
 
-/** Unique key for a single created SED (env + sedId + version). */
+/** Unique key for a table row: a case placeholder (no SED yet) or a single SED. */
 function recordKey(r: NavRinasakSedRecord): string {
-  return `${r.environment}|${r.sed.sedId}|${r.sed.sedVersjon}`;
+  return `${r.environment}|${r.sed.rinasakId}|${r.sed.sedId ?? "∅"}|${r.sed.sedVersjon ?? "∅"}`;
+}
+
+/** True when the row is a case created in nEESSI whose SED is not journalført yet. */
+function isPlaceholder(r: NavRinasakSedRecord): boolean {
+  return r.sed.sedId == null;
 }
 
 /* ── Flash / tint constants ─────────────────────────── */
@@ -248,14 +253,17 @@ function SentStatusTag({ status }: { status: SentStatus }) {
 function useNavRinasakSSE(
   onCreated: (record: NavRinasakSedRecord) => void,
   onStatus: (record: NavRinasakSedRecord) => void,
+  onRemoved: (environment: string, rinasakId: number) => void,
 ) {
   const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const onCreatedRef = useRef(onCreated);
   const onStatusRef = useRef(onStatus);
+  const onRemovedRef = useRef(onRemoved);
 
   useEffect(() => {
     onCreatedRef.current = onCreated;
     onStatusRef.current = onStatus;
+    onRemovedRef.current = onRemoved;
   });
 
   useEffect(() => {
@@ -279,6 +287,18 @@ function useNavRinasakSSE(
       source.addEventListener("nav-rinasak-sed-status", (e) => {
         try {
           onStatusRef.current(JSON.parse(e.data) as NavRinasakSedRecord);
+        } catch {
+          /* ignore malformed */
+        }
+      });
+
+      source.addEventListener("nav-rinasak-sed-removed", (e) => {
+        try {
+          const { environment, rinasakId } = JSON.parse(e.data) as {
+            environment: string;
+            rinasakId: number;
+          };
+          onRemovedRef.current(environment, rinasakId);
         } catch {
           /* ignore malformed */
         }
@@ -313,7 +333,7 @@ function useNavRinasakSSE(
 
 /* ── Expanded row details ───────────────────────────── */
 
-function Field({ label, value, mono }: { label: string; value?: string; mono?: boolean }) {
+function Field({ label, value, mono }: { label: string; value?: string | null; mono?: boolean }) {
   const display = value && value.length > 0 ? value : "–";
   const hasValue = Boolean(value);
   return (
@@ -361,13 +381,25 @@ function SedDetails({ record }: { record: NavRinasakSedRecord }) {
   const s = record.sed;
   const f = s.fagsak;
   const inf = s.initiellFagsak;
+  const placeholder = s.sedId == null;
   return (
     <Box paddingBlock="space-4" paddingInline="space-2">
       <VStack gap="space-6">
+        {placeholder && (
+          <Alert variant="info" size="small" inline>
+            Saken er opprettet i nEESSI, men SED-en er ikke journalført i{" "}
+            <code>eux-nav-rinasak</code> ennå, så SED-type, SED-ID og
+            dokument-info mangler. Raden oppdateres automatisk når SED-en blir
+            journalført. Åpne saken i nEESSI for detaljer.
+          </Alert>
+        )}
         <Section title="SED">
           <Field label="SED-type" value={s.sedType} />
           <Field label="SED-ID (setId i RINA)" value={s.sedId} mono />
-          <Field label="SED-versjon" value={String(s.sedVersjon)} />
+          <Field
+            label="SED-versjon"
+            value={s.sedVersjon != null ? String(s.sedVersjon) : undefined}
+          />
           <Field label="Dokument-info-ID" value={s.dokumentInfoId} mono />
           <Field label="Opprettet av" value={s.opprettetBruker} />
           <Field label="Opprettet" value={formatDateTime(s.opprettetTidspunkt)} />
@@ -526,7 +558,21 @@ export default function NavRinasakSedPage() {
     }
   }, []);
 
-  const sseStatus = useNavRinasakSSE(handleCreated, handleStatus);
+  // A case's SED got journalført → drop the "no SED yet" placeholder row.
+  const handleRemoved = useCallback((environment: string, rinasakId: number) => {
+    setRecords((prev) =>
+      prev.filter(
+        (r) =>
+          !(
+            r.environment === environment &&
+            r.sed.rinasakId === rinasakId &&
+            r.sed.sedId == null
+          ),
+      ),
+    );
+  }, []);
+
+  const sseStatus = useNavRinasakSSE(handleCreated, handleStatus, handleRemoved);
 
   // Filter
   const query = search.trim().toLowerCase();
@@ -591,9 +637,11 @@ export default function NavRinasakSedPage() {
           <StatusDot status={sseStatus} />
         </HStack>
         <BodyShort style={{ color: "var(--ax-text-subtle, #555)", marginTop: 4 }}>
-          Sanntidsmonitor for SED-er som er <strong>opprettet i nEESSI</strong> og
-          har fått en journal i <code>eux-nav-rinasak</code> — med fokus på SED-er
-          som er opprettet, men <strong>ikke sendt ennå</strong>. Q1 og Q2.
+          Sanntidsmonitor for saker/SED-er som er{" "}
+          <strong>opprettet i nEESSI</strong> og har fått en record i{" "}
+          <code>eux-nav-rinasak</code> — med fokus på SED-er som er opprettet,
+          men <strong>ikke sendt ennå</strong>. Nye saker vises med det samme;
+          SED-type og -ID kommer når SED-en journalføres. Q1 og Q2.
         </BodyShort>
       </Box>
 
@@ -763,7 +811,17 @@ export default function NavRinasakSedPage() {
                         <EnvBadge env={r.environment} />
                       </Table.DataCell>
                       <Table.DataCell>
-                        <strong>{r.sed.sedType ?? "–"}</strong>
+                        {r.sed.sedType ? (
+                          <strong>{r.sed.sedType}</strong>
+                        ) : (
+                          <Tag
+                            size="xsmall"
+                            variant="info"
+                            title="Saken er opprettet i nEESSI, men SED-en er ikke journalført i eux-nav-rinasak ennå"
+                          >
+                            SED ikke journalført
+                          </Tag>
+                        )}
                       </Table.DataCell>
                       <Table.DataCell>
                         <DsLink
@@ -789,9 +847,13 @@ export default function NavRinasakSedPage() {
                         <SentStatusTag status={r.sentStatus} />
                       </Table.DataCell>
                       <Table.DataCell>
-                        <code style={{ fontSize: "0.8em" }}>
-                          {r.sed.sedId.slice(0, 8)}…
-                        </code>
+                        {r.sed.sedId ? (
+                          <code style={{ fontSize: "0.8em" }}>
+                            {r.sed.sedId.slice(0, 8)}…
+                          </code>
+                        ) : (
+                          "–"
+                        )}
                       </Table.DataCell>
                     </Table.ExpandableRow>
                   );

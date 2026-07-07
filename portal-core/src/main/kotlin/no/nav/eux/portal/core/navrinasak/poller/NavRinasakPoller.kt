@@ -66,6 +66,13 @@ class NavRinasakPoller(
             if (store.addIfNew(record)) {
                 added++
                 if (!isInitial) sseRegistry.broadcast("nav-rinasak-sed", record)
+                // A real SED (journalført dokument) supersedes the case placeholder.
+                if (!sed.isPlaceholder && store.removePlaceholderFor(environment, sed.rinasakId) && !isInitial) {
+                    sseRegistry.broadcast(
+                        "nav-rinasak-sed-removed",
+                        mapOf("environment" to environment, "rinasakId" to sed.rinasakId),
+                    )
+                }
             }
         }
         if (isInitial) {

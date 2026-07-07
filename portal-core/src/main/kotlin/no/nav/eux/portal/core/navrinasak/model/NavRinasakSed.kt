@@ -7,13 +7,21 @@ import java.time.Instant
  * record in eux-nav-rinasak. This is the flattened, per-SED view the portal
  * renders: each dokument on a nav-rinasak becomes one row, carrying its parent
  * case/fagsak context.
+ *
+ * A nav-rinasak (RINA case) is registered in eux-nav-rinasak before its SED
+ * (dokument) is necessarily recorded — the dokument is added later via a
+ * separate call. To make such freshly-created cases visible immediately (the
+ * whole point of this monitor is "created, not yet sent"), a case with no
+ * dokument yet is represented by a single **placeholder** row where the SED
+ * fields ([sedId], [sedVersjon], [sedType]) are `null`. Once a dokument arrives
+ * the placeholder is replaced by the real SED row (see the poller/store).
  */
 data class NavRinasakSed(
     val rinasakId: Int,
     val overstyrtEnhetsnummer: String?,
-    val sedId: String,
-    val sedVersjon: Int,
-    val sedType: String,
+    val sedId: String?,
+    val sedVersjon: Int?,
+    val sedType: String?,
     val dokumentInfoId: String?,
     val opprettetBruker: String?,
     val opprettetTidspunkt: String?,
@@ -21,7 +29,10 @@ data class NavRinasakSed(
     val navRinasakOpprettetTidspunkt: String?,
     val fagsak: FagsakInfo?,
     val initiellFagsak: InitiellFagsakInfo?,
-)
+) {
+    /** True when this row is a case placeholder with no dokument recorded yet. */
+    val isPlaceholder: Boolean get() = sedId == null
+}
 
 data class FagsakInfo(
     val tema: String?,
