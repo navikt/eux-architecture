@@ -1,6 +1,10 @@
 package no.nav.eux.portal.core.navrinasak.rina
 
+import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.stereotype.Component
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 import java.util.Collections
 
 /**
@@ -14,6 +18,8 @@ import java.util.Collections
  */
 @Component
 class RinaDocumentInfoIndex {
+
+    private val log = logger {}
 
     data class DocInfo(
         val sedType: String?,
@@ -45,7 +51,7 @@ class RinaDocumentInfoIndex {
             sedType = sedType,
             bucType = event.buc?.takeIf { it.isNotBlank() },
             creator = meta.creator?.name?.takeIf { it.isNotBlank() },
-            creationDate = meta.creationDate?.takeIf { it.isNotBlank() },
+            creationDate = normalizeInstant(meta.creationDate),
             fromStarter = event.isStarter,
         )
         synchronized(byCase) {
@@ -59,6 +65,27 @@ class RinaDocumentInfoIndex {
     }
 
     fun get(environment: String, rinaSakId: Int): DocInfo? = byCase[key(environment, rinaSakId.toString())]
+
+    /**
+     * Normalizes a RINA `creationDate` to a canonical UTC ISO-8601 instant
+     * (e.g. `2026-07-07T14:31:03Z`). RINA emits offsets with hours only
+     * (`2026-07-07T16:31:03+02`), which `java.time` parses fine but JavaScript's
+     * `Date` cannot — so we canonicalize server-side to keep the API's timestamps
+     * uniformly JS-parseable. Returns null when the value is blank/unparseable.
+     */
+    private fun normalizeInstant(raw: String?): String? {
+        val value = raw?.takeIf { it.isNotBlank() } ?: return null
+        return try {
+            OffsetDateTime.parse(value).toInstant().toString()
+        } catch (_: DateTimeParseException) {
+            try {
+                Instant.parse(value).toString()
+            } catch (_: DateTimeParseException) {
+                log.debug { "Kunne ikke tolke RINA creationDate=$value" }
+                null
+            }
+        }
+    }
 
     private companion object {
         const val MAX = 20_000

@@ -76,88 +76,101 @@ function neessiSakUrl(env: string, rinasakId: number | string) {
 
 /* ── Helpers ─────────────────────────────────────────── */
 
-/** Business time of a SED: when it was created in nEESSI. */
+/** Business time of a SED: when it was created in nEESSI. Falls back through the
+ *  available timestamps, skipping any that are missing or unparseable. */
 function sedTime(r: NavRinasakSedRecord): string {
   return (
-    r.sed.opprettetTidspunkt ??
-    r.sed.navRinasakOpprettetTidspunkt ??
-    r.receivedAt
+    [
+      r.sed.opprettetTidspunkt,
+      r.sed.navRinasakOpprettetTidspunkt,
+      r.receivedAt,
+    ].find((c) => safeDate(c) !== null) ?? r.receivedAt
   );
 }
 
-function formatTime(iso: string) {
-  try {
-    return new Date(iso).toLocaleTimeString("nb-NO", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
+/** Epoch millis for a SED's business time, or 0 when unparseable (used for
+ *  sorting / "seen at" bookkeeping). */
+function sedTimeMs(r: NavRinasakSedRecord): number {
+  return safeDate(sedTime(r))?.getTime() ?? 0;
+}
+
+/**
+ * Parses an ISO timestamp defensively. `new Date()` never throws — it returns an
+ * "Invalid Date" whose formatters yield the literal string "Invalid Date" and
+ * whose getters yield NaN, which is what produced the chaotic day sections. This
+ * returns null for missing/unparseable input, and repairs RINA's hour-only
+ * timezone offset ("2026-07-07T16:31:03+02"), which JavaScript's Date rejects,
+ * to the ISO form ("+02:00").
+ */
+function safeDate(iso?: string | null): Date | null {
+  if (!iso) return null;
+  const repaired = iso.replace(
+    /(T\d{2}:\d{2}:\d{2}(?:\.\d+)?)([+-]\d{2})$/,
+    "$1$2:00",
+  );
+  const d = new Date(repaired);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatTime(iso?: string) {
+  const d = safeDate(iso);
+  if (!d) return "–";
+  return d.toLocaleTimeString("nb-NO", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 }
 
 function formatDateTime(iso?: string) {
-  if (!iso) return "–";
-  try {
-    return new Date(iso).toLocaleString("nb-NO", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
+  const d = safeDate(iso);
+  if (!d) return "–";
+  return d.toLocaleString("nb-NO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 }
 
 function formatDayHeading(iso: string) {
-  try {
-    const d = new Date(iso);
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-    const sameDay = (a: Date, b: Date) =>
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate();
-    const formatted = d.toLocaleDateString("nb-NO", {
-      weekday: "long",
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-    if (sameDay(d, today)) return `I dag · ${formatted}`;
-    if (sameDay(d, yesterday)) return `I går · ${formatted}`;
-    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-  } catch {
-    return iso;
-  }
+  const d = safeDate(iso);
+  if (!d) return "Ukjent dato";
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  const sameDay = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+  const formatted = d.toLocaleDateString("nb-NO", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+  if (sameDay(d, today)) return `I dag · ${formatted}`;
+  if (sameDay(d, yesterday)) return `I går · ${formatted}`;
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
 
 function dayKey(iso: string) {
-  try {
-    const d = new Date(iso);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  } catch {
-    return iso;
-  }
+  const d = safeDate(iso);
+  if (!d) return "ukjent";
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function isToday(iso: string) {
-  try {
-    const d = new Date(iso);
-    const now = new Date();
-    return (
-      d.getFullYear() === now.getFullYear() &&
-      d.getMonth() === now.getMonth() &&
-      d.getDate() === now.getDate()
-    );
-  } catch {
-    return false;
-  }
+  const d = safeDate(iso);
+  if (!d) return false;
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
 }
 
 /** Unique key for a table row: a case placeholder (no SED yet) or a single SED. */
@@ -527,7 +540,7 @@ export default function NavRinasakSedPage() {
           const next = new Map(prev);
           for (const r of data) {
             const k = recordKey(r);
-            if (!next.has(k)) next.set(k, new Date(sedTime(r)).getTime());
+            if (!next.has(k)) next.set(k, sedTimeMs(r));
           }
           return next;
         });
@@ -629,9 +642,7 @@ export default function NavRinasakSedPage() {
   });
 
   // Newest created first
-  const sorted = [...filtered].sort(
-    (a, b) => new Date(sedTime(b)).getTime() - new Date(sedTime(a)).getTime(),
-  );
+  const sorted = [...filtered].sort((a, b) => sedTimeMs(b) - sedTimeMs(a));
 
   // Header stats (computed over env-filtered set, ignoring search/status)
   const envScoped = records.filter(
