@@ -8,7 +8,7 @@ permissions:
 
 on:
   push:
-    branches: [ main, 2-portal ]
+    branches: [ main, 2-portal, portal-sed-er-i-neessi ]
     paths:
       - 'portal/**'
       - '.github/workflows/portal-build-deploy.yaml'
