@@ -1,12 +1,8 @@
-package no.nav.eux.portal.core.kafka.consumer
+package no.nav.eux.portal.core.navrinasak.rina
 
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import no.nav.eux.portal.core.kafka.TopicMetadata
 import no.nav.eux.portal.core.kafka.config.KafkaConsumerPropsBuilder
-import no.nav.eux.portal.core.kafka.model.SedHendelse
-import no.nav.eux.portal.core.kafka.model.SedHendelseRecord
-import no.nav.eux.portal.core.kafka.store.SedHendelseStore
-import no.nav.eux.portal.core.navrinasak.correlation.NavRinasakSentCorrelator
 import org.apache.kafka.clients.consumer.ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -18,40 +14,36 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import tools.jackson.databind.ObjectMapper
 import java.time.Duration
-import java.time.Instant
 import java.util.UUID
 import kotlin.math.max
 
 /**
- * One-shot startup job: seeds [SedHendelseStore] with the most recent
- * messages from each configured topic so the UI isn't empty after a clean
- * restart. Uses a throwaway KafkaConsumer with `assign()` (no group
- * membership) and `enable.auto.commit=false` — does not touch any
- * committed offsets and does not interfere with the live KafkaListener
- * or with any other consumers of these topics.
+ * One-shot startup job that seeds [RinaDocumentInfoIndex] with recent RINA
+ * document events so the portal knows the SED type of cases created shortly
+ * before a (re)start — including SEDs whose CREATE event has already passed the
+ * live consumer's `latest` offset. Mirrors
+ * [no.nav.eux.portal.core.kafka.consumer.SedHendelseBackfill]: a throwaway
+ * KafkaConsumer with `assign()` (no group membership) and
+ * `enable.auto.commit=false`, so it never touches committed offsets nor
+ * interferes with the live listener.
  */
 @Component
 @ConditionalOnProperty(name = ["portal.kafka.enabled"], havingValue = "true")
-class SedHendelseBackfill(
+class RinaDocumentEventBackfill(
     private val objectMapper: ObjectMapper,
-    private val store: SedHendelseStore,
+    private val documentInfoIndex: RinaDocumentInfoIndex,
     private val propsBuilder: KafkaConsumerPropsBuilder,
-    private val navRinasakSentCorrelator: NavRinasakSentCorrelator,
     @param:Value("\${kafka.bootstrap-servers}")
     private val bootstrapServers: String,
     @param:Value("\${kafka.properties.security.protocol}")
     private val securityProtocol: String,
-    @param:Value("\${kafka.topics.sedmottatt-v1-q1}")
-    private val sedmottattQ1: String,
-    @param:Value("\${kafka.topics.sedmottatt-v1-q2}")
-    private val sedmottattQ2: String,
-    @param:Value("\${kafka.topics.sedsendt-v1-q1}")
-    private val sedsendtQ1: String,
-    @param:Value("\${kafka.topics.sedsendt-v1-q2}")
-    private val sedsendtQ2: String,
-    @param:Value("\${portal.kafka.backfill.per-topic:10}")
+    @param:Value("\${kafka.topics.rina-document-events-v1-q1}")
+    private val documentEventsQ1: String,
+    @param:Value("\${kafka.topics.rina-document-events-v1-q2}")
+    private val documentEventsQ2: String,
+    @param:Value("\${portal.navrinasak.rina-backfill.per-topic:500}")
     private val perTopic: Int,
-    @param:Value("\${portal.kafka.backfill.poll-timeout-ms:2000}")
+    @param:Value("\${portal.navrinasak.rina-backfill.poll-timeout-ms:2000}")
     private val pollTimeoutMs: Long,
 ) : ApplicationRunner {
 
@@ -59,24 +51,22 @@ class SedHendelseBackfill(
 
     override fun run(args: ApplicationArguments) {
         if (perTopic <= 0) {
-            log.info { "SED-hendelse backfill disabled (per-topic=$perTopic)" }
+            log.info { "RINA document-event backfill disabled (per-topic=$perTopic)" }
             return
         }
-        val topics = listOf(sedmottattQ1, sedmottattQ2, sedsendtQ1, sedsendtQ2)
+        val topics = listOf(documentEventsQ1, documentEventsQ2)
         val props = propsBuilder.build(
             bootstrapServers = bootstrapServers,
             securityProtocol = securityProtocol,
             extra = mapOf(
-                // Throwaway group id — assign() doesn't join a group, but some
-                // client configs/ACLs still require group.id to be set.
-                GROUP_ID_CONFIG to "eux-portal-core-backfill-${UUID.randomUUID()}",
+                GROUP_ID_CONFIG to "eux-portal-core-rina-doc-backfill-${UUID.randomUUID()}",
                 ENABLE_AUTO_COMMIT_CONFIG to false,
             ),
         )
         KafkaConsumer<String, String>(props).use { consumer ->
             topics.forEach { topic ->
                 runCatching { backfillTopic(consumer, topic) }
-                    .onFailure { log.warn(it) { "Backfill feilet for topic=$topic" } }
+                    .onFailure { log.warn(it) { "RINA document-event backfill feilet for topic=$topic" } }
             }
         }
     }
@@ -84,7 +74,7 @@ class SedHendelseBackfill(
     private fun backfillTopic(consumer: KafkaConsumer<String, String>, topic: String) {
         val partitionInfos = consumer.partitionsFor(topic) ?: emptyList()
         if (partitionInfos.isEmpty()) {
-            log.info { "Backfill: ingen partisjoner for topic=$topic" }
+            log.info { "RINA document-event backfill: ingen partisjoner for topic=$topic" }
             return
         }
         val partitions = partitionInfos.map { TopicPartition(topic, it.partition()) }
@@ -103,11 +93,12 @@ class SedHendelseBackfill(
             targetCounts[tp] = end - seekTo
         }
         if (targetCounts.values.sum() == 0L) {
-            log.info { "Backfill: ingen historikk for topic=$topic" }
+            log.info { "RINA document-event backfill: ingen historikk for topic=$topic" }
             return
         }
 
-        val collected = mutableListOf<SedHendelseRecord>()
+        val environment = TopicMetadata.parse(topic).environment
+        var recorded = 0
         val perPartitionRead = partitions.associateWith { 0L }.toMutableMap()
         val deadline = System.nanoTime() + Duration.ofMillis(pollTimeoutMs * 3).toNanos()
 
@@ -119,34 +110,15 @@ class SedHendelseBackfill(
                 val target = targetCounts[tp] ?: 0L
                 if ((perPartitionRead[tp] ?: 0L) >= target) return@forEach
                 try {
-                    val hendelse = objectMapper.readValue(rec.value(), SedHendelse::class.java)
-                    val (environment, direction) = TopicMetadata.parse(rec.topic())
-                    collected += SedHendelseRecord(
-                        hendelse = hendelse,
-                        topic = rec.topic(),
-                        environment = environment,
-                        direction = direction,
-                        receivedAt = Instant.ofEpochMilli(rec.timestamp()),
-                        offset = rec.offset(),
-                        partition = rec.partition(),
-                    )
+                    val event = objectMapper.readValue(rec.value(), RinaDocumentEvent::class.java)
+                    if (documentInfoIndex.record(environment, event) != null) recorded++
                     perPartitionRead[tp] = (perPartitionRead[tp] ?: 0L) + 1
                 } catch (e: Exception) {
-                    log.warn(e) { "Backfill: kunne ikke parse melding topic=${rec.topic()} offset=${rec.offset()}" }
+                    log.warn(e) { "RINA document-event backfill: kunne ikke parse melding topic=${rec.topic()} offset=${rec.offset()}" }
                 }
             }
             if (perPartitionRead.all { (tp, n) -> n >= (targetCounts[tp] ?: 0L) }) break
         }
-
-        // Sort ascending by Kafka timestamp; store.add() uses addFirst,
-        // so the newest record ends up at the front of the deque.
-        collected.sortBy { it.receivedAt }
-        collected.forEach { record ->
-            store.add(record)
-            if (record.direction == TopicMetadata.DIRECTION_SENDT) {
-                navRinasakSentCorrelator.onSedSendt(record.environment, record.hendelse, broadcast = false)
-            }
-        }
-        log.info { "Backfill: la til ${collected.size} historiske meldinger fra topic=$topic" }
+        log.info { "RINA document-event backfill: indekserte $recorded caser fra topic=$topic" }
     }
 }

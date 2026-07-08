@@ -6,6 +6,7 @@ import no.nav.eux.portal.core.kafka.TopicMetadata
 import no.nav.eux.portal.core.kafka.model.SedHendelse
 import no.nav.eux.portal.core.kafka.model.SedHendelseRecord
 import no.nav.eux.portal.core.kafka.store.SedHendelseStore
+import no.nav.eux.portal.core.navrinasak.correlation.NavRinasakSentCorrelator
 import no.nav.eux.portal.core.sse.SseEmitterRegistry
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -19,6 +20,7 @@ class SedHendelseConsumer(
     private val objectMapper: ObjectMapper,
     private val store: SedHendelseStore,
     private val sseRegistry: SseEmitterRegistry,
+    private val navRinasakSentCorrelator: NavRinasakSentCorrelator,
 ) {
 
     val log = logger {}
@@ -48,6 +50,9 @@ class SedHendelseConsumer(
             )
             store.add(sedRecord)
             sseRegistry.broadcast("sed-hendelse", sedRecord)
+            if (direction == TopicMetadata.DIRECTION_SENDT) {
+                navRinasakSentCorrelator.onSedSendt(environment, hendelse)
+            }
             log.debug { "SED-hendelse fra ${record.topic()}: ${hendelse.sedType} rinaSakId=${hendelse.rinaSakId}" }
         } catch (e: Exception) {
             log.warn(e) { "Feil ved prosessering av Kafka-melding fra ${record.topic()} offset=${record.offset()}" }

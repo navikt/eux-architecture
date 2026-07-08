@@ -31,6 +31,12 @@ const NAV_SECTIONS: { heading?: string; items: { href: string; label: string; ex
     ],
   },
   {
+    heading: "Nav-rinasak",
+    items: [
+      { href: "/nav-rinasak/sed-er", label: "SED-er i nEESSI" },
+    ],
+  },
+  {
     heading: "Verktøy",
     items: [
       { href: "/tests", label: "Smoke-test", requiresLogin: true },

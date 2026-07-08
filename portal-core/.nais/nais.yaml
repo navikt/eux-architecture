@@ -51,6 +51,10 @@ spec:
         - application: eux-architecture-portal
           namespace: eessibasis
           cluster: dev-gcp
+    outbound:
+      rules:
+        - application: eux-nav-rinasak-q1
+        - application: eux-nav-rinasak-q2
   observability:
     autoInstrumentation:
       enabled: true
@@ -70,3 +74,13 @@ spec:
       value: {{ kafka.topics.sedsendt-v1-q1 }}
     - name: KAFKA_TOPICS_SEDSENDT_V1_Q2
       value: {{ kafka.topics.sedsendt-v1-q2 }}
+    - name: PORTAL_NAVRINASAK_ENABLED
+      value: "true"
+    - name: NAVRINASAK_Q1_BASE_URL
+      value: http://eux-nav-rinasak-q1
+    - name: NAVRINASAK_Q1_SCOPE
+      value: api://dev-gcp.eessibasis.eux-nav-rinasak-q1/.default
+    - name: NAVRINASAK_Q2_BASE_URL
+      value: http://eux-nav-rinasak-q2
+    - name: NAVRINASAK_Q2_SCOPE
+      value: api://dev-gcp.eessibasis.eux-nav-rinasak-q2/.default

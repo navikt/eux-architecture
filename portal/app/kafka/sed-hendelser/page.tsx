@@ -18,6 +18,14 @@ import {
   CopyButton,
   Link as DsLink,
 } from "@navikt/ds-react";
+import {
+  formatTime,
+  formatDateTime,
+  formatDayHeading,
+  dayKey,
+} from "@/lib/datetime";
+import { neessiSakUrl } from "@/lib/neessi";
+import { StatusDot, type ConnectionStatus } from "@/components/StatusDot";
 
 /* ── Types ─────────────────────────────────────────── */
 
@@ -49,25 +57,7 @@ interface SedHendelseRecord {
   partition: number;
 }
 
-/* ── Neessi deep link ──────────────────────────────── */
-
-function neessiSakUrl(env: string, rinaSakId: string) {
-  return `https://eux-neessi-${env}.intern.dev.nav.no/svarsed/view/sak/${rinaSakId}`;
-}
-
 /* ── Helpers ─────────────────────────────────────────── */
-
-function formatTime(iso: string) {
-  try {
-    return new Date(iso).toLocaleTimeString("nb-NO", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
 
 /**
  * Trims `text` to at most `max` characters. Short values like
@@ -78,54 +68,6 @@ function formatTime(iso: string) {
 function truncate(text: string, max: number) {
   if (text.length <= max) return text;
   return text.slice(0, max - 1).trimEnd() + "…";
-}
-
-function formatDateTime(iso: string) {
-  try {
-    return new Date(iso).toLocaleString("nb-NO", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
-
-function formatDayHeading(iso: string) {
-  try {
-    const d = new Date(iso);
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-    const sameDay = (a: Date, b: Date) =>
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate();
-    const formatted = d.toLocaleDateString("nb-NO", {
-      weekday: "long",
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-    if (sameDay(d, today)) return `I dag · ${formatted}`;
-    if (sameDay(d, yesterday)) return `I går · ${formatted}`;
-    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-  } catch {
-    return iso;
-  }
-}
-
-function dayKey(iso: string) {
-  try {
-    const d = new Date(iso);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  } catch {
-    return iso;
-  }
 }
 
 /* ── Pair-highlight ─────────────────────────────────── */
@@ -236,37 +178,6 @@ function computePairTints(
     out.set(rk, { color, alpha, flash });
   }
   return out;
-}
-
-/* ── Connection status indicator ────────────────────── */
-
-type ConnectionStatus = "connecting" | "connected" | "disconnected";
-
-function StatusDot({ status }: { status: ConnectionStatus }) {
-  const colors: Record<ConnectionStatus, string> = {
-    connecting: "#c77300",
-    connected: "#067a3a",
-    disconnected: "#ba3a26",
-  };
-  const labels: Record<ConnectionStatus, string> = {
-    connecting: "Kobler til …",
-    connected: "Live",
-    disconnected: "Frakoblet",
-  };
-  return (
-    <HStack gap="space-1" align="center">
-      <span
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: "50%",
-          background: colors[status],
-          display: "inline-block",
-        }}
-      />
-      <Detail style={{ color: colors[status] }}>{labels[status]}</Detail>
-    </HStack>
-  );
 }
 
 /* ── Direction badge ────────────────────────────────── */

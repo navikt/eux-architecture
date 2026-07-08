@@ -386,6 +386,37 @@ main:has(.portal-page--wide) {
   }
 }
 
+/* nav-rinasak "SED-er i nEESSI" page: keep rows on a single visual line */
+.nav-rinasak-table tr:not(.aksel-table__expanded-row) > th,
+.nav-rinasak-table tr:not(.aksel-table__expanded-row) > td {
+  white-space: nowrap;
+}
+
+/* Persistent left-border accent for SEDs created but not yet sent */
+.nav-rinasak-table tr.nav-rinasak-row--ikke-sendt > td:first-child {
+  border-left: 3px solid var(--ax-border-warning, #c77300);
+}
+
+/* Brief green flash when a SED flips from "Ikke sendt" to "Sendt" live */
+.nav-rinasak-table tr.nav-rinasak-row--sent-flash > td {
+  animation: nav-rinasak-sent-flash 1600ms ease-out;
+}
+
+@keyframes nav-rinasak-sent-flash {
+  0% {
+    background-color: #34d399;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-rinasak-table tr.nav-rinasak-row--sent-flash > td {
+    animation: none;
+  }
+}
+
 @media (min-width: 900px) {
   .portal-shell {
     grid-template-columns: 240px 1fr;
