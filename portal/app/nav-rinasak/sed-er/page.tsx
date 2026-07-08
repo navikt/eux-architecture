@@ -700,11 +700,10 @@ export default function NavRinasakSedPage() {
           </Heading>
           <StatusDot status={sseStatus} />
         </HStack>
-        <BodyShort style={{ color: "var(--ax-text-subtle, #555)", marginTop: 6, maxWidth: "70ch" }}>
+        <BodyShort style={{ color: "var(--ax-text-subtle, #555)", marginTop: 6, maxWidth: "56rem" }}>
           Sanntidsmonitor for saker og SED-er som opprettes i nEESSI og
           registreres i eux-nav-rinasak. Nye saker dukker opp umiddelbart –
-          SED-type og SED-ID fylles inn når SED-en registreres. Følg særlig med
-          på SED-er som ennå ikke er sendt. Dekker miljøene Q1 og Q2.
+          SED-type og SED-ID fylles inn når SED-en registreres.
         </BodyShort>
       </Box>
 
