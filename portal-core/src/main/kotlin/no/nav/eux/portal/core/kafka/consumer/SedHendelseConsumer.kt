@@ -50,7 +50,7 @@ class SedHendelseConsumer(
             )
             store.add(sedRecord)
             sseRegistry.broadcast("sed-hendelse", sedRecord)
-            if (direction == "sendt") {
+            if (direction == TopicMetadata.DIRECTION_SENDT) {
                 navRinasakSentCorrelator.onSedSendt(environment, hendelse)
             }
             log.debug { "SED-hendelse fra ${record.topic()}: ${hendelse.sedType} rinaSakId=${hendelse.rinaSakId}" }

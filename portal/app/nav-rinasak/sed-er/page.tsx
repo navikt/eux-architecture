@@ -19,6 +19,16 @@ import {
   CopyButton,
   Link as DsLink,
 } from "@navikt/ds-react";
+import {
+  safeDate,
+  formatTime,
+  formatDateTime,
+  formatDayHeading,
+  dayKey,
+  isToday,
+} from "@/lib/datetime";
+import { neessiSakUrl } from "@/lib/neessi";
+import { StatusDot, type ConnectionStatus } from "@/components/StatusDot";
 
 /* ── Types ─────────────────────────────────────────── */
 
@@ -68,12 +78,6 @@ interface NavRinasakSedRecord {
   sentStatus: SentStatus;
 }
 
-/* ── Neessi deep link ──────────────────────────────── */
-
-function neessiSakUrl(env: string, rinasakId: number | string) {
-  return `https://eux-neessi-${env}.intern.dev.nav.no/svarsed/view/sak/${rinasakId}`;
-}
-
 /* ── Helpers ─────────────────────────────────────────── */
 
 /** Business time of a SED: when it was created in nEESSI. Falls back through the
@@ -94,85 +98,6 @@ function sedTimeMs(r: NavRinasakSedRecord): number {
   return safeDate(sedTime(r))?.getTime() ?? 0;
 }
 
-/**
- * Parses an ISO timestamp defensively. `new Date()` never throws — it returns an
- * "Invalid Date" whose formatters yield the literal string "Invalid Date" and
- * whose getters yield NaN, which is what produced the chaotic day sections. This
- * returns null for missing/unparseable input, and repairs RINA's hour-only
- * timezone offset ("2026-07-07T16:31:03+02"), which JavaScript's Date rejects,
- * to the ISO form ("+02:00").
- */
-function safeDate(iso?: string | null): Date | null {
-  if (!iso) return null;
-  const repaired = iso.replace(
-    /(T\d{2}:\d{2}:\d{2}(?:\.\d+)?)([+-]\d{2})$/,
-    "$1$2:00",
-  );
-  const d = new Date(repaired);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-function formatTime(iso?: string) {
-  const d = safeDate(iso);
-  if (!d) return "–";
-  return d.toLocaleTimeString("nb-NO", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
-
-function formatDateTime(iso?: string) {
-  const d = safeDate(iso);
-  if (!d) return "–";
-  return d.toLocaleString("nb-NO", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
-
-function formatDayHeading(iso: string) {
-  const d = safeDate(iso);
-  if (!d) return "Ukjent dato";
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
-  const sameDay = (a: Date, b: Date) =>
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate();
-  const formatted = d.toLocaleDateString("nb-NO", {
-    weekday: "long",
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-  if (sameDay(d, today)) return `I dag · ${formatted}`;
-  if (sameDay(d, yesterday)) return `I går · ${formatted}`;
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-}
-
-function dayKey(iso: string) {
-  const d = safeDate(iso);
-  if (!d) return "ukjent";
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-function isToday(iso: string) {
-  const d = safeDate(iso);
-  if (!d) return false;
-  const now = new Date();
-  return (
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate()
-  );
-}
-
 /** Unique key for a table row: a case placeholder (no SED yet) or a single SED. */
 function recordKey(r: NavRinasakSedRecord): string {
   return `${r.environment}|${r.sed.rinasakId}|${r.sed.sedId ?? "∅"}|${r.sed.sedVersjon ?? "∅"}`;
@@ -189,6 +114,9 @@ const HIGHLIGHT_WINDOW_MS = 60 * 1000;
 const FLASH_DURATION_MS = 1100;
 const SENT_FLASH_MS = 1600;
 const TICK_MS = 3000;
+const RECONNECT_MS = 5000;
+const MAX_ROWS = 500;
+const FIRST_SEEN_CAP = 2000;
 const CREATED_TINT = "#a7f3d0"; // mint — "created in nEESSI"
 
 /** Eased alpha: starts vivid, fades to 0 at 1 min. */
@@ -197,37 +125,6 @@ function tintAlpha(ageMs: number): number {
   if (ageMs >= HIGHLIGHT_WINDOW_MS) return 0;
   const remaining = 1 - ageMs / HIGHLIGHT_WINDOW_MS;
   return Math.pow(remaining, 0.7);
-}
-
-/* ── Connection status indicator ────────────────────── */
-
-type ConnectionStatus = "connecting" | "connected" | "disconnected";
-
-function StatusDot({ status }: { status: ConnectionStatus }) {
-  const colors: Record<ConnectionStatus, string> = {
-    connecting: "#c77300",
-    connected: "#067a3a",
-    disconnected: "#ba3a26",
-  };
-  const labels: Record<ConnectionStatus, string> = {
-    connecting: "Kobler til …",
-    connected: "Live",
-    disconnected: "Frakoblet",
-  };
-  return (
-    <HStack gap="space-1" align="center">
-      <span
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: "50%",
-          background: colors[status],
-          display: "inline-block",
-        }}
-      />
-      <Detail style={{ color: colors[status] }}>{labels[status]}</Detail>
-    </HStack>
-  );
 }
 
 /* ── Badges ─────────────────────────────────────────── */
@@ -328,7 +225,7 @@ function useNavRinasakSSE(
         setStatus("disconnected");
         source?.close();
         if (!closed) {
-          reconnectTimer = setTimeout(connect, 5000);
+          reconnectTimer = setTimeout(connect, RECONNECT_MS);
         }
       };
     }
@@ -559,6 +456,13 @@ export default function NavRinasakSedPage() {
       if (prev.has(k)) return prev;
       const next = new Map(prev);
       next.set(k, Date.now());
+      // Bound growth over long-lived sessions: the oldest-seen entries are well
+      // past the highlight window, so dropping them never affects a visible tint.
+      while (next.size > FIRST_SEEN_CAP) {
+        const oldest = next.keys().next().value;
+        if (oldest === undefined) break;
+        next.delete(oldest);
+      }
       return next;
     });
     setRecords((prev) => {
@@ -571,7 +475,7 @@ export default function NavRinasakSedPage() {
         next[idx] = record;
         return next;
       }
-      return [record, ...prev].slice(0, 500);
+      return [record, ...prev].slice(0, MAX_ROWS);
     });
   }, []);
 
@@ -922,9 +826,10 @@ export default function NavRinasakSedPage() {
       )}
 
       <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
-        Viser {sorted.length} av maks 500 SED-er, gruppert per dag. Portal-core
-        poller <code>eux-nav-rinasak</code> og oppdaterer via SSE. Sendt-status
-        utledes fra <code>sedsendt</code>-hendelser og er beste forsøk.
+        Viser {sorted.length} av maks {MAX_ROWS} SED-er, gruppert per dag.
+        Portal-core poller <code>eux-nav-rinasak</code> og oppdaterer via SSE.
+        Sendt-status utledes fra <code>sedsendt</code>-hendelser og er beste
+        forsøk.
       </Detail>
     </VStack>
   );

@@ -143,7 +143,7 @@ class SedHendelseBackfill(
         collected.sortBy { it.receivedAt }
         collected.forEach { record ->
             store.add(record)
-            if (record.direction == "sendt") {
+            if (record.direction == TopicMetadata.DIRECTION_SENDT) {
                 navRinasakSentCorrelator.onSedSendt(record.environment, record.hendelse, broadcast = false)
             }
         }
