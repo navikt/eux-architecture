@@ -392,9 +392,11 @@ main:has(.portal-page--wide) {
   white-space: nowrap;
 }
 
-/* Persistent left-border accent for SEDs created but not yet sent */
+/* Subtle left-border accent for SEDs created but not yet sent. Kept low-key:
+   unsent SEDs are an expected, common state, not an error to alarm on. */
 .nav-rinasak-table tr.nav-rinasak-row--ikke-sendt > td:first-child {
-  border-left: 3px solid var(--ax-border-warning, #c77300);
+  box-shadow: inset 2px 0 0
+    color-mix(in srgb, var(--ax-border-warning, #c77300) 45%, transparent);
 }
 
 /* Brief green flash when a SED flips from "Ikke sendt" to "Sendt" live */

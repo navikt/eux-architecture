@@ -103,7 +103,8 @@ function recordKey(r: NavRinasakSedRecord): string {
   return `${r.environment}|${r.sed.rinasakId}|${r.sed.sedId ?? "∅"}|${r.sed.sedVersjon ?? "∅"}`;
 }
 
-/** True when the row is a case created in nEESSI whose SED is not journalført yet. */
+/** True when the row is a case created in nEESSI whose SED is not yet
+ *  registered in eux-nav-rinasak (no SED-ID yet). */
 function isPlaceholder(r: NavRinasakSedRecord): boolean {
   return r.sed.sedId == null;
 }
@@ -140,20 +141,20 @@ function EnvBadge({ env }: { env: string }) {
 function SentStatusTag({ status }: { status: SentStatus }) {
   if (status === "SENDT") {
     return (
-      <Tag size="xsmall" variant="success">
+      <Tag size="xsmall" variant="success-moderate">
         ✓ Sendt
       </Tag>
     );
   }
   if (status === "IKKE_SENDT") {
     return (
-      <Tag size="xsmall" variant="warning">
-        ● Ikke sendt
+      <Tag size="xsmall" variant="warning-moderate">
+        Ikke sendt
       </Tag>
     );
   }
   return (
-    <Tag size="xsmall" variant="neutral">
+    <Tag size="xsmall" variant="neutral-moderate">
       Ukjent
     </Tag>
   );
@@ -242,33 +243,135 @@ function useNavRinasakSSE(
   return status;
 }
 
+/* ── Small presentational helpers ───────────────────── */
+
+const MONO_FONT = "var(--ax-font-family-mono, ui-monospace, monospace)";
+
+/** Formats a timestamp, or returns undefined when missing/unparseable so that
+ *  <Field> renders the subtle empty state instead of a literal dash. */
+function fmtDate(iso?: string | null): string | undefined {
+  return safeDate(iso) ? formatDateTime(iso) : undefined;
+}
+
+/** Subtle stand-in for a missing value — quieter and prettier than a bare "-". */
+function EmptyValue() {
+  return (
+    <span
+      aria-label="ingen verdi"
+      style={{ color: "var(--ax-text-subtle, #767676)", opacity: 0.4 }}
+    >
+      —
+    </span>
+  );
+}
+
+/** SED type shown as a compact, calm mono chip (falls back to a muted hint). */
+function SedTypeChip({ type }: { type?: string | null }) {
+  if (!type) {
+    return (
+      <BodyShort
+        size="small"
+        style={{ color: "var(--ax-text-subtle, #767676)", opacity: 0.7 }}
+      >
+        ukjent
+      </BodyShort>
+    );
+  }
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        fontFamily: MONO_FONT,
+        fontSize: "0.8rem",
+        fontWeight: 600,
+        letterSpacing: "0.02em",
+        padding: "0.1rem 0.45rem",
+        borderRadius: 6,
+        background: "var(--ax-bg-neutral-soft, #f1f3f5)",
+        border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
+        color: "var(--ax-text-default, #1a1a1a)",
+      }}
+    >
+      {type}
+    </span>
+  );
+}
+
+/** Low-key inline stat for the page header — no boxes, no loud colours. */
+function StatInline({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: number;
+  hint?: boolean;
+}) {
+  return (
+    <HStack gap="space-2" align="baseline">
+      <span
+        style={{
+          fontSize: "1.25rem",
+          fontWeight: 600,
+          fontVariantNumeric: "tabular-nums",
+          color: "var(--ax-text-default, #1a1a1a)",
+        }}
+      >
+        {value}
+      </span>
+      <HStack gap="space-1" align="center">
+        {hint && (
+          <span
+            aria-hidden="true"
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              background: "var(--ax-border-warning, #c77300)",
+              opacity: 0.45,
+            }}
+          />
+        )}
+        <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>{label}</Detail>
+      </HStack>
+    </HStack>
+  );
+}
+
 /* ── Expanded row details ───────────────────────────── */
 
 function Field({ label, value, mono }: { label: string; value?: string | null; mono?: boolean }) {
-  const display = value && value.length > 0 ? value : "–";
-  const hasValue = Boolean(value);
+  const hasValue = Boolean(value && value.length > 0);
   return (
     <VStack gap="space-1">
-      <Label size="small" textColor="subtle">
+      <Detail
+        textColor="subtle"
+        style={{ textTransform: "uppercase", letterSpacing: "0.04em", fontSize: "0.7rem" }}
+      >
         {label}
-      </Label>
+      </Detail>
       <HStack gap="space-1" align="center" wrap={false}>
-        <BodyShort
-          size="small"
-          style={{
-            fontFamily: mono ? "var(--ax-font-family-mono, ui-monospace, monospace)" : undefined,
-            wordBreak: "break-all",
-          }}
-        >
-          {display}
-        </BodyShort>
-        {hasValue && (
-          <CopyButton
-            size="xsmall"
-            copyText={value!}
-            variant="action"
-            title={`Kopier ${label.toLowerCase()}`}
-          />
+        {hasValue ? (
+          <>
+            <BodyShort
+              size="small"
+              style={{
+                fontFamily: mono ? MONO_FONT : undefined,
+                wordBreak: "break-all",
+              }}
+            >
+              {value}
+            </BodyShort>
+            <CopyButton
+              size="xsmall"
+              copyText={value!}
+              variant="action"
+              title={`Kopier ${label.toLowerCase()}`}
+            />
+          </>
+        ) : (
+          <EmptyValue />
         )}
       </HStack>
     </VStack>
@@ -277,14 +380,27 @@ function Field({ label, value, mono }: { label: string; value?: string | null; m
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <VStack gap="space-2">
-      <Heading size="xsmall" level="3">
-        {title}
-      </Heading>
-      <HGrid gap="space-4" columns={{ xs: 1, sm: 2, lg: 3 }}>
-        {children}
-      </HGrid>
-    </VStack>
+    <Box
+      paddingBlock="space-4"
+      paddingInline="space-4"
+      style={{
+        borderRadius: 10,
+        background: "var(--ax-bg-default, #fff)",
+        border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
+      }}
+    >
+      <VStack gap="space-2">
+        <Detail
+          textColor="subtle"
+          style={{ textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}
+        >
+          {title}
+        </Detail>
+        <HGrid gap="space-4" columns={{ xs: 1, sm: 2 }}>
+          {children}
+        </HGrid>
+      </VStack>
+    </Box>
   );
 }
 
@@ -294,106 +410,111 @@ function SedDetails({ record }: { record: NavRinasakSedRecord }) {
   const inf = s.initiellFagsak;
   const placeholder = s.sedId == null;
   return (
-    <Box paddingBlock="space-4" paddingInline="space-2">
-      <VStack gap="space-6">
+    <Box
+      paddingBlock="space-4"
+      paddingInline="space-4"
+      style={{ background: "var(--ax-bg-subtle, #f7f8fa)" }}
+    >
+      <VStack gap="space-4">
+        {/* Header: identity chips on the left, jump-to-nEESSI on the right */}
+        <HStack justify="space-between" align="center" gap="space-4" wrap>
+          <HStack gap="space-2" align="center" wrap>
+            <SedTypeChip type={s.sedType} />
+            {s.bucType && (
+              <Tag size="xsmall" variant="neutral-moderate">
+                BUC {s.bucType}
+              </Tag>
+            )}
+            <SentStatusTag status={record.sentStatus} />
+          </HStack>
+          <DsLink
+            href={neessiSakUrl(record.environment, s.rinasakId)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Åpne sak {s.rinasakId} i nEESSI
+            <span aria-hidden="true" style={{ marginLeft: 4, opacity: 0.6 }}>
+              ↗
+            </span>
+          </DsLink>
+        </HStack>
+
         {placeholder && (
           <Alert variant="info" size="small" inline>
             {s.sedType ? (
               <>
-                SED-typen <strong>{s.sedType}</strong>
-                {s.bucType ? (
-                  <>
-                    {" "}(BUC <code>{s.bucType}</code>)
-                  </>
-                ) : null}{" "}
-                er hentet fra RINA-hendelser. Saken er opprettet i nEESSI, men
-                SED-en er ikke journalført i <code>eux-nav-rinasak</code> ennå, så
-                SED-ID og dokument-info mangler fortsatt. Raden oppdateres
-                automatisk når SED-en blir journalført.
+                SED-typen {s.sedType}
+                {s.bucType ? ` (BUC ${s.bucType})` : ""} er hentet fra
+                RINA-hendelser. Saken er opprettet i nEESSI, men SED-en er ennå
+                ikke registrert i eux-nav-rinasak, så SED-ID og dokument-info
+                mangler fortsatt. Raden oppdateres automatisk når SED-en
+                registreres.
               </>
             ) : (
               <>
-                Saken er opprettet i nEESSI, men SED-en er ikke journalført i{" "}
-                <code>eux-nav-rinasak</code> ennå, så SED-type, SED-ID og
-                dokument-info mangler. Raden oppdateres automatisk når SED-en blir
-                journalført. Åpne saken i nEESSI for detaljer.
+                Saken er opprettet i nEESSI, men SED-en er ennå ikke registrert i
+                eux-nav-rinasak, så SED-type, SED-ID og dokument-info mangler.
+                Raden oppdateres automatisk når SED-en registreres.
               </>
             )}
           </Alert>
         )}
-        <Section title="SED">
-          <Field label="SED-type" value={s.sedType} />
-          <Field label="BUC-type" value={s.bucType} />
-          <Field label="SED-ID (setId i RINA)" value={s.sedId} mono />
-          <Field
-            label="SED-versjon"
-            value={s.sedVersjon != null ? String(s.sedVersjon) : undefined}
-          />
-          <Field label="Dokument-info-ID" value={s.dokumentInfoId} mono />
-          <Field label="Opprettet av" value={s.opprettetBruker} />
-          <Field label="Opprettet" value={formatDateTime(s.opprettetTidspunkt)} />
-        </Section>
 
-        <Section title="RINA-sak">
-          <Field label="RINA-sak-ID" value={String(s.rinasakId)} mono />
-          <Field label="Overstyrt enhet" value={s.overstyrtEnhetsnummer} />
-          <Field label="Opprettet av (sak)" value={s.navRinasakOpprettetBruker} />
-          <Field label="Opprettet (sak)" value={formatDateTime(s.navRinasakOpprettetTidspunkt)} />
-        </Section>
-
-        {f && (
-          <Section title="Fagsak">
-            <Field label="Tema" value={f.tema} />
-            <Field label="Type" value={f.type} />
-            <Field label="System" value={f.system} />
-            <Field label="Fagsaknr" value={f.nr} mono />
-            <Field label="Fnr" value={f.fnr} mono />
-            <Field label="Opprettet" value={formatDateTime(f.opprettetTidspunkt)} />
-            <Field label="Endret" value={formatDateTime(f.endretTidspunkt)} />
+        <HGrid gap="space-4" columns={{ xs: 1, lg: 2 }}>
+          <Section title="SED">
+            <Field label="SED-ID (setId i RINA)" value={s.sedId} mono />
+            <Field
+              label="SED-versjon"
+              value={s.sedVersjon != null ? String(s.sedVersjon) : undefined}
+            />
+            <Field label="Dokument-info-ID" value={s.dokumentInfoId} mono />
+            <Field label="Opprettet av" value={s.opprettetBruker} />
+            <Field label="Opprettet" value={fmtDate(s.opprettetTidspunkt)} />
           </Section>
-        )}
 
-        {inf && (
-          <Section title="Initiell fagsak">
-            <Field label="Tema" value={inf.tema} />
-            <Field label="Type" value={inf.type} />
-            <Field label="System" value={inf.system} />
-            <Field label="Fagsaknr" value={inf.nr} mono />
-            <Field label="Arkiv" value={inf.arkiv} />
-            <Field label="Fnr" value={inf.fnr} mono />
-            <Field label="Opprettet" value={formatDateTime(inf.opprettetTidspunkt)} />
+          <Section title="RINA-sak">
+            <Field label="RINA-sak-ID" value={String(s.rinasakId)} mono />
+            <Field label="Overstyrt enhet" value={s.overstyrtEnhetsnummer} />
+            <Field label="Opprettet av (sak)" value={s.navRinasakOpprettetBruker} />
+            <Field label="Opprettet (sak)" value={fmtDate(s.navRinasakOpprettetTidspunkt)} />
           </Section>
-        )}
 
-        <Section title="Status og lenker">
-          <Field label="Miljø" value={record.environment.toUpperCase()} />
-          <Field
-            label="Sendt-status"
-            value={
-              record.sentStatus === "SENDT"
-                ? "Sendt"
-                : record.sentStatus === "IKKE_SENDT"
-                  ? "Ikke sendt"
-                  : "Ukjent"
-            }
-          />
-          <Field label="Observert av portal" value={formatDateTime(record.receivedAt)} />
-          <VStack gap="space-1">
-            <Label size="small" textColor="subtle">
-              Åpne i nEESSI
-            </Label>
-            <DsLink
-              href={neessiSakUrl(record.environment, s.rinasakId)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Sak {s.rinasakId} ({record.environment.toUpperCase()})
-              <span aria-hidden="true" style={{ marginLeft: 4, opacity: 0.6 }}>
-                ↗
-              </span>
-            </DsLink>
-          </VStack>
-        </Section>
+          {f && (
+            <Section title="Fagsak">
+              <Field label="Tema" value={f.tema} />
+              <Field label="Type" value={f.type} />
+              <Field label="System" value={f.system} />
+              <Field label="Fagsaknr" value={f.nr} mono />
+              <Field label="Fnr" value={f.fnr} mono />
+              <Field label="Opprettet" value={fmtDate(f.opprettetTidspunkt)} />
+              <Field label="Endret" value={fmtDate(f.endretTidspunkt)} />
+            </Section>
+          )}
+
+          {inf && (
+            <Section title="Initiell fagsak">
+              <Field label="Tema" value={inf.tema} />
+              <Field label="Type" value={inf.type} />
+              <Field label="System" value={inf.system} />
+              <Field label="Fagsaknr" value={inf.nr} mono />
+              <Field label="Arkiv" value={inf.arkiv} />
+              <Field label="Fnr" value={inf.fnr} mono />
+              <Field label="Opprettet" value={fmtDate(inf.opprettetTidspunkt)} />
+            </Section>
+          )}
+        </HGrid>
+
+        <HStack gap="space-2" align="center" wrap>
+          <Detail style={{ color: "var(--ax-text-subtle, #767676)" }}>
+            {record.environment.toUpperCase()}
+          </Detail>
+          <span aria-hidden="true" style={{ color: "var(--ax-text-subtle, #767676)", opacity: 0.5 }}>
+            ·
+          </span>
+          <Detail style={{ color: "var(--ax-text-subtle, #767676)" }}>
+            Observert av portal {formatDateTime(record.receivedAt)}
+          </Detail>
+        </HStack>
       </VStack>
     </Box>
   );
@@ -579,44 +700,26 @@ export default function NavRinasakSedPage() {
           </Heading>
           <StatusDot status={sseStatus} />
         </HStack>
-        <BodyShort style={{ color: "var(--ax-text-subtle, #555)", marginTop: 4 }}>
-          Sanntidsmonitor for saker/SED-er som er{" "}
-          <strong>opprettet i nEESSI</strong> og har fått en record i{" "}
-          <code>eux-nav-rinasak</code> — med fokus på SED-er som er opprettet,
-          men <strong>ikke sendt ennå</strong>. Nye saker vises med det samme;
-          SED-type og -ID kommer når SED-en journalføres. Q1 og Q2.
+        <BodyShort style={{ color: "var(--ax-text-subtle, #555)", marginTop: 6, maxWidth: "70ch" }}>
+          Sanntidsmonitor for saker og SED-er som opprettes i nEESSI og
+          registreres i eux-nav-rinasak. Nye saker dukker opp umiddelbart –
+          SED-type og SED-ID fylles inn når SED-en registreres. Følg særlig med
+          på SED-er som ennå ikke er sendt. Dekker miljøene Q1 og Q2.
         </BodyShort>
       </Box>
 
-      {/* Stats */}
-      <HStack gap="space-4" wrap>
-        <Box
+      {/* Stats — deliberately low-key: an at-a-glance summary, not an alarm */}
+      <HStack gap="space-6" align="center" wrap>
+        <StatInline label="opprettet i dag" value={antallIDag} />
+        <span
+          aria-hidden="true"
           style={{
-            borderRadius: 8,
-            padding: "0.75rem 1rem",
-            border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-            minWidth: 140,
+            width: 1,
+            height: 26,
+            background: "var(--ax-border-subtle, rgba(0,0,0,0.12))",
           }}
-        >
-          <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>Opprettet i dag</Detail>
-          <Heading size="medium" level="2">
-            {antallIDag}
-          </Heading>
-        </Box>
-        <Box
-          style={{
-            borderRadius: 8,
-            padding: "0.75rem 1rem",
-            border: "1px solid var(--ax-border-warning, rgba(199,115,0,0.4))",
-            background: "var(--ax-bg-warning-soft, #fef5e7)",
-            minWidth: 140,
-          }}
-        >
-          <Detail style={{ color: "var(--ax-text-warning, #a06a00)" }}>Ikke sendt</Detail>
-          <Heading size="medium" level="2">
-            {antallIkkeSendt}
-          </Heading>
-        </Box>
+        />
+        <StatInline label="venter på sending" value={antallIkkeSendt} hint />
       </HStack>
 
       {/* Filters */}
@@ -754,35 +857,7 @@ export default function NavRinasakSedPage() {
                         <EnvBadge env={r.environment} />
                       </Table.DataCell>
                       <Table.DataCell>
-                        {r.sed.sedType ? (
-                          <span
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "0.35rem",
-                              flexWrap: "wrap",
-                            }}
-                          >
-                            <strong>{r.sed.sedType}</strong>
-                            {isPlaceholder(r) && (
-                              <Tag
-                                size="xsmall"
-                                variant="info-moderate"
-                                title="SED-type er hentet fra RINA-hendelser. SED-en er opprettet i nEESSI, men ikke journalført i eux-nav-rinasak ennå."
-                              >
-                                ikke journalført
-                              </Tag>
-                            )}
-                          </span>
-                        ) : (
-                          <Tag
-                            size="xsmall"
-                            variant="neutral"
-                            title="Saken er opprettet i nEESSI, men SED-type er ikke kjent ennå (verken journalført i eux-nav-rinasak eller sett i RINA-hendelser)"
-                          >
-                            Ukjent type
-                          </Tag>
-                        )}
+                        <SedTypeChip type={r.sed.sedType} />
                       </Table.DataCell>
                       <Table.DataCell>
                         <DsLink
@@ -800,20 +875,36 @@ export default function NavRinasakSedPage() {
                           </span>
                         </DsLink>
                       </Table.DataCell>
-                      <Table.DataCell>{fagsakTema ?? "–"}</Table.DataCell>
+                      <Table.DataCell>{fagsakTema ?? <EmptyValue />}</Table.DataCell>
                       <Table.DataCell>
-                        {r.sed.opprettetBruker ?? r.sed.navRinasakOpprettetBruker ?? "–"}
+                        {r.sed.opprettetBruker ??
+                          r.sed.navRinasakOpprettetBruker ?? <EmptyValue />}
                       </Table.DataCell>
                       <Table.DataCell>
                         <SentStatusTag status={r.sentStatus} />
                       </Table.DataCell>
                       <Table.DataCell>
-                        {r.sed.sedId ? (
-                          <code style={{ fontSize: "0.8em" }}>
-                            {r.sed.sedId.slice(0, 8)}…
-                          </code>
+                        {isPlaceholder(r) ? (
+                          <BodyShort
+                            size="small"
+                            title="SED-ID registreres i eux-nav-rinasak når SED-en behandles"
+                            style={{
+                              color: "var(--ax-text-subtle, #767676)",
+                              fontStyle: "italic",
+                              opacity: 0.8,
+                            }}
+                          >
+                            avventer
+                          </BodyShort>
                         ) : (
-                          "–"
+                          <code
+                            style={{
+                              fontSize: "0.8em",
+                              color: "var(--ax-text-subtle, #555)",
+                            }}
+                          >
+                            {r.sed.sedId!.slice(0, 8)}…
+                          </code>
                         )}
                       </Table.DataCell>
                     </Table.ExpandableRow>
