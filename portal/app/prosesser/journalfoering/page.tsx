@@ -16,6 +16,7 @@ import {
   Tag,
   VStack,
 } from "@navikt/ds-react";
+import { DiagramSurface } from "@/components/DiagramSurface";
 
 const subtle = { color: "var(--ax-text-subtle, #555)" };
 const eyebrow = {
@@ -28,12 +29,12 @@ const eyebrow = {
 type Tone = "blue" | "green" | "purple" | "orange" | "red" | "grey";
 
 const palette: Record<Tone, { fill: string; stroke: string }> = {
-  blue: { fill: "#e6f0fa", stroke: "#0067c5" },
-  green: { fill: "#e3f5e8", stroke: "#067a3a" },
-  purple: { fill: "#ece6f6", stroke: "#634689" },
-  orange: { fill: "#fff4e1", stroke: "#c77300" },
-  red: { fill: "#fde8e8", stroke: "#b32525" },
-  grey: { fill: "#f5f5f5", stroke: "#777" },
+  blue: { fill: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent)" },
+  green: { fill: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" },
+  purple: { fill: "var(--ax-bg-meta-purple-soft)", stroke: "var(--ax-border-meta-purple)" },
+  orange: { fill: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" },
+  red: { fill: "var(--ax-bg-danger-soft)", stroke: "var(--ax-border-danger)" },
+  grey: { fill: "var(--ax-bg-neutral-soft)", stroke: "var(--ax-border-neutral)" },
 };
 
 type NodeProps = {
@@ -79,7 +80,7 @@ function SvgNode({
         textAnchor="middle"
         fontSize={labelSize}
         fontWeight={600}
-        fill="#1a1a1a"
+        fill="var(--ax-text-default)"
         fontFamily="system-ui, sans-serif"
       >
         {label}
@@ -90,7 +91,7 @@ function SvgNode({
           y={y + h / 2 + 13}
           textAnchor="middle"
           fontSize={subSize}
-          fill="#1a1a1a"
+          fill="var(--ax-text-default)"
           opacity={0.74}
           fontFamily="system-ui, sans-serif"
         >
@@ -101,7 +102,7 @@ function SvgNode({
   );
 }
 
-function SvgDefs({ markerId, color = "#5a6470" }: { markerId: string; color?: string }) {
+function SvgDefs({ markerId, color = "var(--ax-text-subtle)" }: { markerId: string; color?: string }) {
   return (
     <defs>
       <marker
@@ -145,7 +146,7 @@ function LineArrow({
         y1={y1}
         x2={x2}
         y2={y2}
-        stroke="#5a6470"
+        stroke="var(--ax-text-subtle)"
         strokeWidth={1.45}
         strokeLinecap="round"
         strokeDasharray={dashed ? "6 4" : undefined}
@@ -157,9 +158,9 @@ function LineArrow({
           y={midY - 8}
           textAnchor="middle"
           fontSize={10.5}
-          fill="#5a6470"
+          fill="var(--ax-text-subtle)"
           fontFamily="system-ui, sans-serif"
-          style={{ paintOrder: "stroke", stroke: "#ffffff", strokeWidth: 5 }}
+          style={{ paintOrder: "stroke", stroke: "var(--ax-bg-raised)", strokeWidth: 5 }}
         >
           {label}
         </text>
@@ -186,7 +187,7 @@ function PathArrow({
       <path
         d={d}
         fill="none"
-        stroke="#5a6470"
+        stroke="var(--ax-text-subtle)"
         strokeWidth={1.45}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -199,9 +200,9 @@ function PathArrow({
           y={labelAt.y}
           textAnchor="middle"
           fontSize={10.5}
-          fill="#5a6470"
+          fill="var(--ax-text-subtle)"
           fontFamily="system-ui, sans-serif"
-          style={{ paintOrder: "stroke", stroke: "#ffffff", strokeWidth: 5 }}
+          style={{ paintOrder: "stroke", stroke: "var(--ax-bg-raised)", strokeWidth: 5 }}
         >
           {label}
         </text>
@@ -212,20 +213,14 @@ function PathArrow({
 
 function Figure({ children, caption }: { children: ReactNode; caption?: ReactNode }) {
   return (
-    <Box
-      style={{ background: "var(--ax-bg-neutral-soft, #f5f7fa)" }}
-      borderRadius="12"
-      padding="space-16"
-      borderColor="neutral-subtle"
-      borderWidth="1"
-    >
+    <DiagramSurface>
       {children}
       {caption && (
         <Detail textColor="subtle" style={{ marginTop: 8 }}>
           {caption}
         </Detail>
       )}
-    </Box>
+    </DiagramSurface>
   );
 }
 
@@ -295,10 +290,10 @@ function DirectionDiagram() {
     >
       <SvgDefs markerId={marker} />
 
-      <text x={20} y={26} fontSize={13} fontWeight={700} fill="#333" fontFamily="system-ui, sans-serif">
+      <text x={20} y={26} fontSize={13} fontWeight={700} fill="var(--ax-text-default)" fontFamily="system-ui, sans-serif">
         Inngående SED
       </text>
-      <text x={20} y={221} fontSize={13} fontWeight={700} fill="#333" fontFamily="system-ui, sans-serif">
+      <text x={20} y={221} fontSize={13} fontWeight={700} fill="var(--ax-text-default)" fontFamily="system-ui, sans-serif">
         Utgående SED
       </text>
 
@@ -328,10 +323,10 @@ function DirectionDiagram() {
       <LineArrow x1={810} y1={276} x2={855} y2={276} markerId={marker} />
       <LineArrow x1={722} y1={305} x2={722} y2={344} markerId={marker} dashed />
 
-      <text x={20} y={142} fontSize={10.5} fill="#5a6470" fontFamily="system-ui, sans-serif">
+      <text x={20} y={142} fontSize={10.5} fill="var(--ax-text-subtle)" fontFamily="system-ui, sans-serif">
         Inngående kan opprette oppgave selv om journalposten bare er midlertidig journalført.
       </text>
-      <text x={20} y={337} fontSize={10.5} fill="#5a6470" fontFamily="system-ui, sans-serif">
+      <text x={20} y={337} fontSize={10.5} fill="var(--ax-text-subtle)" fontFamily="system-ui, sans-serif">
         Utgående forsøker ferdigstilling direkte; vanligvis opprettes ikke ny oppgave her.
       </text>
     </svg>
@@ -349,7 +344,7 @@ function FollowUpDiagram() {
     >
       <SvgDefs markerId={marker} />
 
-      <text x={20} y={26} fontSize={13} fontWeight={700} fill="#333" fontFamily="system-ui, sans-serif">
+      <text x={20} y={26} fontSize={13} fontWeight={700} fill="var(--ax-text-default)" fontFamily="system-ui, sans-serif">
         01:00 ferdigstill
       </text>
       <SvgNode x={20} y={50} w={150} label="NAIS-jobb" sub="ferdigstill" tone="grey" />
@@ -367,7 +362,7 @@ function FollowUpDiagram() {
       <LineArrow x1={995} y1={79} x2={1005} y2={79} markerId={marker} />
       <LineArrow x1={927} y1={108} x2={927} y2={148} markerId={marker} label="feil" dashed />
 
-      <text x={20} y={245} fontSize={13} fontWeight={700} fill="#333" fontFamily="system-ui, sans-serif">
+      <text x={20} y={245} fontSize={13} fontWeight={700} fill="var(--ax-text-default)" fontFamily="system-ui, sans-serif">
         02:00 feilregistrer
       </text>
       <SvgNode x={20} y={269} w={150} label="NAIS-jobb" sub="feilregistrer" tone="grey" />

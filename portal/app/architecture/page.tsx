@@ -20,6 +20,7 @@ import {
   EventFlowDiagram,
   SedLifecycleDiagram,
 } from "@/components/Diagrams";
+import { DiagramSurface } from "@/components/DiagramSurface";
 
 const subtleStyle = { color: "var(--ax-text-subtle, #555)" };
 const eyebrowStyle = {
@@ -65,7 +66,7 @@ function Figure({
 }) {
   return (
     <Box as="figure" style={{ margin: 0 }}>
-      <div className="portal-figure">{children}</div>
+      <DiagramSurface>{children}</DiagramSurface>
       <BodyShort
         as="figcaption"
         size="small"
@@ -519,9 +520,9 @@ export default function ArchitecturePage() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>System</th>
-                <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Formål</th>
-                <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Tilgang</th>
+                <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>System</th>
+                <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>Formål</th>
+                <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>Tilgang</th>
               </tr>
             </thead>
             <tbody>
@@ -537,11 +538,11 @@ export default function ArchitecturePage() {
                 ["A-Inntekt", "Inntektsdata", "REST · Azure AD via eux-neessi"],
               ].map(([s, p, a]) => (
                 <tr key={s}>
-                  <td style={{ padding: "0.5rem", borderBottom: "1px solid #eee" }}>
+                  <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)" }}>
                     <strong>{s}</strong>
                   </td>
-                  <td style={{ padding: "0.5rem", borderBottom: "1px solid #eee" }}>{p}</td>
-                  <td style={{ padding: "0.5rem", borderBottom: "1px solid #eee" }}>
+                  <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)" }}>{p}</td>
+                  <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)" }}>
                     <code>{a}</code>
                   </td>
                 </tr>

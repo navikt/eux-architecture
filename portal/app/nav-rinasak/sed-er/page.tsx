@@ -413,7 +413,7 @@ function SedDetails({ record }: { record: NavRinasakSedRecord }) {
     <Box
       paddingBlock="space-4"
       paddingInline="space-4"
-      style={{ background: "var(--ax-bg-subtle, #f7f8fa)" }}
+      style={{ background: "var(--ax-bg-neutral-soft, #f7f8fa)" }}
     >
       <VStack gap="space-4">
         {/* Header: identity chips on the left, jump-to-nEESSI on the right */}

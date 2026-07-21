@@ -11,6 +11,7 @@ import {
   Detail,
   Link as DsLink,
 } from "@navikt/ds-react";
+import { DiagramSurface } from "@/components/DiagramSurface";
 
 const subtle = { color: "var(--ax-text-subtle, #555)" };
 const eyebrow = {
@@ -23,7 +24,7 @@ const eyebrow = {
 /* ---------- Diagram: lifecycle (functional) ---------- */
 
 function LifecycleDiagram() {
-  const muted = "#7a7a7a";
+  const muted = "var(--ax-text-subtle)";
   const w = 800;
   const h = 300;
   const cardW = 155;
@@ -31,10 +32,10 @@ function LifecycleDiagram() {
   const mainY = 55;
 
   const steps = [
-    { x: 10, label: "Ny sak", sub: "Opprettet i RINA", color: "#e6f0fa", stroke: "#0067c5" },
-    { x: 215, label: "Ingen SED", sub: "15 dager uten dokument", color: "#fff4e1", stroke: "#c77300" },
-    { x: 420, label: "Sjekkes", sub: "Kan den slettes?", color: "#fff4e1", stroke: "#c77300" },
-    { x: 625, label: "Slettet", sub: "Fjernet fra RINA", color: "#e3f5e8", stroke: "#067a3a" },
+    { x: 10, label: "Ny sak", sub: "Opprettet i RINA", color: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent)" },
+    { x: 215, label: "Ingen SED", sub: "15 dager uten dokument", color: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" },
+    { x: 420, label: "Sjekkes", sub: "Kan den slettes?", color: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" },
+    { x: 625, label: "Slettet", sub: "Fjernet fra RINA", color: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" },
   ];
 
   const branchY = 180;
@@ -51,10 +52,10 @@ function LifecycleDiagram() {
       {steps.map((s, i) => (
         <g key={s.label}>
           <rect x={s.x} y={mainY} width={cardW} height={cardH} rx={12} ry={12} fill={s.color} stroke={s.stroke} strokeWidth={1.5} />
-          <text x={s.x + cardW / 2} y={mainY + 28} textAnchor="middle" fontSize={14} fontWeight={600} fill="#1a1a1a">
+          <text x={s.x + cardW / 2} y={mainY + 28} textAnchor="middle" fontSize={14} fontWeight={600} fill="var(--ax-text-default)">
             {s.label}
           </text>
-          <text x={s.x + cardW / 2} y={mainY + 50} textAnchor="middle" fontSize={11} fill="#444">
+          <text x={s.x + cardW / 2} y={mainY + 50} textAnchor="middle" fontSize={11} fill="var(--ax-text-subtle)">
             {s.sub}
           </text>
           {i < steps.length - 1 && (
@@ -80,11 +81,11 @@ function LifecycleDiagram() {
       </text>
 
       {/* Branch: Beholdes */}
-      <rect x={10} y={branchY} width={cardW} height={cardH} rx={12} ry={12} fill="#e3f5e8" stroke="#067a3a" strokeWidth={1.5} />
-      <text x={10 + cardW / 2} y={branchY + 28} textAnchor="middle" fontSize={14} fontWeight={600} fill="#1a1a1a">
+      <rect x={10} y={branchY} width={cardW} height={cardH} rx={12} ry={12} fill="var(--ax-bg-success-soft)" stroke="var(--ax-border-success)" strokeWidth={1.5} />
+      <text x={10 + cardW / 2} y={branchY + 28} textAnchor="middle" fontSize={14} fontWeight={600} fill="var(--ax-text-default)">
         Beholdes
       </text>
-      <text x={10 + cardW / 2} y={branchY + 50} textAnchor="middle" fontSize={11} fill="#444">
+      <text x={10 + cardW / 2} y={branchY + 50} textAnchor="middle" fontSize={11} fill="var(--ax-text-subtle)">
         Har fått dokument
       </text>
 
@@ -106,12 +107,12 @@ function LifecycleDiagram() {
 
       {/* Legend */}
       <g transform={`translate(10, ${h - 18})`}>
-        <rect x={0} y={-10} width={14} height={14} rx={3} fill="#e6f0fa" stroke="#0067c5" />
-        <text x={22} y={1} fontSize={11} fill="#333">Ny</text>
-        <rect x={60} y={-10} width={14} height={14} rx={3} fill="#fff4e1" stroke="#c77300" />
-        <text x={82} y={1} fontSize={11} fill="#333">Venter</text>
-        <rect x={145} y={-10} width={14} height={14} rx={3} fill="#e3f5e8" stroke="#067a3a" />
-        <text x={167} y={1} fontSize={11} fill="#333">Ferdig / trygg</text>
+        <rect x={0} y={-10} width={14} height={14} rx={3} fill="var(--ax-bg-accent-soft)" stroke="var(--ax-border-accent)" />
+        <text x={22} y={1} fontSize={11} fill="var(--ax-text-default)">Ny</text>
+        <rect x={60} y={-10} width={14} height={14} rx={3} fill="var(--ax-bg-warning-soft)" stroke="var(--ax-border-warning)" />
+        <text x={82} y={1} fontSize={11} fill="var(--ax-text-default)">Venter</text>
+        <rect x={145} y={-10} width={14} height={14} rx={3} fill="var(--ax-bg-success-soft)" stroke="var(--ax-border-success)" />
+        <text x={167} y={1} fontSize={11} fill="var(--ax-text-default)">Ferdig / trygg</text>
       </g>
     </svg>
   );
@@ -122,7 +123,7 @@ function LifecycleDiagram() {
 function StateMachineDiagram() {
   const w = 1080;
   const h = 330;
-  const muted = "#5a6470";
+  const muted = "var(--ax-text-subtle)";
   const boxW = 170;
   const boxH = 42;
 
@@ -145,10 +146,10 @@ function StateMachineDiagram() {
 
   const tone = (t: Tone) => {
     switch (t) {
-      case "blue": return { fill: "#e6f0fa", stroke: "#0067c5" };
-      case "amber": return { fill: "#fff4e1", stroke: "#c77300" };
-      case "green": return { fill: "#e3f5e8", stroke: "#067a3a" };
-      case "red": return { fill: "#fde8e8", stroke: "#b32525" };
+      case "blue": return { fill: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent)" };
+      case "amber": return { fill: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" };
+      case "green": return { fill: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" };
+      case "red": return { fill: "var(--ax-bg-danger-soft)", stroke: "var(--ax-border-danger)" };
     }
   };
 
@@ -354,7 +355,7 @@ function StateMachineDiagram() {
               textAnchor="middle"
               fontSize={11.5}
               fontWeight={600}
-              fill="#1a1a1a"
+              fill="var(--ax-text-default)"
             >
               {n.label}
             </text>
@@ -362,7 +363,7 @@ function StateMachineDiagram() {
         );
       })}
 
-      {/* Edge labels — rendered AFTER nodes so the white halo sits on top */}
+      {/* Edge labels — rendered AFTER nodes so the surface-coloured halo sits on top */}
       {edges.map((e, i) =>
         e.label ? (
           <text
@@ -372,7 +373,7 @@ function StateMachineDiagram() {
             textAnchor="middle"
             fontSize={11}
             fill={muted}
-            style={{ paintOrder: "stroke", stroke: "#ffffff", strokeWidth: 5 }}
+            style={{ paintOrder: "stroke", stroke: "var(--ax-bg-raised)", strokeWidth: 5 }}
           >
             {e.label}
           </text>
@@ -388,29 +389,29 @@ function StateMachineDiagram() {
           height={36}
           rx={8}
           ry={8}
-          fill="#fde8e8"
-          stroke="#b32525"
+          fill="var(--ax-bg-danger-soft)"
+          stroke="var(--ax-border-danger)"
           strokeDasharray="4 3"
           strokeWidth={1.2}
         />
-        <text x={14} y={15} fontSize={11} fontWeight={600} fill="#7a1414">
+        <text x={14} y={15} fontSize={11} fontWeight={600} fill="var(--ax-text-danger)">
           Finnes også: <tspan fontFamily="var(--ax-font-mono, monospace)">KORRUPT</tspan>
         </text>
-        <text x={14} y={29} fontSize={11} fill="#7a1414">
+        <text x={14} y={29} fontSize={11} fill="var(--ax-text-danger)">
           ⇒ korrupt data, utenfor normal flyt
         </text>
       </g>
 
       {/* Legend */}
       <g transform={`translate(20, ${h - 18})`}>
-        <rect x={0} y={-10} width={12} height={12} rx={3} fill="#e6f0fa" stroke="#0067c5" />
-        <text x={18} y={0} fontSize={11} fill="#333">start</text>
-        <rect x={70} y={-10} width={12} height={12} rx={3} fill="#fff4e1" stroke="#c77300" />
-        <text x={88} y={0} fontSize={11} fill="#333">overgang</text>
-        <rect x={170} y={-10} width={12} height={12} rx={3} fill="#e3f5e8" stroke="#067a3a" />
-        <text x={188} y={0} fontSize={11} fill="#333">ferdig / trygg</text>
-        <rect x={310} y={-10} width={12} height={12} rx={3} fill="#fde8e8" stroke="#b32525" />
-        <text x={328} y={0} fontSize={11} fill="#333">feil / manuell</text>
+        <rect x={0} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-accent-soft)" stroke="var(--ax-border-accent)" />
+        <text x={18} y={0} fontSize={11} fill="var(--ax-text-default)">start</text>
+        <rect x={70} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-warning-soft)" stroke="var(--ax-border-warning)" />
+        <text x={88} y={0} fontSize={11} fill="var(--ax-text-default)">overgang</text>
+        <rect x={170} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-success-soft)" stroke="var(--ax-border-success)" />
+        <text x={188} y={0} fontSize={11} fill="var(--ax-text-default)">ferdig / trygg</text>
+        <rect x={310} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-danger-soft)" stroke="var(--ax-border-danger)" />
+        <text x={328} y={0} fontSize={11} fill="var(--ax-text-default)">feil / manuell</text>
       </g>
     </svg>
   );
@@ -461,15 +462,9 @@ export default function Page() {
             rydder dem bort automatisk i bakgrunnen, hver natt.
           </BodyLong>
 
-          <Box
-            style={{ background: "var(--ax-bg-neutral-soft, #f5f7fa)" }}
-            borderRadius="12"
-            padding="space-16"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
+          <DiagramSurface>
             <LifecycleDiagram />
-          </Box>
+          </DiagramSurface>
 
           <BodyLong>
             Saker vurderes tidligst for sletting 15 dager etter
@@ -552,20 +547,14 @@ export default function Page() {
             <code>TIL_SLETTING</code> kan reddes av et sent dokument.
           </BodyLong>
 
-          <Box
-            style={{ background: "var(--ax-bg-neutral-soft, #f5f7fa)" }}
-            borderRadius="12"
-            padding="space-16"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
+          <DiagramSurface>
             <StateMachineDiagram />
             <Detail textColor="subtle" style={{ marginTop: 8 }}>
               Status per RINA-sak. Overgangene drives av planlagte
               NAIS-jobber som kaller{" "}
               <code>POST /api/v1/sletteprosess/&#123;sletteprosess&#125;/execute</code>.
             </Detail>
-          </Box>
+          </DiagramSurface>
 
           <Heading size="small" level="3">
             Prosessene og når de kjøres

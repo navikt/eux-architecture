@@ -31,6 +31,28 @@ client-credentials). This requires the outbound access policy + `NAVRINASAK_*`
 env vars in `portal-core/.nais/nais.yaml` and a matching inbound rule on
 eux-nav-rinasak.
 
+## Theming (light / dark)
+
+The portal supports light, dark and system themes, switchable from the header
+(`components/ThemeToggle.tsx`, an Aksel `ToggleGroup`).
+
+- `components/ThemeProvider.tsx` holds the preference in `localStorage`
+  (`portal-theme`) and exposes it via `useSyncExternalStore` (hydration-safe, no
+  setState-in-effect). It renders Aksel's `<Theme>` with the resolved theme.
+- An inline boot script in `app/layout.tsx` sets the `light`/`dark` class on
+  `<html>` before first paint, so the Aksel design tokens cascade with no flash.
+- **Diagrams/figures are theme-aware.** Every SVG fill, stroke and text colour is
+  driven from Aksel `--ax-*` tokens (e.g. `var(--ax-bg-accent-soft)`,
+  `var(--ax-border-accent)`, `var(--ax-text-default)`), so figures re-theme
+  themselves in dark mode. `components/DiagramSurface.tsx` is just a neutral,
+  theme-aware card that frames them. Arrow labels use a `var(--ax-bg-raised)`
+  halo and arrowheads use `fill="context-stroke"` to match their line colour.
+- Prefer Aksel `--ax-*` tokens over hardcoded colours so UI adapts automatically.
+  Verify token names against `@navikt/ds-css/dist/global/tokens.css` first — a
+  non-existent token (e.g. `--ax-bg-subtle`) silently falls back to its light
+  hex and breaks dark mode. Real subtle-surface tokens: `--ax-bg-neutral-soft`,
+  `--ax-bg-raised`, `--ax-bg-sunken`.
+
 ## Local development
 
 ```bash

@@ -4,8 +4,10 @@ import "@navikt/next-logger";
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Theme, Box, HStack, Heading } from "@navikt/ds-react";
+import { Box, HStack, Heading } from "@navikt/ds-react";
 import { Sidebar } from "@/components/Sidebar";
+import { ThemeProvider, THEME_STORAGE_KEY } from "@/components/ThemeProvider";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const metadata: Metadata = {
   title: "Team EESSI Nav",
@@ -13,15 +15,24 @@ export const metadata: Metadata = {
     "Arkitekturportal for NAVs EUX/EESSI-plattform — applikasjoner, integrasjoner, API-er og hvordan det henger sammen.",
 };
 
+// Runs before first paint so the correct theme is applied with no flash and no
+// hydration mismatch (see ThemeProvider). Keep in sync with THEME_STORAGE_KEY.
+const themeBootScript = `(function(){try{var m=localStorage.getItem(${JSON.stringify(
+  THEME_STORAGE_KEY,
+)});if(m!=="light"&&m!=="dark"&&m!=="system")m="system";var d=m==="dark"||(m==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);var e=document.documentElement;e.classList.remove("light","dark");e.classList.add(d?"dark":"light");e.style.colorScheme=d?"dark":"light";e.setAttribute("data-theme-mode",m);}catch(_){}})();`;
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="no" data-color-scheme="auto">
+    <html lang="no" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
       <body>
-        <Theme>
+        <ThemeProvider>
           <Box
             as="header"
             paddingInline={{ xs: "space-16", md: "space-32" }}
@@ -38,6 +49,7 @@ export default function RootLayout({
                   Team EESSI Nav
                 </Heading>
               </Link>
+              <ThemeToggle />
             </HStack>
           </Box>
           <div className="portal-shell">
@@ -51,7 +63,7 @@ export default function RootLayout({
               {children}
             </Box>
           </div>
-        </Theme>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -16,11 +16,11 @@ function Node({
   y,
   w = 150,
   h = 56,
-  fill = "#e6f0fa",
-  stroke = "#0067c5",
+  fill = "var(--ax-bg-accent-soft)",
+  stroke = "var(--ax-border-accent)",
   label,
   sub,
-  textColor = "#1a1a1a",
+  textColor = "var(--ax-text-default)",
   compact = false,
 }: NodeProps) {
   const labelSize = compact ? 11 : 12.5;
@@ -74,7 +74,7 @@ function Arrow({
   label,
   labelOffset = 0,
   dashed = false,
-  color = "#525252",
+  color = "var(--ax-text-subtle)",
 }: {
   x1: number;
   y1: number;
@@ -107,7 +107,7 @@ function Arrow({
           fontSize={10}
           fill={color}
           fontFamily="system-ui, sans-serif"
-          style={{ paintOrder: "stroke", stroke: "#fff", strokeWidth: 3 }}
+          style={{ paintOrder: "stroke", stroke: "var(--ax-bg-default)", strokeWidth: 3 }}
         >
           {label}
         </text>
@@ -128,19 +128,19 @@ function Defs() {
         markerHeight="6"
         orient="auto-start-reverse"
       >
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="#525252" />
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
       </marker>
     </defs>
   );
 }
 
 const C = {
-  blue: { fill: "#e6f0fa", stroke: "#0067c5" },
-  green: { fill: "#e0f1e3", stroke: "#06893a" },
-  purple: { fill: "#ece6f6", stroke: "#634689" },
-  orange: { fill: "#fcecd6", stroke: "#a04300" },
-  red: { fill: "#fde2e2", stroke: "#b3253a" },
-  grey: { fill: "#f0f0f0", stroke: "#666" },
+  blue: { fill: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent)" },
+  green: { fill: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" },
+  purple: { fill: "var(--ax-bg-meta-purple-soft)", stroke: "var(--ax-border-meta-purple)" },
+  orange: { fill: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" },
+  red: { fill: "var(--ax-bg-danger-soft)", stroke: "var(--ax-border-danger)" },
+  grey: { fill: "var(--ax-bg-neutral-soft)", stroke: "var(--ax-border-neutral)" },
 };
 
 export function SyncFlowDiagram() {
@@ -218,8 +218,8 @@ function SubscriberPanel({
         height={h}
         rx={10}
         ry={10}
-        fill="#fafafa"
-        stroke="#9a9a9a"
+        fill="var(--ax-bg-neutral-soft)"
+        stroke="var(--ax-border-neutral)"
         strokeDasharray="4,3"
         strokeWidth={1.2}
       />
@@ -227,7 +227,7 @@ function SubscriberPanel({
         x={x + 12}
         y={y + 15}
         fontSize={9}
-        fill="#666"
+        fill="var(--ax-text-subtle)"
         letterSpacing={1.2}
         fontFamily="system-ui, sans-serif"
       >
@@ -243,7 +243,7 @@ function SubscriberPanel({
               textAnchor="middle"
               fontSize={11.5}
               fontWeight={600}
-              fill="#1a1a1a"
+              fill="var(--ax-text-default)"
               fontFamily="system-ui, sans-serif"
             >
               {item.name}
@@ -255,7 +255,7 @@ function SubscriberPanel({
                 textAnchor="middle"
                 fontSize={9.5}
                 opacity={0.72}
-                fill="#1a1a1a"
+                fill="var(--ax-text-default)"
                 fontFamily="system-ui, sans-serif"
               >
                 {item.sub}
@@ -267,7 +267,7 @@ function SubscriberPanel({
                 y1={y + headerH + (i + 1) * rowH}
                 x2={x + w - 14}
                 y2={y + headerH + (i + 1) * rowH}
-                stroke="#e3e3e3"
+                stroke="var(--ax-border-subtle)"
                 strokeWidth={1}
               />
             )}
@@ -388,7 +388,7 @@ export function SedLifecycleDiagram() {
               y1={60}
               x2={(i + 1) * (w + gap)}
               y2={60}
-              stroke="#525252"
+              stroke="var(--ax-text-subtle)"
               strokeWidth={1.5}
               markerEnd="url(#arrowhead)"
             />

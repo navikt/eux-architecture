@@ -24,7 +24,7 @@ body {
 }
 
 a {
-  color: var(--ax-text-action, #0067c5);
+  color: var(--ax-text-accent, #0067c5);
 }
 
 a:hover {
@@ -98,7 +98,7 @@ main code {
   font-size: 0.78rem;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--ax-bg-default, rgba(255, 255, 255, 0.55));
   border: 1px solid var(--ax-border-subtle, rgba(0, 0, 0, 0.1));
   color: var(--ax-text-default, #1a1a1a);
   white-space: nowrap;
@@ -157,7 +157,7 @@ main code {
 }
 
 .portal-app__summary:hover {
-  background: rgba(0, 0, 0, 0.025);
+  background: var(--ax-bg-neutral-moderate-hover, rgba(0, 0, 0, 0.025));
 }
 
 .portal-app__name {
@@ -240,9 +240,9 @@ main code {
   font-size: 0.74rem;
   padding: 0.1rem 0.55rem;
   border-radius: 999px;
-  background: rgba(0, 103, 197, 0.08);
-  color: #004a8f;
-  border: 1px solid rgba(0, 103, 197, 0.18);
+  background: var(--ax-bg-accent-soft, rgba(0, 103, 197, 0.08));
+  color: var(--ax-text-accent, #004a8f);
+  border: 1px solid var(--ax-border-accent-subtle, rgba(0, 103, 197, 0.18));
   white-space: nowrap;
 }
 
@@ -266,11 +266,28 @@ main code {
 }
 
 .portal-figure {
-  background: var(--ax-bg-subtle, #f7f7f7);
+  background: var(--ax-bg-neutral-soft, #f7f7f7);
   border-radius: 12px;
   padding: 1.5rem;
   border: 1px solid var(--ax-border-subtle, rgba(0, 0, 0, 0.08));
   overflow-x: auto;
+}
+
+/* Diagram card: a framed surface for SVG illustrations. The diagrams derive
+   every colour from Aksel --ax-* tokens, so the whole card — background,
+   border and figure — adapts to light and dark mode. */
+.portal-diagram {
+  background: var(--ax-bg-default, #fff);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--ax-border-subtle, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+}
+
+.dark .portal-diagram {
+  background: var(--ax-bg-raised, #1c232f);
+  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8);
 }
 
 .portal-shell {
@@ -295,14 +312,16 @@ main:has(.portal-page--wide) {
 }
 
 /* Pair-highlight: rows that share a RINA-dokument-ID + Dokumentversjon get the
-   same background tint. Intensity fades from full → 0 over 1 minute, with a
-   short flash on first arrival. Text color is forced dark to keep contrast
-   readable on the light pastel tints in both light and dark mode. */
+   same background tint. Intensity fades from full → 0 over 1 minute, blending
+   into the table surface, with a short flash on first arrival.
+   Light mode: the pastel is light, so text is forced dark for contrast.
+   Dark mode (below): the pastel is capped low over the dark surface so the
+   theme's own light text stays readable — the hue still marks the pair. */
 .sed-hendelser-table tr.sed-tint > td {
   background-color: color-mix(
     in srgb,
     var(--row-tint, transparent) calc(var(--row-tint-alpha, 0) * 100%),
-    transparent
+    var(--ax-bg-default, #fff)
   );
   color: #1a1a1a;
   transition: background-color 1.2s ease-out;
@@ -320,7 +339,7 @@ main:has(.portal-page--wide) {
 
 @keyframes sed-row-flash {
   0% {
-    background-color: #ffffff;
+    background-color: var(--ax-bg-default, #fff);
   }
   15% {
     background-color: var(--row-tint, transparent);
@@ -329,7 +348,40 @@ main:has(.portal-page--wide) {
     background-color: color-mix(
       in srgb,
       var(--row-tint, transparent) calc(var(--row-tint-alpha, 0) * 100%),
-      transparent
+      var(--ax-bg-default, #fff)
+    );
+  }
+}
+
+.dark .sed-hendelser-table tr.sed-tint > td {
+  background-color: color-mix(
+    in srgb,
+    var(--row-tint, transparent) calc(var(--row-tint-alpha, 0) * 32%),
+    var(--ax-bg-default, #0e151f)
+  );
+  color: var(--ax-text-default);
+}
+
+.dark .sed-hendelser-table tr.sed-tint--flash > td {
+  animation-name: sed-row-flash-dark;
+}
+
+@keyframes sed-row-flash-dark {
+  0% {
+    background-color: var(--ax-bg-default, #0e151f);
+  }
+  15% {
+    background-color: color-mix(
+      in srgb,
+      var(--row-tint, transparent) 42%,
+      var(--ax-bg-default, #0e151f)
+    );
+  }
+  100% {
+    background-color: color-mix(
+      in srgb,
+      var(--row-tint, transparent) calc(var(--row-tint-alpha, 0) * 32%),
+      var(--ax-bg-default, #0e151f)
     );
   }
 }
@@ -428,7 +480,7 @@ main:has(.portal-page--wide) {
 .portal-sidebar {
   border-bottom: 1px solid var(--ax-border-subtle, rgba(0, 0, 0, 0.08));
   padding: 1rem 1rem 1.5rem;
-  background: var(--ax-bg-subtle, #fafafa);
+  background: var(--ax-bg-neutral-soft, #fafafa);
 }
 
 @media (min-width: 900px) {
@@ -478,18 +530,18 @@ main:has(.portal-page--wide) {
 }
 
 .portal-sidebar__link:hover {
-  background: var(--ax-bg-neutral-soft-hover, rgba(0, 0, 0, 0.06));
+  background: var(--ax-bg-neutral-moderate, rgba(0, 0, 0, 0.06));
   text-decoration: none;
 }
 
 .portal-sidebar__link--active {
   background: var(--ax-bg-accent-soft, #e6f0fa);
-  color: var(--ax-text-action, #0067c5);
+  color: var(--ax-text-accent, #0067c5);
   font-weight: 600;
 }
 
 .portal-pre {
-  background: var(--ax-bg-subtle, #f7f7f7);
+  background: var(--ax-bg-neutral-soft, #f7f7f7);
   border-radius: 12px;
   padding: 1.25rem;
   overflow-x: auto;

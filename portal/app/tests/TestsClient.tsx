@@ -265,7 +265,7 @@ export default function TestsClient() {
         .portal-runner {
           padding: 1.75rem;
           border-radius: 16px;
-          background: var(--ax-bg-subtle, #f7f7f7);
+          background: var(--ax-bg-neutral-soft, #f7f7f7);
           border: 1px solid var(--ax-border-subtle, rgba(0, 0, 0, 0.08));
           box-shadow:
             0 1px 0 rgba(255, 255, 255, 0.6) inset,
@@ -347,7 +347,7 @@ function ResultSummary({ result }: { result: RunResponse }) {
           background: linear-gradient(
             135deg,
             var(--ax-bg-default, #fff) 0%,
-            var(--ax-bg-subtle, #f7f7f7) 100%
+            var(--ax-bg-neutral-soft, #f7f7f7) 100%
           );
           border: 1px solid var(--ax-border-subtle, rgba(0, 0, 0, 0.08));
           display: flex;
@@ -368,7 +368,7 @@ function ResultSummary({ result }: { result: RunResponse }) {
           text-decoration: none;
           font-weight: 600;
           font-size: 0.92rem;
-          background: white;
+          background: var(--ax-bg-default, #fff);
           color: var(--ax-text-default, #1a1a1a);
           border: 1px solid var(--ax-border-strong, rgba(0, 0, 0, 0.2));
           transition:
@@ -562,7 +562,7 @@ function VerificationTable({
           border-block-end: none;
         }
         .portal-verify__row--head {
-          background: var(--ax-bg-subtle, #f7f7f7);
+          background: var(--ax-bg-neutral-soft, #f7f7f7);
           font-size: 0.78rem;
           letter-spacing: 0.06em;
           text-transform: uppercase;
@@ -702,7 +702,7 @@ function StepCard({ step }: { step: Step }) {
           width: 2rem;
           height: 2rem;
           border-radius: 999px;
-          background: var(--ax-bg-subtle, #efefef);
+          background: var(--ax-bg-neutral-soft, #efefef);
           color: var(--ax-text-subtle, #555);
           display: inline-flex;
           align-items: center;
@@ -727,7 +727,7 @@ function StepCard({ step }: { step: Step }) {
           color: inherit;
         }
         .portal-step__toggle:hover {
-          background: var(--ax-bg-subtle, #f0f0f0);
+          background: var(--ax-bg-neutral-soft, #f0f0f0);
         }
         .portal-step__body {
           padding-block-start: 0.5rem;
@@ -739,7 +739,7 @@ function StepCard({ step }: { step: Step }) {
           align-items: center;
           gap: 0.6rem;
           padding: 0.4rem 0.65rem;
-          background: var(--ax-bg-subtle, #f4f4f4);
+          background: var(--ax-bg-neutral-soft, #f4f4f4);
           border-radius: 8px;
           width: fit-content;
           max-width: 100%;

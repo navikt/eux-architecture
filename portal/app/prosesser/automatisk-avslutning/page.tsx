@@ -11,6 +11,7 @@ import {
   Detail,
   Link as DsLink,
 } from "@navikt/ds-react";
+import { DiagramSurface } from "@/components/DiagramSurface";
 
 const subtle = { color: "var(--ax-text-subtle, #555)" };
 const eyebrow = {
@@ -23,20 +24,20 @@ const eyebrow = {
 /* ---------- Diagram: lifecycle (functional) ---------- */
 
 function LifecycleDiagram() {
-  // Light, calm palette
-  const cardFill = "#f5f8fc";
-  const cardStroke = "#9ec5ec";
-  const accent = "#0067c5";
-  const muted = "#7a7a7a";
+  // Calm, theme-aware palette (Aksel --ax-* tokens adapt to light/dark)
+  const cardFill = "var(--ax-bg-accent-soft)";
+  const cardStroke = "var(--ax-border-accent-subtle)";
+  const accent = "var(--ax-border-accent)";
+  const muted = "var(--ax-text-subtle)";
   const w = 920;
   const h = 270;
 
   const steps = [
-    { x: 20, label: "Ny sak", sub: "RINA oppretter sak", color: "#e6f0fa", stroke: "#0067c5" },
-    { x: 195, label: "Uvirksom", sub: "Ingen aktivitet i X dager", color: "#fff4e1", stroke: "#c77300" },
-    { x: 370, label: "Til avslutning", sub: "Kriterier oppfylt", color: "#fff4e1", stroke: "#c77300" },
-    { x: 545, label: "Avsluttet", sub: "Lukket i RINA", color: "#e3f5e8", stroke: "#067a3a" },
-    { x: 720, label: "Arkivert", sub: "Tatt ut av portefølje", color: "#e3f5e8", stroke: "#067a3a" },
+    { x: 20, label: "Ny sak", sub: "RINA oppretter sak", color: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent)" },
+    { x: 195, label: "Uvirksom", sub: "Ingen aktivitet i X dager", color: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" },
+    { x: 370, label: "Til avslutning", sub: "Kriterier oppfylt", color: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" },
+    { x: 545, label: "Avsluttet", sub: "Lukket i RINA", color: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" },
+    { x: 720, label: "Arkivert", sub: "Tatt ut av portefølje", color: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" },
   ];
   const cardW = 160;
   const cardH = 70;
@@ -63,10 +64,10 @@ function LifecycleDiagram() {
             stroke={s.stroke}
             strokeWidth={1.5}
           />
-          <text x={s.x + cardW / 2} y={y + 28} textAnchor="middle" fontSize={14} fontWeight={600} fill="#1a1a1a">
+          <text x={s.x + cardW / 2} y={y + 28} textAnchor="middle" fontSize={14} fontWeight={600} fill="var(--ax-text-default)">
             {s.label}
           </text>
-          <text x={s.x + cardW / 2} y={y + 50} textAnchor="middle" fontSize={11} fill="#444">
+          <text x={s.x + cardW / 2} y={y + 50} textAnchor="middle" fontSize={11} fill="var(--ax-text-subtle)">
             {s.sub}
           </text>
           {i < steps.length - 1 && (
@@ -99,12 +100,12 @@ function LifecycleDiagram() {
 
       {/* Legend */}
       <g transform={`translate(20, ${y + cardH + 50})`}>
-        <rect x={0} y={0} width={14} height={14} rx={3} fill="#e6f0fa" stroke="#0067c5" />
-        <text x={22} y={11} fontSize={11} fill="#333">Aktiv</text>
-        <rect x={90} y={0} width={14} height={14} rx={3} fill="#fff4e1" stroke="#c77300" />
-        <text x={112} y={11} fontSize={11} fill="#333">Venter</text>
-        <rect x={195} y={0} width={14} height={14} rx={3} fill="#e3f5e8" stroke="#067a3a" />
-        <text x={217} y={11} fontSize={11} fill="#333">Avsluttet / arkivert</text>
+        <rect x={0} y={0} width={14} height={14} rx={3} fill="var(--ax-bg-accent-soft)" stroke="var(--ax-border-accent)" />
+        <text x={22} y={11} fontSize={11} fill="var(--ax-text-default)">Aktiv</text>
+        <rect x={90} y={0} width={14} height={14} rx={3} fill="var(--ax-bg-warning-soft)" stroke="var(--ax-border-warning)" />
+        <text x={112} y={11} fontSize={11} fill="var(--ax-text-default)">Venter</text>
+        <rect x={195} y={0} width={14} height={14} rx={3} fill="var(--ax-bg-success-soft)" stroke="var(--ax-border-success)" />
+        <text x={217} y={11} fontSize={11} fill="var(--ax-text-default)">Avsluttet / arkivert</text>
       </g>
     </svg>
   );
@@ -116,7 +117,7 @@ function StateMachineDiagram() {
   // Wide viewBox + generous column spacing so edge labels never collide with boxes.
   const w = 1480;
   const h = 320;
-  const muted = "#5a6470";
+  const muted = "var(--ax-text-subtle)";
 
   const boxW = 168;
   const boxH = 42;
@@ -142,10 +143,10 @@ function StateMachineDiagram() {
 
   const tone = (t: Tone) => {
     switch (t) {
-      case "blue": return { fill: "#e6f0fa", stroke: "#0067c5" };
-      case "amber": return { fill: "#fff4e1", stroke: "#c77300" };
-      case "green": return { fill: "#e3f5e8", stroke: "#067a3a" };
-      case "red": return { fill: "#fde8e8", stroke: "#b32525" };
+      case "blue": return { fill: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent)" };
+      case "amber": return { fill: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" };
+      case "green": return { fill: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" };
+      case "red": return { fill: "var(--ax-bg-danger-soft)", stroke: "var(--ax-border-danger)" };
     }
   };
 
@@ -348,7 +349,7 @@ function StateMachineDiagram() {
               textAnchor="middle"
               fontSize={11.5}
               fontWeight={600}
-              fill="#1a1a1a"
+              fill="var(--ax-text-default)"
             >
               {n.label}
             </text>
@@ -356,7 +357,7 @@ function StateMachineDiagram() {
         );
       })}
 
-      {/* Edge labels — rendered AFTER nodes so the white halo sits on top */}
+      {/* Edge labels — rendered AFTER nodes so the surface-coloured halo sits on top */}
       {edges.map((e, i) =>
         e.label ? (
           <text
@@ -366,7 +367,7 @@ function StateMachineDiagram() {
             textAnchor="middle"
             fontSize={11}
             fill={muted}
-            style={{ paintOrder: "stroke", stroke: "#ffffff", strokeWidth: 5 }}
+            style={{ paintOrder: "stroke", stroke: "var(--ax-bg-raised)", strokeWidth: 5 }}
           >
             {e.label}
           </text>
@@ -382,29 +383,29 @@ function StateMachineDiagram() {
           height={36}
           rx={8}
           ry={8}
-          fill="#fde8e8"
-          stroke="#b32525"
+          fill="var(--ax-bg-danger-soft)"
+          stroke="var(--ax-border-danger)"
           strokeDasharray="4 3"
           strokeWidth={1.2}
         />
-        <text x={14} y={15} fontSize={11} fontWeight={600} fill="#7a1414">
+        <text x={14} y={15} fontSize={11} fontWeight={600} fill="var(--ax-text-danger)">
           Hvis et kall mot RINA feiler
         </text>
-        <text x={14} y={29} fontSize={11} fill="#7a1414">
+        <text x={14} y={29} fontSize={11} fill="var(--ax-text-danger)">
           ⇒ saken settes til <tspan fontFamily="var(--ax-font-mono, monospace)">HANDLING_FEILET</tspan>
         </text>
       </g>
 
       {/* Legend */}
       <g transform={`translate(20, ${h - 18})`}>
-        <rect x={0} y={-10} width={12} height={12} rx={3} fill="#e6f0fa" stroke="#0067c5" />
-        <text x={18} y={0} fontSize={11} fill="#333">start</text>
-        <rect x={70} y={-10} width={12} height={12} rx={3} fill="#fff4e1" stroke="#c77300" />
-        <text x={88} y={0} fontSize={11} fill="#333">overgang</text>
-        <rect x={170} y={-10} width={12} height={12} rx={3} fill="#e3f5e8" stroke="#067a3a" />
-        <text x={188} y={0} fontSize={11} fill="#333">avsluttet / arkivert</text>
-        <rect x={320} y={-10} width={12} height={12} rx={3} fill="#fde8e8" stroke="#b32525" />
-        <text x={338} y={0} fontSize={11} fill="#333">terminal / feil</text>
+        <rect x={0} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-accent-soft)" stroke="var(--ax-border-accent)" />
+        <text x={18} y={0} fontSize={11} fill="var(--ax-text-default)">start</text>
+        <rect x={70} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-warning-soft)" stroke="var(--ax-border-warning)" />
+        <text x={88} y={0} fontSize={11} fill="var(--ax-text-default)">overgang</text>
+        <rect x={170} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-success-soft)" stroke="var(--ax-border-success)" />
+        <text x={188} y={0} fontSize={11} fill="var(--ax-text-default)">avsluttet / arkivert</text>
+        <rect x={320} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-danger-soft)" stroke="var(--ax-border-danger)" />
+        <text x={338} y={0} fontSize={11} fill="var(--ax-text-default)">terminal / feil</text>
       </g>
     </svg>
   );
@@ -463,7 +464,7 @@ const bucFamilies = [
 ];
 
 function ScopeBadge({ value }: { value: string }) {
-  if (value === "—") return <span style={{ color: "#999" }}>—</span>;
+  if (value === "—") return <span style={{ color: "var(--ax-text-subtle, #999)" }}>—</span>;
   const isGlobal = value === "Global";
   return (
     <span
@@ -473,9 +474,17 @@ function ScopeBadge({ value }: { value: string }) {
         borderRadius: 4,
         fontSize: 12,
         fontWeight: 500,
-        background: isGlobal ? "#e6f0fa" : "#f4f4f4",
-        color: isGlobal ? "#0067c5" : "#444",
-        border: `1px solid ${isGlobal ? "#b8d4ec" : "#ddd"}`,
+        background: isGlobal
+          ? "var(--ax-bg-accent-soft, #e6f0fa)"
+          : "var(--ax-bg-neutral-soft, #f4f4f4)",
+        color: isGlobal
+          ? "var(--ax-text-accent, #0067c5)"
+          : "var(--ax-text-subtle, #444)",
+        border: `1px solid ${
+          isGlobal
+            ? "var(--ax-border-accent-subtle, #b8d4ec)"
+            : "var(--ax-border-subtle, #ddd)"
+        }`,
       }}
     >
       {value}
@@ -508,7 +517,7 @@ function BucFamilyTable({ bucs }: { bucs: typeof bucFamilies[number]["bucs"] }) 
               <td style={td}>
                 {b.kriterium}
                 {b.merknad && (
-                  <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>↳ {b.merknad}</div>
+                  <div style={{ fontSize: 12, color: "var(--ax-text-subtle, #666)", marginTop: 2 }}>↳ {b.merknad}</div>
                 )}
               </td>
               <td style={{ ...td, textAlign: "center" as const }}><ScopeBadge value={b.sakseier} /></td>
@@ -560,15 +569,9 @@ export default function Page() {
             automatisk i bakgrunnen, hver natt.
           </BodyLong>
 
-          <Box
-            style={{ background: "var(--ax-bg-neutral-soft, #f5f7fa)" }}
-            borderRadius="12"
-            padding="space-16"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
+          <DiagramSurface>
             <LifecycleDiagram />
-          </Box>
+          </DiagramSurface>
 
           <BodyLong>
             For hver type sak (BUC) er det definert regler som beskriver hva
@@ -654,20 +657,14 @@ export default function Page() {
             BUC, eierskap, sist endret og hvilke SED-er som finnes.
           </BodyLong>
 
-          <Box
-            style={{ background: "var(--ax-bg-neutral-soft, #f5f7fa)" }}
-            borderRadius="12"
-            padding="space-16"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
+          <DiagramSurface>
             <StateMachineDiagram />
             <Detail textColor="subtle" style={{ marginTop: 8 }}>
               Status per RINA-sak. Overgangene drives av planlagte
               NAIS-jobber som kaller{" "}
               <code>POST /api/v1/prosesser/&#123;prosess&#125;/execute</code>.
             </Detail>
-          </Box>
+          </DiagramSurface>
 
           <Heading size="small" level="3">
             Prosessene og når de kjøres

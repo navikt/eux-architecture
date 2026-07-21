@@ -4,9 +4,9 @@ import { HStack, Detail } from "@navikt/ds-react";
 export type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
 const COLORS: Record<ConnectionStatus, string> = {
-  connecting: "#c77300",
-  connected: "#067a3a",
-  disconnected: "#ba3a26",
+  connecting: "var(--ax-text-warning, #c77300)",
+  connected: "var(--ax-text-success, #067a3a)",
+  disconnected: "var(--ax-text-danger, #ba3a26)",
 };
 
 const LABELS: Record<ConnectionStatus, string> = {

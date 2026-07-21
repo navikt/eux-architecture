@@ -437,16 +437,16 @@ export default function EnvironmentsPage() {
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "720px" }}>
               <thead>
                 <tr>
-                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>
+                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>
                     Tjeneste
                   </th>
-                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>
+                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>
                     Beskrivelse
                   </th>
-                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>
+                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>
                     Q1
                   </th>
-                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>
+                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>
                     Q2
                   </th>
                 </tr>
@@ -454,7 +454,7 @@ export default function EnvironmentsPage() {
               <tbody>
                 {services.map((s) => (
                   <tr key={s.name}>
-                    <td style={{ padding: "0.5rem", borderBottom: "1px solid #eee", verticalAlign: "top" }}>
+                    <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)", verticalAlign: "top" }}>
                       <BodyShort weight="semibold">
                         <a
                           href={`https://github.com/navikt/${s.repo ?? s.name}`}
@@ -465,15 +465,15 @@ export default function EnvironmentsPage() {
                         </a>
                       </BodyShort>
                     </td>
-                    <td style={{ padding: "0.5rem", borderBottom: "1px solid #eee", verticalAlign: "top" }}>
+                    <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)", verticalAlign: "top" }}>
                       <BodyShort size="small" style={subtle}>
                         {s.description}
                       </BodyShort>
                     </td>
-                    <td style={{ padding: "0.5rem", borderBottom: "1px solid #eee", verticalAlign: "top" }}>
+                    <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)", verticalAlign: "top" }}>
                       <ServiceLink url={s.q1} swagger={s.swagger} />
                     </td>
-                    <td style={{ padding: "0.5rem", borderBottom: "1px solid #eee", verticalAlign: "top" }}>
+                    <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)", verticalAlign: "top" }}>
                       <ServiceLink url={s.q2} swagger={s.swagger} />
                     </td>
                   </tr>
