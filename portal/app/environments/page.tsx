@@ -516,10 +516,13 @@ export default function EnvironmentsPage() {
                 <BodyLong>
                   Frontenden (<code>nEESSI</code> via{" "}
                   <code>eux-neessi-qN.intern.dev.nav.no</code>) bruker Azure
-                  AD med Wonderwall-sidecar. Du logger inn med din vanlige
-                  NAV-bruker. RINA-UI-ene (<code>rina-ss4-q.adeo.no</code> og{" "}
-                  <code>rina-ss1-q.adeo.no</code>) bruker AD-brukere over
-                  HTTPS — disse er kun tilgjengelige fra NAV-nettet.
+                  AD med Wonderwall-sidecar. I testmiljøene logger du inn med
+                  din <code>@trygdeetaten.no</code>-testbruker – ikke din
+                  vanlige NAV-bruker. RINA-UI-ene (
+                  <code>rina-ss4-q.adeo.no</code> og{" "}
+                  <code>rina-ss1-q.adeo.no</code>) bruker de samme{" "}
+                  <code>@trygdeetaten.no</code>-testbrukerne over HTTPS — disse
+                  er kun tilgjengelige fra NAV-nettet.
                 </BodyLong>
               </Accordion.Content>
             </Accordion.Item>
