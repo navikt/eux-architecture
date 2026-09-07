@@ -1,32 +1,33 @@
-1.1.1.		$nav.eessisak[x].land										U013.LocalCaseNumbers.LocalCaseNumber[0].country.value[0]
-		$nav.eessisak[x].landkode									U013.LocalCaseNumbers.LocalCaseNumber[0].country.value[0]
-1.1.2.		$nav.eessisak[x].saksnummer									U013.LocalCaseNumbers.LocalCaseNumber[0].caseNumber
-1.1.3.1.	$nav.eessisak[x].institusjonsid									U013.LocalCaseNumbers.LocalCaseNumber[0].Institution.institutionID
-1.1.3.2.	$nav.eessisak[x].institusjonsnavn								U013.LocalCaseNumbers.LocalCaseNumber[0].Institution.institutionName
+1.1.1.		U013Dto.lokaleSaksnumre[].landkode							$nav.eessisak[x].land															U013.LocalCaseNumbers.LocalCaseNumber[0].country.value[0]
+		$nav.eessisak[x].landkode								U013.LocalCaseNumbers.LocalCaseNumber[0].country.value[0]
+1.1.2.		U013Dto.lokaleSaksnumre[].saksnummer							$nav.eessisak[x].saksnummer														U013.LocalCaseNumbers.LocalCaseNumber[0].caseNumber
+1.1.3.1.	U013Dto.lokaleSaksnumre[].institusjonsid						$nav.eessisak[x].institusjonsid														U013.LocalCaseNumbers.LocalCaseNumber[0].Institution.institutionID
+1.1.3.2.	U013Dto.lokaleSaksnumre[].institusjonsnavn						$nav.eessisak[x].institusjonsnavn													U013.LocalCaseNumbers.LocalCaseNumber[0].Institution.institutionName
 
-2.1.1.		$nav.bruker.person.etternavn									U013.PersonForWhomFollowUpProvided.PersonIdentification.familyName
-2.1.2.		$nav.bruker.person.fornavn									U013.PersonForWhomFollowUpProvided.PersonIdentification.forename
-2.1.3.		$nav.bruker.person.foedselsdato									U013.PersonForWhomFollowUpProvided.PersonIdentification.dateBirth
-2.1.4.		$nav.bruker.person.kjoenn									U013.PersonForWhomFollowUpProvided.PersonIdentification.sex.value[0]
-2.1.5.		$nav.bruker.person.etternavnvedfoedsel								U013.PersonForWhomFollowUpProvided.PersonIdentification.familyNameAtBirth
-2.1.6.		$nav.bruker.person.fornavnvedfoedsel								U013.PersonForWhomFollowUpProvided.PersonIdentification.forenameAtBirth
-2.1.7.1.1.	$nav.bruker.person.pin[x].land									U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
-		$nav.bruker.person.pin[x].landkode								U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
-2.1.7.1.2.	$nav.bruker.person.pin[x].identifikator								U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
-2.1.7.1.3.	$nav.bruker.person.pin[x].sektor								U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
-2.1.7.1.4.1.	$nav.bruker.person.pin[x].institusjonsid							U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
-2.1.7.1.4.2.	$nav.bruker.person.pin[x].institusjonsnavn							U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
-2.1.8.1.1.	$nav.bruker.person.foedested.by									U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
-2.1.8.1.2.	$nav.bruker.person.foedested.region								U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
-2.1.8.1.3.	$nav.bruker.person.foedested.land								U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
-		$nav.bruker.person.foedested.landkode								U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
-2.1.8.2.	$nav.bruker.far.person.etternavnvedfoedsel							U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
-2.1.8.3.	$nav.bruker.far.person.fornavn									U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
-2.1.8.4.	$nav.bruker.mor.person.etternavnvedfoedsel							U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
-2.1.8.5.	$nav.bruker.mor.person.fornavn									U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
-2.2.1.		$nav.bruker.person.statsborgerskap[x].land							U013.PersonForWhomFollowUpProvided.AdditionalInformationPerson.nationality.value[0]
-		$nav.bruker.person.statsborgerskap[x].landkode							U013.PersonForWhomFollowUpProvided.AdditionalInformationPerson.nationality.value[0]
+2.1.1.		U013Dto.bruker.personInfo.etternavn							$nav.bruker.person.etternavn														U013.PersonForWhomFollowUpProvided.PersonIdentification.familyName
+2.1.2.		U013Dto.bruker.personInfo.fornavn							$nav.bruker.person.fornavn														U013.PersonForWhomFollowUpProvided.PersonIdentification.forename
+2.1.3.		U013Dto.bruker.personInfo.foedselsdato							$nav.bruker.person.foedselsdato														U013.PersonForWhomFollowUpProvided.PersonIdentification.dateBirth
+2.1.4.		U013Dto.bruker.personInfo.kjoenn							$nav.bruker.person.kjoenn														U013.PersonForWhomFollowUpProvided.PersonIdentification.sex.value[0]
+2.1.5.		U013Dto.bruker.personInfo.pinMangler.etternavnVedFoedsel				$nav.bruker.person.etternavnvedfoedsel													U013.PersonForWhomFollowUpProvided.PersonIdentification.familyNameAtBirth
+2.1.6.		U013Dto.bruker.personInfo.pinMangler.fornavnVedFoedsel					$nav.bruker.person.fornavnvedfoedsel													U013.PersonForWhomFollowUpProvided.PersonIdentification.forenameAtBirth
+2.1.7.1.1.	U013Dto.bruker.personInfo.pin[].landkode						$nav.bruker.person.pin[x].land														U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+		$nav.bruker.person.pin[x].landkode							U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+2.1.7.1.2.	U013Dto.bruker.personInfo.pin[].identifikator						$nav.bruker.person.pin[x].identifikator													U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+2.1.7.1.3.	U013Dto.bruker.personInfo.pin[].sektor							$nav.bruker.person.pin[x].sektor													U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+2.1.7.1.4.1.	U013Dto.bruker.personInfo.pin[].institusjonsid						$nav.bruker.person.pin[x].institusjonsid												U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+2.1.7.1.4.2.	U013Dto.bruker.personInfo.pin[].institusjonsnavn					$nav.bruker.person.pin[x].institusjonsnavn												U013.PersonForWhomFollowUpProvided.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+2.1.8.1.1.	U013Dto.bruker.personInfo.pinMangler.foedested.by					$nav.bruker.person.foedested.by														U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+2.1.8.1.2.	U013Dto.bruker.personInfo.pinMangler.foedested.region					$nav.bruker.person.foedested.region													U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+2.1.8.1.3.	U013Dto.bruker.personInfo.pinMangler.foedested.landkode					$nav.bruker.person.foedested.land													U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+		$nav.bruker.person.foedested.landkode							U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+2.1.8.2.	U013Dto.bruker.personInfo.pinMangler.far.etternavnVedFoedsel				$nav.bruker.far.person.etternavnvedfoedsel												U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+2.1.8.3.	U013Dto.bruker.personInfo.pinMangler.far.fornavn					$nav.bruker.far.person.fornavn														U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+2.1.8.4.	U013Dto.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel				$nav.bruker.mor.person.etternavnvedfoedsel												U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+2.1.8.5.	U013Dto.bruker.personInfo.pinMangler.mor.fornavn					$nav.bruker.mor.person.fornavn														U013.PersonForWhomFollowUpProvided.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+2.2.1.		U013Dto.bruker.personInfo.statsborgerskap[].landkode					$nav.bruker.person.statsborgerskap[x].land												U013.PersonForWhomFollowUpProvided.AdditionalInformationPerson.nationality.value[0]
+		$nav.bruker.person.statsborgerskap[x].landkode						U013.PersonForWhomFollowUpProvided.AdditionalInformationPerson.nationality.value[0]
 
-3.1.		$dagpenger.maanedligoppfoelging.registrertperson.oppfoelgingsperiode.overholdtprosedyrer	U013.PersonRegistered.personRegisteredIndicator.value[0]
-3.2.1.		$dagpenger.maanedligoppfoelging.registrertperson.oppfoelgingsperiode.somrapportertiU10		U013.PersonRegistered.FillInFollowingIfPersonRegisteredComplied.asReportedInU010Indicator.value[0]
-3.3.		$dagpenger.maanedligoppfoelging.registrertperson.oppfoelgingsperiode.ytterligereinformasjon	U013.PersonRegistered.additionalInformation
+3.1.		U013Dto.registrertPerson.overholdtProsedyrer						$dagpenger.maanedligoppfoelging.registrertperson.oppfoelgingsperiode.overholdtprosedyrer						U013.PersonRegistered.personRegisteredIndicator.value[0]
+3.2.1.		U013Dto.registrertPerson.somRapportertIU10						$dagpenger.maanedligoppfoelging.registrertperson.oppfoelgingsperiode.somrapportertiU10							U013.PersonRegistered.FillInFollowingIfPersonRegisteredComplied.asReportedInU010Indicator.value[0]
+3.3.		U013Dto.registrertPerson.ytterligereInfo						$dagpenger.maanedligoppfoelging.registrertperson.oppfoelgingsperiode.ytterligereinformasjon						U013.PersonRegistered.additionalInformation
+		U013Dto.bruker.personInfo.adressebeskyttelsesgrad (beriking frå PDL, ikkje i ACL)
