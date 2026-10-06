@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import NextLink from "next/link";
 import { Accordion, BodyLong, BodyShort, Detail, Heading, Link as DsLink, Table } from "@navikt/ds-react";
 import { ArrowRightIcon, ClockIcon, ExternalLinkIcon, LightningIcon, ArrowsSquarepathIcon } from "@navikt/aksel-icons";
@@ -257,7 +257,7 @@ const GLOSSARY: { term: string; full?: string; text: string }[] = [
 const FURTHER: { href: string; title: string; text: string; external?: boolean }[] = [
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
   { href: "/environments", title: "Miljøer", text: "Testmiljøene Q1 og Q2, med hver sin RINA-instans og frontend." },
-  { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan inaktive RINA-saker avsluttes og arkiveres." },
+  { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan inaktive RINA-saker lukkes og arkiveres – med regler per BUC, statuser og nattjobber." },
   { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker uten sendt SED slettes etter 15 dager." },
   { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hvordan SED-er journalføres automatisk." },
   { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Sanntidsmonitor for sedmottatt og sedsendt i Q1 og Q2." },
@@ -325,6 +325,17 @@ export default function ArchitecturePage() {
     },
     [reduced],
   );
+
+  // Deep link from other pages: /architecture?fokus=<node-id>#kart
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("fokus");
+    if (!id || !NODE_BY_ID[id]) return;
+    const t = window.setTimeout(() => {
+      setSelected(id);
+      document.getElementById("kart")?.scrollIntoView({ block: "start" });
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, []);
 
   return (
     <div className="portal-page--wide arch-page">

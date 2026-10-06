@@ -1,867 +1,580 @@
 "use client";
 
-import {
-  Heading,
-  BodyLong,
-  BodyShort,
-  VStack,
-  Box,
-  Accordion,
-  GuidePanel,
-  Detail,
-  Link as DsLink,
-} from "@navikt/ds-react";
-import { DiagramSurface } from "@/components/DiagramSurface";
+import { useCallback, useState, type ReactNode } from "react";
+import NextLink from "next/link";
+import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
+import { ArrowRightIcon, ExternalLinkIcon, LightningIcon, MoonIcon, PadlockLockedIcon } from "@navikt/aksel-icons";
+import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
+import { BUCS, ENVS, JOBS, STATUSES, differsFromProd, schedLabel, type Role, type StatusId } from "@/components/avslutning/data";
+import { archHref, ghHref } from "@/components/avslutning/tones";
+import { CaseJourney } from "@/components/avslutning/CaseJourney";
+import { SystemFlow } from "@/components/avslutning/SystemFlow";
+import { NightPipeline, StatusChips } from "@/components/avslutning/NightPipeline";
+import { StatusMachine } from "@/components/avslutning/StatusMachine";
+import { DecisionSimulator } from "@/components/avslutning/DecisionSimulator";
+import { BucTable } from "@/components/avslutning/BucTable";
+import { LocalGlobal } from "@/components/avslutning/LocalGlobal";
+import { SlackReport } from "@/components/avslutning/SlackReport";
 
-const subtle = { color: "var(--ax-text-subtle, #555)" };
-const eyebrow = {
-  ...subtle,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase" as const,
-  fontSize: 12,
-};
+const SECTIONS = [
+  { id: "livslop", label: "Livsløp" },
+  { id: "system", label: "Systemet" },
+  { id: "natten", label: "Natten" },
+  { id: "statuser", label: "Statuser" },
+  { id: "regler", label: "Regler" },
+  { id: "lokalt-globalt", label: "Lokalt og globalt" },
+  { id: "feil", label: "Feil" },
+  { id: "drift", label: "Drift" },
+  { id: "ordliste", label: "Ordliste" },
+  { id: "videre", label: "Videre" },
+];
+const SECTION_IDS = SECTIONS.map((s) => s.id);
 
-/* ---------- Diagram: lifecycle (functional) ---------- */
+const NIGHT_JOBS = JOBS.filter((j) => j.sched.prod?.freq === "daily" && j.sched.prod.h < 6).length;
+const USED_STATUSES = STATUSES.filter((s) => !s.unused).length;
 
-function LifecycleDiagram() {
-  // Calm, theme-aware palette (Aksel --ax-* tokens adapt to light/dark)
-  const cardFill = "var(--ax-bg-accent-soft)";
-  const cardStroke = "var(--ax-border-accent-subtle)";
-  const accent = "var(--ax-border-accent)";
-  const muted = "var(--ax-text-subtle)";
-  const w = 920;
-  const h = 270;
+/* ---------- Innhold ---------- */
 
-  const steps = [
-    { x: 20, label: "Ny sak", sub: "RINA oppretter sak", color: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent)" },
-    { x: 195, label: "Uvirksom", sub: "Ingen aktivitet i X dager", color: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" },
-    { x: 370, label: "Til avslutning", sub: "Kriterier oppfylt", color: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" },
-    { x: 545, label: "Avsluttet", sub: "Lukket i RINA", color: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" },
-    { x: 720, label: "Arkivert", sub: "Tatt ut av portefølje", color: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" },
-  ];
-  const cardW = 160;
-  const cardH = 70;
-  const y = 90;
+const ADVANCES: StatusId[] = ["AVSLUTTET_LOKALT", "AVSLUTTET_GLOBALT", "ARKIVERT", "UVIRKSOM"];
 
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Livsløp for en RINA-sak" style={{ width: "100%", height: "auto" }}>
-      <defs>
-        <marker id="arr-life" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0,0 L10,5 L0,10 z" fill={muted} />
-        </marker>
-      </defs>
-
-      {steps.map((s, i) => (
-        <g key={s.label}>
-          <rect
-            x={s.x}
-            y={y}
-            width={cardW}
-            height={cardH}
-            rx={12}
-            ry={12}
-            fill={s.color}
-            stroke={s.stroke}
-            strokeWidth={1.5}
-          />
-          <text x={s.x + cardW / 2} y={y + 28} textAnchor="middle" fontSize={14} fontWeight={600} fill="var(--ax-text-default)">
-            {s.label}
-          </text>
-          <text x={s.x + cardW / 2} y={y + 50} textAnchor="middle" fontSize={11} fill="var(--ax-text-subtle)">
-            {s.sub}
-          </text>
-          {i < steps.length - 1 && (
-            <line
-              x1={s.x + cardW + 4}
-              y1={y + cardH / 2}
-              x2={steps[i + 1].x - 6}
-              y2={y + cardH / 2}
-              stroke={muted}
-              strokeWidth={1.5}
-              markerEnd="url(#arr-life)"
-            />
-          )}
-        </g>
-      ))}
-
-      {/* timing labels above arrows */}
-      <text x={195 - 8} y={y - 8} textAnchor="middle" fontSize={11} fill={muted}>
-        90–180 dager
-      </text>
-      <text x={370 - 8} y={y - 8} textAnchor="middle" fontSize={11} fill={muted}>
-        regler treffer
-      </text>
-      <text x={545 - 8} y={y - 8} textAnchor="middle" fontSize={11} fill={muted}>
-        via RINA-API
-      </text>
-      <text x={720 - 8} y={y - 8} textAnchor="middle" fontSize={11} fill={muted}>
-        ~180 dager senere
-      </text>
-
-      {/* Legend */}
-      <g transform={`translate(20, ${y + cardH + 50})`}>
-        <rect x={0} y={0} width={14} height={14} rx={3} fill="var(--ax-bg-accent-soft)" stroke="var(--ax-border-accent)" />
-        <text x={22} y={11} fontSize={11} fill="var(--ax-text-default)">Aktiv</text>
-        <rect x={90} y={0} width={14} height={14} rx={3} fill="var(--ax-bg-warning-soft)" stroke="var(--ax-border-warning)" />
-        <text x={112} y={11} fontSize={11} fill="var(--ax-text-default)">Venter</text>
-        <rect x={195} y={0} width={14} height={14} rx={3} fill="var(--ax-bg-success-soft)" stroke="var(--ax-border-success)" />
-        <text x={217} y={11} fontSize={11} fill="var(--ax-text-default)">Avsluttet / arkivert</text>
-      </g>
-    </svg>
-  );
-}
-
-/* ---------- Diagram: state machine (technical) ---------- */
-
-function StateMachineDiagram() {
-  // Wide viewBox + generous column spacing so edge labels never collide with boxes.
-  const w = 1480;
-  const h = 320;
-  const muted = "var(--ax-text-subtle)";
-
-  const boxW = 168;
-  const boxH = 42;
-
-  // Six columns spaced ~260px apart → ~92px gap between boxes for labels.
-  const COL = { c0: 20, c1: 280, c2: 540, c3: 800, c4: 1060, c5: 1300 };
-  const ROW = { top: 40, mid: 130, low: 220, deep: 290 };
-
-  type Tone = "blue" | "amber" | "green" | "red";
-  type N = { id: string; x: number; y: number; label: string; tone: Tone };
-
-  const nodes: N[] = [
-    { id: "NY", x: COL.c0, y: ROW.mid, label: "NY_SAK", tone: "blue" },
-    { id: "UV", x: COL.c1, y: ROW.mid, label: "UVIRKSOM", tone: "amber" },
-    { id: "TAL", x: COL.c2, y: ROW.top, label: "TIL_AVSLUTNING_LOKALT", tone: "amber" },
-    { id: "TAG", x: COL.c2, y: ROW.mid, label: "TIL_AVSLUTNING_GLOBALT", tone: "amber" },
-    { id: "AAM", x: COL.c2, y: ROW.low, label: "AVSLUTTES_AV_MOTPART", tone: "red" },
-    { id: "AL", x: COL.c3, y: ROW.top, label: "AVSLUTTET_LOKALT", tone: "green" },
-    { id: "AG", x: COL.c3, y: ROW.mid, label: "AVSLUTTET_GLOBALT", tone: "green" },
-    { id: "TAR", x: COL.c4, y: (ROW.top + ROW.mid) / 2, label: "TIL_ARKIVERING", tone: "amber" },
-    { id: "AR", x: COL.c5, y: (ROW.top + ROW.mid) / 2, label: "ARKIVERT", tone: "green" },
-  ];
-
-  const tone = (t: Tone) => {
-    switch (t) {
-      case "blue": return { fill: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent)" };
-      case "amber": return { fill: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" };
-      case "green": return { fill: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" };
-      case "red": return { fill: "var(--ax-bg-danger-soft)", stroke: "var(--ax-border-danger)" };
-    }
-  };
-
-  const find = (id: string) => nodes.find((n) => n.id === id)!;
-
-  // Anchor points on a box. yFrac lets us place several arrows on the same side
-  // without overlap (e.g. three lines leaving UVIRKSOM).
-  type Side = "left" | "right" | "top" | "bottom";
-  const anchor = (id: string, side: Side, yFrac = 0.5, xFrac = 0.5) => {
-    const n = find(id);
-    switch (side) {
-      case "right": return { x: n.x + boxW, y: n.y + boxH * yFrac };
-      case "left": return { x: n.x, y: n.y + boxH * yFrac };
-      case "top": return { x: n.x + boxW * xFrac, y: n.y };
-      case "bottom": return { x: n.x + boxW * xFrac, y: n.y + boxH };
-    }
-  };
-
-  // Build an orthogonal (right-angle) path between two anchor points.
-  // bendAt is the x of the vertical segment; defaults to the midpoint.
-  const ortho = (
-    a: { x: number; y: number },
-    b: { x: number; y: number },
-    bendAt?: number,
-  ) => {
-    const bx = bendAt ?? (a.x + b.x) / 2;
-    return `M ${a.x} ${a.y} H ${bx} V ${b.y} H ${b.x}`;
-  };
-
-  // Each edge is a pre-shaped path so we can place labels precisely.
-  type Edge = {
-    d: string;
-    label?: string;
-    labelAt: { x: number; y: number };
-    dashed?: boolean;
-  };
-
-  const edges: Edge[] = (() => {
-    const list: Edge[] = [];
-
-    // NY → UV (straight, mid row)
-    {
-      const a = anchor("NY", "right");
-      const b = anchor("UV", "left");
-      list.push({
-        d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
-        label: "sett-uvirksom",
-        labelAt: { x: (a.x + b.x) / 2, y: a.y - 8 },
-      });
-    }
-
-    // UV → TAL  (up-right; uses upper third of UV.right)
-    {
-      const a = anchor("UV", "right", 0.25);
-      const b = anchor("TAL", "left");
-      const bend = a.x + 24;
-      list.push({
-        d: ortho(a, b, bend),
-        label: "lokal",
-        labelAt: { x: (bend + b.x) / 2, y: b.y - 8 },
-      });
-    }
-
-    // UV → TAG  (straight)
-    {
-      const a = anchor("UV", "right", 0.5);
-      const b = anchor("TAG", "left");
-      list.push({
-        d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
-        label: "global",
-        labelAt: { x: (a.x + b.x) / 2, y: a.y - 8 },
-      });
-    }
-
-    // UV → AAM  (down-right; uses lower third of UV.right)
-    {
-      const a = anchor("UV", "right", 0.75);
-      const b = anchor("AAM", "left");
-      const bend = a.x + 24;
-      list.push({
-        d: ortho(a, b, bend),
-        label: "ingen scope",
-        labelAt: { x: (bend + b.x) / 2, y: b.y - 8 },
-      });
-    }
-
-    // TAL → AL
-    {
-      const a = anchor("TAL", "right");
-      const b = anchor("AL", "left");
-      list.push({
-        d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
-        label: "avslutt",
-        labelAt: { x: (a.x + b.x) / 2, y: a.y - 8 },
-      });
-    }
-
-    // TAG → AG
-    {
-      const a = anchor("TAG", "right");
-      const b = anchor("AG", "left");
-      list.push({
-        d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
-        label: "avslutt",
-        labelAt: { x: (a.x + b.x) / 2, y: a.y - 8 },
-      });
-    }
-
-    // AL → TAR  (down-right into TAR's top-left)
-    {
-      const a = anchor("AL", "right");
-      const b = anchor("TAR", "left", 0.25);
-      const bend = a.x + 24;
-      list.push({
-        d: ortho(a, b, bend),
-        labelAt: { x: 0, y: 0 },
-      });
-    }
-
-    // AG → TAR (up-right into TAR's bottom-left)
-    {
-      const a = anchor("AG", "right");
-      const b = anchor("TAR", "left", 0.75);
-      const bend = a.x + 24;
-      list.push({
-        d: ortho(a, b, bend),
-        labelAt: { x: 0, y: 0 },
-      });
-    }
-
-    // Single shared label for the AL/AG → TAR fan-in
-    list.push({
-      d: "",
-      label: "etter ~180 dager",
-      labelAt: { x: anchor("TAR", "left").x - 24, y: anchor("TAR", "left").y - 32 },
-    });
-
-    // TAR → AR
-    {
-      const a = anchor("TAR", "right");
-      const b = anchor("AR", "left");
-      list.push({
-        d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`,
-        label: "arkiver",
-        labelAt: { x: (a.x + b.x) / 2, y: a.y - 8 },
-      });
-    }
-
-    return list;
-  })();
-
-  return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      role="img"
-      aria-label="Statusmaskin for eux-avslutt-rinasaker"
-      style={{ width: "100%", height: "auto", display: "block" }}
-    >
-      <defs>
-        <marker id="arr-state" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
-          <path d="M0,0 L10,5 L0,10 z" fill={muted} />
-        </marker>
-      </defs>
-
-      {/* Edges first so boxes sit on top */}
-      {edges.map((e, i) =>
-        e.d ? (
-          <path
-            key={`e${i}`}
-            d={e.d}
-            fill="none"
-            stroke={muted}
-            strokeWidth={1.4}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            markerEnd="url(#arr-state)"
-          />
-        ) : null
-      )}
-
-      {/* Nodes */}
-      {nodes.map((n) => {
-        const c = tone(n.tone);
-        return (
-          <g key={n.id}>
-            <rect
-              x={n.x}
-              y={n.y}
-              width={boxW}
-              height={boxH}
-              rx={10}
-              ry={10}
-              fill={c.fill}
-              stroke={c.stroke}
-              strokeWidth={1.4}
-            />
-            <text
-              x={n.x + boxW / 2}
-              y={n.y + boxH / 2 + 4}
-              textAnchor="middle"
-              fontSize={11.5}
-              fontWeight={600}
-              fill="var(--ax-text-default)"
-            >
-              {n.label}
-            </text>
-          </g>
-        );
-      })}
-
-      {/* Edge labels — rendered AFTER nodes so the surface-coloured halo sits on top */}
-      {edges.map((e, i) =>
-        e.label ? (
-          <text
-            key={`l${i}`}
-            x={e.labelAt.x}
-            y={e.labelAt.y}
-            textAnchor="middle"
-            fontSize={11}
-            fill={muted}
-            style={{ paintOrder: "stroke", stroke: "var(--ax-bg-raised)", strokeWidth: 5 }}
-          >
-            {e.label}
-          </text>
-        ) : null
-      )}
-
-      {/* Note about error status (no edge — keeps the diagram readable) */}
-      <g transform={`translate(${COL.c4 - 6}, ${ROW.low + 32})`}>
-        <rect
-          x={0}
-          y={0}
-          width={340}
-          height={36}
-          rx={8}
-          ry={8}
-          fill="var(--ax-bg-danger-soft)"
-          stroke="var(--ax-border-danger)"
-          strokeDasharray="4 3"
-          strokeWidth={1.2}
-        />
-        <text x={14} y={15} fontSize={11} fontWeight={600} fill="var(--ax-text-danger)">
-          Hvis et kall mot RINA feiler
-        </text>
-        <text x={14} y={29} fontSize={11} fill="var(--ax-text-danger)">
-          ⇒ saken settes til <tspan fontFamily="var(--ax-font-mono, monospace)">HANDLING_FEILET</tspan>
-        </text>
-      </g>
-
-      {/* Legend */}
-      <g transform={`translate(20, ${h - 18})`}>
-        <rect x={0} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-accent-soft)" stroke="var(--ax-border-accent)" />
-        <text x={18} y={0} fontSize={11} fill="var(--ax-text-default)">start</text>
-        <rect x={70} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-warning-soft)" stroke="var(--ax-border-warning)" />
-        <text x={88} y={0} fontSize={11} fill="var(--ax-text-default)">overgang</text>
-        <rect x={170} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-success-soft)" stroke="var(--ax-border-success)" />
-        <text x={188} y={0} fontSize={11} fill="var(--ax-text-default)">avsluttet / arkivert</text>
-        <rect x={320} y={-10} width={12} height={12} rx={3} fill="var(--ax-bg-danger-soft)" stroke="var(--ax-border-danger)" />
-        <text x={338} y={0} fontSize={11} fill="var(--ax-text-default)">terminal / feil</text>
-      </g>
-    </svg>
-  );
-}
-
-/* ---------- Section eyebrow ---------- */
-
-function SectionEyebrow({ kind }: { kind: "funksjonell" | "teknisk" }) {
-  const label = kind === "funksjonell" ? "For alle" : "For utviklere";
-  return <div style={eyebrow}>{label}</div>;
-}
-
-/* ---------- BUC rules data (from Buc.kt in eux-avslutt-rinasaker) ---------- */
-
-const bucFamilies = [
+const RESPONSES: { code: string; what: ReactNode; result: StatusId[]; tone: "success" | "danger" | "warning" }[] = [
   {
-    id: "h",
-    label: "H-BUC-er",
-    bucs: [
-      { navn: "H_BUC_01", uvirksom: 180, kriterium: "Siste SED er H002", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
+    code: "2xx",
+    what: "Handlingen er utført. Saken går videre.",
+    result: ADVANCES,
+    tone: "success",
+  },
+  {
+    code: "409",
+    what: "Terminatoren finner ikke handlingen på saken i RINA – «Close case», X001-handlingene eller arkivering.",
+    result: ["HANDLING_MANGLER"],
+    tone: "danger",
+  },
+  {
+    code: "Andre 4xx",
+    what: (
+      <>
+        Logges som «Uventet feil», men <strong>saken går videre som om kallet lyktes</strong>. Terminatoren sender
+        4xx-svar fra RINA videre, så f.eks. 404 når saken ikke finnes i RINA havner her.
+      </>
+    ),
+    result: ADVANCES,
+    tone: "warning",
+  },
+  {
+    code: "5xx og nettverk",
+    what: "Feil i terminatoren eller RINA, tidsavbrudd og andre exceptions. Også når persondata til X001 mangler (500).",
+    result: ["HANDLING_FEILET"],
+    tone: "danger",
+  },
+];
+
+const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[] = [
+  {
+    group: "Regler og statuser",
+    items: [
+      {
+        title: "«Mottatt» og «sendt» sjekker ikke retningen",
+        body: (
+          <>
+            Kriteriene <code>mottattSedExistsForAvslutningAutomatisk</code> og <code>sentSedExistsForAvslutningAutomatisk</code>{" "}
+            sjekker bare at en SED av riktig type finnes. For UB_BUC_01 slår regelen til selv om det er NAV som har sendt
+            U002. Bare <code>sisteSedForAvslutningAutomatiskKrevesSendtFraNav</code> (FB_BUC_01) ser på retningen.
+          </>
+        ),
+      },
+      {
+        title: "Hva som starter klokken på nytt",
+        body: (
+          <ul>
+            <li>
+              <strong>Uvirksom</strong> regnes fra den nyeste SED-en. En ny SED skyver grensen.
+            </li>
+            <li>
+              <strong>Reserve og arkivering</strong> regnes fra <code>endretTidspunkt</code> på saken. Den oppdateres av
+              hver sakshendelse fra RINA og hver statusendring. En dokumenthendelse oppdaterer den bare når den vekker en
+              uvirksom sak.
+            </li>
+            <li>
+              En dokumenthendelse vekker bare en sak som er <code>UVIRKSOM</code>. Andre statuser påvirkes ikke.
+            </li>
+          </ul>
+        ),
+      },
+      {
+        title: "Saker uten SED-er avsluttes aldri",
+        body: (
+          <>
+            sett-uvirksom ser bare på saker som har minst én SED. En sak som aldri får en SED, blir stående som{" "}
+            <code>NY_SAK</code> i eux-avslutt-rinasaker.
+          </>
+        ),
+      },
+      {
+        title: "SLETT_DOKUMENTUTKAST settes ingen steder",
+        body: (
+          <>
+            slett-dokumentutkast kjører hver dag i prod, men ingen kode setter statusen den ser etter. Den må settes utenfor
+            appen, f.eks. direkte i databasen. <code>DOKUMENT_SENT</code>, <code>KAN_IKKE_AVSLUTTES</code> og{" "}
+            <code>OPPRETT_OPPGAVE</code> er heller ikke i bruk.
+          </>
+        ),
+      },
     ],
   },
   {
-    id: "fb",
-    label: "FB-BUC-er",
-    bucs: [
-      { navn: "FB_BUC_01", uvirksom: 120, kriterium: "Siste SED er F002, sendt fra NAV", sakseier: "Global", motpart: "—", merknad: "Fallback: avslutt etter 270 d uten aktivitet. Arkivering etter 400 d." },
-      { navn: "FB_BUC_02", uvirksom: 90, kriterium: "Siste SED er F017", sakseier: "Global", motpart: "—", merknad: "" },
-      { navn: "FB_BUC_04", uvirksom: 90, kriterium: "F003 finnes i saken", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
-    ],
-  },
-  {
-    id: "ub",
-    label: "UB-BUC-er",
-    bucs: [
-      { navn: "UB_BUC_01", uvirksom: 90, kriterium: "Mottatt U002, U004 eller U017", sakseier: "Global", motpart: "—", merknad: "" },
-      { navn: "UB_BUC_02", uvirksom: 180, kriterium: "Mottatt U008, U014 eller H070, eller sendt U009 eller H070", sakseier: "Global", motpart: "—", merknad: "" },
-      { navn: "UB_BUC_03", uvirksom: 90, kriterium: "Mottatt U019 eller H070, eller sendt H070", sakseier: "Global", motpart: "—", merknad: "" },
-      { navn: "UB_BUC_04", uvirksom: 90, kriterium: "U024 finnes i saken", sakseier: "Global", motpart: "—", merknad: "" },
-    ],
-  },
-  {
-    id: "s",
-    label: "S-BUC-er",
-    bucs: [
-      { navn: "S_BUC_12", uvirksom: 90, kriterium: "Siste SED er S055", sakseier: "—", motpart: "Lokal", merknad: "" },
-      { navn: "S_BUC_14", uvirksom: 90, kriterium: "Siste SED er S046", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
-      { navn: "S_BUC_14a", uvirksom: 90, kriterium: "Siste SED er S047", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
-      { navn: "S_BUC_14b", uvirksom: 90, kriterium: "Siste SED er S048", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
-      { navn: "S_BUC_15", uvirksom: 90, kriterium: "Siste SED er S057", sakseier: "Lokal", motpart: "—", merknad: "" },
-      { navn: "S_BUC_17", uvirksom: 90, kriterium: "Siste SED er S003", sakseier: "Lokal", motpart: "—", merknad: "" },
-      { navn: "S_BUC_17a", uvirksom: 90, kriterium: "Siste SED er S005", sakseier: "—", motpart: "Lokal", merknad: "" },
-      { navn: "S_BUC_24", uvirksom: 90, kriterium: "Siste SED er S041", sakseier: "Lokal", motpart: "Lokal", merknad: "" },
+    group: "Drift",
+    items: [
+      {
+        title: "Feilede saker prøves aldri igjen",
+        body: (
+          <>
+            <code>HANDLING_MANGLER</code> og <code>HANDLING_FEILET</code> er endelige. Ingen jobb plukker dem opp. Den
+            månedlige rapporten viser antallet og opptil 10 saker – resten må undersøkes i databasen.
+          </>
+        ),
+      },
+      {
+        title: "En mislykket kjøring ser vellykket ut",
+        body: (
+          <>
+            NAIS-jobben logger bare en advarsel hvis kallet til eux-avslutt-rinasaker feiler, og avslutter normalt. Med{" "}
+            <code>backoffLimit: 0</code> blir det heller ikke gjort nye forsøk. Følg med på loggene, ikke på jobbstatusen.
+          </>
+        ),
+      },
+      {
+        title: "Grenser per kjøring",
+        body: (
+          <>
+            sett-uvirksom tar maks 5 000 saker per BUC, og avslutt maks 1 000 lokale og 1 000 globale per BUC. Et stort
+            etterslep tar derfor flere netter. til-avslutning, til-arkivering og arkiver har ingen grense.
+          </>
+        ),
+      },
+      {
+        title: "Q2 er en dag forsinket",
+        body: (
+          <>
+            I Q2 kjører til-avslutning kl. 12.05, altså etter avslutt (kl. 03.00). En sak som blir klar for avslutning, lukkes
+            derfor først natten etter. Rapporten i Q2 er satt til 31. februar og sendes aldri.
+          </>
+        ),
+      },
     ],
   },
 ];
 
-function ScopeBadge({ value }: { value: string }) {
-  if (value === "—") return <span style={{ color: "var(--ax-text-subtle, #999)" }}>—</span>;
-  const isGlobal = value === "Global";
+const GLOSSARY: { term: string; full?: string; text: string }[] = [
+  { term: "RINA", full: "Reference Implementation of a National Application", text: "Europakommisjonens system for å behandle EESSI-saker. Sakene som lukkes og arkiveres, ligger her." },
+  { term: "BUC", full: "Business Use Case", text: "En saksprosess i EESSI. Reglene for avslutning er satt per BUC." },
+  { term: "SED", full: "Structured Electronic Document", text: "Et strukturert dokument som sendes mellom landene i en BUC." },
+  { term: "X001", text: "SED-en som avslutter en sak for alle deltakerne. Brukes ved global lukking." },
+  { term: "Sakseier", text: "NAV eier saken i RINA (rollen PO i sakshendelsen). Bare sakseier kan lukke globalt." },
+  { term: "Motpart", text: "NAV deltar i en sak som et annet land eier (rollen CP i sakshendelsen)." },
+  { term: "Lokal lukking", text: "Handlingen «Close case» i RINA. Saken lukkes bare hos NAV." },
+  { term: "Global lukking", text: "NAV sender X001, og saken lukkes hos alle deltakerne." },
+  { term: "Uvirksom", text: "Ingen SED er sendt eller mottatt innenfor grensen for BUC-en (90, 120 eller 180 dager)." },
+  { term: "endretTidspunkt", text: "Når saken sist ble endret i eux-avslutt-rinasaker. Grunnlaget for reserveregelen og arkivering." },
+  { term: "NAIS-jobb", text: "En Kubernetes CronJob på NAIS. Her: en jobb per prosess som bare kaller REST-endepunktet." },
+];
+
+const REPOS = ["eux-avslutt-rinasaker", "eux-avslutt-rinasaker-naisjob", "eux-rina-terminator-api"];
+
+const FURTHER: { href: string; title: string; text: string; external?: boolean }[] = [
+  { href: archHref("eux-avslutt-rinasaker"), title: "Arkitektur", text: "Se eux-avslutt-rinasaker i arkitekturkartet, med alt den snakker med." },
+  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker uten sendt SED slettes etter 15 dager." },
+  { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hvordan SED-er journalføres automatisk." },
+  { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Sanntidsmonitor for sedmottatt og sedsendt i Q1 og Q2." },
+  { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
+  { href: "/environments", title: "Miljøer", text: "Testmiljøene Q1 og Q2, med hver sin RINA-instans." },
+  ...REPOS.map((r) => ({ href: ghHref(r), title: r, text: "Kildekoden på GitHub.", external: true })),
+];
+
+/* ---------- Byggeklosser ---------- */
+
+function Section({ id, eyebrow, title, lead, children }: { id: string; eyebrow: string; title: string; lead?: ReactNode; children: ReactNode }) {
   return (
-    <span
-      style={{
-        display: "inline-block",
-        padding: "1px 8px",
-        borderRadius: 4,
-        fontSize: 12,
-        fontWeight: 500,
-        background: isGlobal
-          ? "var(--ax-bg-accent-soft, #e6f0fa)"
-          : "var(--ax-bg-neutral-soft, #f4f4f4)",
-        color: isGlobal
-          ? "var(--ax-text-accent, #0067c5)"
-          : "var(--ax-text-subtle, #444)",
-        border: `1px solid ${
-          isGlobal
-            ? "var(--ax-border-accent-subtle, #b8d4ec)"
-            : "var(--ax-border-subtle, #ddd)"
-        }`,
-      }}
-    >
-      {value}
-    </span>
+    <section id={id} className="arch-section" aria-labelledby={`${id}-title`}>
+      <header className="arch-section__head">
+        <Detail className="arch-eyebrow">{eyebrow}</Detail>
+        <Heading level="2" size="large" id={`${id}-title`}>
+          {title}
+        </Heading>
+        {lead && <BodyLong className="arch-section__lead">{lead}</BodyLong>}
+      </header>
+      {children}
+    </section>
   );
 }
 
-function BucFamilyTable({ bucs }: { bucs: typeof bucFamilies[number]["bucs"] }) {
-  const th = { padding: "8px 10px", textAlign: "left" as const, whiteSpace: "nowrap" as const, fontWeight: 600, fontSize: 13 };
-  const td = { padding: "7px 10px", verticalAlign: "top" as const };
-  const mono = { ...td, fontFamily: "var(--ax-font-mono, monospace)", fontSize: 13, whiteSpace: "nowrap" as const };
-
+function Snippet({ children }: { children: string }) {
   return (
-    <div style={{ overflowX: "auto" as const }}>
-      <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: 14 }}>
-        <thead>
-          <tr style={{ borderBottom: "2px solid var(--ax-border-subtle, #ddd)" }}>
-            <th style={th}>BUC</th>
-            <th style={{ ...th, textAlign: "right" as const }}>Uvirksom</th>
-            <th style={th}>Avslutningskriterium</th>
-            <th style={{ ...th, textAlign: "center" as const }}>Sakseier</th>
-            <th style={{ ...th, textAlign: "center" as const }}>Motpart</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bucs.map((b) => (
-            <tr key={b.navn} style={{ borderBottom: "1px solid var(--ax-border-subtle, #eee)" }}>
-              <td style={mono}>{b.navn}</td>
-              <td style={{ ...mono, textAlign: "right" as const }}>{b.uvirksom}&thinsp;d</td>
-              <td style={td}>
-                {b.kriterium}
-                {b.merknad && (
-                  <div style={{ fontSize: 12, color: "var(--ax-text-subtle, #666)", marginTop: 2 }}>↳ {b.merknad}</div>
-                )}
-              </td>
-              <td style={{ ...td, textAlign: "center" as const }}><ScopeBadge value={b.sakseier} /></td>
-              <td style={{ ...td, textAlign: "center" as const }}><ScopeBadge value={b.motpart} /></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="avs-snippet">
+      <code>{children}</code>
+      <CopyButton copyText={children} size="xsmall" />
     </div>
   );
 }
 
-/* ---------- Page ---------- */
+/* ---------- Side ---------- */
 
-export default function Page() {
+export default function AutomatiskAvslutningPage() {
+  const active = useScrollSpy(SECTION_IDS);
+  const reduced = useReducedMotion();
+  const [buc, setBuc] = useState("FB_BUC_01");
+  const [role, setRole] = useState<Role>("sakseier");
+  const [status, setStatus] = useState<StatusId | null>(null);
+
+  const scrollTo = useCallback(
+    (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }),
+    [reduced],
+  );
+  const focusStatus = useCallback(
+    (s: StatusId) => {
+      setStatus(s);
+      scrollTo("statuser");
+    },
+    [scrollTo],
+  );
+  const pickBuc = useCallback(
+    (b: string) => {
+      setBuc(b);
+      scrollTo("simulator");
+    },
+    [scrollTo],
+  );
+
   return (
-    <VStack gap="space-32">
-      <header>
-        <div style={eyebrow}>Prosess</div>
-        <Heading size="xlarge" level="1" spacing>
-          Automatisk avslutning
-        </Heading>
-        <BodyLong size="medium" style={subtle}>
-          Slik lukker plattformen RINA-saker som er ferdig behandlet — uten at
-          en saksbehandler trenger å gjøre det manuelt. Prosessen utføres av
-          applikasjonen{" "}
-          <DsLink href="https://github.com/navikt/eux-avslutt-rinasaker" target="_blank" rel="noreferrer">
-            eux-avslutt-rinasaker
-          </DsLink>
-          .
-        </BodyLong>
+    <div className="portal-page--wide arch-page avs-page">
+      <header className="portal-hero arch-hero">
+        <div className="arch-hero__text">
+          <Detail className="arch-eyebrow">Prosess</Detail>
+          <Heading level="1" size="xlarge" spacing>
+            Automatisk avslutning av RINA-saker
+          </Heading>
+          <BodyLong size="large" className="arch-hero__lead">
+            Saker uten aktivitet skal ikke bli liggende åpne i RINA. eux-avslutt-rinasaker følger hver sak via Kafka, og hver
+            natt flytter fem NAIS-jobber sakene ett steg videre: fra uvirksom, via regler per BUC, til lukket og arkivert i
+            RINA.
+          </BodyLong>
+        </div>
+
+        <dl className="arch-stats">
+          {[
+            { n: BUCS.length, label: "BUC-typer", sub: "med egne regler" },
+            { n: JOBS.length, label: "NAIS-jobber", sub: `${NIGHT_JOBS} av dem om natten` },
+            { n: USED_STATUSES, label: "statuser i bruk", sub: `${STATUSES.length} i enumen` },
+            { n: 2, label: "Kafka-topics", sub: "sak- og dokumenthendelser" },
+          ].map((s, i) => (
+            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
+              <dt>{s.label}</dt>
+              <dd>
+                <span className="arch-stat__n">{s.n}</span>
+                {s.sub && <span className="arch-stat__sub">{s.sub}</span>}
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="arch-flows">
+          <a href="#system" className="arch-flow-card" data-tone="meta-purple">
+            <span className="arch-flow-card__icon" aria-hidden>
+              <LightningIcon />
+            </span>
+            <span>
+              <strong>Hendelser inn</strong>
+              <span className="arch-flow-card__text">
+                RINA → eux-all-rina-events → Kafka. Nye saker registreres, og en ny SED vekker en uvirksom sak.
+              </span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </a>
+          <a href="#natten" className="arch-flow-card" data-tone="warning">
+            <span className="arch-flow-card__icon" aria-hidden>
+              <MoonIcon />
+            </span>
+            <span>
+              <strong>Natten</strong>
+              <span className="arch-flow-card__text">
+                Fra kl. 01.00 til 05.00 flytter hver jobb sakene ett steg. Alt kan skje samme natt.
+              </span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </a>
+          <a href="#lokalt-globalt" className="arch-flow-card" data-tone="info">
+            <span className="arch-flow-card__icon" aria-hidden>
+              <PadlockLockedIcon />
+            </span>
+            <span>
+              <strong>Lukking i RINA</strong>
+              <span className="arch-flow-card__text">
+                eux-rina-terminator-api lukker saken hos NAV, eller sender X001 slik at den lukkes hos alle.
+              </span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </a>
+        </div>
       </header>
 
-      {/* ---------------- Funksjonelt ---------------- */}
-      <section id="funksjonelt">
-        <VStack gap="space-16">
-          <div>
-            <SectionEyebrow kind="funksjonell" />
-            <Heading size="large" level="2">
-              Hvorfor og hvordan
-            </Heading>
-          </div>
+      <nav className="arch-jumpnav" aria-label="Innhold på siden">
+        <ol>
+          {SECTIONS.map((s) => (
+            <li key={s.id}>
+              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
+                {s.label}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
 
-          <BodyLong>
-            Når en sak i RINA er ferdig — alle nødvendige SED-er er sendt eller
-            mottatt — har den ingen grunn til å ligge åpen lenger. Hvis ingen
-            rydder, vokser saksporteføljen og det blir vanskelig å se hva som
-            faktisk krever oppfølging. Plattformen gjør derfor jobben
-            automatisk i bakgrunnen, hver natt.
-          </BodyLong>
+      <Section
+        id="livslop"
+        eyebrow="Oversikt"
+        title="En sak fra første SED til arkiv"
+        lead="Velg en BUC og NAVs rolle, og trykk «Spill av» for å se hva som skjer med saken dag for dag. Grensene og reglene er hentet fra Buc.kt i eux-avslutt-rinasaker."
+      >
+        <CaseJourney buc={buc} role={role} onBuc={setBuc} onRole={setRole} onFocusStatus={focusStatus} />
+      </Section>
 
-          <DiagramSurface>
-            <LifecycleDiagram />
-          </DiagramSurface>
+      <Section
+        id="system"
+        eyebrow="Arkitektur"
+        title="Hvem snakker med hvem"
+        lead="Fire flyter holder prosessen i gang: hendelser inn fra RINA, nattlige NAIS-jobber, kall til RINA via eux-rina-terminator-api og en månedlig rapport til Slack. Velg en flyt, eller klikk på en boks for detaljer."
+      >
+        <SystemFlow />
+      </Section>
 
-          <BodyLong>
-            For hver type sak (BUC) er det definert regler som beskriver hva
-            «ferdig» betyr — typisk at en bestemt avslutnings-SED er sendt
-            eller mottatt, at et bestemt skjema finnes i saken, eller — som en
-            siste sikkerhet — at saken har ligget urørt veldig lenge.
-          </BodyLong>
+      <Section
+        id="natten"
+        eyebrow="Planlagt"
+        title="Natten i eux-avslutt-rinasaker"
+        lead="Hver NAIS-jobb gjør ett POST-kall mot eux-avslutt-rinasaker og venter til prosessen er ferdig. Jobbene går etter hverandre, så en sak kan gå fra uvirksom til lukket samme natt. Bytt miljø for å se hvordan Q1 og Q2 skiller seg fra prod."
+      >
+        <NightPipeline onFocusStatus={focusStatus} />
+      </Section>
 
-          <BodyLong>
-            En RINA-sak deles ofte mellom flere land. <i>Lokal</i> avslutning
-            betyr at NAV lukker saken kun for vår egen del — motparten kan
-            fortsatt jobbe videre. <i>Global</i> avslutning betyr at saken
-            lukkes for alle parter samtidig. Hvilken type som velges, avhenger
-            av BUC-en og om NAV er sakseier eller motpart. Har vi ikke
-            grunnlag for å lukke globalt, venter plattformen heller på at
-            motparten gjør det.
-          </BodyLong>
+      <Section
+        id="statuser"
+        eyebrow="Tilstander"
+        title="Statusene til en sak"
+        lead="Tallene på pilene viser hvilken jobb som flytter saken. Statusene i de stiplede feltene fører til et kall mot RINA neste gang jobben kjører – det er bare der noe kan feile."
+      >
+        <StatusMachine selected={status} onSelect={setStatus} />
+      </Section>
 
-          <BodyLong>
-            Hele løpet — fra siste aktivitet til arkivering — tar typisk flere
-            måneder. Det er bevisst, slik at en saksbehandler får god tid til
-            å gjenåpne hvis det dukker opp noe nytt. Kommer det en ny SED på
-            en sak som er markert som uvirksom, hopper saken automatisk
-            tilbake til start og må kvalifisere på nytt før avslutning vurderes
-            igjen.
-          </BodyLong>
-
-          <Accordion>
-            <Accordion.Item>
-              <Accordion.Header>Mer om reglene per BUC</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong>
-                  Reglene ligger som kode i applikasjonen og kan justeres per
-                  BUC. Det betyr at en H_BUC_01 og en S_BUC_24 kan ha helt
-                  ulike kriterier for hva som regnes som avsluttet. Endringer
-                  går via en vanlig kodeendring og pull request mot{" "}
-                  <code>eux-avslutt-rinasaker</code>.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>Hva med saker som havner i feil?</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong>
-                  Hvis et kall mot RINA feiler underveis, settes saken til en
-                  feilstatus og hoppes over av neste jobb. Det går en
-                  månedsrapport til Slack med oversikt — disse må undersøkes
-                  manuelt og kan ikke ryddes opp i av applikasjonen selv.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion>
-        </VStack>
-      </section>
-
-      {/* ---------------- Teknisk ---------------- */}
-      <section id="teknisk">
-        <VStack gap="space-16">
-          <div>
-            <SectionEyebrow kind="teknisk" />
-            <Heading size="large" level="2">
-              Teknisk beskrivelse
-            </Heading>
-          </div>
-
-          <BodyLong>
-            <code>eux-avslutt-rinasaker</code> er en Kotlin/Spring Boot-app som
-            holder sin egen tilstandsmaskin per RINA-sak i PostgreSQL. Den
-            populeres fra Kafka, og driften framover skjer via en samling
-            NAIS-jobber (<code>eux-avslutt-rinasaker-naisjob</code>) som hver
-            natt kaller HTTP-endepunkter på appen. Selve handlingen mot RINA
-            gjøres via <code>eux-rina-api</code> og{" "}
-            <code>eux-rina-terminator-api</code>.
-          </BodyLong>
-
-          <BodyLong>
-            <code>PopulerService</code> lytter på sak- og dokument-events fra
-            Kafka og oppretter eller oppdaterer rader i den lokale databasen.
-            Når noe skjer på en sak, settes status tilbake til{" "}
-            <code>NY_SAK</code> slik at en eventuell uvirksom-vurdering må
-            gjøres på nytt. Appen lagrer ikke SED-innhold — kun metadata om
-            BUC, eierskap, sist endret og hvilke SED-er som finnes.
-          </BodyLong>
-
-          <DiagramSurface>
-            <StateMachineDiagram />
-            <Detail textColor="subtle" style={{ marginTop: 8 }}>
-              Status per RINA-sak. Overgangene drives av planlagte
-              NAIS-jobber som kaller{" "}
-              <code>POST /api/v1/prosesser/&#123;prosess&#125;/execute</code>.
-            </Detail>
-          </DiagramSurface>
-
-          <Heading size="small" level="3">
-            Prosessene og når de kjøres
+      <Section
+        id="regler"
+        eyebrow="Regler"
+        title="Når lukkes en uvirksom sak?"
+        lead="Hver natt vurderer til-avslutning de uvirksomme sakene mot reglene for BUC-en. Kriteriene prøves i fast rekkefølge, og det første som slår til, avgjør. Bygg opp en sak og se hvilket kriterium som slår til."
+      >
+        <DecisionSimulator buc={buc} role={role} onBuc={setBuc} onRole={setRole} onFocusStatus={focusStatus} />
+        <div className="avs-subhead">
+          <Heading level="3" size="small">
+            Alle BUC-ene
           </Heading>
-          <BodyLong>
-            Hver prosess kjøres som en egen NAIS-jobb med fast cron, og bruker
-            tilsvarende service-klasse i applikasjonen.
-          </BodyLong>
-          <Box
-            style={{ background: "var(--ax-bg-default, #fff)" }}
-            borderRadius="8"
-            padding="space-12"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-              <thead>
-                <tr style={{ textAlign: "left", borderBottom: "1px solid var(--ax-border-subtle)" }}>
-                  <th style={{ padding: "6px 8px" }}>Prosess</th>
-                  <th style={{ padding: "6px 8px" }}>Cron (prod)</th>
-                  <th style={{ padding: "6px 8px" }}>Hva den gjør</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["sett-uvirksom", "01:00", "Markerer saker som ikke har hatt aktivitet på antallDagerBeforeUvirksom dager"],
-                  ["til-avslutning", "02:00", "Evaluerer avslutningsregler på UVIRKSOM-saker"],
-                  ["avslutt", "03:00", "Kaller RINA og lukker saken (lokalt eller globalt)"],
-                  ["til-arkivering", "04:00", "Markerer avsluttede saker for arkivering etter antallDagerBeforeArkivering"],
-                  ["arkiver", "05:00", "Tar saken ut av aktiv portefølje"],
-                  ["slett-dokumentutkast", "14:42", "Sletter X001-utkast via eux-rina-terminator-api"],
-                  ["rapport", "1. i mnd kl 00:05", "Genererer rapport til Slack via RapportService"],
-                ].map(([p, c, d]) => (
-                  <tr key={p} style={{ borderBottom: "1px solid var(--ax-border-subtle)" }}>
-                    <td style={{ padding: "6px 8px", fontFamily: "var(--ax-font-mono, monospace)" }}>{p}</td>
-                    <td style={{ padding: "6px 8px", fontFamily: "var(--ax-font-mono, monospace)" }}>{c}</td>
-                    <td style={{ padding: "6px 8px" }}>{d}</td>
-                  </tr>
+          <BodyShort size="small" className="arch-subtle">
+            «Motparten» betyr at NAV ikke lukker saken i den rollen, og saken får status AVSLUTTES_AV_MOTPART. Klikk på en
+            BUC for å prøve den i simulatoren.
+          </BodyShort>
+        </div>
+        <BucTable selected={buc} onPick={pickBuc} />
+      </Section>
+
+      <Section
+        id="lokalt-globalt"
+        eyebrow="Lukking i RINA"
+        title="Lokalt eller globalt"
+        lead="avslutt kaller eux-rina-terminator-api, som gjør selve jobben i RINA. Om saken lukkes lokalt eller globalt, er bestemt av BUC-en og NAVs rolle."
+      >
+        <LocalGlobal onFocusStatus={focusStatus} />
+      </Section>
+
+      <Section
+        id="feil"
+        eyebrow="Feilhåndtering"
+        title="Når kallet til RINA feiler"
+        lead="avslutt, arkiver og slett-dokumentutkast kaller eux-rina-terminator-api for én sak om gangen. Svaret avgjør neste status. Ingen jobb prøver igjen."
+      >
+        <div className="arch-table avs-errors">
+          <Table size="small">
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell scope="col">Svar</Table.HeaderCell>
+                <Table.HeaderCell scope="col">Hva skjer</Table.HeaderCell>
+                <Table.HeaderCell scope="col">Ny status</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {RESPONSES.map((r) => (
+                <Table.Row key={r.code}>
+                  <Table.HeaderCell scope="row">
+                    <span className="avs-code" data-tone={r.tone}>
+                      {r.code}
+                    </span>
+                  </Table.HeaderCell>
+                  <Table.DataCell>{r.what}</Table.DataCell>
+                  <Table.DataCell>
+                    {r.result === ADVANCES ? (
+                      <span className="arch-subtle" style={{ whiteSpace: "nowrap" }}>
+                        Neste status for jobben
+                      </span>
+                    ) : (
+                      <StatusChips ids={r.result} onFocusStatus={focusStatus} />
+                    )}
+                  </Table.DataCell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </div>
+
+        <div className="arch-pitfalls avs-pitfalls">
+          {PITFALLS.map((g) => (
+            <div key={g.group}>
+              <Heading level="3" size="small" spacing>
+                {g.group}
+              </Heading>
+              <Accordion size="small">
+                {g.items.map((p) => (
+                  <Accordion.Item key={p.title}>
+                    <Accordion.Header>{p.title}</Accordion.Header>
+                    <Accordion.Content>
+                      <BodyLong as="div" size="small">
+                        {p.body}
+                      </BodyLong>
+                    </Accordion.Content>
+                  </Accordion.Item>
                 ))}
-              </tbody>
-            </table>
-          </Box>
-          <BodyShort size="small" style={subtle}>
-            Tidspunktene er hentet fra <code>eux-avslutt-rinasaker-naisjob/.nais/&lt;prosess&gt;/prod.yaml</code>.
-          </BodyShort>
+              </Accordion>
+            </div>
+          ))}
+        </div>
+      </Section>
 
-          <Heading size="small" level="3">
-            Beslutningslogikk for «til avslutning»
-          </Heading>
-          <BodyLong>
-            Når en sak er <code>UVIRKSOM</code> ser{" "}
-            <code>TilAvslutningService</code> først på rollen NAV har, og går
-            deretter gjennom kriteriene i denne rekkefølgen:
-          </BodyLong>
-          <ol style={{ margin: 0, paddingInlineStart: "1.5rem" }}>
-            <li>Velg scope: <code>bucAvsluttScopeSakseier</code> hvis NAV eier saken, ellers <code>bucAvsluttScopeMotpart</code>.</li>
-            <li>Er scope <code>null</code> ⇒ saken settes til <code>AVSLUTTES_AV_MOTPART</code> og rører ikke RINA.</li>
-            <li>Ellers evalueres kriteriene (<code>sisteSedForAvslutning</code>, <code>sedExists</code>, <code>mottattSedExists</code>, <code>sentSedExists</code>) — første match vinner.</li>
-            <li>Ingen match, men <code>avsluttUvirksomBucEtterAntallDager</code> er passert ⇒ avslutt likevel.</li>
-            <li>Resultat: <code>TIL_AVSLUTNING_LOKALT</code> eller <code>TIL_AVSLUTNING_GLOBALT</code>, klar for neste jobb.</li>
-          </ol>
+      <Section
+        id="drift"
+        eyebrow="Drift"
+        title="Kjøring, miljøer og rapport"
+        lead="Alle jobbene ligger i eux-avslutt-rinasaker-naisjob og kjører i tidssonen Europe/Oslo. Hver jobb gjør ett kall mot samme endepunkt, med prosessnavnet i stien."
+      >
+        <div className="arch-table avs-jobtable">
+          <Table size="small">
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell scope="col">Jobb</Table.HeaderCell>
+                {ENVS.map((e) => (
+                  <Table.HeaderCell key={e.id} scope="col">
+                    {e.label}
+                  </Table.HeaderCell>
+                ))}
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {JOBS.map((j) => (
+                <Table.Row key={j.id}>
+                  <Table.HeaderCell scope="row">
+                    <span className="avs-night__no avs-night__no--inline" aria-hidden>
+                      {j.no}
+                    </span>{" "}
+                    <span className="arch-mono">{j.id}</span>
+                  </Table.HeaderCell>
+                  {ENVS.map((e) => {
+                    const s = j.sched[e.id];
+                    return (
+                      <Table.DataCell key={e.id} className={e.id !== "prod" && differsFromProd(j, e.id) ? "avs-diffcell" : undefined}>
+                        <span className={s ? "" : "arch-subtle"}>{schedLabel(s)}</span>
+                        {s && <code className="avs-cron">{s.cron}</code>}
+                      </Table.DataCell>
+                    );
+                  })}
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </div>
+        <BodyShort size="small" className="arch-subtle avs-note">
+          Uthevede celler avviker fra prod.
+        </BodyShort>
 
-          <Heading size="small" level="3">
-            API
-          </Heading>
-          <BodyLong>
-            Appen eksponerer ett operasjonelt endepunkt som NAIS-jobbene
-            kaller med Azure AD-token:
-          </BodyLong>
-          <Box
-            borderRadius="8"
-            padding="space-12"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-            style={{
-              background: "var(--ax-bg-default, #fff)",
-              fontFamily: "var(--ax-font-mono, monospace)",
-              fontSize: 13,
-            }}
-          >
-            POST /api/v1/prosesser/&#123;prosess&#125;/execute
-          </Box>
-          <BodyShort size="small" style={subtle}>
-            Gyldige verdier for <code>prosess</code>: <code>sett-uvirksom</code>,{" "}
-            <code>til-avslutning</code>, <code>avslutt</code>,{" "}
-            <code>til-arkivering</code>, <code>arkiver</code>,{" "}
-            <code>slett-dokumentutkast</code>.
-          </BodyShort>
-
-          <Accordion>
-            <Accordion.Item>
-              <Accordion.Header>BUC-konfigurasjon — alle feltene</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  Reglene defineres i <code>Buc.kt</code> som en liste{" "}
-                  <code>Buc</code>-data class. Per BUC settes blant annet:
-                </BodyLong>
-                <ul style={{ margin: 0, paddingInlineStart: "1.5rem" }}>
-                  <li><code>antallDagerBeforeUvirksom</code> — terskel før saken blir kandidat for avslutning.</li>
-                  <li><code>antallDagerBeforeArkivering</code> — hvor lenge en avsluttet sak ligger før arkivering (default 180).</li>
-                  <li><code>sisteSedForAvslutningAutomatisk</code> — listen av SED-typer som, hvis siste SED, kvalifiserer for avslutning.</li>
-                  <li><code>sisteSedForAvslutningAutomatiskKrevesSendtFraNav</code> — krever at siste SED faktisk er sendt fra NAV.</li>
-                  <li><code>sedExistsForAvslutningAutomatisk</code> — bestemt SED finnes i saken.</li>
-                  <li><code>mottattSedExistsForAvslutningAutomatisk</code> / <code>sentSedExistsForAvslutningAutomatisk</code> — typer som må være mottatt eller sendt.</li>
-                  <li><code>bucAvsluttScopeSakseier</code> / <code>bucAvsluttScopeMotpart</code> — om avslutning skal være lokal eller global, avhengig av om NAV er sakseier eller motpart. <code>null</code> betyr «ikke avslutt automatisk».</li>
-                  <li><code>avsluttUvirksomBucEtterAntallDager</code> — fallback: avslutt uansett etter så mange dager uten aktivitet.</li>
-                </ul>
-                <BodyLong>
-                  Se seksjonen <i>Regler per BUC-type</i> lenger ned for komplett
-                  oversikt over alle 16 BUC-typene og deres konfigurasjon.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>Feilhåndtering</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong>
-                  Når et kall mot RINA feiler settes saken til{" "}
-                  <code>HANDLING_FEILET</code> (og — avhengig av kontekst —{" "}
-                  <code>HANDLING_MANGLER</code>). Saker i feilstatus
-                  rapporteres månedlig og må undersøkes manuelt; appen prøver
-                  ikke om igjen av seg selv.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion>
-
-          <GuidePanel poster>
-            <Heading spacing size="small" level="3">
-              Vil du grave dypere?
-            </Heading>
-            <BodyLong>
-              All logikk ligger i{" "}
-              <DsLink href="https://github.com/navikt/eux-avslutt-rinasaker" target="_blank" rel="noreferrer">
-                navikt/eux-avslutt-rinasaker
-              </DsLink>
-              . NAIS-jobbene som driver prosessene finner du i{" "}
-              <DsLink href="https://github.com/navikt/eux-avslutt-rinasaker-naisjob" target="_blank" rel="noreferrer">
-                navikt/eux-avslutt-rinasaker-naisjob
-              </DsLink>
-              .
-            </BodyLong>
-          </GuidePanel>
-        </VStack>
-      </section>
-
-      {/* ---------------- Regler per BUC-type ---------------- */}
-      <section id="buc-regler">
-        <VStack gap="space-16">
-          <div>
-            <div style={eyebrow}>Oppslagsverk</div>
-            <Heading size="large" level="2">
-              Regler per BUC-type
-            </Heading>
+        <div className="avs-ops">
+          <div className="avs-ops__col">
+            <article className="arch-card avs-ops__card" data-tone="accent">
+              <Heading level="3" size="xsmall">
+                Endepunktet
+              </Heading>
+              <Snippet>{"POST /api/v1/prosesser/{prosess}/execute"}</Snippet>
+              <BodyShort size="small">
+                Synkront: svarer <code>204</code> når prosessen er ferdig, og <code>400</code> for et ukjent prosessnavn. Gyldige
+                verdier:
+              </BodyShort>
+              <ul className="avs-ops__values">
+                {JOBS.map((j) => (
+                  <li key={j.id} className="arch-mono">
+                    {j.id}
+                  </li>
+                ))}
+              </ul>
+            </article>
+            <article className="arch-card avs-ops__card" data-tone="warning">
+              <Heading level="3" size="xsmall">
+                Kjøre en jobb manuelt
+              </Heading>
+              <BodyShort size="small">Start en ny kjøring fra CronJob-en, f.eks. avslutt i prod:</BodyShort>
+              <Snippet>kubectl create job --from=cronjob/eux-avslutt-rinasaker-avslutt-naisjob avslutt-manuell -n eessibasis</Snippet>
+              <BodyShort size="small" className="arch-subtle">
+                Bytt ut CronJob-navnet med en av appene i tabellen over (med <code>-q1</code>/<code>-q2</code> i dev). Navnet på
+                den nye jobben må være unikt.
+              </BodyShort>
+            </article>
           </div>
+          <div className="avs-ops__col">
+            <Heading level="3" size="xsmall" spacing>
+              Månedsrapporten i Slack
+            </Heading>
+            <SlackReport />
+          </div>
+        </div>
+      </Section>
 
-          <BodyLong>
-            Tabellene viser gjeldende konfigurasjon for de{" "}
-            {bucFamilies.reduce((sum, f) => sum + f.bucs.length, 0)} BUC-typene
-            som dekkes av automatisk avslutning. Kilde:{" "}
-            <DsLink
-              href="https://github.com/navikt/eux-avslutt-rinasaker/blob/main/src/main/kotlin/no/nav/eux/avslutt/rinasaker/model/buc/Buc.kt"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Buc.kt
-            </DsLink>
-          </BodyLong>
+      <Section id="ordliste" eyebrow="Begreper" title="Ordliste">
+        <dl className="arch-glossary">
+          {GLOSSARY.map((g) => (
+            <div key={g.term}>
+              <dt>
+                {g.term}
+                {g.full && <span className="arch-glossary__full">{g.full}</span>}
+              </dt>
+              <dd>{g.text}</dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
 
-          <Detail textColor="subtle">
-            <b>Uvirksom</b> = dager uten aktivitet før saken vurderes for avslutning.{" "}
-            <b>Sakseier / Motpart</b> = avslutningsscope når NAV har den rollen.{" "}
-            Lokal = bare NAVs side lukkes. Global = saken lukkes for alle parter.{" "}
-            «—» = ingen automatisk avslutning i den rollen.{" "}
-            Arkivering skjer 180 dager etter avslutning, med mindre annet er oppgitt.
-          </Detail>
-
-          <Accordion>
-            {bucFamilies.map((fam) => (
-              <Accordion.Item key={fam.id}>
-                <Accordion.Header>
-                  {fam.label} ({fam.bucs.length})
-                </Accordion.Header>
-                <Accordion.Content>
-                  <BucFamilyTable bucs={fam.bucs} />
-                </Accordion.Content>
-              </Accordion.Item>
-            ))}
-          </Accordion>
-
-          <BodyShort size="small" style={subtle}>
-            Hentet fra <code>Buc.kt</code> i{" "}
-            <code>eux-avslutt-rinasaker</code>. Verifiser mot kildekoden ved avvik.
-          </BodyShort>
-        </VStack>
-      </section>
-    </VStack>
+      <Section id="videre" eyebrow="Mer" title="Videre lesing">
+        <div className="arch-further">
+          {FURTHER.map((f) =>
+            f.external ? (
+              <a key={f.href} href={f.href} target="_blank" rel="noreferrer" className="arch-further__card">
+                <strong>
+                  {f.title} <ExternalLinkIcon aria-hidden />
+                </strong>
+                <span>{f.text}</span>
+              </a>
+            ) : (
+              <NextLink key={f.href} href={f.href} className="arch-further__card">
+                <strong>
+                  {f.title} <ArrowRightIcon aria-hidden />
+                </strong>
+                <span>{f.text}</span>
+              </NextLink>
+            ),
+          )}
+        </div>
+      </Section>
+    </div>
   );
 }
