@@ -67,16 +67,16 @@ Read README.md before making any changes — it is the single source of truth fo
 
 ## EUX platform overview
 
-The platform consists of ~24 repositories under github.com/navikt/, all in the eessibasis team/namespace:
+The platform consists of ~26 repositories under github.com/navikt/, all in the eessibasis team/namespace:
 
 **Core services**: eux-web-app (React frontend), eux-neessi (BFF/orchestrator), eux-rina-api (RINA middleware),
-eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler (all Kotlin/Spring Boot with PostgreSQL),
-eux-rina-terminator-api (case termination), eux-rina-case-search (search index).
+eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler, eux-relaterte-rinasaker (all Kotlin/Spring Boot with PostgreSQL),
+eux-rina-terminator-api (case termination), eux-rina-case-search (search index), eux-pdf (U020/U029 PDFs).
 
 **Event infrastructure**: eux-all-rina-events (RINA → Kafka), eux-legacy-rina-events (format bridge).
 
-**Background workers**: eux-journalfoering (auto-journaling), eux-journalarkivar (journal cleanup),
-eux-avslutt-rinasaker (case closure), eux-slett-usendte-rinasaker (orphan deletion),
+**Background workers**: eux-fagmodul-journalfoering (auto-journaling), eux-journalarkivar (journal reconciliation),
+eux-avslutt-rinasaker (case closure), eux-slett-usendte-rinasaker (deletes unsent cases),
 eux-adresse-oppdatering (address sync), eux-person-oppdatering (foreign ID sync to PDL),
 eux-barnetrygd (child benefit renewal).
 

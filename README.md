@@ -1,10 +1,22 @@
 # EUX Architecture Overview
 
-This repository documents the architecture of the **EUX (EESSI) platform** — NAV's system for electronic exchange of social security information with EU/EEA countries. It serves as a starting point for developers and AI assistants working across the various EUX projects.
+This repository documents the architecture of the **EUX (EESSI) platform**, NAV's system for electronic exchange of social security information with EU/EEA countries. It is a starting point for developers and AI assistants working across the EUX repositories.
+
+**Interactive architecture map:** <https://eux-docs.intern.dev.nav.no/architecture> (the *EUX Architecture Portal*, built from `portal/` and `portal-core/` in this repo).
 
 ## What is EESSI?
 
-**EESSI** (Electronic Exchange of Social Security Information) is the EU system for cross-border coordination of social security benefits. NAV's EUX platform enables Norwegian caseworkers to exchange **SEDs** (Structured Electronic Documents) with other EU/EEA countries through the **RINA** (Reference Implementation of a National Application) system. Cases are organized into **BUCs** (Business Use Cases), each defining which SEDs are exchanged for a given scenario (e.g. pension claim, family benefits).
+**EESSI** (Electronic Exchange of Social Security Information) is the EU system for cross-border coordination of social security. NAV caseworkers exchange **SEDs** (Structured Electronic Documents) with other EU/EEA countries through **RINA** (Reference Implementation of a National Application). SEDs are exchanged within **BUCs** (Business Use Cases), each defining which SEDs belong to a given scenario (e.g. a pension claim or family benefits).
+
+## Architecture at a Glance
+
+The platform has three main flows. The portal shows them as interactive diagrams.
+
+1. **Request flow (synchronous).** The caseworker uses **nEESSI** (eux-web-app). Its Node.js BFF exchanges the user token on-behalf-of and proxies to **eux-neessi**, which orchestrates the EUX domain services and NAV systems. All RINA operations go through **eux-rina-api**, which talks to **RINA CPI**.
+2. **Event flow (asynchronous).** RINA pushes **NIE** events over HTTP to **eux-all-rina-events**, which publishes them to three Kafka topics. **eux-legacy-rina-events** converts document events to the legacy topics `sedmottatt-v1` / `sedsendt-v1`. Workers in EUX and in other teams consume these topics.
+3. **Scheduled flow.** NAIS jobs trigger REST endpoints on worker services that finalize journal posts, close and archive RINA cases, and delete unsent cases. Case operations against RINA go through **eux-rina-terminator-api**.
+
+All deployed applications run on **NAIS** in GCP (`dev-gcp` / `prod-gcp`), namespace `eessibasis`.
 
 ## Applications
 
@@ -12,266 +24,196 @@ This repository documents the architecture of the **EUX (EESSI) platform** — N
 
 | Application | Tech | DB | Description |
 |---|---|---|---|
-| [eux-web-app](https://github.com/navikt/eux-web-app) | React / TypeScript / Node.js | — | Frontend for caseworkers. Node.js BFF proxies to eux-neessi with OAuth2 on-behalf-of. |
-| [eux-neessi](https://github.com/navikt/eux-neessi) | Java / Spring Boot | — | Backend-for-frontend. Orchestrates calls to downstream eux-* services, PDL, Dokarkiv, SAF. |
-| [eux-rina-api](https://github.com/navikt/eux-rina-api) | Java / Spring Boot | — | Middleware to the RINA CPI system. SED template rendering, PDF generation, case lifecycle. |
-| [eux-nav-rinasak](https://github.com/navikt/eux-nav-rinasak) | Kotlin / Spring Boot | PostgreSQL | Links NAV fagsaker to RINA cases. Tracks SED journal status. |
-| [eux-journal](https://github.com/navikt/eux-journal) | Kotlin / Spring Boot | PostgreSQL | Error-registration (feilregistrering) and finalization (ferdigstilling) of journal posts. |
-| [eux-oppgave](https://github.com/navikt/eux-oppgave) | Kotlin / Spring Boot | PostgreSQL | Integration layer to NAV Oppgave (task system). Creates/updates/finishes tasks. |
-| [eux-saksbehandler](https://github.com/navikt/eux-saksbehandler) | Kotlin / Spring Boot | PostgreSQL | Stores caseworker preferences (e.g. favorite unit). Called by eux-neessi. |
-| [eux-rina-terminator-api](https://github.com/navikt/eux-rina-terminator-api) | Kotlin / Spring Boot | — | REST API for closing, archiving, and deleting RINA cases. Calls RINA CPI directly. |
-| [eux-rina-case-search](https://github.com/navikt/eux-rina-case-search) | Java / Spring Boot | PostgreSQL | Searchable index of RINA cases. Built from Kafka events, exposes REST search API. |
+| [eux-web-app](https://github.com/navikt/eux-web-app) | React / TypeScript, Node.js BFF | — | **nEESSI**, the caseworker frontend. The BFF logs in via the Wonderwall sidecar and proxies `/api` and `/v2`–`/v5` to eux-neessi using on-behalf-of tokens. |
+| [eux-neessi](https://github.com/navikt/eux-neessi) | Java / Spring Boot | — | Backend for nEESSI. Orchestrates calls to EUX services and NAV systems (PDL, SAF, Dokarkiv, Aa-registeret, Inntekt, NORG2 and more). |
+| [eux-rina-api](https://github.com/navikt/eux-rina-api) | Java / Spring Boot | — | Middleware to RINA CPI. Converts SEDs between NAV and EU format, generates PDFs, manages cases, documents and attachments. Also used by eessi-pensjon and melosys-eessi. |
+| [eux-nav-rinasak](https://github.com/navikt/eux-nav-rinasak) | Kotlin / Spring Boot | PostgreSQL | Links NAV fagsaker to RINA cases and tracks journal status per SED. |
+| [eux-journal](https://github.com/navikt/eux-journal) | Kotlin / Spring Boot | PostgreSQL | Journal post operations: finalization (ferdigstilling) and error-registration (feilregistrering) via Dokarkiv and SAF. |
+| [eux-oppgave](https://github.com/navikt/eux-oppgave) | Kotlin / Spring Boot | PostgreSQL | Integration layer to NAV Oppgave. Creates, finds, assigns and finishes tasks. |
+| [eux-saksbehandler](https://github.com/navikt/eux-saksbehandler) | Kotlin / Spring Boot | PostgreSQL | Stores caseworker preferences (favourite unit). Called by eux-neessi. |
+| [eux-relaterte-rinasaker](https://github.com/navikt/eux-relaterte-rinasaker) | Kotlin / Spring Boot | PostgreSQL | Links related RINA cases to each other. Called by eux-neessi. |
+| [eux-rina-terminator-api](https://github.com/navikt/eux-rina-terminator-api) | Kotlin / Spring Boot | — | Closes (locally/globally), archives and deletes RINA cases, and deletes draft documents, directly against RINA CPI. |
+| [eux-rina-case-search](https://github.com/navikt/eux-rina-case-search) | Java / Spring Boot | PostgreSQL | Search index of RINA cases by person ID, built from Kafka events. Called by eux-rina-api. |
+| [eux-pdf](https://github.com/navikt/eux-pdf) | Kotlin / Spring Boot | — | Generates PDFs for SED types U020 and U029. Called by eux-rina-api. |
 
 ### Event Infrastructure
 
 | Application | Tech | Description |
 |---|---|---|
-| [eux-all-rina-events](https://github.com/navikt/eux-all-rina-events) | Java / Spring Boot | Receives NIE events from RINA via HTTP POST. Publishes to three Kafka topics: `eux-rina-case-events-v1`, `eux-rina-document-events-v1`, `eux-rina-notification-events-v1`. |
-| [eux-legacy-rina-events](https://github.com/navikt/eux-legacy-rina-events) | Java / Spring Boot | Backward-compatibility bridge. Consumes `eux-rina-document-events-v1` and converts to legacy Kafka format on topics `sedmottatt-v1` / `sedsendt-v1`. |
+| [eux-all-rina-events](https://github.com/navikt/eux-all-rina-events) | Java / Spring Boot | Receives NIE events from RINA (`POST /events/v1/{eventType}`) and publishes them to `eux-rina-case-events-v1`, `eux-rina-document-events-v1` and `eux-rina-notification-events-v1`. eux-rina-api also uses it to re-publish document events. |
+| [eux-legacy-rina-events](https://github.com/navikt/eux-legacy-rina-events) | Java / Spring Boot | Backward-compatibility bridge. Consumes `eux-rina-document-events-v1`, enriches with data from RINA CPI, and publishes the legacy format to `sedmottatt-v1` / `sedsendt-v1`. |
 
 ### Background Workers
 
 | Application | Tech | DB | Description |
 |---|---|---|---|
-| [eux-journalfoering](https://github.com/navikt/eux-journalfoering) | Java / Spring Boot | — | Consumes `sedmottatt-v1` / `sedsendt-v1` from Kafka. Auto-journals SEDs by calling Dokarkiv, PDL, eux-nav-rinasak, eux-oppgave. |
-| [eux-journalarkivar](https://github.com/navikt/eux-journalarkivar) | Kotlin / Spring Boot | — | Orchestrates journal post finalization and error-registration. Calls eux-journal, eux-nav-rinasak, eux-oppgave, eux-rina-api, SAF, Dokarkiv. Triggered by NAIS jobs. |
-| [eux-avslutt-rinasaker](https://github.com/navikt/eux-avslutt-rinasaker) | Kotlin / Spring Boot | PostgreSQL | Manages RINA case closure/archival lifecycle (state machine). Consumes case and document events from Kafka. Calls eux-rina-terminator-api. Triggered by NAIS jobs. |
-| [eux-slett-usendte-rinasaker](https://github.com/navikt/eux-slett-usendte-rinasaker) | Kotlin / Spring Boot | PostgreSQL | Deletes RINA cases that never received a SED. Consumes case/document events from Kafka. Calls eux-rina-terminator-api. Triggered by NAIS jobs. |
-| [eux-adresse-oppdatering](https://github.com/navikt/eux-adresse-oppdatering) | Kotlin / Spring Boot | — | Consumes `eux-rina-document-events-v1` from Kafka. Updates addresses in PDL when address data is found in incoming SEDs. |
-| [eux-person-oppdatering](https://github.com/navikt/eux-person-oppdatering) | Java / Spring Boot | PostgreSQL | Consumes `sedmottatt-v1` from Kafka. Extracts foreign ID numbers from incoming SEDs and sends updates to PDL via PDL-Mottak. Calls eux-rina-api to fetch full SED documents. Tracks update status in database. |
-| [eux-barnetrygd](https://github.com/navikt/eux-barnetrygd) | Java / Spring Boot | — | Scheduled worker for annual child benefit (barnetrygd) case renewal. Calls eux-oppgave, eux-rina-api, eux-nav-rinasak, PDL, SAF. |
+| [eux-fagmodul-journalfoering](https://github.com/navikt/eux-fagmodul-journalfoering) | Java / Spring Boot | — | Consumes `sedmottatt-v1` / `sedsendt-v1` and journals SEDs automatically (Dokarkiv), creates tasks via eux-oppgave and updates eux-nav-rinasak. eux-neessi also calls it to journal all SEDs in a RINA case onto a fagsak. |
+| [eux-journalarkivar](https://github.com/navikt/eux-journalarkivar) | Kotlin / Spring Boot | — | Nightly reconciliation of SED journal status: finalizes journal posts that can be resolved, and error-registers posts still unresolved after 30 days. Triggered by NAIS jobs. |
+| [eux-avslutt-rinasaker](https://github.com/navikt/eux-avslutt-rinasaker) | Kotlin / Spring Boot | PostgreSQL | Automatic closure and archiving of inactive RINA cases. Consumes case and document events; calls eux-rina-terminator-api. Triggered by NAIS jobs. See the [process page](https://eux-docs.intern.dev.nav.no/prosesser/automatisk-avslutning). |
+| [eux-slett-usendte-rinasaker](https://github.com/navikt/eux-slett-usendte-rinasaker) | Kotlin / Spring Boot | PostgreSQL | Tracks new RINA cases from case/document events and deletes cases where no SED has been sent after 15 days. Calls eux-rina-terminator-api. Triggered by NAIS jobs. |
+| [eux-adresse-oppdatering](https://github.com/navikt/eux-adresse-oppdatering) | Kotlin / Spring Boot | — | Consumes `eux-rina-document-events-v1` and updates foreign addresses in PDL (via PDL-Mottak) from incoming SEDs. |
+| [eux-person-oppdatering](https://github.com/navikt/eux-person-oppdatering) | Java / Spring Boot | PostgreSQL | Consumes `sedmottatt-v1`, extracts foreign ID numbers from incoming SEDs and sends them to PDL via PDL-Mottak. Tracks update status in its database. |
+| [eux-barnetrygd](https://github.com/navikt/eux-barnetrygd) | Java / Spring Boot | — | Annual renewal of child benefit (barnetrygd) cases in EESSI. Runs on an in-app Spring `@Scheduled` cron (not a NAIS job). Calls eux-oppgave, eux-rina-api, eux-nav-rinasak, PDL and SAF. |
 
 ### NAIS Jobs (Scheduled Triggers)
 
-These are Kubernetes CronJobs that call REST endpoints on the corresponding services. They contain no business logic themselves.
+Kubernetes CronJobs (Kotlin) that call one REST endpoint on the corresponding service with an Azure AD token. They contain no business logic. Production schedules, time zone `Europe/Oslo`:
 
-| Application | Triggers | Schedule |
+| Application | Triggers | Jobs (prod schedule) |
 |---|---|---|
-| [eux-avslutt-rinasaker-naisjob](https://github.com/navikt/eux-avslutt-rinasaker-naisjob) | eux-avslutt-rinasaker | Multiple jobs: arkiver (daily 05:00), sett-uvirksom, til-avslutning, slett-dokumentutkast, avslutt |
-| [eux-journalarkivar-naisjob](https://github.com/navikt/eux-journalarkivar-naisjob) | eux-journalarkivar | ferdigstill (daily 01:00), feilregistrer (daily 02:00) |
-| [eux-slett-usendte-rinasaker-naisjob](https://github.com/navikt/eux-slett-usendte-rinasaker-naisjob) | eux-slett-usendte-rinasaker | slett (daily 01:00), til-sletting (daily 02:00), rapport (monthly 1st 06:00) |
+| [eux-journalarkivar-naisjob](https://github.com/navikt/eux-journalarkivar-naisjob) | eux-journalarkivar | ferdigstill (01:00), feilregistrer (02:00) |
+| [eux-avslutt-rinasaker-naisjob](https://github.com/navikt/eux-avslutt-rinasaker-naisjob) | eux-avslutt-rinasaker | sett-uvirksom (01:00), til-avslutning (02:00), avslutt (03:00), til-arkivering (04:00), arkiver (05:00), slett-dokumentutkast (14:42), rapport (1st of month 00:05) |
+| [eux-slett-usendte-rinasaker-naisjob](https://github.com/navikt/eux-slett-usendte-rinasaker-naisjob) | eux-slett-usendte-rinasaker | slett (01:00), til-sletting (02:00), rapport (1st of month 06:00) |
 
 ### Libraries & Build Tools
 
-These are not deployed applications. They are dependencies used at build time or runtime by the services above.
+Not deployed. Used at build time or as dependencies.
 
-| Application | Type | Description |
+| Repository | Type | Description |
 |---|---|---|
-| [eux-parent-pom](https://github.com/navikt/eux-parent-pom) | Maven parent POM | Manages shared dependency versions: Spring Boot 4.0.3, Kotlin 2.2.x, Java 21, token-validation, PostgreSQL driver, test libraries, etc. |
-| [eux-logging](https://github.com/navikt/eux-logging) | Kotlin library (JAR) | MDC filter for request ID tracking (`x_request_id`) and EUX-specific logging context (rinasakId, sedId, sedType, etc.). |
-| [eux-versions-maven-plugin](https://github.com/navikt/eux-versions-maven-plugin) | Maven plugin | Auto-increments patch versions from Git tags. Used in CI/CD pipelines (`mvn eux-versions:set-next`). |
-
-## Architecture Diagram
-
-```
-                           ┌─────────────────┐
-                           │   Caseworker     │
-                           │   (Browser)      │
-                           └────────┬─────────┘
-                                    │
-                           ┌────────▼─────────┐
-                           │  eux-web-app     │  React frontend + Node.js BFF
-                           └────────┬─────────┘
-                                    │
-                           ┌────────▼─────────┐
-                           │  eux-neessi      │  Main backend / orchestrator
-                           └──┬──┬──┬──┬──┬───┘
-                              │  │  │  │  │
-            ┌─────────────────┘  │  │  │  └──────────────────┐
-            │         ┌──────────┘  │  └──────────┐          │
-            ▼         ▼            ▼              ▼          ▼
-    ┌────────────┐┌────────────┐┌────────────┐┌────────────┐┌────────────┐
-    │eux-rina-api││eux-nav-    ││eux-journal ││eux-oppgave ││eux-saks-   │
-    │            ││rinasak     ││            ││            ││behandler   │
-    │Middleware  ││Case linking││Journal mgmt││Task mgmt   ││Preferences │
-    └─────┬──────┘└─────┬──────┘└──┬─────────┘└─────┬──────┘└─────┬──────┘
-          │          [Postgres]    │              [Postgres]    [Postgres]
-          ▼                       ▼                  ▼
-   ┌────────────┐          ┌────────────┐     ┌────────────┐
-   │  RINA CPI  │          │ Dokarkiv   │     │NAV Oppgave │
-   └──────┬─────┘          │ / SAF      │     └────────────┘
-          │                └────────────┘
-          │
- ═══════════════════════ EVENT FLOW ═══════════════════════
-
-   RINA CPI ──NIE events──▶ eux-all-rina-events
-                                    │
-                        publishes to 3 Kafka topics:
-                    ┌───────────────┼───────────────┐
-                    ▼               ▼               ▼
-             case-events    document-events   notification-events
-                    │               │
-                    │     ┌─────────┼──────────┬──────────┐
-                    │     ▼         ▼          ▼          ▼
-                    │  eux-legacy  eux-adresse eux-slett  eux-avslutt
-                    │  -rina-     -oppdatering -usendte  -rinasaker
-                    │  events                  -rinasaker
-                    │     │
-                    │     ▼ converts to legacy format
-                    │  sedmottatt-v1 / sedsendt-v1
-                    │     │
-                    │     ▼
-                    │  eux-journalfoering
-                    │  eux-person-oppdatering
-                    │
-                    └──▶ eux-rina-case-search
-```
+| [eux-parent-pom](https://github.com/navikt/eux-parent-pom) | Maven parent POM (`no.nav.eux:parent-pom`) | Shared dependency and plugin management (Spring Boot, Kotlin, token-validation, test libraries, etc.). |
+| [eux-logging](https://github.com/navikt/eux-logging) | Kotlin library | MDC filter for request tracing (`x_request_id`) and EUX context fields (`rinasakId`, `sedId`, `sedType`, `bucType`, `journalpostId`, `dokumentInfoId`, …). |
+| [eux-versions-maven-plugin](https://github.com/navikt/eux-versions-maven-plugin) | Maven plugin | Sets the next version based on existing Git tags (`mvn eux-versions:set-next`). Used in CI. |
 
 ## How the Apps Talk to Each Other
 
 ### Request Flow (user-initiated)
 
-1. **eux-web-app** → The caseworker opens the app. The Node.js BFF handles Azure AD login (via Wonderwall sidecar) and proxies `/api`, `/v2`–`/v5` requests to **eux-neessi** using OAuth2 on-behalf-of tokens.
+1. **eux-web-app** → **eux-neessi** (on-behalf-of token).
+2. **eux-neessi** calls (on-behalf-of tokens for eux-rina-api and the EUX services):
+   - **eux-rina-api**: all RINA operations (cases, SEDs, attachments, PDFs, re-publishing SED events)
+   - **eux-nav-rinasak**: link fagsaker and RINA cases, SED journal status
+   - **eux-journal**: finalize or error-register journal posts
+   - **eux-fagmodul-journalfoering**: journal all SEDs in a RINA case onto a fagsak
+   - **eux-relaterte-rinasaker**: related RINA cases
+   - **eux-saksbehandler**: caseworker preferences
+   - NAV systems: PDL, SAF, Dokarkiv, Sak, Aa-registeret, Inntekt, NORG2, Dokdistfordeling, NOM and Microsoft Graph
+3. **eux-rina-api** calls RINA CPI and PDL, plus **eux-rina-case-search** (case search), **eux-pdf** (U020/U029 PDFs) and **eux-all-rina-events** (re-publish document events).
 
-2. **eux-neessi** → Orchestrates downstream calls:
-   - **eux-rina-api** — RINA/SED operations (create case, fetch/send SED, generate PDF)
-   - **eux-nav-rinasak** — link/search NAV fagsaker with RINA cases, track SED journal status
-   - **eux-journal** — error-register or finalize journal posts
-   - **eux-oppgave** — create/update tasks in NAV Oppgave
-   - **eux-saksbehandler** — read/update caseworker preferences
-   - **Dokarkiv / SAF** — create and query journal posts directly
-   - **PDL** — person data lookups (GraphQL)
-
-3. **eux-rina-api** → Translates between NAV's domain and RINA CPI (the EU infrastructure). Handles SED template rendering, PDF generation, and case lifecycle.
+eux-neessi does **not** call eux-oppgave or eux-rina-case-search directly. Tasks are created by eux-journal, eux-fagmodul-journalfoering, eux-journalarkivar and eux-barnetrygd through eux-oppgave.
 
 ### Event Flow
 
-1. When something happens in RINA (new case, document sent/received, etc.), RINA sends an NIE event via HTTP to **eux-all-rina-events**.
-
-2. **eux-all-rina-events** publishes to three Kafka topics:
-   - `eux-rina-case-events-v1` — case lifecycle events
-   - `eux-rina-document-events-v1` — document events
-   - `eux-rina-notification-events-v1` — notifications
-
-3. **eux-legacy-rina-events** converts document events to the legacy format on `sedmottatt-v1` / `sedsendt-v1` (consumed by eux-journalfoering and external systems like eessi-pensjon).
-
-4. Multiple services consume these events:
-   - **eux-journalfoering** — auto-journals SEDs (via the legacy topics)
-   - **eux-person-oppdatering** — extracts foreign ID numbers from incoming SEDs and updates PDL (via the legacy topics)
-   - **eux-adresse-oppdatering** — updates addresses in PDL from incoming SEDs
-   - **eux-rina-case-search** — maintains a searchable case index
-   - **eux-avslutt-rinasaker** — tracks case lifecycle for closure
-   - **eux-slett-usendte-rinasaker** — tracks cases to detect orphans
+1. RINA sends NIE events over HTTP to **eux-all-rina-events**.
+2. **eux-all-rina-events** publishes to:
+   - `eux-rina-case-events-v1`: consumed by eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-rina-case-search
+   - `eux-rina-document-events-v1`: consumed by eux-legacy-rina-events, eux-adresse-oppdatering, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-rina-case-search
+   - `eux-rina-notification-events-v1`: consumed by eux-rina-case-search
+3. **eux-legacy-rina-events** publishes `sedmottatt-v1` (received SEDs) and `sedsendt-v1` (sent SEDs), consumed by:
+   - **eux-fagmodul-journalfoering** (both topics)
+   - **eux-person-oppdatering** (`sedmottatt-v1`)
+   - Other teams: eessi-pensjon applications and melosys-eessi
+   - eux-portal-core in this repository (dev topics only, streamed live to the portal)
 
 ### Scheduled Processes
 
-Several cleanup and maintenance tasks run on cron schedules via NAIS jobs:
+- **Journal reconciliation**: eux-journalarkivar (nightly, via NAIS jobs)
+- **Case closure and archiving**: eux-avslutt-rinasaker (nightly pipeline, via NAIS jobs)
+- **Deletion of unsent cases**: eux-slett-usendte-rinasaker (nightly, via NAIS jobs)
+- **Child benefit renewal**: eux-barnetrygd (in-app cron)
 
-- **Journal archival** — eux-journalarkivar finalizes and error-registers journal posts (daily)
-- **Case closure** — eux-avslutt-rinasaker closes, archives, and cleans up inactive RINA cases
-- **Orphan deletion** — eux-slett-usendte-rinasaker deletes cases that never received a SED
-- **Child benefit renewal** — eux-barnetrygd renews child benefit cases annually
+## External Systems
 
-## External NAV Systems
-
-| System | Purpose | Access Pattern |
+| System | Purpose | Used by |
 |---|---|---|
-| **RINA CPI** | EU case management system | REST via eux-rina-api (shared-secret JWT) and eux-rina-terminator-api (service user credentials) |
-| **PDL** | Person data (Folkeregisteret) | GraphQL (Azure AD) |
-| **PDL-Mottak** | Write updates to PDL | REST (Azure AD), used by eux-adresse-oppdatering and eux-person-oppdatering |
-| **Dokarkiv** | Create/update journal posts | REST (Azure AD) |
-| **SAF** | Query journal posts and documents | GraphQL (Azure AD) |
-| **NAV Oppgave** | Task management | REST (Azure AD) via eux-oppgave |
-| **NORG2** | NAV organizational units | REST (no auth) |
-| **Aa-registeret** | Employment data | REST (Azure AD) via eux-neessi |
-| **A-Inntekt** | Income data | REST (Azure AD) via eux-neessi |
+| **RINA CPI** | EU case management (REST) | eux-rina-api (shared-secret JWT → CAS ticket → session); eux-rina-terminator-api, eux-rina-case-search, eux-legacy-rina-events, eux-pdf (service user → CAS ticket) |
+| **RINA NIE** | Push of case/document/notification events | → eux-all-rina-events |
+| **PDL** | Person data (GraphQL, Azure AD) | eux-neessi, eux-rina-api, eux-fagmodul-journalfoering, eux-barnetrygd, eux-adresse-oppdatering, eux-person-oppdatering |
+| **PDL-Mottak** | Write changes to PDL | eux-adresse-oppdatering, eux-person-oppdatering |
+| **Dokarkiv** | Create/update journal posts (REST) | eux-neessi, eux-journal, eux-fagmodul-journalfoering, eux-journalarkivar |
+| **SAF** | Query journal posts and documents (GraphQL) | eux-neessi, eux-journal, eux-fagmodul-journalfoering, eux-journalarkivar, eux-barnetrygd |
+| **NAV Oppgave** | Task management (REST) | eux-oppgave only |
+| **NORG2** | NAV organizational units (REST, no auth) | eux-neessi, eux-fagmodul-journalfoering |
+| **Aa-registeret, Inntekt, Sak, Dokdistfordeling, NOM, Microsoft Graph** | Employment, income, archive cases, distribution, org data, user info | eux-neessi |
 
 ## Common Patterns
 
-- **Authentication**: All deployed services use **Azure AD** for service-to-service auth (OAuth2 client credentials / on-behalf-of). The frontend uses Azure AD via the **Wonderwall** sidecar. Exceptions: eux-rina-api uses a shared-secret JWT to RINA CPI; eux-rina-terminator-api and eux-rina-case-search use service user credentials (CAS tickets) to RINA CPI.
-- **NAIS deployment**: All apps and jobs deploy to **NAIS** (NAV's Kubernetes platform) on GCP.
-- **Health/metrics**: All JVM services expose `/actuator/health` and `/actuator/prometheus`. The frontend (eux-web-app) uses `/internal/isAlive` and `/internal/isReady` instead. NAIS jobs do not expose health endpoints.
-- **Parent POM**: Most Kotlin/Java services inherit from **eux-parent-pom**, which pins Spring Boot, Kotlin, and shared dependency versions.
-- **Structured logging**: Services that depend on **eux-logging** get MDC-based request tracing with fields like `rinasakId`, `sedId`, `sedType`.
+- **Authentication**: Service-to-service calls use **Azure AD** (client credentials or on-behalf-of). The frontend logs in through the **Wonderwall** sidecar. RINA CPI is the exception (see External Systems).
+- **Deployment**: All applications and NAIS jobs deploy to NAIS on GCP.
+- **Health/metrics**: JVM services expose `/actuator/health` and `/actuator/prometheus`. eux-web-app uses `/internal/isAlive`, `/internal/isReady` and `/internal/metrics`. NAIS jobs have no health endpoints.
+- **Parent POM**: All JVM services and NAIS jobs inherit from **eux-parent-pom**, except eux-all-rina-events, eux-legacy-rina-events and eux-rina-case-search, which use `spring-boot-starter-parent`.
+- **Structured logging**: All Kotlin services, plus eux-journalarkivar-naisjob and eux-slett-usendte-rinasaker-naisjob, depend on **eux-logging** for MDC-based tracing. The Java services do not.
 
-### Patterns that vary by project
+### Patterns That Vary by Project
 
 | Pattern | Applies to | Notes |
 |---|---|---|
-| **PostgreSQL (Cloud SQL)** | eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler, eux-rina-case-search, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-person-oppdatering | The remaining services are stateless. |
-| **Flyway migrations** | Same as PostgreSQL list above | Follows from having a database. |
-| **OpenAPI code generation** | eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker | Generate controllers/models from an OpenAPI spec. Other services wire endpoints manually. |
-| **Multi-module Maven** | Most JVM services | Split into `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp` — but not every service has all modules. NAIS jobs and smaller services are single-module. |
-| **Kafka consumer** | eux-journalfoering, eux-person-oppdatering, eux-adresse-oppdatering, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-rina-case-search, eux-legacy-rina-events | Each consumes different topics (see Event Flow). |
-| **Kafka producer** | eux-all-rina-events | The only service that publishes to Kafka. eux-legacy-rina-events also publishes (converts and re-publishes). |
-| **GraphQL clients** | eux-neessi, eux-journalfoering, eux-journal, eux-rina-api, eux-barnetrygd, eux-adresse-oppdatering, eux-person-oppdatering | Used to call PDL and/or SAF. Others use REST only. |
-| **Caffeine caching** | eux-neessi, eux-journalfoering, eux-rina-api, eux-rina-terminator-api | In-memory caching for lookups. |
-| **Spring Retry / Resilience4j** | eux-neessi (Resilience4j), eux-oppgave (Spring Retry), eux-rina-case-search (custom retry) | Explicit retry logic for flaky downstream calls. |
+| **PostgreSQL (Cloud SQL) + Flyway** | eux-nav-rinasak, eux-journal, eux-oppgave, eux-saksbehandler, eux-relaterte-rinasaker, eux-rina-case-search, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-person-oppdatering | The other services are stateless. |
+| **OpenAPI code generation + multi-module Maven** | eux-nav-rinasak, eux-journal, eux-oppgave, eux-relaterte-rinasaker, eux-journalarkivar, eux-rina-terminator-api | Modules like `-openapi`, `-model`, `-persistence`, `-service`, `-integration`, `-webapp` (not all in every service). Other services are single-module with hand-written controllers. |
+| **Kafka consumer** | eux-fagmodul-journalfoering, eux-person-oppdatering, eux-adresse-oppdatering, eux-avslutt-rinasaker, eux-slett-usendte-rinasaker, eux-rina-case-search, eux-legacy-rina-events | See Event Flow for topics. |
+| **Kafka producer** | eux-all-rina-events, eux-legacy-rina-events | No other EUX service publishes to Kafka. |
+| **GraphQL clients** | eux-neessi, eux-rina-api, eux-fagmodul-journalfoering, eux-journal, eux-journalarkivar, eux-barnetrygd, eux-adresse-oppdatering, eux-person-oppdatering | PDL and/or SAF. |
+| **Caffeine caching** | eux-neessi, eux-rina-api, eux-fagmodul-journalfoering, eux-rina-terminator-api | In-memory caching. |
+| **Retry** | Spring `@Retryable` (Spring Framework resilience): eux-rina-api, eux-rina-case-search, eux-legacy-rina-events, eux-fagmodul-journalfoering, eux-journalarkivar, eux-barnetrygd, eux-adresse-oppdatering, eux-person-oppdatering. Spring Retry: eux-oppgave. Resilience4j: eux-neessi. | Retry semantics differ per service. |
 
 ## Pitfalls and Things to Watch Out For
 
-### Cross-service dependencies
+### Long synchronous chain
 
-The services form a deep call chain (`web-app → neessi → rina-api → RINA CPI`). A timeout or failure in RINA CPI cascades back through the entire stack. Be mindful of timeout settings at each layer.
+`eux-web-app → eux-neessi → eux-rina-api → RINA CPI`. Slowness or failure in RINA CPI propagates through every layer. The web-app BFF times out requests after 60 seconds.
 
-### Event pipeline ordering
+### eux-rina-api is shared with other teams
 
-Events flow through a chain: `RINA → eux-all-rina-events → Kafka → eux-legacy-rina-events → Kafka → eux-journalfoering`. If any link in this chain is down, downstream processing stops. Monitor consumer lag on all topics.
+eessi-pensjon applications and melosys-eessi call eux-rina-api directly. API changes affect more than nEESSI.
 
-### Kafka consumer behavior
+### Legacy topics are a public contract
 
-Several consumers use manual commits with limited poll sizes. If processing fails repeatedly, consumers can get stuck on a single message. eux-adresse-oppdatering retries 3 times then sends to DLT (Dead Letter Topic); others may behave differently.
+`sedmottatt-v1` / `sedsendt-v1` are consumed by eessi-pensjon, melosys-eessi and EUX workers. If eux-all-rina-events or eux-legacy-rina-events stops, journaling and person updates stop too. Monitor consumer lag.
 
-### Journal status tracking
+### Kafka error handling differs per consumer
 
-SED journal status is tracked in **eux-nav-rinasak**, but the actual journal post lives in **Dokarkiv**. These can get out of sync if error-registration or re-journaling happens outside the normal flow. The eux-journalarkivar service tries to reconcile this.
+eux-fagmodul-journalfoering and eux-person-oppdatering poll one record at a time and commit per record. eux-adresse-oppdatering uses manual acks and `@RetryableTopic` (3 attempts, 15 s backoff, then a DLT handler). eux-rina-case-search has a DLQ for document events. Do not assume the same semantics across services.
 
-### Database connection pools
+### Journal status can drift
 
-Services with PostgreSQL typically use very small connection pools (max 2 connections, min 1 idle). This is intentional for NAIS but means long-running queries can block other requests.
+SED journal status is stored in **eux-nav-rinasak**, while the journal post lives in **Dokarkiv**. eux-journalarkivar reconciles them nightly: it finalizes posts with status `UKJENT`, `FEILET_FERDIGSTILL` or `FEILREGISTRERT`, and error-registers `UKJENT` posts older than 30 days.
 
-### RINA CPI authentication differences
+### Small database connection pools
 
-Different services authenticate to RINA CPI in different ways: eux-rina-api uses a shared-secret JWT, eux-rina-terminator-api uses service user credentials, and eux-rina-case-search uses CAS tickets. These credentials are managed separately.
+PostgreSQL services use HikariCP with `maximum-pool-size: 2` and `minimum-idle: 1`, except eux-rina-case-search (50 / 2). Long-running queries can block other requests.
 
-### NAIS job scheduling
+### RINA CPI credentials differ per service
 
-Some NAIS jobs have schedules that effectively disable them (e.g. `0 0 31 2 *` = Feb 31st, which never occurs). This is intentional — those processes are enabled per environment. Check the environment-specific YAML files, not just the base template.
+eux-rina-api uses a shared-secret JWT exchanged for a CAS ticket. eux-rina-terminator-api, eux-rina-case-search, eux-legacy-rina-events and eux-pdf use a service user (`CPI_USERNAME` / `CPI_PASSWORD`) to get CAS tickets. Credentials are managed separately per app.
 
-### FSS vs GCP split
+### NAIS job schedules live in per-environment files
 
-Some external NAV services (Dokarkiv, SAF, NAV Oppgave) are still accessed via FSS public endpoints (`*.prod-fss-pub.nais.io`), which adds latency vs in-cluster calls.
+The base `nais.yaml` uses a `{{ schedule }}` placeholder, filled in from per-job, per-environment files. In dev, the report jobs are effectively disabled with `0 0 31 2 *` (31 February). Always check the environment file.
+
+### FSS endpoints
+
+PDL, PDL-Mottak, Dokarkiv, SAF, NAV Oppgave, NORG2 and several others are reached through `*.prod-fss-pub.nais.io` hosts. They must be declared as external hosts in the access policy, not as in-cluster applications.
 
 ### Azure AD group sprawl
 
-Access control uses 15+ Azure AD groups mapped to different benefit areas (pension, sickness, unemployment, etc.). Misconfigured group membership is a common source of access issues.
+eux-neessi maps a large set of Azure AD groups (one per benefit area: pension, sickness, unemployment, etc.). Wrong group membership is a common cause of access issues.
 
-### eux-rina-api — ACL is NOT access control
+### eux-rina-api: "ACL" is not access control
 
-The "ACL" in eux-rina-api (`EessiAcl.java`) is the SED format **transformation layer** — it converts SEDs between NAV's internal format and the EU format using code mappings and templates. If a code mapping lookup fails, the value is silently mapped to an **empty string** and logged as a warning. This means data can be lost without any error being raised.
+`EessiAcl` is the SED **format transformation** between NAV and EU format, based on templates and code mappings. When a code mapping fails, the value becomes an **empty string** and only a warning is logged.
 
-### eux-rina-api — CPI session cache expires at 29 minutes
+### eux-rina-api: CPI session cache
 
-The CPI session cache (`CPI_SESSION_CACHE`) is configured to expire after 29 minutes, while RINA CPI sessions time out after 30 minutes. Long-running operations (large SED transforms, attachment polling) can hit auth failures if they start near the end of a cache window. There is no automatic session refresh — the entire 3-step auth (JWT → CAS ticket → JSESSIONID) must be repeated.
+CPI sessions are cached for 29 minutes (`CPI_SESSION_CACHE`), just under RINA's default 30-minute session. Login is a three-step flow (JWT → CAS service ticket → `JSESSIONID`). There is no re-login on 401; a session invalidated earlier by RINA stays cached until it expires.
 
-### eux-rina-api — Action-checking race condition
+### eux-rina-api: inconsistent status codes for missing RINA actions
 
-Before creating, updating, or sending a SED, eux-rina-api fetches available actions from RINA (`hentMuligeActions()`). However, there is no lock or re-validation — the RINA case state can change between the action check and the actual operation, causing 409 Conflict errors. Callers should be prepared to retry on 409.
+Whether RINA allows an operation depends on the case state, which can change at any time. When the required action is missing, eux-rina-api returns **404** (e.g. no actions on the case, no send action), **409** (no valid action during an operation) or **412** (read action unavailable when converting to NAV format), depending on the endpoint. Callers must not interpret 404 as "case or document does not exist".
 
-### eux-rina-api — 404 on missing actions is misleading
+### eux-rina-api: waiting for RINA
 
-When a document has no available actions, eux-rina-api returns **404 Not Found** rather than a more semantic response. Callers must distinguish between "document not found" and "document exists but no actions available" — both return 404.
+NIE can announce a SED before CPI is ready to serve it. eux-rina-api polls for the read action up to 10 times at 1-second intervals (hardcoded). Attachment polling uses 1-second intervals and a configurable timeout (default 120 s), and throws **504 Gateway Timeout** when it expires.
 
-### eux-rina-api — Polling throws 504, not null
+### eux-rina-api: attachments
 
-When attachment polling (1-second intervals, 2-minute timeout) exceeds the timeout, eux-rina-api throws `504 Gateway Timeout` as an exception rather than returning null or an empty response. Callers must catch this as an expected outcome, not treat it as a server error.
+- Size limit: 100 MB, enforced in `CpiAttachmentService`. Spring multipart limits are unlimited (`-1`).
+- File type: validated only against the caller-supplied type (PDF, JPEG, TIFF, PNG). Content is not inspected.
+- Filenames: RINA treats `/` and `\` as paths, so they are replaced by fullwidth `／` (U+FF0F) and `＼` (U+FF3C).
 
-### eux-rina-api — Attachment limits and validation
+### eux-rina-api: SED templates and versions
 
-Attachment file size is capped at 100 MB, but Spring's multipart limits are set to **unlimited** (`max-file-size: -1`). The only real enforcement is in `CpiAttachmentService`. File type validation is extension-based only (PDF, JPEG, TIFF, PNG) — MIME type and magic bytes are not checked. RINA typically takes 12–15 seconds to process an uploaded attachment.
+Templates are loaded from `classpath*:/sedtemplates/v*/*/*.json` and selected by SED type and version. A missing template fails with `SED_LACKING_TEMPLATE`. Deprecated methods infer the version from `sedGVer`/`sedVer` (default 4.1), which is unreliable. Pass the version explicitly.
 
-### eux-rina-api — Filename path separator workaround
+### eux-rina-api: PDF generation is split
 
-RINA interprets `/` and `\` in attachment filenames as directory paths. The code works around this by replacing them with Unicode fullwidth equivalents (`\uFF0F` and `\uFF3C`). Filenames that naturally contain these Unicode characters will be corrupted.
-
-### eux-rina-api — SED template versioning
-
-SED templates are loaded from the classpath (`/sedtemplates/v*/*/`). The template must match both `sedGVer` (generation version) and `sedVer` (version). If no matching template is found, the transform fails with `SED_LACKING_TEMPLATE`. Deprecated methods that auto-detect versions are still present but unreliable — always specify the version explicitly.
-
-### eux-rina-api — PDF generation is split
-
-Most SED types use internal PDF generation via iText. However, SED types **U020** and **U029** are handled by the external `eux-pdf` service instead. This split is easy to miss and means PDF generation for those types has a different failure mode and dependency chain.
-
-### eux-rina-api — Retry logic is hardcoded
-
-Retry for `ResourceAccessException` (transient CPI connection failures) uses hardcoded values: 10 attempts at 1-second intervals. These are not configurable via properties. Additionally, retries only happen on specific code paths — some methods silently fail on the first attempt.
+eux-rina-api generates most SED PDFs internally with iText. **U020** and **U029** are delegated to **eux-pdf** (PDFBox), which fetches data from RINA CPI with its own service-user login. These two SED types therefore have a different dependency chain and failure modes.

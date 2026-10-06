@@ -550,3 +550,1505 @@ main:has(.portal-page--wide) {
   line-height: 1.5;
   border: 1px solid var(--ax-border-subtle, rgba(0, 0, 0, 0.08));
 }
+
+/* ================================================================== */
+/* Arkitektur (/architecture)                                          */
+/* Every colour comes from Aksel --ax-* tokens, so the page follows    */
+/* light and dark mode. Animations are disabled for reduced motion.    */
+/* ================================================================== */
+
+:root {
+  --arch-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --arch-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+html:has(.arch-page) {
+  scroll-behavior: smooth;
+}
+
+.arch-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.arch-page section[id] {
+  scroll-margin-top: 5rem;
+}
+
+.arch-mono {
+  font-family: var(--arch-mono);
+}
+
+.arch-subtle {
+  color: var(--ax-text-neutral-subtle);
+}
+
+.arch-eyebrow {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.arch-eyebrow-svg {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+/* Tone palette shared by cards, flow cards and headings */
+.arch-page [data-tone] {
+  --tone-soft: var(--ax-bg-neutral-soft);
+  --tone-line: var(--ax-border-neutral);
+  --tone-text: var(--ax-text-neutral-subtle);
+}
+.arch-page [data-tone="accent"] {
+  --tone-soft: var(--ax-bg-accent-soft);
+  --tone-line: var(--ax-border-accent);
+  --tone-text: var(--ax-text-accent);
+}
+.arch-page [data-tone="success"] {
+  --tone-soft: var(--ax-bg-success-soft);
+  --tone-line: var(--ax-border-success);
+  --tone-text: var(--ax-text-success);
+}
+.arch-page [data-tone="info"] {
+  --tone-soft: var(--ax-bg-info-soft);
+  --tone-line: var(--ax-border-info);
+  --tone-text: var(--ax-text-info);
+}
+.arch-page [data-tone="meta-purple"] {
+  --tone-soft: var(--ax-bg-meta-purple-soft);
+  --tone-line: var(--ax-border-meta-purple);
+  --tone-text: var(--ax-text-meta-purple);
+}
+.arch-page [data-tone="meta-lime"] {
+  --tone-soft: var(--ax-bg-meta-lime-soft);
+  --tone-line: var(--ax-border-meta-lime);
+  --tone-text: var(--ax-text-meta-lime);
+}
+.arch-page [data-tone="warning"] {
+  --tone-soft: var(--ax-bg-warning-soft);
+  --tone-line: var(--ax-border-warning);
+  --tone-text: var(--ax-text-warning);
+}
+
+@keyframes arch-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes arch-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes arch-dash {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+
+@keyframes arch-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes arch-drift {
+  to {
+    transform: translate(22px, 22px);
+  }
+}
+
+/* ---------- Hero ---------- */
+
+.arch-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 2rem 2.5rem;
+  padding: clamp(1.5rem, 3.5vw, 2.75rem);
+}
+
+.arch-hero::before {
+  content: "";
+  position: absolute;
+  inset: -44px;
+  z-index: -1;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ax-border-accent) 40%, transparent) 1.2px,
+    transparent 1.7px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 60% 70% at 88% 18%, #000 0%, transparent 70%);
+  animation: arch-drift 30s linear infinite;
+}
+
+.arch-hero__text {
+  animation: arch-rise 700ms var(--arch-ease) backwards;
+}
+
+.arch-hero__lead {
+  max-width: 62ch;
+}
+
+.arch-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.arch-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ax-bg-default) 74%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ax-border-neutral-subtle) 80%, transparent);
+  backdrop-filter: blur(6px);
+  animation: arch-rise 600ms var(--arch-ease) backwards;
+  animation-delay: var(--arch-delay, 0ms);
+}
+
+.arch-stat dt {
+  font-size: 0.85rem;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.arch-stat dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.5rem;
+  margin: 0;
+}
+
+.arch-stat__n {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.arch-stat__sub {
+  font-family: var(--arch-mono);
+  font-size: 0.72rem;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.arch-flows {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.arch-flow-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+  background: color-mix(in srgb, var(--ax-bg-default) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tone-line) 35%, transparent);
+  transition:
+    translate 180ms var(--arch-ease),
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+  animation: arch-rise 600ms var(--arch-ease) 420ms backwards;
+}
+
+.arch-flow-card:nth-child(2) {
+  animation-delay: 500ms;
+}
+
+.arch-flow-card:nth-child(3) {
+  animation-delay: 580ms;
+}
+
+.arch-flow-card:hover {
+  translate: 0 -3px;
+  text-decoration: none;
+  border-color: var(--tone-line);
+  box-shadow: 0 14px 30px -20px var(--tone-line);
+}
+
+.arch-flow-card:focus-visible {
+  outline: 3px solid var(--ax-border-focus);
+  outline-offset: 2px;
+}
+
+.arch-flow-card strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.arch-flow-card__icon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  font-size: 1.3rem;
+  background: var(--tone-soft);
+  color: var(--tone-text);
+}
+
+.arch-flow-card__text {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.arch-flow-card__arrow {
+  align-self: center;
+  font-size: 1.25rem;
+  color: var(--tone-text);
+  transition: translate 180ms var(--arch-ease);
+}
+
+.arch-flow-card:hover .arch-flow-card__arrow {
+  translate: 4px 0;
+}
+
+/* ---------- Sticky jump navigation ---------- */
+
+.arch-jumpnav {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 20;
+  margin-top: 1.25rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ax-bg-default) 84%, transparent);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  border: 1px solid var(--ax-border-neutral-subtle);
+  box-shadow: 0 10px 28px -20px rgba(0, 0, 0, 0.5);
+}
+
+.arch-jumpnav ol {
+  display: flex;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.arch-jumpnav ol::-webkit-scrollbar {
+  display: none;
+}
+
+.arch-jumpnav a {
+  display: block;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--ax-text-neutral-subtle);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.arch-jumpnav a:hover {
+  text-decoration: none;
+  color: var(--ax-text-neutral);
+  background: var(--ax-bg-neutral-moderate);
+}
+
+.arch-jumpnav a[aria-current] {
+  color: var(--ax-text-accent-contrast);
+  background: var(--ax-bg-accent-strong);
+}
+
+.arch-jumpnav a:focus-visible {
+  outline: 3px solid var(--ax-border-focus);
+  outline-offset: 1px;
+}
+
+/* ---------- Sections ---------- */
+
+.arch-section {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+}
+
+.arch-section__head {
+  max-width: 80ch;
+  margin-bottom: 1.5rem;
+}
+
+.arch-section__lead {
+  color: var(--ax-text-neutral-subtle);
+}
+
+@supports (animation-timeline: view()) {
+  .arch-section__head {
+    animation: arch-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+
+/* Diagram surfaces get a faint blueprint grid */
+.arch-page .arch-map__surface,
+.arch-page .arch-rf__surface,
+.arch-page .arch-metro__surface,
+.dark .arch-page .arch-map__surface,
+.dark .arch-page .arch-rf__surface,
+.dark .arch-page .arch-metro__surface {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--ax-border-neutral-subtle) 70%, transparent) 1px,
+    transparent 1.3px
+  );
+  background-size: 18px 18px;
+}
+
+.arch-page .arch-map__surface {
+  padding: 1rem;
+}
+
+/* ---------- Architecture map ---------- */
+
+.arch-map__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.arch-zone {
+  animation: arch-rise 700ms var(--arch-ease) backwards;
+  animation-delay: var(--arch-delay, 0ms);
+}
+
+.arch-map .arch-node {
+  animation: arch-fade 600ms ease 320ms backwards;
+}
+
+.arch-trunk {
+  transition: opacity 220ms ease;
+  animation: arch-fade 700ms ease 520ms backwards;
+}
+
+.arch-trunk.is-off {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.arch-trunk.is-dim {
+  opacity: 0.12;
+}
+
+.arch-trunk__base {
+  transition: stroke-width 180ms ease;
+}
+
+.arch-trunk.is-lit .arch-trunk__base {
+  stroke-width: 2.6px;
+}
+
+.arch-trunk .arch-flow {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.arch-trunk.is-idle .arch-flow {
+  opacity: 0.3;
+}
+
+.arch-trunk.is-lit .arch-flow {
+  opacity: 1;
+}
+
+.arch-flow {
+  stroke-dasharray: 2 12;
+  stroke-linecap: round;
+  pointer-events: none;
+  animation: arch-dash 1.1s linear infinite;
+}
+
+.arch-flow--slow {
+  animation-duration: 2.4s;
+}
+
+.arch-halo {
+  paint-order: stroke;
+  stroke: var(--ax-bg-default);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.dark .arch-halo {
+  stroke: var(--ax-bg-raised);
+}
+
+.arch-node {
+  cursor: pointer;
+  outline: none;
+  transition: opacity 200ms ease;
+}
+
+.arch-node .arch-box {
+  transition:
+    stroke-width 160ms ease,
+    filter 160ms ease;
+}
+
+.arch-node:hover .arch-box,
+.arch-node.is-neighbour .arch-box {
+  stroke-width: 2.2px;
+}
+
+.arch-node.is-active .arch-box {
+  stroke-width: 2.6px;
+  filter: drop-shadow(0 6px 12px color-mix(in srgb, var(--ax-border-accent) 35%, transparent));
+}
+
+.arch-node.is-dim {
+  opacity: 0.28;
+}
+
+.arch-node:focus-visible .arch-box {
+  stroke: var(--ax-border-focus);
+  stroke-width: 3px;
+}
+
+.arch-pulse {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.arch-node.is-active .arch-pulse {
+  animation: arch-pulse 1.8s ease-out infinite;
+}
+
+@keyframes arch-pulse {
+  0% {
+    opacity: 0.6;
+    stroke-width: 1px;
+  }
+  100% {
+    opacity: 0;
+    stroke-width: 18px;
+  }
+}
+
+.arch-stars {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  animation: arch-spin 80s linear infinite;
+}
+
+/* ---------- Node explorer ---------- */
+
+.arch-explorer {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) minmax(0, 2.1fr);
+  align-items: start;
+  gap: 1.5rem 2rem;
+  margin-top: 1rem;
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background:
+    linear-gradient(135deg, var(--ax-bg-accent-soft), transparent 60%),
+    var(--ax-bg-default);
+  animation: arch-rise 420ms var(--arch-ease) backwards;
+}
+
+.dark .arch-explorer {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--ax-bg-accent-soft) 70%, transparent), transparent 60%),
+    var(--ax-bg-raised);
+}
+
+.arch-explorer--empty {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-style: dashed;
+  background: var(--ax-bg-neutral-soft);
+}
+
+.dark .arch-explorer--empty {
+  background: var(--ax-bg-neutral-soft);
+}
+
+.arch-explorer__graph {
+  min-width: 0;
+  align-self: center;
+}
+
+.arch-facts {
+  margin: 0 0 0.85rem;
+  padding-left: 1.1rem;
+  font-size: 0.875rem;
+}
+
+.arch-facts li + li {
+  margin-top: 0.3rem;
+}
+
+.arch-facts li::marker {
+  color: var(--ax-text-accent);
+}
+
+.arch-counts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.arch-counts > div {
+  display: contents;
+}
+
+.arch-counts dt {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.75;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.arch-counts dd {
+  margin: 0;
+}
+
+.arch-ego__node {
+  cursor: pointer;
+  outline: none;
+}
+
+.arch-ego__node .arch-box {
+  transition:
+    fill 150ms ease,
+    stroke 150ms ease;
+}
+
+.arch-ego__node:hover .arch-box {
+  fill: var(--ax-bg-accent-soft);
+  stroke: var(--ax-border-accent);
+}
+
+.arch-ego__node:focus-visible .arch-box {
+  stroke: var(--ax-border-focus);
+  stroke-width: 2px;
+}
+
+/* ---------- Request flow ---------- */
+
+.arch-rf__edge,
+.arch-rf__box,
+.arch-rf__group {
+  transition: opacity 260ms ease;
+}
+
+.arch-rf__edge.is-dim {
+  opacity: 0.2;
+}
+
+.arch-rf__edge.is-dim .arch-flow {
+  opacity: 0;
+}
+
+.arch-rf__box.is-dim,
+.arch-rf__group.is-dim {
+  opacity: 0.42;
+}
+
+.arch-rf__box {
+  cursor: pointer;
+  outline: none;
+}
+
+.arch-rf__box rect {
+  transition:
+    stroke-width 160ms ease,
+    filter 200ms ease;
+}
+
+.arch-rf__box.is-lit rect {
+  filter: drop-shadow(0 8px 14px color-mix(in srgb, var(--ax-border-accent) 30%, transparent));
+}
+
+.arch-rf__box:hover rect {
+  stroke-width: 2.5px;
+}
+
+.arch-rf__box:focus-visible rect {
+  stroke: var(--ax-border-focus);
+  stroke-width: 3px;
+}
+
+.arch-rf__item {
+  cursor: pointer;
+  outline: none;
+}
+
+.arch-rf__item-bg {
+  fill: transparent;
+  transition: fill 150ms ease;
+}
+
+.arch-rf__item:hover .arch-rf__item-bg {
+  fill: var(--ax-bg-default);
+}
+
+.arch-rf__item:focus-visible .arch-rf__item-bg {
+  fill: var(--ax-bg-default);
+  stroke: var(--ax-border-focus);
+  stroke-width: 2px;
+}
+
+.arch-packet {
+  pointer-events: none;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--ax-border-accent) 70%, transparent));
+}
+
+.arch-rf__stepper {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.arch-rf__steps {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.arch-rf__steps li {
+  position: relative;
+}
+
+.arch-rf__steps li + li::before {
+  content: "";
+  position: absolute;
+  top: calc(0.35rem + 14px);
+  left: calc(-50% + 20px);
+  right: calc(50% + 20px);
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ax-border-neutral-subtle);
+  transition: background-color 260ms ease;
+}
+
+.arch-rf__steps li:has(.arch-rf__step[data-done], .arch-rf__step[aria-current])::before {
+  background: var(--ax-border-accent);
+}
+
+.arch-rf__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.35rem 0.25rem;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font: inherit;
+  font-size: 0.82rem;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--ax-text-neutral-subtle);
+  cursor: pointer;
+}
+
+.arch-rf__step:hover {
+  color: var(--ax-text-neutral);
+}
+
+.arch-rf__step:focus-visible {
+  outline: 3px solid var(--ax-border-focus);
+  outline-offset: 0;
+}
+
+.arch-rf__step[aria-current] {
+  font-weight: 600;
+  color: var(--ax-text-neutral);
+}
+
+.arch-rf__step-no {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-family: var(--arch-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 2px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
+  color: var(--ax-text-neutral-subtle);
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease;
+}
+
+.arch-rf__step[data-done] .arch-rf__step-no {
+  border-color: var(--ax-border-accent);
+  background: var(--ax-bg-accent-soft);
+  color: var(--ax-text-accent);
+}
+
+.arch-rf__step[aria-current] .arch-rf__step-no {
+  border-color: var(--ax-bg-accent-strong);
+  background: var(--ax-bg-accent-strong);
+  color: var(--ax-text-accent-contrast);
+  box-shadow: 0 0 0 5px var(--ax-bg-accent-soft);
+}
+
+.arch-rf__caption {
+  min-height: 6.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--ax-border-accent);
+  background: var(--ax-bg-neutral-soft);
+}
+
+.arch-rf__controls {
+  align-self: center;
+}
+
+/* ---------- Event metro ---------- */
+
+.arch-metro__source {
+  transition: opacity 220ms ease;
+}
+
+.arch-metro__source.is-dim {
+  opacity: 0.35;
+}
+
+.arch-metro__hub {
+  cursor: pointer;
+  outline: none;
+}
+
+.arch-metro__hub rect {
+  transition: stroke-width 160ms ease;
+}
+
+.arch-metro__hub:hover rect {
+  stroke-width: 2.6px;
+}
+
+.arch-metro__hub:focus-visible rect {
+  stroke: var(--ax-border-focus);
+  stroke-width: 3px;
+}
+
+.arch-metro__line {
+  cursor: pointer;
+  transition: opacity 220ms ease;
+}
+
+.arch-metro__line.is-dim,
+.arch-metro__lname.is-dim {
+  opacity: 0.15;
+}
+
+.arch-metro__lname {
+  transition: opacity 220ms ease;
+}
+
+.arch-metro__lname.is-lit {
+  fill: var(--ax-text-neutral);
+  font-weight: 700;
+}
+
+.arch-metro__train {
+  stroke-dasharray: 1 26;
+  pointer-events: none;
+  animation: arch-train 1.8s linear infinite;
+}
+
+.arch-metro__line.is-lit .arch-metro__train {
+  animation-duration: 0.9s;
+}
+
+@keyframes arch-train {
+  to {
+    stroke-dashoffset: -27;
+  }
+}
+
+.arch-metro__station {
+  cursor: pointer;
+  outline: none;
+  transition: opacity 220ms ease;
+}
+
+.arch-metro__station.is-dim {
+  opacity: 0.3;
+}
+
+.arch-metro__stop {
+  transition:
+    fill 160ms ease,
+    stroke-width 160ms ease;
+}
+
+.arch-metro__station:hover .arch-metro__stop,
+.arch-metro__station.is-lit .arch-metro__stop {
+  stroke-width: 3.5px;
+}
+
+.arch-metro__station[aria-pressed="true"] .arch-metro__stop {
+  fill: var(--ax-bg-meta-purple-soft);
+}
+
+.arch-metro__station:focus-visible .arch-metro__stop {
+  stroke: var(--ax-border-focus);
+  stroke-width: 3.5px;
+}
+
+.arch-metro__station.is-ghost text {
+  fill: var(--ax-text-neutral-subtle);
+}
+
+.arch-metro__panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  align-items: start;
+  gap: 1rem 2.5rem;
+  margin-top: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-neutral-soft);
+}
+
+.arch-metro__info {
+  min-height: 7.5rem;
+}
+
+.arch-metro__legend {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.arch-metro__legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+  outline: none;
+  transition:
+    opacity 200ms ease,
+    background-color 200ms ease;
+}
+
+.arch-metro__legend li.is-lit {
+  background: var(--ax-bg-default);
+}
+
+.arch-metro__legend li.is-dim {
+  opacity: 0.45;
+}
+
+.arch-metro__legend li:focus-visible {
+  outline: 2px solid var(--ax-border-focus);
+}
+
+.arch-metro__swatch {
+  flex: none;
+  width: 26px;
+  height: 7px;
+  border-radius: 4px;
+}
+
+/* ---------- Night timeline ---------- */
+
+.arch-night__group {
+  cursor: pointer;
+  outline: none;
+}
+
+.arch-night__group-bg {
+  fill: transparent;
+  transition: fill 150ms ease;
+}
+
+.arch-night__group:hover .arch-night__group-bg {
+  fill: var(--ax-bg-neutral-moderate);
+}
+
+.arch-night__group:focus-visible .arch-night__group-bg {
+  stroke: var(--ax-border-focus);
+  stroke-width: 2px;
+}
+
+.arch-night__job > rect:first-child {
+  transition: fill 150ms ease;
+}
+
+.arch-night__job.is-lit > rect:first-child {
+  fill: var(--ax-bg-neutral-soft);
+}
+
+.arch-night__chain {
+  animation: arch-chain 1.2s linear infinite;
+}
+
+@keyframes arch-chain {
+  to {
+    stroke-dashoffset: -6;
+  }
+}
+
+.arch-night__next {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: arch-ring 2s ease-out infinite;
+}
+
+@keyframes arch-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+.arch-night__now {
+  pointer-events: none;
+  animation: arch-fade 500ms ease backwards;
+}
+
+.arch-night__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.75rem;
+}
+
+/* ---------- Catalogue ---------- */
+
+.arch-catalogue {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.arch-catalogue__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.arch-catalogue__title::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--tone-line);
+}
+
+.arch-catalogue__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.75rem;
+}
+
+.arch-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem 0.85rem 1.3rem;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
+  transition:
+    translate 180ms var(--arch-ease),
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.arch-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--tone-line);
+}
+
+.arch-card:hover {
+  translate: 0 -2px;
+  border-color: color-mix(in srgb, var(--tone-line) 55%, transparent);
+  box-shadow: 0 14px 30px -22px var(--tone-line);
+}
+
+.arch-card__name {
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.arch-card__summary {
+  flex: 1;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.arch-card__footer {
+  margin-top: 0.25rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--ax-border-neutral-subtle);
+}
+
+.arch-card__io {
+  font-size: 0.78rem;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.arch-card__gh {
+  font-size: 0.85rem;
+}
+
+/* ---------- External systems table ---------- */
+
+.arch-table {
+  overflow-x: auto;
+  padding: 0.25rem 0.75rem;
+  border-radius: 14px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
+}
+
+.arch-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  vertical-align: middle;
+}
+
+.arch-chip-btn {
+  line-height: 1.5;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.arch-chip-btn:hover {
+  border-color: var(--ax-border-accent);
+  background: var(--ax-bg-accent-soft);
+}
+
+.arch-chip-btn:focus-visible {
+  outline: 2px solid var(--ax-border-focus);
+  outline-offset: 1px;
+}
+
+/* ---------- Patterns ---------- */
+
+.arch-patterns {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.arch-pattern-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.arch-pattern-list li {
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-neutral-soft);
+  font-size: 0.9rem;
+}
+
+.arch-matrix {
+  --arch-matrix-bg: var(--ax-bg-default);
+}
+
+.dark .arch-matrix {
+  --arch-matrix-bg: var(--ax-bg-raised);
+}
+
+.arch-matrix__scroll {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--arch-matrix-bg);
+}
+
+.arch-matrix table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+}
+
+.arch-matrix th,
+.arch-matrix td {
+  padding: 0.4rem 0.6rem;
+  text-align: center;
+  border-bottom: 1px solid var(--ax-border-neutral-subtle);
+  transition:
+    background-color 160ms ease,
+    opacity 200ms ease;
+}
+
+.arch-matrix tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.arch-matrix thead th {
+  vertical-align: bottom;
+  background: var(--ax-bg-neutral-soft);
+}
+
+.arch-matrix thead button {
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ax-text-neutral-subtle);
+  cursor: pointer;
+}
+
+.arch-matrix thead button:hover {
+  color: var(--ax-text-neutral);
+  background: var(--ax-bg-neutral-moderate);
+}
+
+.arch-matrix thead button:focus-visible {
+  outline: 2px solid var(--ax-border-focus);
+}
+
+.arch-matrix th.is-col button {
+  color: var(--ax-text-accent-contrast);
+  background: var(--ax-bg-accent-strong);
+}
+
+.arch-matrix td.is-col {
+  background: color-mix(in srgb, var(--ax-bg-accent-soft) 80%, transparent);
+}
+
+.arch-matrix__name {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  text-align: left !important;
+  background: var(--arch-matrix-bg);
+}
+
+.arch-matrix thead .arch-matrix__name {
+  font-size: 0.78rem;
+  color: var(--ax-text-neutral-subtle);
+  background: var(--ax-bg-neutral-soft);
+}
+
+.arch-matrix tbody .arch-matrix__name button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  color: var(--ax-text-neutral);
+  cursor: pointer;
+}
+
+.arch-matrix tbody .arch-matrix__name button:hover {
+  color: var(--ax-text-accent);
+  text-decoration: underline;
+}
+
+.arch-matrix tbody .arch-matrix__name button:focus-visible {
+  outline: 2px solid var(--ax-border-focus);
+  outline-offset: 2px;
+}
+
+.arch-matrix tbody tr:hover > * {
+  background-color: var(--ax-bg-neutral-soft);
+}
+
+.arch-matrix tr.is-dim > * {
+  opacity: 0.28;
+}
+
+.arch-matrix__dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ax-bg-success-strong);
+  box-shadow: 0 0 0 3px var(--ax-bg-success-soft);
+}
+
+.arch-matrix__none {
+  color: var(--ax-text-neutral-subtle);
+  opacity: 0.5;
+}
+
+.arch-matrix__lang {
+  display: inline-block;
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--ax-bg-neutral-soft);
+}
+
+.arch-matrix__lang[data-lang="Kotlin"] {
+  background: var(--ax-bg-meta-purple-soft);
+  color: var(--ax-text-meta-purple);
+}
+
+.arch-matrix__lang[data-lang="Java"] {
+  background: var(--ax-bg-warning-soft);
+  color: var(--ax-text-warning);
+}
+
+.arch-matrix__lang[data-lang="TypeScript"] {
+  background: var(--ax-bg-accent-soft);
+  color: var(--ax-text-accent);
+}
+
+.arch-matrix__text {
+  font-size: 0.75rem;
+  white-space: nowrap;
+  color: var(--ax-text-neutral-subtle);
+}
+
+/* ---------- Pitfalls, glossary, further reading ---------- */
+
+.arch-pitfalls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  align-items: start;
+  gap: 1.5rem 2.5rem;
+}
+
+.arch-glossary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.arch-glossary > div {
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
+  transition: border-color 160ms ease;
+}
+
+.arch-glossary > div:hover {
+  border-color: var(--ax-border-accent);
+}
+
+.arch-glossary dt {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.arch-glossary__full {
+  font-size: 0.78rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.arch-glossary dd {
+  margin: 0.35rem 0 0;
+  font-size: 0.875rem;
+}
+
+.arch-further {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.arch-further__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  color: inherit;
+  text-decoration: none;
+  background:
+    linear-gradient(135deg, var(--ax-bg-accent-soft), transparent 70%),
+    var(--ax-bg-default);
+  transition:
+    translate 180ms var(--arch-ease),
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.arch-further__card:hover {
+  translate: 0 -2px;
+  text-decoration: none;
+  border-color: var(--ax-border-accent);
+  box-shadow: 0 14px 30px -22px var(--ax-border-accent);
+}
+
+.arch-further__card:focus-visible {
+  outline: 3px solid var(--ax-border-focus);
+  outline-offset: 2px;
+}
+
+.arch-further__card strong {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--ax-text-accent);
+}
+
+.arch-further__card strong svg {
+  transition: translate 180ms var(--arch-ease);
+}
+
+.arch-further__card:hover strong svg {
+  translate: 3px 0;
+}
+
+.arch-further__card span {
+  font-size: 0.85rem;
+  color: var(--ax-text-neutral-subtle);
+}
+
+/* ---------- Dark mode surfaces ---------- */
+
+/* Aksel's soft tints are strong on dark backgrounds; let the surface through */
+.dark .arch-zone > rect:first-child,
+.dark .arch-rf__group > rect:first-child {
+  fill-opacity: 0.55;
+}
+
+.dark .arch-card,
+.dark .arch-table,
+.dark .arch-glossary > div {
+  background: var(--ax-bg-raised);
+}
+
+.dark .arch-further__card {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--ax-bg-accent-soft) 70%, transparent), transparent 70%),
+    var(--ax-bg-raised);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1000px) {
+  .arch-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .arch-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .arch-explorer,
+  .arch-metro__panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .arch-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .arch-flows {
+    grid-template-columns: 1fr;
+  }
+
+  .arch-rf__stepper {
+    grid-template-columns: 1fr;
+  }
+
+  .arch-rf__step > span:last-child {
+    font-size: 0.72rem;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.arch-page) {
+    scroll-behavior: auto;
+  }
+
+  .arch-page *,
+  .arch-page *::before,
+  .arch-page *::after,
+  .arch-hero::before {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .arch-flow,
+  .arch-packet,
+  .arch-metro__train {
+    display: none;
+  }
+}
