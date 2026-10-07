@@ -316,6 +316,7 @@ export const NODES: ArchNode[] = [
       facts: [
         "Følger nye saker via sak- og dokumenthendelser.",
         "Spør eux-rina-terminator-api om saken kan slettes før den slettes.",
+        "Sender en månedlig rapport til Slack.",
       ],
       link: { href: "/prosesser/automatisk-sletting", label: "Automatisk sletting" },
     },
@@ -502,7 +503,7 @@ export const EDGES: ArchEdge[] = [
     "dokarkiv",
   ),
   ...rest("eux-avslutt-rinasaker", "eux-rina-terminator-api", "slack"),
-  ...rest("eux-slett-usendte-rinasaker", "eux-rina-terminator-api"),
+  ...rest("eux-slett-usendte-rinasaker", "eux-rina-terminator-api", "slack"),
   ...rest("eux-adresse-oppdatering", "eux-rina-api", "pdl", "pdl-mottak"),
   ...rest("eux-person-oppdatering", "eux-rina-api", "pdl", "pdl-mottak"),
   ...rest("eux-barnetrygd", "eux-oppgave", "eux-rina-api", "eux-nav-rinasak", "pdl", "saf"),

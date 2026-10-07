@@ -3434,3 +3434,340 @@ html:has(.arch-page) {
     transition: none !important;
   }
 }
+
+/* ================================================================== */
+/* Automatisk sletting (/prosesser/automatisk-sletting)               */
+/* ================================================================== */
+
+.avs-legend__line[data-kind="kafka"] {
+  border-top: 2px dashed var(--ax-border-meta-purple);
+}
+
+.sl-legend__sed {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--ax-bg-meta-purple-strong);
+  box-shadow: 0 0 0 2px var(--ax-bg-default);
+}
+
+/* ---------- Statuser ---------- */
+
+.sl-sm__sed {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.55;
+  transition: opacity 220ms ease;
+  pointer-events: none;
+}
+
+.sl-sm__sed.is-on {
+  opacity: 1;
+  animation: sl-sed-pulse 1.4s var(--arch-ease) infinite;
+}
+
+@keyframes sl-sed-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+}
+
+/* ---------- Livsløp ---------- */
+
+.sl-journey__limit {
+  animation: arch-fade 600ms 300ms var(--arch-ease) backwards;
+}
+
+.sl-journey__when {
+  min-width: 8.5rem;
+  white-space: nowrap;
+}
+
+/* ---------- Systemet ---------- */
+
+.sl-sys__x {
+  stroke-dasharray: 20;
+  animation: sl-draw 1.6s var(--arch-ease) infinite;
+}
+
+@keyframes sl-draw {
+  0% {
+    stroke-dashoffset: 20;
+  }
+  40%,
+  80% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+/* ---------- Natten ---------- */
+
+.sl-night__now {
+  animation: arch-fade 400ms ease backwards;
+}
+
+.sl-night__arc {
+  transition: opacity 200ms ease;
+}
+
+.sl-night__arc.is-dim {
+  opacity: 0.25;
+}
+
+.sl-night__job {
+  cursor: default;
+}
+
+.sl-jobs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sl-job {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.85rem 1rem 0.95rem;
+  border-radius: 12px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    translate 180ms var(--arch-ease);
+  animation: arch-rise 500ms var(--arch-ease) backwards;
+}
+
+.sl-job:nth-child(2) { animation-delay: 60ms; }
+.sl-job:nth-child(3) { animation-delay: 120ms; }
+
+.sl-job.is-focus {
+  translate: 0 -2px;
+  border-color: var(--ax-border-accent);
+  box-shadow: 0 14px 30px -24px var(--ax-border-accent);
+}
+
+.sl-job.is-focus .avs-night__no {
+  background: var(--ax-bg-accent-strong);
+  color: var(--ax-text-accent-contrast);
+}
+
+.sl-job__head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.sl-job__name {
+  display: grid;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.sl-job__name .arch-mono {
+  font-size: 0.75rem;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.sl-job__time {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ax-text-neutral);
+}
+
+.sl-job__next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.4rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  background: var(--ax-bg-neutral-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.sl-job__dot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ax-bg-accent-strong);
+}
+
+.sl-job__dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--ax-bg-accent-strong);
+  animation: sl-ping 2s ease-out infinite;
+}
+
+@keyframes sl-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  80%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.sl-job .avs-job__flow {
+  margin-top: auto;
+}
+
+/* ---------- Kallet til RINA ---------- */
+
+.sl-seq__controls {
+  margin-bottom: 0.9rem;
+}
+
+.sl-seq__field {
+  display: grid;
+  gap: var(--ax-space-8);
+}
+
+.sl-seq__chips {
+  align-items: center;
+  min-height: 30px;
+}
+
+.sl-seq__step {
+  animation: sl-step-in 360ms var(--arch-ease) both;
+}
+
+@keyframes sl-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sl-seq__packet {
+  animation: sl-packet 520ms var(--arch-ease) both;
+}
+
+@keyframes sl-packet {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(var(--sl-dx));
+    opacity: 0;
+  }
+}
+
+.sl-seq__act {
+  animation: arch-fade 400ms ease backwards;
+}
+
+.sl-seq__result {
+  cursor: pointer;
+}
+
+/* ---------- Feil ---------- */
+
+.sl-errors .sl-errors__group th {
+  padding-top: 0.9rem;
+  background: var(--ax-bg-neutral-soft);
+}
+
+.sl-errors__group th > span {
+  margin-right: 0.75rem;
+}
+
+.sl-errors__call {
+  font-weight: 700;
+}
+
+.sl-errors__group .arch-mono {
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+
+/* ---------- Drift ---------- */
+
+.sl-db {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+}
+
+.sl-db li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: var(--ax-bg-neutral-soft);
+}
+
+.sl-db__note {
+  font-size: 0.72rem;
+  color: var(--ax-text-neutral-subtle);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1000px) {
+  .sl-jobs {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .sl-sm__sed.is-on,
+  .sl-journey__limit,
+  .sl-sys__x,
+  .sl-night__now,
+  .sl-job,
+  .sl-job__dot::after,
+  .sl-seq__step,
+  .sl-seq__packet,
+  .sl-seq__act {
+    animation: none !important;
+  }
+
+  .sl-seq__packet {
+    display: none;
+  }
+
+  .sl-job.is-focus {
+    translate: none;
+  }
+}
