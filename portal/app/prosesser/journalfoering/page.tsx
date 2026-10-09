@@ -1,1262 +1,895 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useCallback, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import NextLink from "next/link";
+import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
+import { ArrowRightIcon, ExternalLinkIcon, HourglassIcon, MoonIcon, TestFlaskIcon } from "@navikt/aksel-icons";
+import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
+import { archHref, ghHref } from "@/components/avslutning/tones";
 import {
-  Accordion,
-  BodyLong,
-  BodyShort,
-  Box,
-  Detail,
-  GuidePanel,
-  Heading,
-  HGrid,
-  Link as DsLink,
-  ReadMore,
-  Table,
-  Tag,
-  VStack,
-} from "@navikt/ds-react";
-import { DiagramSurface } from "@/components/DiagramSurface";
+  BEHANDLES,
+  BEHANDLINGSTEMA_ROWS,
+  BEHANDLINGSTYPE_ROWS,
+  DEFAULT_INPUT,
+  JOBS,
+  OPPGAVETYPER,
+  OPPGAVE_ROWS,
+  SEKTOR_BY_ID,
+  STATUSES,
+  TEMA_ROWS,
+  presetInput,
+  simulate,
+  type EnhetRule,
+  type SimInput,
+  type StatusId,
+  type Tone,
+} from "@/components/journalfoering/data";
+import { StatusChips } from "@/components/journalfoering/StatusChips";
+import { SystemFlow } from "@/components/journalfoering/SystemFlow";
+import { Simulator } from "@/components/journalfoering/Simulator";
+import { EnhetCascade } from "@/components/journalfoering/EnhetCascade";
+import { CaseStory } from "@/components/journalfoering/CaseStory";
+import { StatusMachine } from "@/components/journalfoering/StatusMachine";
+import { NightJobs } from "@/components/journalfoering/NightJobs";
+import { ManualFlows } from "@/components/journalfoering/ManualFlows";
 
-const subtle = { color: "var(--ax-text-subtle, #555)" };
-const eyebrow = {
-  ...subtle,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase" as const,
-  fontSize: 12,
-};
+const SECTIONS = [
+  { id: "system", label: "Systemet" },
+  { id: "simulator", label: "Prøv en SED" },
+  { id: "regler", label: "Tema og enhet" },
+  { id: "ferdigstilling", label: "Midlertidig eller ferdig" },
+  { id: "statuser", label: "Statuser" },
+  { id: "natten", label: "Natten" },
+  { id: "manuelt", label: "Fra nEESSI" },
+  { id: "feil", label: "Feil" },
+  { id: "drift", label: "Drift" },
+  { id: "ordliste", label: "Ordliste" },
+  { id: "videre", label: "Videre" },
+];
+const SECTION_IDS = SECTIONS.map((s) => s.id);
 
-type Tone = "blue" | "green" | "purple" | "orange" | "red" | "grey";
+/* ---------- Innhold ---------- */
 
-const palette: Record<Tone, { fill: string; stroke: string }> = {
-  blue: { fill: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent)" },
-  green: { fill: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" },
-  purple: { fill: "var(--ax-bg-meta-purple-soft)", stroke: "var(--ax-border-meta-purple)" },
-  orange: { fill: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" },
-  red: { fill: "var(--ax-bg-danger-soft)", stroke: "var(--ax-border-danger)" },
-  grey: { fill: "var(--ax-bg-neutral-soft)", stroke: "var(--ax-border-neutral)" },
-};
+const C = ({ children }: { children: ReactNode }) => <code className="avs-slack__code">{children}</code>;
 
-type NodeProps = {
-  x: number;
-  y: number;
-  w: number;
-  h?: number;
-  label: string;
-  sub?: string;
-  tone?: Tone;
-  compact?: boolean;
-};
+const ERRORS: { what: string; tone: Tone; how: ReactNode; result: StatusId[] | string }[] = [
+  {
+    what: "Behandlingen av SED-en kaster en feil",
+    tone: "danger",
+    how: (
+      <>
+        Fagmodulen varsler i Slack og kaster feilen videre. Kafka-lytteren logger den, teller{" "}
+        <code>sed_kafka_consumer_failed</code> og går videre til neste melding. <strong>SED-en leses ikke på nytt.</strong>
+      </>
+    ),
+    result: "Det som var satt før feilen",
+  },
+  {
+    what: "Dokarkiv svarer med feil",
+    tone: "danger",
+    how: (
+      <>
+        Fagmodulen prøver noen ganger til, varsler i Slack og går videre som om journalposten ikke finnes. Det blir ingen
+        oppgave og ikke noe dokument i nav-rinasak. Uten dokument feiler ferdigstill to netter på rad.
+      </>
+    ),
+    result: ["UKJENT", "FEILET_FERDIGSTILL", "KORRUPT"],
+  },
+  {
+    what: "Dokarkiv svarer 409: journalposten finnes",
+    tone: "warning",
+    how: "Bare en advarsel i loggen. Fagmodulen lager ingen oppgave og legger ikke til dokumentet i nav-rinasak. Statusen ble satt før kallet.",
+    result: ["UKJENT"],
+  },
+  {
+    what: "Oppgave svarer 400",
+    tone: "warning",
+    how: "Fagmodulen varsler i Slack med svaret fra Oppgave, tema, oppgavetype, BUC og SED. Oppgaven må opprettes manuelt.",
+    result: "Påvirkes ikke",
+  },
+  {
+    what: "Oppgave svarer 409",
+    tone: "neutral",
+    how: "Oppgaven finnes fra før. Bare en advarsel i loggen.",
+    result: "Påvirkes ikke",
+  },
+  {
+    what: "Oppgave feiler på annen måte",
+    tone: "danger",
+    how: "Fagmodulen prøver noen ganger til og logger så en feil. Ingen varsling i Slack, og ingen oppgave.",
+    result: "Påvirkes ikke",
+  },
+  {
+    what: "ferdigstill feiler for en SED",
+    tone: "danger",
+    how: "Prøves igjen neste natt. Feiler den igjen, gir jobben opp. Feilmeldingen lagres i sed_journalstatus.",
+    result: ["FEILET_FERDIGSTILL", "KORRUPT"],
+  },
+  {
+    what: "feilregistrer feiler for en SED",
+    tone: "danger",
+    how: "Prøves igjen neste natt. Feiler den igjen, gir jobben opp.",
+    result: ["FEILET_FEILREGISTRER", "KORRUPT"],
+  },
+  {
+    what: "Naisjoben får ikke svar fra eux-journalarkivar",
+    tone: "warning",
+    how: "Naisjoben logger en advarsel. Ingen varsling, og ingen ny kjøring før neste natt.",
+    result: "Ingen endring",
+  },
+];
 
-function SvgNode({
-  x,
-  y,
-  w,
-  h = 58,
-  label,
-  sub,
-  tone = "blue",
-  compact = false,
-}: NodeProps) {
-  const c = palette[tone];
-  const labelSize = compact ? 11 : 12.5;
-  const subSize = compact ? 9.5 : 10.5;
+const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[] = [
+  {
+    group: "Fagmodulen",
+    items: [
+      {
+        title: "En SED som feiler, leses ikke på nytt",
+        body: (
+          <>
+            Feilhåndteringen i Kafka-lytteren logger feilen og hopper videre. Det finnes ingen retry-topic eller dead letter.
+            Varselet i Slack og metrikken <code>sed_kafka_consumer_failed</code> er de eneste sporene.
+          </>
+        ),
+      },
+      {
+        title: "Feil i Dokarkiv ender som KORRUPT",
+        body: (
+          <>
+            Statusen settes til <code>UKJENT</code> før journalposten lages. Lykkes ikke journalposten, blir det ikke noe dokument
+            i nav-rinasak. ferdigstill finner ikke dokumentet og setter <code>FEILET_FERDIGSTILL</code>, og natten etter{" "}
+            <code>KORRUPT</code>.
+          </>
+        ),
+      },
+      {
+        title: "Et duplikat gir ingen oppgave",
+        body: (
+          <>
+            Svarer Dokarkiv 409 fordi journalposten finnes, lager fagmodulen ingen oppgave. Feilet oppgaven første gang, må den
+            lages manuelt.
+          </>
+        ),
+      },
+      {
+        title: "Mottatte SED-er blir midlertidige til saken er journalført",
+        body: (
+          <>
+            Fagmodulen ber bare om ferdigstilling av en inngående SED når nav-rinasaken har et journalført dokument, eller når
+            BUC-en er UB_BUC_01, FB_BUC_01 eller FB_BUC_04. Ellers blir journalposten midlertidig og får en JFR-oppgave, selv om
+            både sak og bruker er kjent. I S og H finnes det dessuten ingen fagsak uten nav-rinasak.
+          </>
+        ),
+      },
+      {
+        title: "Melosys-sjekken ser bare på første SED",
+        body: (
+          <>
+            Fagmodulen lar Melosys journalføre når den <em>første</em> journalstatusen i saken er{" "}
+            <code>MELOSYS_JOURNALFOERER</code>. Statusen til senere SED-er spiller ingen rolle.
+          </>
+        ),
+      },
+      {
+        title: "Tema for P og LA brukes aldri",
+        body: (
+          <>
+            Temalogikken har regler for pensjon (PEN) og lovvalg (MED), men SED-er i P og LA stoppes av filteret før temaet
+            velges.
+          </>
+        ),
+      },
+    ],
+  },
+  {
+    group: "Nattjobbene",
+    items: [
+      {
+        title: "Uten en ferdigstilt journalpost i saken skjer ingenting",
+        body: (
+          <>
+            ferdigstill kopierer sak, bruker og tema fra en journalpost som allerede er journalført. Finnes ingen, blir SED-en
+            stående som <code>UKJENT</code> natt etter natt, til saksbehandler journalfører saken.
+          </>
+        ),
+      },
+      {
+        title: "feilregistrer tar bare utgående journalposter uten bruker",
+        body: (
+          <>
+            Inngående journalposter og journalposter med bruker blir stående som <code>UKJENT</code>. Jobben ser bare på SED-er
+            som har vært <code>UKJENT</code> i mer enn 30 dager.
+          </>
+        ),
+      },
+      {
+        title: "FEILREGISTRERT selv om Dokarkiv sa nei",
+        body: (
+          <>
+            feilregistrer kaller <code>POST /api/v1/journalposter/settStatusAvbryt</code> i eux-journal. eux-journal logger feil
+            fra Dokarkiv, men svarer likevel OK. Jobben setter da <code>FEILREGISTRERT</code> selv om journalposten ikke ble
+            avbrutt.
+          </>
+        ),
+      },
+      {
+        title: "FEILREGISTRERT er ikke endestasjon",
+        body: (
+          <>
+            ferdigstill leser <code>FEILREGISTRERT</code> hver natt. En avbrutt journalpost har status <code>AVBRUTT</code> i SAF,
+            ikke <code>FEILREGISTRERT</code>. Finnes det en ferdigstilt journalpost i saken, prøver jobben derfor å ferdigstille
+            den avbrutte journalposten.
+          </>
+        ),
+      },
+      {
+        title: "KORRUPT er endestasjon",
+        body: (
+          <>
+            Ingen jobb leser <code>KORRUPT</code>. SED-en må følges opp manuelt. Feilmeldingen står i kolonnen{" "}
+            <code>feilmelding</code> i sed_journalstatus.
+          </>
+        ),
+      },
+      {
+        title: "feilregistrer kjører ikke hver natt i Q2",
+        body: (
+          <>
+            I Q2 er tidsplanen <code>0 14 25 11 *</code>, altså bare 25. november kl. 14.00.
+          </>
+        ),
+      },
+      {
+        title: "Naisjoben varsler ikke",
+        body: (
+          <>
+            Feiler kallet til eux-journalarkivar, logger naisjoben bare en advarsel. Det kommer ingen melding i Slack.
+          </>
+        ),
+      },
+    ],
+  },
+  {
+    group: "Fra nEESSI",
+    items: [
+      {
+        title: "Manuell journalføring endrer ikke statusen",
+        body: (
+          <>
+            Fagmodulen ferdigstiller journalpostene, men endrer ikke sed_journalstatus. SED-ene står som <code>UKJENT</code> til
+            ferdigstill kjører kl. 01.00 og ser at de er journalført.
+          </>
+        ),
+      },
+      {
+        title: "Feilregistrering fra nEESSI gir ikke FEILREGISTRERT",
+        body: (
+          <>
+            eux-journal avbryter utgående journalposter og flytter oppgaven for inngående, men endrer ikke sed_journalstatus.
+            Resultatet lagres bare i databasen til eux-journal.
+          </>
+        ),
+      },
+    ],
+  },
+];
+
+const GLOSSARY: { term: string; full?: string; text: string }[] = [
+  { term: "SED", full: "Structured Electronic Document", text: "Dokumentet som sendes mellom land i EESSI, f.eks. S005 eller H001." },
+  { term: "BUC", full: "Business Use Case", text: "En type RINA-sak. Delen foran første «_» er sektoren, f.eks. UB i UB_BUC_01." },
+  { term: "Sektor", text: "Fagområdet til BUC-en. Fagmodulen journalfører åtte: FB, UB, H, S, M, R, AW og AD." },
+  { term: "Journalpost", text: "Arkivoppføringen i Dokarkiv. Fagmodulen lager én per SED, med SED-en og vedleggene som dokumenter og kanal EESSI." },
+  { term: "Midlertidig", text: "En journalpost som ikke er ferdigstilt. Den mangler sak eller bruker, eller fagmodulen ba ikke om ferdigstilling." },
+  { term: "Ferdigstille", text: "Gjøre journalposten ferdig i Dokarkiv. Krever sak og bruker. Fagmodulen bruker journalførende enhet 9999." },
+  { term: "Fagsak", text: "Saken i fagsystemet som journalposten knyttes til. Fagmodulen finner den via nav-rinasaken, eller som personens nyeste fagsak på riktig tema i SAF." },
+  { term: "nav-rinasak", text: "NAVs data om RINA-saken i eux-nav-rinasak: fagsak, overstyrt enhet og dokumentene med dokumentInfoId." },
+  { term: "sed_journalstatus", text: "Tabellen i eux-nav-rinasak med én journalstatus per SED-versjon." },
+  { term: "Behandlende enhet", text: "Enheten som får oppgaven. Velges bare for inngående SED-er." },
+  { term: "JFR, FDR, BEH_SED", text: `Oppgavetypene: ${Object.entries(OPPGAVETYPER).map(([k, v]) => `${k} er ${v.toLowerCase()}`).join(", ")}.` },
+  { term: "Tema", text: "Fagområdet i Dokarkiv og Oppgave, f.eks. DAG, SYK eller BAR. Behandlingstema og behandlingstype gjør det mer presist." },
+  { term: "SAF", text: "Leser journalposter. Nattjobbene bruker SAF for å se om en journalpost er journalført." },
+  { term: "Dokarkiv", text: "API-et som oppretter, oppdaterer og ferdigstiller journalposter." },
+  { term: "NORG2", text: "NAVs register over enheter. Velger enhet ut fra tema, geografisk tilknytning og behandlingstype." },
+  { term: "PDL", full: "Persondataløsningen", text: "Gir aktørId, geografisk tilknytning og adressebeskyttelse." },
+  { term: "Feilregistrere", text: "Her: sette en utgående journalpost til status avbrutt i Dokarkiv." },
+];
+
+const REPOS = ["eux-fagmodul-journalfoering", "eux-journalarkivar", "eux-journalarkivar-naisjob", "eux-journal", "eux-nav-rinasak"];
+
+const FURTHER: { href: string; title: string; text: string; external?: boolean }[] = [
+  { href: archHref("eux-fagmodul-journalfoering"), title: "Arkitektur", text: "Se fagmodulen i arkitekturkartet, med alt den snakker med." },
+  { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan uvirksomme RINA-saker lukkes og arkiveres." },
+  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker uten sendt SED slettes." },
+  { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Sanntidsmonitor for sedmottatt og sedsendt i Q1 og Q2." },
+  { href: "/nav-rinasak/sed-er", title: "SED-er i nEESSI", text: "Saker og SED-er som registreres i eux-nav-rinasak, i sanntid." },
+  { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
+  { href: "/environments", title: "Miljøer", text: "Testmiljøene Q1 og Q2, med hver sin RINA-instans." },
+  ...REPOS.map((r) => ({ href: ghHref(r), title: r, text: "Kildekoden på GitHub.", external: true })),
+];
+
+/* ---------- Byggeklosser ---------- */
+
+function Section({ id, eyebrow, title, lead, children }: { id: string; eyebrow: string; title: string; lead?: ReactNode; children: ReactNode }) {
   return (
-    <g>
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={h}
-        rx={10}
-        ry={10}
-        fill={c.fill}
-        stroke={c.stroke}
-        strokeWidth={1.45}
-      />
-      <text
-        x={x + w / 2}
-        y={sub ? y + h / 2 - 3 : y + h / 2 + 5}
-        textAnchor="middle"
-        fontSize={labelSize}
-        fontWeight={600}
-        fill="var(--ax-text-default)"
-        fontFamily="system-ui, sans-serif"
-      >
-        {label}
-      </text>
-      {sub && (
-        <text
-          x={x + w / 2}
-          y={y + h / 2 + 13}
-          textAnchor="middle"
-          fontSize={subSize}
-          fill="var(--ax-text-default)"
-          opacity={0.74}
-          fontFamily="system-ui, sans-serif"
-        >
-          {sub}
-        </text>
-      )}
-    </g>
-  );
-}
-
-function SvgDefs({ markerId, color = "var(--ax-text-subtle)" }: { markerId: string; color?: string }) {
-  return (
-    <defs>
-      <marker
-        id={markerId}
-        viewBox="0 0 10 10"
-        refX="9"
-        refY="5"
-        markerWidth="7"
-        markerHeight="7"
-        orient="auto"
-      >
-        <path d="M0,0 L10,5 L0,10 z" fill={color} />
-      </marker>
-    </defs>
-  );
-}
-
-function LineArrow({
-  x1,
-  y1,
-  x2,
-  y2,
-  markerId,
-  label,
-  dashed = false,
-}: {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  markerId: string;
-  label?: string;
-  dashed?: boolean;
-}) {
-  const midX = (x1 + x2) / 2;
-  const midY = (y1 + y2) / 2;
-  return (
-    <g>
-      <line
-        x1={x1}
-        y1={y1}
-        x2={x2}
-        y2={y2}
-        stroke="var(--ax-text-subtle)"
-        strokeWidth={1.45}
-        strokeLinecap="round"
-        strokeDasharray={dashed ? "6 4" : undefined}
-        markerEnd={`url(#${markerId})`}
-      />
-      {label && (
-        <text
-          x={midX}
-          y={midY - 8}
-          textAnchor="middle"
-          fontSize={10.5}
-          fill="var(--ax-text-subtle)"
-          fontFamily="system-ui, sans-serif"
-          style={{ paintOrder: "stroke", stroke: "var(--ax-bg-raised)", strokeWidth: 5 }}
-        >
-          {label}
-        </text>
-      )}
-    </g>
-  );
-}
-
-function PathArrow({
-  d,
-  markerId,
-  label,
-  labelAt,
-  dashed = false,
-}: {
-  d: string;
-  markerId: string;
-  label?: string;
-  labelAt?: { x: number; y: number };
-  dashed?: boolean;
-}) {
-  return (
-    <g>
-      <path
-        d={d}
-        fill="none"
-        stroke="var(--ax-text-subtle)"
-        strokeWidth={1.45}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeDasharray={dashed ? "6 4" : undefined}
-        markerEnd={`url(#${markerId})`}
-      />
-      {label && labelAt && (
-        <text
-          x={labelAt.x}
-          y={labelAt.y}
-          textAnchor="middle"
-          fontSize={10.5}
-          fill="var(--ax-text-subtle)"
-          fontFamily="system-ui, sans-serif"
-          style={{ paintOrder: "stroke", stroke: "var(--ax-bg-raised)", strokeWidth: 5 }}
-        >
-          {label}
-        </text>
-      )}
-    </g>
-  );
-}
-
-function Figure({ children, caption }: { children: ReactNode; caption?: ReactNode }) {
-  return (
-    <DiagramSurface>
-      {children}
-      {caption && (
-        <Detail textColor="subtle" style={{ marginTop: 8 }}>
-          {caption}
-        </Detail>
-      )}
-    </DiagramSurface>
-  );
-}
-
-function OverviewDiagram() {
-  const marker = "journal-overview-arrow";
-  const busY = 230;
-  return (
-    <svg
-      viewBox="0 0 1120 500"
-      role="img"
-      aria-label="Overordnet flyt for journalføring fra RINA-hendelse via Kafka til journalføring, Dokarkiv, SAF, PDL, eux-nav-rinasak og oppgaver."
-      style={{ width: "100%", height: "auto", display: "block" }}
-    >
-      <SvgDefs markerId={marker} />
-
-      <SvgNode x={20} y={42} w={150} label="RINA" sub="SED sendt/mottatt" tone="red" />
-      <SvgNode x={230} y={42} w={230} label="sedmottatt-v1 · sedsendt-v1" sub="Kafka-hendelser" tone="purple" />
-      <SvgNode x={535} y={34} w={260} h={74} label="eux-fagmodul-journalfoering" sub="auto-journalføring" tone="blue" />
-      <SvgNode x={910} y={42} w={170} label="Dokarkiv" sub="journalpost" tone="orange" />
-
-      <LineArrow x1={170} y1={71} x2={230} y2={71} markerId={marker} />
-      <LineArrow x1={460} y1={71} x2={535} y2={71} markerId={marker} />
-      <LineArrow x1={795} y1={71} x2={910} y2={71} markerId={marker} label="opprett" />
-
-      <PathArrow d={`M 665 108 V ${busY} H 150`} markerId={marker} />
-      <PathArrow d={`M 665 ${busY} H 360`} markerId={marker} />
-      <PathArrow d={`M 665 ${busY} H 570`} markerId={marker} />
-      <PathArrow d={`M 665 ${busY} H 790`} markerId={marker} />
-      <PathArrow d={`M 665 ${busY} H 1000`} markerId={marker} />
-
-      <SvgNode x={60} y={278} w={180} label="PDL" sub="person og adresse" tone="orange" />
-      <SvgNode x={270} y={278} w={180} label="SAF" sub="fagsak/journalpost" tone="orange" />
-      <SvgNode x={480} y={278} w={180} label="eux-rina-api" sub="SED + vedlegg" tone="blue" />
-      <SvgNode x={700} y={278} w={190} label="eux-nav-rinasak" sub="dokument + status" tone="green" />
-      <SvgNode x={910} y={278} w={180} label="eux-oppgave" sub="BEH_SED/JFR/FDR" tone="green" />
-
-      <LineArrow x1={150} y1={230} x2={150} y2={278} markerId={marker} />
-      <LineArrow x1={360} y1={230} x2={360} y2={278} markerId={marker} />
-      <LineArrow x1={570} y1={230} x2={570} y2={278} markerId={marker} />
-      <LineArrow x1={795} y1={230} x2={795} y2={278} markerId={marker} />
-      <LineArrow x1={1000} y1={230} x2={1000} y2={278} markerId={marker} />
-
-      <SvgNode x={700} y={402} w={190} label="eux-journalarkivar" sub="01:00 / 02:00" tone="purple" />
-      <SvgNode x={920} y={402} w={170} label="eux-journal" sub="ferdigstill/avbryt" tone="blue" />
-      <LineArrow x1={795} y1={336} x2={795} y2={402} markerId={marker} label="UKJENT/feil" dashed />
-      <LineArrow x1={890} y1={431} x2={920} y2={431} markerId={marker} dashed />
-      <PathArrow d="M 1090 431 H 1105 V 100 H 1080" markerId={marker} label="Dokarkiv-kall" labelAt={{ x: 1084, y: 248 }} dashed />
-    </svg>
-  );
-}
-
-function DirectionDiagram() {
-  const marker = "journal-direction-arrow";
-  const lane = [
-    { x: 20, w: 150 },
-    { x: 205, w: 170 },
-    { x: 420, w: 170 },
-    { x: 635, w: 175 },
-    { x: 855, w: 165 },
-  ];
-  return (
-    <svg
-      viewBox="0 0 1120 420"
-      role="img"
-      aria-label="To adskilte journalføringsløp: inngående SED fra sedmottatt og utgående SED fra sedsendt."
-      style={{ width: "100%", height: "auto", display: "block" }}
-    >
-      <SvgDefs markerId={marker} />
-
-      <text x={20} y={26} fontSize={13} fontWeight={700} fill="var(--ax-text-default)" fontFamily="system-ui, sans-serif">
-        Inngående SED
-      </text>
-      <text x={20} y={221} fontSize={13} fontWeight={700} fill="var(--ax-text-default)" fontFamily="system-ui, sans-serif">
-        Utgående SED
-      </text>
-
-      <SvgNode x={lane[0].x} y={52} w={lane[0].w} label="sedmottatt-v1" sub="Kafka" tone="purple" />
-      <SvgNode x={lane[1].x} y={52} w={lane[1].w} label="Person/fagsak" sub="PDL + SAF" tone="orange" />
-      <SvgNode x={lane[2].x} y={52} w={lane[2].w} label="SED + vedlegg" sub="eux-rina-api" tone="blue" />
-      <SvgNode x={lane[3].x} y={52} w={lane[3].w} label="Dokarkiv" sub="INNGAAENDE" tone="orange" />
-      <SvgNode x={lane[4].x} y={52} w={lane[4].w} label="Oppgave" sub="BEH_SED/JFR/FDR" tone="green" />
-      <SvgNode x={940} y={138} w={160} label="eux-nav-rinasak" sub="dokument + status" tone="green" />
-
-      <LineArrow x1={170} y1={81} x2={205} y2={81} markerId={marker} />
-      <LineArrow x1={375} y1={81} x2={420} y2={81} markerId={marker} />
-      <LineArrow x1={590} y1={81} x2={635} y2={81} markerId={marker} />
-      <LineArrow x1={810} y1={81} x2={855} y2={81} markerId={marker} />
-      <LineArrow x1={1020} y1={110} x2={1020} y2={138} markerId={marker} label="status" />
-
-      <SvgNode x={lane[0].x} y={247} w={lane[0].w} label="sedsendt-v1" sub="Kafka" tone="purple" />
-      <SvgNode x={lane[1].x} y={247} w={lane[1].w} label="Fagsak/enhet" sub="nav-rinasak/SAF" tone="orange" />
-      <SvgNode x={lane[2].x} y={247} w={lane[2].w} label="SED + vedlegg" sub="eux-rina-api" tone="blue" />
-      <SvgNode x={lane[3].x} y={247} w={lane[3].w} label="Dokarkiv" sub="UTGAAENDE" tone="orange" />
-      <SvgNode x={lane[4].x} y={247} w={lane[4].w} label="eux-nav-rinasak" sub="dokument + status" tone="green" />
-      <SvgNode x={635} y={344} w={175} label="H001" sub="avbryt hvis ikke ferdig" tone="red" />
-
-      <LineArrow x1={170} y1={276} x2={205} y2={276} markerId={marker} />
-      <LineArrow x1={375} y1={276} x2={420} y2={276} markerId={marker} />
-      <LineArrow x1={590} y1={276} x2={635} y2={276} markerId={marker} />
-      <LineArrow x1={810} y1={276} x2={855} y2={276} markerId={marker} />
-      <LineArrow x1={722} y1={305} x2={722} y2={344} markerId={marker} dashed />
-
-      <text x={20} y={142} fontSize={10.5} fill="var(--ax-text-subtle)" fontFamily="system-ui, sans-serif">
-        Inngående kan opprette oppgave selv om journalposten bare er midlertidig journalført.
-      </text>
-      <text x={20} y={337} fontSize={10.5} fill="var(--ax-text-subtle)" fontFamily="system-ui, sans-serif">
-        Utgående forsøker ferdigstilling direkte; vanligvis opprettes ikke ny oppgave her.
-      </text>
-    </svg>
-  );
-}
-
-function FollowUpDiagram() {
-  const marker = "journal-followup-arrow";
-  return (
-    <svg
-      viewBox="0 0 1120 455"
-      role="img"
-      aria-label="To separate nattlige etterløp: ferdigstill klokken 01 og feilregistrer klokken 02."
-      style={{ width: "100%", height: "auto", display: "block" }}
-    >
-      <SvgDefs markerId={marker} />
-
-      <text x={20} y={26} fontSize={13} fontWeight={700} fill="var(--ax-text-default)" fontFamily="system-ui, sans-serif">
-        01:00 ferdigstill
-      </text>
-      <SvgNode x={20} y={50} w={150} label="NAIS-jobb" sub="ferdigstill" tone="grey" />
-      <SvgNode x={210} y={50} w={190} label="Input-statuser" sub="FEILET/UKJENT/FEILREG." tone="purple" />
-      <SvgNode x={440} y={50} w={170} label="Finn journalpost" sub="SAF + nav-rinasak" tone="orange" />
-      <SvgNode x={650} y={50} w={170} label="Oppdater Dokarkiv" sub="sak/bruker/tema" tone="orange" />
-      <SvgNode x={860} y={50} w={135} label="eux-journal" sub="ferdigstill" tone="blue" />
-      <SvgNode x={1005} y={50} w={95} label="JOURNALFOERT" tone="green" compact />
-      <SvgNode x={860} y={148} w={190} label="FEILET_FERDIGSTILL" sub="2. feil → KORRUPT" tone="red" />
-
-      <LineArrow x1={170} y1={79} x2={210} y2={79} markerId={marker} />
-      <LineArrow x1={400} y1={79} x2={440} y2={79} markerId={marker} />
-      <LineArrow x1={610} y1={79} x2={650} y2={79} markerId={marker} />
-      <LineArrow x1={820} y1={79} x2={860} y2={79} markerId={marker} />
-      <LineArrow x1={995} y1={79} x2={1005} y2={79} markerId={marker} />
-      <LineArrow x1={927} y1={108} x2={927} y2={148} markerId={marker} label="feil" dashed />
-
-      <text x={20} y={245} fontSize={13} fontWeight={700} fill="var(--ax-text-default)" fontFamily="system-ui, sans-serif">
-        02:00 feilregistrer
-      </text>
-      <SvgNode x={20} y={269} w={150} label="NAIS-jobb" sub="feilregistrer" tone="grey" />
-      <SvgNode x={210} y={269} w={190} label="Input-statuser" sub="FEILET eller UKJENT >30d" tone="purple" />
-      <SvgNode x={440} y={269} w={170} label="Finn journalpost" sub="SAF" tone="orange" />
-      <SvgNode x={650} y={269} w={170} label="Manglende bruker" sub="utgående journalpost" tone="orange" />
-      <SvgNode x={860} y={269} w={135} label="eux-journal" sub="settStatusAvbryt" tone="blue" />
-      <SvgNode x={1005} y={269} w={95} label="FEILREGISTRERT" tone="green" compact />
-      <SvgNode x={860} y={367} w={190} label="FEILET_FEILREG." sub="2. feil → KORRUPT" tone="red" />
-
-      <LineArrow x1={170} y1={298} x2={210} y2={298} markerId={marker} />
-      <LineArrow x1={400} y1={298} x2={440} y2={298} markerId={marker} />
-      <LineArrow x1={610} y1={298} x2={650} y2={298} markerId={marker} />
-      <LineArrow x1={820} y1={298} x2={860} y2={298} markerId={marker} />
-      <LineArrow x1={995} y1={298} x2={1005} y2={298} markerId={marker} />
-      <LineArrow x1={927} y1={327} x2={927} y2={367} markerId={marker} label="feil" dashed />
-    </svg>
-  );
-}
-
-function SectionEyebrow({ kind }: { kind: "funksjonell" | "teknisk" }) {
-  return <div style={eyebrow}>{kind === "funksjonell" ? "For alle" : "For utviklere"}</div>;
-}
-
-function CodeBlock({ children }: { children: ReactNode }) {
-  return (
-    <Box
-      borderRadius="8"
-      padding="space-12"
-      borderColor="neutral-subtle"
-      borderWidth="1"
-      style={{
-        background: "var(--ax-bg-default, #fff)",
-        fontFamily: "var(--ax-font-mono, monospace)",
-        fontSize: 13,
-        overflowX: "auto",
-      }}
-    >
-      {children}
-    </Box>
-  );
-}
-
-function InfoCard({
-  title,
-  children,
-  tone = "blue",
-}: {
-  title: string;
-  children: ReactNode;
-  tone?: Tone;
-}) {
-  const c = palette[tone];
-  return (
-    <Box
-      borderRadius="8"
-      borderWidth="1"
-      padding="space-16"
-      style={{ background: c.fill, borderColor: c.stroke }}
-    >
-      <VStack gap="space-8">
-        <Heading size="xsmall" level="3">
+    <section id={id} className="arch-section" aria-labelledby={`${id}-title`}>
+      <header className="arch-section__head">
+        <Detail className="arch-eyebrow">{eyebrow}</Detail>
+        <Heading level="2" size="large" id={`${id}-title`}>
           {title}
         </Heading>
-        <BodyLong size="small">{children}</BodyLong>
-      </VStack>
-    </Box>
+        {lead && <BodyLong className="arch-section__lead">{lead}</BodyLong>}
+      </header>
+      {children}
+    </section>
   );
 }
 
-const serviceRows: [string, string, string][] = [
-  [
-    "eux-fagmodul-journalfoering",
-    "Hendelsesdrevet auto-journalføring",
-    "Leser sedmottatt-v1/sedsendt-v1, henter SED og vedlegg, oppretter journalpost, oppgave og journalstatus.",
-  ],
-  [
-    "eux-journal",
-    "Operasjoner på journalposter",
-    "Kaller Dokarkiv for ferdigstilling og settStatusAvbryt, og kan feilregistrere journalposter for en RINA-sak.",
-  ],
-  [
-    "eux-journalarkivar",
-    "Nattlig etterløp",
-    "Ferdigstiller UKJENT/feilede journalposter og feilregistrerer gamle journalposter som ikke kan kobles trygt.",
-  ],
-  [
-    "eux-nav-rinasak",
-    "Status og kobling",
-    "Lagrer dokumentInfoId, SED-id/-versjon og journalstatus per RINA-sak.",
-  ],
-];
-
-const bucRows: [string, string, string][] = [
-  [
-    "H001",
-    "Utgående horisontal SED.",
-    "Hvis Dokarkiv ikke ferdigstiller journalposten direkte, settes journalposten til avbryt.",
-  ],
-  [
-    "UB_BUC_04",
-    "Manuell journalføringsvei.",
-    "Det opprettes BEH_SED-oppgave med tekst om at inngående SED ikke ble automatisk journalført.",
-  ],
-  [
-    "H020/H021",
-    "Personident kan ligge annerledes i SED-en.",
-    "Når navBruker mangler, forsøker tjenesten å hente fnr fra SED-er der pin ligger i entall.",
-  ],
-  [
-    "S005",
-    "Sykdoms-SED med egen behandling.",
-    "Inngående flow overstyrer tema til GRU, og enhetsvalget peker til 4461.",
-  ],
-  [
-    "H070 og S055",
-    "Spesialruting.",
-    "H070 kan få PEN-tema og rutes til 4803; S055 rutes til 0393 og tema SYM hvis ikke fagsaken gir noe annet.",
-  ],
-  [
-    "H_BUC_07",
-    "Skal bare journalføres av EUX når saken er kjent hos nEESSI.",
-    "Hvis det ikke finnes nav-rinasak, tolkes saken som opprettet av andre og SED-en hoppes over.",
-  ],
-];
-
-const statusRows: [string, string, string][] = [
-  ["UKJENT", "eux-fagmodul-journalfoering", "SED er observert og journalføring/ferdigstilling må avklares."],
-  ["JOURNALFOERT", "eux-fagmodul-journalfoering / eux-journalarkivar", "Dokarkiv-journalpost er ferdigstilt eller allerede journalført."],
-  ["MANUELL_JOURNALFOERING", "eux-fagmodul-journalfoering", "Brukt når NAV Rinasak ikke skal håndtere journalføring automatisk for BUC-en."],
-  ["MELOSYS_JOURNALFOERER", "eux-nav-rinasak / annet system", "Signal om at Melosys håndterer journalføringen; fagmodulen hopper over."],
-  ["FEILREGISTRERT", "eux-journalarkivar", "Journalpost er satt til avbryt/feilregistrert etter etterløp."],
-  ["FEILET_FERDIGSTILL", "eux-journalarkivar", "Ferdigstilling feilet første gang og forsøkes igjen neste kjøring."],
-  ["FEILET_FEILREGISTRER", "eux-journalarkivar", "Feilregistrering feilet første gang og forsøkes igjen neste kjøring."],
-  ["KORRUPT", "eux-journalarkivar", "Andre forsøk feilet; må undersøkes manuelt."],
-];
-
-const userRows: [string, string, string][] = [
-  [
-    "Inngående SED på kjent fagsak",
-    "Dokumentet journalføres på saken og saksbehandler får normalt en BEH_SED-oppgave.",
-    "Raskeste og mest ønskede flyt: arkiv, fagsak og oppgave peker på samme behandling.",
-  ],
-  [
-    "Inngående SED uten trygg bruker eller fagsak",
-    "Journalpost kan bli midlertidig, og oppgaven blir JFR eller FDR avhengig av enhet og personkobling.",
-    "Saksbehandler eller fordeling må avklare før dokumentet kan ferdigstilles riktig.",
-  ],
-  [
-    "Utgående SED sendt fra NAV",
-    "Dokarkiv får en utgående journalpost. Fagmodulen forsøker ferdigstilling direkte.",
-    "Gir arkivspor for det NAV allerede har sendt, normalt uten å lage ny oppgave.",
-  ],
-  [
-    "SED som ikke bør auto-journalføres",
-    "Fagmodulen hopper over eller lager manuell oppgave når et annet system eller en BUC-regel eier løpet.",
-    "Bedre å stoppe trygt enn å journalføre på feil bruker, feil fagsak eller feil systemansvar.",
-  ],
-];
-
-const principleRows: [string, string, Tone][] = [
-  [
-    "Ikke mist dokumentet",
-    "SED og vedlegg hentes fra RINA og sendes til Dokarkiv. Hvis en journalpost allerede finnes, brukes den videre i stedet for å lage duplikat.",
-    "green",
-  ],
-  [
-    "Ikke gjett for hardt",
-    "Når person, fagsak eller ferdigstilling er usikker, lager systemet heller oppgave eller lar journalarkivar følge opp senere.",
-    "orange",
-  ],
-  [
-    "Bruk eksisterende kontekst",
-    "Eksisterende nav-rinasak, tidligere journalposter og SAF-fagsaker brukes før systemet faller tilbake på generelle regler.",
-    "blue",
-  ],
-  [
-    "Skjerm sensitive saker",
-    "Beskyttet adresse rutes til Vikafossen (2103), og RINA-saken markeres sensitiv når fagmodulen avdekker behovet.",
-    "red",
-  ],
-];
-
-const decisionRows: [string, string, string][] = [
-  [
-    "Finn person",
-    "navBruker fra hendelsen, PDL-oppslag, H020/H021 pin-fallback og egen UB_BUC_01/Litauen-håndtering.",
-    "Uten trygg person kan journalposten bli midlertidig og oppgaven havne hos fordeling.",
-  ],
-  [
-    "Finn fagsak",
-    "Eksisterende nav-rinasak, nyeste tilknyttede journalpost i SAF eller nyeste fagsak for personen.",
-    "Manglende fagsak stopper ikke alltid journalpost, men påvirker om den kan ferdigstilles.",
-  ],
-  [
-    "Velg tema og behandling",
-    "Sektor, SED-type, BUC og sakseierrolle bestemmer tema, behandlingstema og behandlingstype.",
-    "Dette styrer både journalpostmetadata og hvilken oppgave som blir gyldig.",
-  ],
-  [
-    "Velg enhet",
-    "Beskyttet adresse, sektor, spesial-SED-er, overstyrt enhet og NORG/PDL-geografi vurderes i rekkefølge.",
-    "Feil enhet gir feil oppgaveflyt, derfor er reglene eksplisitte i fagmodulen.",
-  ],
-  [
-    "Avgjør ferdigstilling",
-    "Utgående forsøker ferdigstilling direkte. Inngående avhenger av BUC og om saken allerede har journalført dokument.",
-    "Hvis det ikke er trygt å ferdigstille nå, overtar oppgave eller nattlig etterløp.",
-  ],
-];
-
-const storyRows: [string, string, string, string][] = [
-  [
-    "Svar på en pågående sykepengesak",
-    "En SED kommer inn på en RINA-sak som allerede er koblet til fagsak.",
-    "Fagmodulen bruker nav-rinasak-koblingen, journalfører dokumentet, oppretter BEH_SED og lagrer dokumentInfoId.",
-    "Saksbehandler finner dokumentet på saken og får en behandlingsoppgave.",
-  ],
-  [
-    "Første dokument i en ny dagpengesak",
-    "Det finnes ikke alltid en ferdig fagsakskobling når første UB-SED mottas.",
-    "Systemet prøver PDL/SAF og egne UB-regler, og kan opprette midlertidig journalpost eller fordelingsoppgave.",
-    "Fordeling eller saksbehandler får avklart riktig kobling før videre behandling.",
-  ],
-  [
-    "NAV sender H001",
-    "Utgående H001 sendes fra NAV til motpart i EESSI.",
-    "SED-en journalføres som utgående. Hvis Dokarkiv ikke ferdigstiller den, settes journalposten til avbryt.",
-    "Saksbildet får arkivspor uten at det lages unødvendig oppgave.",
-  ],
-  [
-    "Gammel UKJENT journalstatus",
-    "En journalpost ble opprettet, men ble ikke ferdigstilt i første forsøk.",
-    "Journalarkivar forsøker senere å bruke en ferdigstilt journalpost på samme RINA-sak som fasit for sak, bruker og tema.",
-    "Når koblingen er trygg, ferdigstilles journalposten og eventuell oppgave ryddes opp.",
-  ],
-];
-
-export default function Page() {
+function Snippet({ children }: { children: string }) {
   return (
-    <VStack gap="space-32">
-      <header>
-        <div style={eyebrow}>Prosess</div>
-        <Heading size="xlarge" level="1" spacing>
-          Journalføring
-        </Heading>
-        <BodyLong size="medium" style={subtle}>
-          Slik blir EESSI-dokumenter synlige og sporbare i NAV: SED-er fra RINA
-          journalføres i Dokarkiv, kobles til riktig fagsak og følges opp med
-          oppgaver og journalstatus. Hovedløpet kjøres av{" "}
-          <DsLink href="https://github.com/navikt/eux-fagmodul-journalfoering" target="_blank" rel="noreferrer">
-            eux-fagmodul-journalfoering
-          </DsLink>
-          , mens <code>eux-journal</code> og <code>eux-journalarkivar</code>{" "}
-          rydder opp når journalposter må ferdigstilles eller feilregistreres.
-        </BodyLong>
+    <div className="avs-snippet">
+      <code>{children}</code>
+      <CopyButton copyText={children} size="xsmall" />
+    </div>
+  );
+}
+
+function SubHead({ title, children }: { title: string; children?: ReactNode }) {
+  return (
+    <div className="avs-subhead">
+      <Heading level="3" size="small">
+        {title}
+      </Heading>
+      {children && (
+        <BodyShort size="small" className="arch-subtle">
+          {children}
+        </BodyShort>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Side ---------- */
+
+export default function JournalfoeringPage() {
+  const active = useScrollSpy(SECTION_IDS);
+  const reduced = useReducedMotion();
+  const [input, setInput] = useState<SimInput>(DEFAULT_INPUT);
+  const [status, setStatus] = useState<StatusId | null>(null);
+  const result = useMemo(() => simulate(input), [input]);
+
+  const scrollTo = useCallback(
+    (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }),
+    [reduced],
+  );
+  const focusStatus = useCallback(
+    (s: StatusId) => {
+      setStatus(s);
+      scrollTo("statuser");
+    },
+    [scrollTo],
+  );
+  const pickRule = useCallback((rule: EnhetRule) => setInput(presetInput(rule.preset)), []);
+
+  return (
+    <div className="portal-page--wide arch-page avs-page jfr-page">
+      <header className="portal-hero arch-hero">
+        <div className="arch-hero__text">
+          <Detail className="arch-eyebrow">Prosess</Detail>
+          <Heading level="1" size="xlarge" spacing>
+            Journalføring av SED-er
+          </Heading>
+          <BodyLong size="large" className="arch-hero__lead">
+            Når NAV sender eller mottar en SED i RINA, skal den arkiveres i Dokarkiv. eux-fagmodul-journalfoering leser
+            SED-hendelsene fra Kafka, lager journalposten, velger tema og enhet og oppretter oppgave. Det som ikke blir ferdig
+            journalført med en gang, prøver eux-journalarkivar igjen hver natt.
+          </BodyLong>
+        </div>
+
+        <dl className="arch-stats">
+          {[
+            { n: BEHANDLES.length, label: "sektorer", sub: "journalføres her" },
+            { n: 2, label: "Kafka-topics", sub: "sedmottatt og sedsendt" },
+            { n: STATUSES.length, label: "journalstatuser", sub: "i eux-nav-rinasak" },
+            { n: JOBS.length, label: "nattjobber", sub: "kl. 01.00 og 02.00" },
+          ].map((s, i) => (
+            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
+              <dt>{s.label}</dt>
+              <dd>
+                <span className="arch-stat__n">{s.n}</span>
+                <span className="arch-stat__sub">{s.sub}</span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="arch-flows">
+          <a href="#simulator" className="arch-flow-card" data-tone="accent">
+            <span className="arch-flow-card__icon" aria-hidden>
+              <TestFlaskIcon />
+            </span>
+            <span>
+              <strong>Prøv en SED</strong>
+              <span className="arch-flow-card__text">Velg sektor, BUC og SED, og se hvert steg fagmodulen tar.</span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </a>
+          <a href="#ferdigstilling" className="arch-flow-card" data-tone="warning">
+            <span className="arch-flow-card__icon" aria-hidden>
+              <HourglassIcon />
+            </span>
+            <span>
+              <strong>Midlertidig først</strong>
+              <span className="arch-flow-card__text">
+                Mottatte SED-er blir ofte midlertidige til noen journalfører saken. Følg en sak til alt er ferdig.
+              </span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </a>
+          <a href="#natten" className="arch-flow-card" data-tone="info">
+            <span className="arch-flow-card__icon" aria-hidden>
+              <MoonIcon />
+            </span>
+            <span>
+              <strong>Natten</strong>
+              <span className="arch-flow-card__text">Kl. 01.00 ferdigstiller eux-journalarkivar det den kan. Kl. 02.00 rydder den opp.</span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </a>
+        </div>
       </header>
 
-      <section id="kortversjon">
-        <Box
-          borderRadius="12"
-          borderColor="neutral-subtle"
-          borderWidth="1"
-          padding="space-16"
-          style={{ background: "var(--ax-bg-accent-soft, #e6f0fa)" }}
-        >
-          <VStack gap="space-12">
-            <Heading size="small" level="2">
-              Kortversjon
-            </Heading>
-            <BodyLong>
-              En dokumenthendelse fra RINA blir til en Kafka-melding. Fagmodulen
-              henter full SED og vedlegg fra <code>eux-rina-api</code>, avklarer
-              person, fagsak, tema og enhet via PDL, SAF og NAV-regler, og
-              oppretter journalpost i Dokarkiv med kanal <code>EESSI</code>.
-              Inngående SED-er kan i tillegg gi en oppgave til riktig enhet.
-            </BodyLong>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-              <Tag size="small" variant="info">Dokarkiv skriver</Tag>
-              <Tag size="small" variant="neutral">SAF leser</Tag>
-              <Tag size="small" variant="success">Oppgave følger opp</Tag>
-              <Tag size="small" variant="warning">Journalarkivar reparerer</Tag>
+      <nav className="arch-jumpnav" aria-label="Innhold på siden">
+        <ol>
+          {SECTIONS.map((s) => (
+            <li key={s.id}>
+              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
+                {s.label}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <Section
+        id="system"
+        eyebrow="Arkitektur"
+        title="Hvem gjør hva"
+        lead="SED-hendelsene går fra RINA via Kafka til fagmodulen, som snakker med åtte andre tjenester. Om natten tar eux-journalarkivar over. Velg en flyt, eller klikk på en boks for detaljer."
+      >
+        <SystemFlow />
+      </Section>
+
+      <Section
+        id="simulator"
+        eyebrow="Interaktivt"
+        title="Følg en SED gjennom fagmodulen"
+        lead="Velg retning, sektor, BUC og SED, og hva som finnes fra før. Simulatoren går gjennom de samme stegene som InngaaendeSedFacade og UtgaaendeSedFacade, i samme rekkefølge."
+      >
+        <Simulator input={input} onChange={setInput} onFocusStatus={focusStatus} onJump={scrollTo} />
+      </Section>
+
+      <Section
+        id="regler"
+        eyebrow="Regler"
+        title="Tema, enhet og oppgave"
+        lead="Tema bestemmer hvor journalposten hører hjemme. Enheten bestemmer hvem som får oppgaven. Begge velges ut fra sektor, SED og det fagmodulen finner om personen og saken."
+      >
+        <SubHead title="Behandlende enhet">
+          Reglene prøves ovenfra og ned, og den første som slår til, avgjør. Markeringen følger SED-en i simulatoren. Klikk på en
+          regel for å prøve den.
+        </SubHead>
+        <EnhetCascade hit={result.enhetRule} retning={input.retning} onPick={pickRule} onJump={() => scrollTo("simulator")} />
+
+        <div className="jfr-rules">
+          <div>
+            <SubHead title="Tema">Fagsakens tema brukes når det er gyldig for sektoren. Ellers gjelder kolonnen «Uten fagsak».</SubHead>
+            <div className="arch-table">
+              <Table size="small">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell scope="col">Sektor</Table.HeaderCell>
+                    <Table.HeaderCell scope="col">Med fagsak</Table.HeaderCell>
+                    <Table.HeaderCell scope="col">Uten fagsak</Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {TEMA_ROWS.map((r) => (
+                    <Table.Row key={r.sektor}>
+                      <Table.HeaderCell scope="row">
+                        <span className="arch-mono">{r.sektor}</span>{" "}
+                        <span className="arch-subtle jfr-rules__sub">{SEKTOR_BY_ID[r.sektor].label}</span>
+                      </Table.HeaderCell>
+                      <Table.DataCell>
+                        {r.medFagsak}
+                        {r.note && <span className="jfr-rules__note">{r.note}</span>}
+                      </Table.DataCell>
+                      <Table.DataCell className="arch-mono">{r.utenFagsak}</Table.DataCell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
             </div>
-          </VStack>
-        </Box>
-      </section>
-
-      <section id="navigasjon">
-        <Box
-          borderRadius="12"
-          borderColor="neutral-subtle"
-          borderWidth="1"
-          padding="space-16"
-          style={{ background: "var(--ax-bg-default, #fff)" }}
-        >
-          <VStack gap="space-12">
-            <Heading size="small" level="2">
-              På denne siden
-            </Heading>
-            <HGrid gap="space-12" columns={{ xs: 1, md: 2, lg: 4 }}>
-              <DsLink href="#saksbehandler">For saksbehandler og fag</DsLink>
-              <DsLink href="#funksjonelt">Flyt, valg og eksempler</DsLink>
-              <DsLink href="#teknisk">Teknisk beskrivelse</DsLink>
-              <DsLink href="#etterlop">Etterløp og avvik</DsLink>
-            </HGrid>
-          </VStack>
-        </Box>
-      </section>
-
-      <section id="saksbehandler">
-        <VStack gap="space-16">
-          <div>
-            <SectionEyebrow kind="funksjonell" />
-            <Heading size="large" level="2">
-              Hva betyr journalføring i arbeidshverdagen?
-            </Heading>
           </div>
-
-          <BodyLong>
-            For saksbehandleren skal journalføringen gjøre EESSI-dokumentet
-            mulig å finne, vurdere og dokumentere videre i NAV. Den viktigste
-            brukeropplevelsen er derfor ikke selve Dokarkiv-kallet, men at
-            dokumentet havner på riktig bruker og fagsak, at oppgaven går til
-            riktig enhet, og at usikre saker ikke ser ferdige ut før de faktisk
-            er avklart.
-          </BodyLong>
-
-          <HGrid gap="space-12" columns={{ xs: 1, md: 2 }}>
-            <InfoCard title="Journalposten er arkivsporet" tone="green">
-              Den gjør SED-en og vedleggene sporbare i Dokarkiv med kanal{" "}
-              <code>EESSI</code>. Journalposten er det varige beviset på hva NAV
-              har mottatt eller sendt i EESSI.
-            </InfoCard>
-            <InfoCard title="Oppgaven er arbeidsflaten" tone="blue">
-              Inngående SED-er kan gi <code>BEH_SED</code>, <code>JFR</code>{" "}
-              eller <code>FDR</code>. Oppgavetypen forteller om dokumentet kan
-              behandles, må journalføres ferdig eller må fordeles først.
-            </InfoCard>
-            <InfoCard title="Fagsaken gir konteksten" tone="purple">
-              Når systemet finner en relevant fagsak, kan journalpost, oppgave
-              og senere saksbehandling peke samme vei. Uten fagsak må systemet
-              være mer forsiktig.
-            </InfoCard>
-            <InfoCard title="Statusen viser hva som gjenstår" tone="orange">
-              <code>JOURNALFOERT</code> betyr at arkivdelen er ferdig.{" "}
-              <code>UKJENT</code>, feilet-statusene og <code>KORRUPT</code>{" "}
-              betyr at automatikk eller manuell oppfølging fortsatt må rydde opp.
-            </InfoCard>
-          </HGrid>
-
-          <Box
-            style={{ background: "var(--ax-bg-default, #fff)" }}
-            borderRadius="8"
-            padding="space-12"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
-            <Table>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell scope="col">Situasjon</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Hva saksbehandler merker</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Hvorfor det er riktig</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {userRows.map(([situation, userImpact, reason]) => (
-                  <Table.Row key={situation}>
-                    <Table.DataCell>{situation}</Table.DataCell>
-                    <Table.DataCell>{userImpact}</Table.DataCell>
-                    <Table.DataCell>{reason}</Table.DataCell>
+          <div>
+            <SubHead title="Oppgave">Bare inngående SED-er får oppgave. Første linje som passer, gjelder.</SubHead>
+            <div className="arch-table">
+              <Table size="small">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell scope="col">Når</Table.HeaderCell>
+                    <Table.HeaderCell scope="col">Oppgave</Table.HeaderCell>
                   </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          </Box>
-
-          <BodyLong>
-            Målet er høy automatikk når grunnlaget er trygt, og tydelig manuell
-            oppfølging når grunnlaget ikke er trygt. Det er bedre at en SED blir
-            liggende med en synlig oppgave enn at den ferdigstilles på feil
-            person, feil fagsak eller feil systemansvar.
-          </BodyLong>
-        </VStack>
-      </section>
-
-      <section id="funksjonelt">
-        <VStack gap="space-16">
-          <div>
-            <SectionEyebrow kind="funksjonell" />
-            <Heading size="large" level="2">
-              Hva skjer når en SED journalføres?
-            </Heading>
+                </Table.Header>
+                <Table.Body>
+                  {OPPGAVE_ROWS.map((r) => (
+                    <Table.Row key={r.when}>
+                      <Table.DataCell>{r.when}</Table.DataCell>
+                      <Table.DataCell>
+                        <span className="avs-code" data-tone={r.tone}>
+                          {r.oppgave}
+                        </span>
+                      </Table.DataCell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
+            <BodyShort size="small" className="arch-subtle avs-note">
+              Oppgavene får frist neste virkedag og opprettes av enhet 9999.
+            </BodyShort>
           </div>
+          <div>
+            <SubHead title="Behandlingstema">Gjelder både journalposten og oppgaven. Ellers står feltet tomt.</SubHead>
+            <div className="arch-table">
+              <Table size="small">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell scope="col">Når</Table.HeaderCell>
+                    <Table.HeaderCell scope="col">NAV er sakseier</Table.HeaderCell>
+                    <Table.HeaderCell scope="col">Ellers</Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {BEHANDLINGSTEMA_ROWS.map((r) => (
+                    <Table.Row key={r.when}>
+                      <Table.DataCell>
+                        {r.when}
+                        {r.note && <span className="jfr-rules__note">{r.note}</span>}
+                      </Table.DataCell>
+                      <Table.DataCell className="arch-mono">{r.sakseier}</Table.DataCell>
+                      <Table.DataCell className="arch-mono">{r.motpart}</Table.DataCell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
+          </div>
+          <div>
+            <SubHead title="Behandlingstype">Bare på oppgaven. Ellers står feltet tomt.</SubHead>
+            <div className="arch-table">
+              <Table size="small">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell scope="col">Når</Table.HeaderCell>
+                    <Table.HeaderCell scope="col">Verdi</Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {BEHANDLINGSTYPE_ROWS.map((r) => (
+                    <Table.Row key={r.when}>
+                      <Table.DataCell>{r.when}</Table.DataCell>
+                      <Table.DataCell className="arch-mono">{r.value}</Table.DataCell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
+          </div>
+        </div>
+      </Section>
 
-          <BodyLong>
-            Journalføring er broen mellom EESSI-utvekslingen og NAVs arkiv- og
-            oppgaveflate. RINA eier selve BUC-en og SED-en, men NAV må ha en
-            journalpost i Dokarkiv, en fagsakskobling der det finnes grunnlag,
-            og en oppgave når en saksbehandler skal behandle dokumentet videre.
-          </BodyLong>
+      <Section
+        id="ferdigstilling"
+        eyebrow="Livsløp"
+        title="Midlertidig først, ferdig senere"
+        lead="En journalpost blir bare ferdigstilt når fagmodulen vet både sak og bruker. Følg to SED-er i samme RINA-sak fra de kommer inn til de er journalført, og se hvordan det går når saksbehandler gjør jobben i nEESSI eller i Gosys."
+      >
+        <CaseStory onFocusStatus={focusStatus} />
+      </Section>
 
-          <Heading size="medium" level="3">
-            Funksjonelle prinsipper
-          </Heading>
-          <HGrid gap="space-12" columns={{ xs: 1, md: 2 }}>
-            {principleRows.map(([title, text, tone]) => (
-              <InfoCard key={title} title={title} tone={tone}>
-                {text}
-              </InfoCard>
+      <Section
+        id="statuser"
+        eyebrow="Tilstander"
+        title="Journalstatusen til en SED"
+        lead="eux-nav-rinasak lagrer én status per SED-versjon i tabellen sed_journalstatus. F er fagmodulen, 1 og 2 er nattjobbene. Klikk på en status for å se hvem som setter den og hvor den kan gå videre."
+      >
+        <StatusMachine selected={status} onSelect={setStatus} />
+      </Section>
+
+      <Section
+        id="natten"
+        eyebrow="Planlagt"
+        title="Natten i eux-journalarkivar"
+        lead="To naisjobber starter hver sin prosess i eux-journalarkivar. ferdigstill fullfører det som kan fullføres. En time senere avbryter feilregistrer utgående journalposter som aldri fikk bruker."
+      >
+        <NightJobs onFocusStatus={focusStatus} />
+      </Section>
+
+      <Section
+        id="manuelt"
+        eyebrow="Saksbehandler"
+        title="Journalføre og feilregistrere fra nEESSI"
+        lead="Saksbehandler kan journalføre en hel RINA-sak på en fagsak, eller feilregistrere journalpostene i saken. Velg handling og se kallene. Hold musen over et steg for å finne det i diagrammet."
+      >
+        <ManualFlows onFocusStatus={focusStatus} />
+      </Section>
+
+      <Section
+        id="feil"
+        eyebrow="Feilhåndtering"
+        title="Når noe går galt"
+        lead="Fagmodulen prøver kallene på nytt noen ganger, men gir så opp og går videre. Det meste havner bare i loggen eller i Slack. Nattjobbene prøver én natt til før de gir opp."
+      >
+        <div className="arch-table avs-errors">
+          <Table size="small">
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell scope="col">Hva feiler</Table.HeaderCell>
+                <Table.HeaderCell scope="col">Hva skjer</Table.HeaderCell>
+                <Table.HeaderCell scope="col">Journalstatus</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {ERRORS.map((r) => (
+                <Table.Row key={r.what}>
+                  <Table.HeaderCell scope="row">
+                    <span className="jfr-err" data-tone={r.tone}>
+                      {r.what}
+                    </span>
+                  </Table.HeaderCell>
+                  <Table.DataCell>{r.how}</Table.DataCell>
+                  <Table.DataCell>
+                    {typeof r.result === "string" ? (
+                      <span className="arch-subtle">{r.result}</span>
+                    ) : (
+                      <span className="jfr-err__path">
+                        <StatusChips ids={r.result} onFocusStatus={focusStatus} />
+                      </span>
+                    )}
+                  </Table.DataCell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </div>
+
+        <div className="jfr-feil">
+          <div>
+            <SubHead title="Slik ser det ut i Slack">
+              Fagmodulen poster til driftskanalen via en webhook. Meldingene starter med miljøet.
+            </SubHead>
+            <figure className="avs-slack jfr-slack">
+              <div className="jfr-slack__feed">
+              {[
+                {
+                  time: "09.12",
+                  body: (
+                    <>
+                      <C>[prod]</C> Journalpost ble ikke opprettet, selv etter gjentatte forsøk. sedType=S005, eksternReferanseId=…
+                    </>
+                  ),
+                },
+                {
+                  time: "09.14",
+                  body: (
+                    <>
+                      <C>[prod]</C> Behandling av inngående SED mislyktes. rinasakId=1234567 sedId=… rinaDokumentId=… rinaDokumentVersjon=1
+                      sedType=U001 bucType=UB_BUC_01
+                    </>
+                  ),
+                },
+                {
+                  time: "10.03",
+                  body: (
+                    <>
+                      🔥<C>[prod]</C>
+                      <br />
+                      <em>&lt;svaret fra Oppgave&gt;</em>
+                      <br />
+                      tema=GEN, oppgavetype=JFR
+                      <br />
+                      H_BUC_01, H001, RINA=7654321_…
+                    </>
+                  ),
+                },
+              ].map((m, i) => (
+                <div key={m.time} className="avs-slack__msg" style={{ "--jfr-i": i } as CSSProperties}>
+                  <span className="avs-slack__avatar" aria-hidden>
+                    EUX
+                  </span>
+                  <div className="avs-slack__body">
+                    <div className="avs-slack__meta">
+                      <strong>eux-fagmodul-journalfoering</strong>
+                      <span className="avs-slack__app">APP</span>
+                      <span className="arch-subtle">{m.time}</span>
+                    </div>
+                    <p>{m.body}</p>
+                  </div>
+                </div>
+              ))}
+              </div>
+              <figcaption>Eksempler. Saks- og dokument-ID-ene er oppdiktet.</figcaption>
+            </figure>
+          </div>
+          <div className="arch-pitfalls avs-pitfalls jfr-pitfalls">
+            {PITFALLS.map((g) => (
+              <div key={g.group}>
+                <Heading level="3" size="small" spacing>
+                  {g.group}
+                </Heading>
+                <Accordion size="small">
+                  {g.items.map((p) => (
+                    <Accordion.Item key={p.title}>
+                      <Accordion.Header>{p.title}</Accordion.Header>
+                      <Accordion.Content>
+                        <BodyLong as="div" size="small">
+                          {p.body}
+                        </BodyLong>
+                      </Accordion.Content>
+                    </Accordion.Item>
+                  ))}
+                </Accordion>
+              </div>
             ))}
-          </HGrid>
-
-          <Figure>
-            <OverviewDiagram />
-          </Figure>
-
-          <BodyLong>
-            Første forsøk skjer hendelsesdrevet og én SED av gangen. Dersom
-            journalposten ikke kan ferdigstilles direkte, ligger statusen igjen i
-            <code>eux-nav-rinasak</code>. Nattjobbene i{" "}
-            <code>eux-journalarkivar</code> bruker den statusen til å prøve
-            ferdigstilling på nytt eller feilregistrere journalposter som ikke
-            lenger skal behandles.
-          </BodyLong>
-
-          <Box
-            style={{ background: "var(--ax-bg-default, #fff)" }}
-            borderRadius="8"
-            padding="space-12"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
-            <Table>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell scope="col">Tjeneste</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Rolle</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Hva den gjør i journalføring</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {serviceRows.map(([service, role, description]) => (
-                  <Table.Row key={service}>
-                    <Table.DataCell><code>{service}</code></Table.DataCell>
-                    <Table.DataCell>{role}</Table.DataCell>
-                    <Table.DataCell>{description}</Table.DataCell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          </Box>
-
-          <Heading size="medium" level="3">
-            Inngående og utgående SED-er
-          </Heading>
-          <BodyLong>
-            Inngående og utgående dokumenter følger samme grunnmønster, men ikke
-            samme brukeropplevelse. Inngående SED-er er typisk noe NAV må
-            behandle, og får derfor oppgave. Utgående SED-er er allerede sendt
-            fra NAV, og journalføres først og fremst for arkivspor og sakshistorikk.
-          </BodyLong>
-
-          <Figure>
-            <DirectionDiagram />
-          </Figure>
-
-          <Heading size="medium" level="3">
-            De viktigste beslutningspunktene
-          </Heading>
-          <BodyLong>
-            Fagmodulen gjør flere valg før den sender noe til Dokarkiv eller
-            oppretter oppgave. Disse valgene er grunnen til at journalføring er
-            mer enn en teknisk arkivoperasjon.
-          </BodyLong>
-
-          <Box
-            style={{ background: "var(--ax-bg-default, #fff)" }}
-            borderRadius="8"
-            padding="space-12"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
-            <Table>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell scope="col">Valg</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Hva systemet vurderer</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Funksjonell konsekvens</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {decisionRows.map(([decision, source, consequence]) => (
-                  <Table.Row key={decision}>
-                    <Table.DataCell>{decision}</Table.DataCell>
-                    <Table.DataCell>{source}</Table.DataCell>
-                    <Table.DataCell>{consequence}</Table.DataCell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          </Box>
-
-          <Heading size="medium" level="3">
-            Typiske funksjonelle historier
-          </Heading>
-          <Accordion>
-            {storyRows.map(([title, start, system, outcome]) => (
-              <Accordion.Item key={title}>
-                <Accordion.Header>{title}</Accordion.Header>
-                <Accordion.Content>
-                  <BodyLong spacing>
-                    <strong>Utgangspunkt:</strong> {start}
-                  </BodyLong>
-                  <BodyLong spacing>
-                    <strong>Systemflyt:</strong> {system}
-                  </BodyLong>
-                  <BodyLong>
-                    <strong>Resultat:</strong> {outcome}
-                  </BodyLong>
-                </Accordion.Content>
-              </Accordion.Item>
-            ))}
-          </Accordion>
-
-          <Accordion>
-            <Accordion.Item>
-              <Accordion.Header>Hva betyr «automatisk» her?</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  Automatisk betyr at saksbehandleren ikke oppretter
-                  journalposten selv. Systemet leser hendelsen, henter dokumentet,
-                  lager Dokarkiv-requesten og oppretter eventuell oppgave. Det
-                  betyr ikke at alle SED-er blir ferdig behandlet uten mennesker:
-                  en <code>JFR</code>, <code>FDR</code> eller{" "}
-                  <code>BEH_SED</code>-oppgave kan fortsatt kreve manuell
-                  vurdering.
-                </BodyLong>
-                <BodyLong>
-                  Journalføringen lukker heller ikke BUC-en i RINA og sletter
-                  ikke RINA-saker. Det håndteres av egne prosesser for
-                  automatisk avslutning og sletting.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>Hvordan velges fagsak, tema og enhet?</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  Først prøver tjenesten å bruke eksisterende kobling i{" "}
-                  <code>eux-nav-rinasak</code>. Hvis den mangler, kan den bruke
-                  nyeste journalpost via SAF eller finne fagsaker for personen.
-                  Tema styres av sektor og SED-type, med egne regler for blant
-                  annet <code>UB</code>, <code>FB</code>, <code>H</code>,{" "}
-                  <code>S</code> og spesielle SED-er som <code>H070</code>,{" "}
-                  <code>S055</code> og <code>S005</code>.
-                </BodyLong>
-                <BodyLong>
-                  Enhet velges deretter. Beskyttet adresse rutes til Vikafossen{" "}
-                  (<code>2103</code>), dagpenger til <code>4470</code>,{" "}
-                  <code>H070</code> til <code>4803</code>, <code>S055</code>{" "}
-                  til <code>0393</code>, <code>S005</code> til{" "}
-                  <code>4461</code>, og sykdom/horisontal bruker enten overstyrt
-                  enhet eller <code>4303</code>. Resten går via PDL geografisk
-                  tilknytning og NORG arbeidsfordeling.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>Når lager vi oppgaver?</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  Inngående SED-er kan gi tre typer oppgaver:{" "}
-                  <code>BEH_SED</code> når dokumentet er ferdigstilt og skal
-                  behandles, <code>JFR</code> når journalposten finnes men ikke
-                  er ferdigstilt, og <code>FDR</code> for midlertidig journalført
-                  dokument til <code>4303</code> når bruker er ukjent.{" "}
-                  <code>X001</code> lager ikke oppgave.
-                </BodyLong>
-                <BodyLong>
-                  <code>UB_BUC_04</code> er en egen manuell vei: det opprettes
-                  <code>BEH_SED</code>-oppgave med forklaring om at inngående
-                  SED ikke ble automatisk journalført.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion>
-
-          <Heading size="medium" level="3">
-            Eksempler på flyter og BUC-er
-          </Heading>
-          <Box
-            style={{ background: "var(--ax-bg-default, #fff)" }}
-            borderRadius="8"
-            padding="space-12"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
-            <Table>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell scope="col">Eksempel</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Hva er spesielt?</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Konsekvens i journalføringen</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {bucRows.map(([example, special, consequence]) => (
-                  <Table.Row key={example}>
-                    <Table.DataCell><code>{example}</code></Table.DataCell>
-                    <Table.DataCell>{special}</Table.DataCell>
-                    <Table.DataCell>{consequence}</Table.DataCell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          </Box>
-          <BodyShort size="small" style={subtle}>
-            Dette er eksempler fra kildekoden, ikke en komplett regelbok for
-            alle BUC-er. Sjekk <code>TemaMapping</code>,{" "}
-            <code>BestemEnhetService</code> og de to fasadene før du endrer
-            journalføringslogikk.
-          </BodyShort>
-        </VStack>
-      </section>
-
-      <section id="teknisk">
-        <VStack gap="space-16">
-          <div>
-            <SectionEyebrow kind="teknisk" />
-            <Heading size="large" level="2">
-              Teknisk beskrivelse
-            </Heading>
           </div>
+        </div>
+      </Section>
 
-          <BodyLong>
-            <code>eux-fagmodul-journalfoering</code> er en stateless
-            Java/Spring Boot-konsument. Den har ingen egen database, men skriver
-            status og dokumentkoblinger til <code>eux-nav-rinasak</code>.
-            Kafka-konfigurasjonen bruker consumer group{" "}
-            <code>eux-fagmodul-journalfoering</code>, én melding per poll og
-            manuell commit per record.
-          </BodyLong>
-
-          <Heading size="medium" level="3">
-            SAF og Dokarkiv
-          </Heading>
-          <BodyLong>
-            SAF er lesesiden: den brukes til å finne fagsaker, hente{" "}
-            <code>dokumentInfoId</code> fra en journalpost og slå opp
-            <code>tilknyttedeJournalposter</code> for samme dokument. Dokarkiv
-            er skrivesiden: der opprettes og oppdateres journalposter.
-          </BodyLong>
-
-          <Box
-            style={{ background: "var(--ax-bg-default, #fff)" }}
-            borderRadius="8"
-            padding="space-12"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
-            <Table>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell scope="col">System</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Kall</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Brukes til</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {[
-                  ["SAF", "GraphQL saker(brukerId)", "Finne relevante fagsaker for person."],
-                  ["SAF", "GraphQL journalpost(journalpostId)", "Finne dokumentInfoId på en kjent journalpost."],
-                  ["SAF", "GraphQL tilknyttedeJournalposter(dokumentInfoId, GJENBRUK)", "Finne nyeste/tilknyttet journalpost for et dokument."],
-                  ["Dokarkiv", "POST /rest/journalpostapi/v1/journalpost", "Opprette journalpost med kanal EESSI."],
-                  ["Dokarkiv", "PUT /rest/journalpostapi/v1/journalpost/{id}", "Oppdatere sak, bruker, tema eller avsender/mottaker."],
-                  ["Dokarkiv", "PATCH /rest/journalpostapi/v1/journalpost/{id}/ferdigstill", "Ferdigstille journalpost med journalførende enhet."],
-                  ["Dokarkiv", "PATCH /rest/journalpostapi/v1/journalpost/{id}/feilregistrer/settStatusAvbryt", "Sette journalpost til avbryt ved feilregistrering."],
-                ].map(([system, call, purpose]) => (
-                  <Table.Row key={`${system}-${call}`}>
-                    <Table.DataCell>{system}</Table.DataCell>
-                    <Table.DataCell><code>{call}</code></Table.DataCell>
-                    <Table.DataCell>{purpose}</Table.DataCell>
-                  </Table.Row>
+      <Section
+        id="drift"
+        eyebrow="Drift"
+        title="Kjøring, Kafka og oppfølging"
+        lead="Det meste av drift handler om å finne SED-er som ble stående: i Slack, i metrikkene eller i sed_journalstatus."
+      >
+        <div className="avs-ops">
+          <div className="avs-ops__col">
+            <article className="arch-card avs-ops__card" data-tone="accent">
+              <Heading level="3" size="xsmall">
+                Nattjobbene
+              </Heading>
+              <Snippet>{"POST /api/v1/arkivarprosess/{prosess}/execute"}</Snippet>
+              <BodyShort size="small">
+                Synkront mot eux-journalarkivar: svarer <code>204</code> når prosessen er ferdig, og <code>400</code> for et ukjent
+                prosessnavn. Gyldige verdier:
+              </BodyShort>
+              <ul className="avs-ops__values">
+                {JOBS.map((j) => (
+                  <li key={j.id} className="arch-mono">
+                    {j.id}
+                  </li>
                 ))}
-              </Table.Body>
-            </Table>
-          </Box>
+              </ul>
+            </article>
+            <article className="arch-card avs-ops__card" data-tone="warning">
+              <Heading level="3" size="xsmall">
+                Kjøre en jobb manuelt
+              </Heading>
+              <BodyShort size="small">Start en ny kjøring fra CronJob-en, f.eks. ferdigstill i prod:</BodyShort>
+              <Snippet>kubectl create job --from=cronjob/eux-journalarkivar-ferdigstill-naisjob ferdigstill-manuell -n eessibasis</Snippet>
+              <BodyShort size="small" className="arch-subtle">
+                Bruk <code>eux-journalarkivar-feilregistrer-naisjob</code> for feilregistrer, og legg til <code>-q1</code> eller{" "}
+                <code>-q2</code> i dev. Navnet på den nye jobben må være unikt.
+              </BodyShort>
+            </article>
+            <article className="arch-card avs-ops__card" data-tone="info">
+              <Heading level="3" size="xsmall">
+                SED-er som ble stående
+              </Heading>
+              <BodyShort size="small">I databasen til eux-nav-rinasak:</BodyShort>
+              <Snippet>select status, count(*) from sed_journalstatus group by status order by 2 desc;</Snippet>
+              <Snippet>
+                {"select rinasak_id, sed_id, sed_versjon, feilmelding, endret_tidspunkt from sed_journalstatus where status = 'KORRUPT' order by endret_tidspunkt desc;"}
+              </Snippet>
+              <BodyShort size="small" className="arch-subtle">
+                Nattjobbene bruker <code>POST /api/v1/sed/journalstatuser/finn</code> og <code>PUT /api/v1/sed/journalstatuser</code> i
+                eux-nav-rinasak.
+              </BodyShort>
+            </article>
+          </div>
+          <div className="avs-ops__col">
+            <article className="arch-card avs-ops__card" data-tone="meta-purple">
+              <Heading level="3" size="xsmall">
+                Kafka
+              </Heading>
+              <div className="arch-table">
+                <Table size="small">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.HeaderCell scope="col">Miljø</Table.HeaderCell>
+                      <Table.HeaderCell scope="col">Topics</Table.HeaderCell>
+                    </Table.Row>
+                  </Table.Header>
+                  <Table.Body>
+                    {(["prod", "q1", "q2"] as const).map((e) => (
+                      <Table.Row key={e}>
+                        <Table.HeaderCell scope="row">{e}</Table.HeaderCell>
+                        <Table.DataCell className="arch-mono jfr-topics">
+                          <span>eessibasis.sedmottatt-v1{e === "prod" ? "" : `-${e}`}</span>
+                          <span>eessibasis.sedsendt-v1{e === "prod" ? "" : `-${e}`}</span>
+                        </Table.DataCell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </div>
+              <BodyShort size="small">
+                Consumer group <code>eux-fagmodul-journalfoering</code>. Én melding om gangen: <code>max-poll-records: 1</code>,{" "}
+                <code>concurrency: 1</code> og commit per melding.
+              </BodyShort>
+            </article>
+            <article className="arch-card avs-ops__card" data-tone="success">
+              <Heading level="3" size="xsmall">
+                Metrikker
+              </Heading>
+              <BodyShort size="small">
+                Fagmodulen eksponerer <code>/actuator/prometheus</code>. Tellerne får endelsen <code>_total</code> i Prometheus.
+              </BodyShort>
+              <dl className="avs-job__meta">
+                <div>
+                  <dt>sed_mottatt</dt>
+                  <dd>Inngående SED-er som ble behandlet uten feil.</dd>
+                </div>
+                <div>
+                  <dt>sed_sendt</dt>
+                  <dd>Utgående SED-er som ble behandlet uten feil.</dd>
+                </div>
+                <div>
+                  <dt>sed_kafka_consumer_failed</dt>
+                  <dd>
+                    Meldinger som feilet og ble hoppet over. Tag <code>topic</code>.
+                  </dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+        </div>
+      </Section>
 
-          <ReadMore header="Detaljer om Dokarkiv-requesten" size="small">
-            <BodyLong spacing>
-              Opprettelsen bruker <code>kanal=EESSI</code>. Når tjenesten ber
-              Dokarkiv forsøke ferdigstilling, settes{" "}
-              <code>journalfoerendeEnhet=9999</code>. Første dokument i listen
-              er selve SED-en som PDF/A med variantformat <code>ARKIV</code>;
-              vedlegg konverteres til PDF når mulig. Hvis et vedlegg ikke kan
-              konverteres, legges det inn en egen oversikt over feilede
-              konverteringer.
-            </BodyLong>
-            <BodyLong>
-              <code>eksternReferanseId</code> er SED-id-en fra hendelsen.
-              Dokarkiv-konflikt på samme referanse behandles som at
-              journalposten allerede finnes, slik at samme SED ikke blindt
-              opprettes på nytt.
-            </BodyLong>
-          </ReadMore>
+      <Section id="ordliste" eyebrow="Begreper" title="Ordliste">
+        <dl className="arch-glossary">
+          {GLOSSARY.map((g) => (
+            <div key={g.term}>
+              <dt>
+                {g.term}
+                {g.full && <span className="arch-glossary__full">{g.full}</span>}
+              </dt>
+              <dd>{g.text}</dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
 
-          <Heading id="etterlop" size="medium" level="3">
-            Etterløp: ferdigstilling og feilregistrering
-          </Heading>
-          <BodyLong>
-            Etterløpet er delt i to jobber fordi de har ulike innganger og ulik
-            risiko. Ferdigstill-jobben prøver å gjøre en eksisterende journalpost
-            komplett ved å kopiere sak, bruker og tema fra en allerede
-            journalført journalpost på samme RINA-sak. Feilregistrer-jobben
-            rydder gamle eller feilede journalposter der det ikke finnes trygg
-            bruker-kobling.
-          </BodyLong>
-
-          <Figure>
-            <FollowUpDiagram />
-          </Figure>
-
-          <Box
-            style={{ background: "var(--ax-bg-default, #fff)" }}
-            borderRadius="8"
-            padding="space-12"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
-            <Table>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell scope="col">Prosess</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Prod</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Hva den gjør</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {[
-                  ["ferdigstill", "01:00", "Kaller eux-journalarkivar, som forsøker FEILET_FERDIGSTILL, UKJENT og FEILREGISTRERT."],
-                  ["feilregistrer", "02:00", "Kaller eux-journalarkivar, som forsøker FEILET_FEILREGISTRER og UKJENT eldre enn 30 dager."],
-                ].map(([process, schedule, description]) => (
-                  <Table.Row key={process}>
-                    <Table.DataCell><code>{process}</code></Table.DataCell>
-                    <Table.DataCell><code>{schedule}</code></Table.DataCell>
-                    <Table.DataCell>{description}</Table.DataCell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          </Box>
-          <BodyShort size="small" style={subtle}>
-            Tidspunktene er hentet fra{" "}
-            <code>eux-journalarkivar-naisjob/.nais/&lt;prosess&gt;/prod.yaml</code>.
-          </BodyShort>
-
-          <Heading size="medium" level="3">
-            API-er og statuser
-          </Heading>
-          <BodyLong>
-            Statusen ligger i <code>eux-nav-rinasak</code>, mens selve
-            journalposten ligger i Dokarkiv. Det er derfor viktig å vite både
-            hvem som skriver statusen og hvilket system som eier sannheten.
-          </BodyLong>
-          <CodeBlock>
-            PUT&nbsp;&nbsp;/api/v1/sed/journalstatuser
-            <br />
-            POST /api/v1/sed/journalstatuser/finn
-            <br />
-            POST /api/v1/arkivarprosess/&#123;arkivarprosess&#125;/execute
-            <br />
-            POST /api/v1/rinasaker/&#123;rinasakId&#125;/journalposter/feilregistrer
-            <br />
-            PATCH /api/v1/journalposter/&#123;journalpostId&#125;/ferdigstill
-          </CodeBlock>
-
-          <Box
-            style={{ background: "var(--ax-bg-default, #fff)" }}
-            borderRadius="8"
-            padding="space-12"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-          >
-            <Table>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell scope="col">Status</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Skrives typisk av</Table.HeaderCell>
-                  <Table.HeaderCell scope="col">Betydning</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {statusRows.map(([status, writer, meaning]) => (
-                  <Table.Row key={status}>
-                    <Table.DataCell><code>{status}</code></Table.DataCell>
-                    <Table.DataCell>{writer}</Table.DataCell>
-                    <Table.DataCell>{meaning}</Table.DataCell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          </Box>
-
-          <Accordion>
-            <Accordion.Item>
-              <Accordion.Header>Feilhåndtering og retry</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  Dokarkiv-opprettelse retries opptil åtte ganger for tekniske
-                  feil. Oppdatering, ferdigstilling og <code>settStatusAvbryt</code>
-                  retries opptil fire ganger i fagmodulen. Kafka-konsumenten
-                  poster Slack-varsel og kaster feilen videre når behandling av
-                  en SED feiler.
-                </BodyLong>
-                <BodyLong>
-                  I etterløpet gir journalarkivar ett nytt forsøk. Feiler en
-                  ferdigstilling på nytt, settes status til <code>KORRUPT</code>.
-                  Det samme gjelder feilregistrering etter andre feil. Slike
-                  dokumenter må undersøkes manuelt.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>Forskjellen på eux-journal og eux-journalarkivar</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  <code>eux-journal</code> er operasjonsfasaden: den har
-                  beskyttede endepunkter som ferdigstiller journalpost eller
-                  setter status avbryt i Dokarkiv. Ved feilregistrering av en
-                  RINA-sak flyttes innkommende journalpost-oppgaver til{" "}
-                  <code>2950</code>, mens utgående journalposter settes til
-                  avbryt.
-                </BodyLong>
-                <BodyLong>
-                  <code>eux-journalarkivar</code> er orkestratoren som kjøres
-                  av NAIS-jobber. Den finner kandidater i{" "}
-                  <code>eux-nav-rinasak</code>, bruker SAF til å finne
-                  journalposter, oppdaterer Dokarkiv ved behov, og kaller
-                  <code>eux-journal</code> for selve ferdigstillingen eller
-                  feilregistreringen.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item>
-              <Accordion.Header>Når hopper fagmodulen over en SED?</Accordion.Header>
-              <Accordion.Content>
-                <BodyLong spacing>
-                  Fagmodulen behandler ikke alle RINA-hendelser. Først filtreres
-                  sektorer/BUC-er i Kafka-containeren: sektorene{" "}
-                  <code>FB</code>, <code>UB</code>, <code>H</code>,{" "}
-                  <code>AD</code>, <code>R</code>, <code>AW</code>,{" "}
-                  <code>M</code> og <code>S</code> støttes, men{" "}
-                  <code>R_BUC_02</code> og <code>M_BUC_03a</code> filtreres ut.
-                </BodyLong>
-                <BodyLong>
-                  I tillegg hoppes saken over hvis journalstatus sier at
-                  Melosys journalfører, eller hvis det er en{" "}
-                  <code>H_BUC_07</code> som ikke er opprettet av nEESSI.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion>
-
-          <GuidePanel poster>
-            <Heading spacing size="small" level="3">
-              Vil du grave dypere?
-            </Heading>
-            <BodyLong>
-              Start i{" "}
-              <DsLink href="https://github.com/navikt/eux-fagmodul-journalfoering" target="_blank" rel="noreferrer">
-                navikt/eux-fagmodul-journalfoering
-              </DsLink>{" "}
-              for hovedflyten. Se{" "}
-              <DsLink href="https://github.com/navikt/eux-journal" target="_blank" rel="noreferrer">
-                navikt/eux-journal
-              </DsLink>{" "}
-              for operasjoner mot Dokarkiv og{" "}
-              <DsLink href="https://github.com/navikt/eux-journalarkivar" target="_blank" rel="noreferrer">
-                navikt/eux-journalarkivar
-              </DsLink>{" "}
-              sammen med{" "}
-              <DsLink href="https://github.com/navikt/eux-journalarkivar-naisjob" target="_blank" rel="noreferrer">
-                navikt/eux-journalarkivar-naisjob
-              </DsLink>{" "}
-              for nattlige ferdigstillings- og feilregistreringsløp.
-            </BodyLong>
-          </GuidePanel>
-        </VStack>
-      </section>
-    </VStack>
+      <Section id="videre" eyebrow="Mer" title="Videre lesing">
+        <div className="arch-further">
+          {FURTHER.map((f) =>
+            f.external ? (
+              <a key={f.href} href={f.href} target="_blank" rel="noreferrer" className="arch-further__card">
+                <strong>
+                  {f.title} <ExternalLinkIcon aria-hidden />
+                </strong>
+                <span>{f.text}</span>
+              </a>
+            ) : (
+              <NextLink key={f.href} href={f.href} className="arch-further__card">
+                <strong>
+                  {f.title} <ArrowRightIcon aria-hidden />
+                </strong>
+                <span>{f.text}</span>
+              </NextLink>
+            ),
+          )}
+        </div>
+      </Section>
+    </div>
   );
 }
