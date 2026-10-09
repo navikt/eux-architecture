@@ -905,6 +905,10 @@ html:has(.arch-page) {
   margin-top: clamp(3rem, 6vw, 4.5rem);
 }
 
+#arch-node-details {
+  scroll-margin-top: 5rem;
+}
+
 .arch-section__head {
   max-width: 80ch;
   margin-bottom: 1.5rem;

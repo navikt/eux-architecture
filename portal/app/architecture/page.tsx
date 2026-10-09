@@ -302,7 +302,7 @@ function UserChips({ ids, onFocusNode }: { ids: string[]; onFocusNode: (id: stri
   return (
     <span className="arch-chips">
       {ids.map((id) => (
-        <button key={id} type="button" className="portal-chip arch-chip-btn" onClick={() => onFocusNode(id)} title="Vis i kartet">
+        <button key={id} type="button" className="portal-chip arch-chip-btn" onClick={() => onFocusNode(id)} title="Vis detaljer">
           {NODE_BY_ID[id].name}
         </button>
       ))}
@@ -314,28 +314,32 @@ function UserChips({ ids, onFocusNode }: { ids: string[]; onFocusNode: (id: stri
 
 export default function ArchitecturePage() {
   const [selected, setSelected] = useState<string | null>(null);
+  const [detailRequest, setDetailRequest] = useState(0);
   const active = useScrollSpy(SECTION_IDS);
   const reduced = useReducedMotion();
 
-  const focusNode = useCallback(
-    (id: string) => {
-      if (!NODE_BY_ID[id]) return;
-      setSelected(id);
-      document.getElementById("kart")?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
-    },
-    [reduced],
-  );
+  const focusNode = useCallback((id: string) => {
+    if (!NODE_BY_ID[id]) return;
+    setSelected(id);
+    setDetailRequest((request) => request + 1);
+  }, []);
+
+  useEffect(() => {
+    if (!detailRequest) return;
+    const details = document.getElementById("arch-node-details");
+    details?.focus({ preventScroll: true });
+    details?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  }, [detailRequest, reduced]);
 
   // Deep link from other pages: /architecture?fokus=<node-id>#kart
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("fokus");
     if (!id || !NODE_BY_ID[id]) return;
     const t = window.setTimeout(() => {
-      setSelected(id);
-      document.getElementById("kart")?.scrollIntoView({ block: "start" });
+      focusNode(id);
     }, 0);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [focusNode]);
 
   return (
     <div className="portal-page--wide arch-page">
@@ -467,8 +471,8 @@ export default function ArchitecturePage() {
         lead={
           <>
             Tre NAIS-jobber starter arbeid i bakgrunnstjenestene. Jobbene har ingen forretningslogikk – de kaller bare et
-            REST-endepunkt i tjenesten. eux-barnetrygd har i stedet en innebygd cron. Klikk på et jobbnavn for å se det i
-            kartet.
+            REST-endepunkt i tjenesten. eux-barnetrygd har i stedet en innebygd cron. Klikk på et jobbnavn for å se
+            detaljer og avhengigheter.
           </>
         }
       >
@@ -496,7 +500,7 @@ export default function ArchitecturePage() {
         id="eksterne"
         eyebrow="Integrasjoner"
         title="Eksterne systemer"
-        lead="Systemene utenfor EUX som tjenestene snakker med. «Brukes av» kommer fra samme modell som kartet – klikk på en tjeneste for å se den der."
+        lead="Systemene utenfor EUX som tjenestene snakker med. «Brukes av» kommer fra samme modell som kartet – klikk på en tjeneste for å se detaljer og avhengigheter."
       >
         <div className="arch-table">
           <Table size="small">

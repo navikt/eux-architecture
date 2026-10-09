@@ -244,7 +244,7 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
                 className={`arch-rf__box ${boxState(b.id)}`}
                 role="button"
                 tabIndex={0}
-                aria-label={`Vis ${b.title} i kartet`}
+                aria-label={`Vis detaljer om ${b.title}`}
                 onClick={() => onFocusNode(b.id)}
                 onKeyDown={onActivate(() => onFocusNode(b.id))}
               >
@@ -284,7 +284,7 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
                       className="arch-rf__item"
                       role="button"
                       tabIndex={0}
-                      aria-label={`Vis ${it.name} i kartet`}
+                      aria-label={`Vis detaljer om ${it.name}`}
                       onClick={() => onFocusNode(it.id)}
                       onKeyDown={onActivate(() => onFocusNode(it.id))}
                     >

@@ -245,7 +245,7 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
               role="button"
               tabIndex={0}
               className="arch-metro__hub"
-              aria-label="Vis eux-all-rina-events i kartet"
+              aria-label="Vis detaljer om eux-all-rina-events"
               onClick={() => onFocusNode("eux-all-rina-events")}
               onKeyDown={onActivate(() => onFocusNode("eux-all-rina-events"))}
             >
@@ -372,7 +372,7 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
               <div style={{ marginTop: "0.75rem" }}>
                 {station.focus ? (
                   <Button size="small" variant="secondary" onClick={() => onFocusNode(station.focus!)}>
-                    Vis i kartet
+                    Vis detaljer
                   </Button>
                 ) : (
                   <Button as="a" size="small" variant="secondary" href={station.href}>

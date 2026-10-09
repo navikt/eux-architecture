@@ -166,7 +166,7 @@ export function NightTimeline({ onFocusNode }: { onFocusNode: (id: string) => vo
                   className="arch-night__group"
                   role="button"
                   tabIndex={0}
-                  aria-label={`Vis ${r.g.title} i kartet`}
+                  aria-label={`Vis detaljer om ${r.g.title}`}
                   onClick={focus}
                   onKeyDown={onActivate(focus)}
                 >

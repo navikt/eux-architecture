@@ -220,10 +220,10 @@ export function NodeExplorer({ id, onSelect }: { id: string | null; onSelect: (i
       .join(" · ");
 
   return (
-    <div className="arch-explorer" key={id}>
+    <div className="arch-explorer" key={id} id="arch-node-details" tabIndex={-1} role="region" aria-labelledby="arch-node-details-title">
       <div className="arch-explorer__info">
         <Detail className="arch-eyebrow">{ZONE_LABEL[n.zone]}</Detail>
-        <Heading level="3" size="medium" spacing>
+        <Heading level="3" size="medium" spacing id="arch-node-details-title">
           {n.name}
         </Heading>
         <HStack gap="space-6" wrap style={{ marginBottom: "0.75rem" }}>

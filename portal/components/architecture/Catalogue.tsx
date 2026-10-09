@@ -101,7 +101,7 @@ export function Catalogue({ onFocusNode }: { onFocusNode: (id: string) => void }
                           </DsLink>
                         )}
                         <Button size="xsmall" variant="tertiary" onClick={() => onFocusNode(n.id)}>
-                          Vis i kartet
+                          Vis detaljer
                         </Button>
                       </HStack>
                     </HStack>

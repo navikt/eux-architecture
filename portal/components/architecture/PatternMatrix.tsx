@@ -109,7 +109,7 @@ export function PatternMatrix({ onFocusNode }: { onFocusNode: (id: string) => vo
               return (
                 <tr key={n.id} className={dim ? "is-dim" : undefined}>
                   <th scope="row" className="arch-matrix__name">
-                    <button type="button" className="arch-mono" onClick={() => onFocusNode(n.id)} title="Vis i kartet">
+                    <button type="button" className="arch-mono" onClick={() => onFocusNode(n.id)} title="Vis detaljer">
                       {n.name}
                     </button>
                   </th>
