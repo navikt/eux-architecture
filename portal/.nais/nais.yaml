@@ -81,6 +81,7 @@ spec:
         - /prosesser
         - /prosesser/**
         - /api/internal/**
+        - /api/me
         - /favicon.ico
         - /icon.*
         - /apple-icon.*

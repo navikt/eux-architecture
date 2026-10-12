@@ -31,10 +31,35 @@ client-credentials). This requires the outbound access policy + `NAVRINASAK_*`
 env vars in `portal-core/.nais/nais.yaml` and a matching inbound rule on
 eux-nav-rinasak.
 
+## Portal frame
+
+The left sidebar (`components/Sidebar.tsx`) holds the brand, the navigation and,
+at the bottom, the profile area (`components/UserMenu.tsx`). On small screens it
+collapses into a compact bar with a menu button.
+
+### Logged-in user
+
+Login is handled by the NAIS login proxy (Wonderwall, Entra ID). Once a session
+exists, Wonderwall forwards the user's access token in the `Authorization`
+header on every request — also on paths excluded from autologin.
+
+- `GET /api/me` (`app/api/me/route.ts`) validates that token through Texas'
+  introspection endpoint (`NAIS_TOKEN_INTROSPECTION_ENDPOINT`,
+  `lib/currentUser.ts`) and returns `name`, `email` (`preferred_username`) and
+  `navIdent` (`NAVident`), or `{ "user": null }`. It is listed under
+  `autoLoginIgnorePaths` so anonymous visitors get JSON instead of a 401.
+- The profile area shows the user (initials, name, NAV-ident) with a menu for
+  copying the NAV-ident, switching account (`/oauth2/login?prompt=select_account`)
+  and logging out (`/oauth2/logout`). The session end time comes from
+  `/oauth2/session`. Anonymous visitors get a "Logg inn" link.
+- Locally (no `NAIS_TOKEN_INTROSPECTION_ENDPOINT`, `NODE_ENV !== production`)
+  `/api/me` returns a placeholder user marked "lokal".
+
 ## Theming (light / dark)
 
-The portal supports light, dark and system themes, switchable from the header
-(`components/ThemeToggle.tsx`, an Aksel `ToggleGroup`).
+The portal supports light, dark and system themes, switchable from the small
+icon button next to the user in the bottom of the sidebar
+(`components/ThemeToggle.tsx`, an Aksel `ActionMenu` with a radio group).
 
 - `components/ThemeProvider.tsx` holds the preference in `localStorage`
   (`portal-theme`) and exposes it via `useSyncExternalStore` (hydration-safe, no

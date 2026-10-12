@@ -3,11 +3,9 @@ import "./globals.css";
 import "@navikt/next-logger";
 
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Box, HStack, Heading } from "@navikt/ds-react";
+import { Box } from "@navikt/ds-react";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeProvider, THEME_STORAGE_KEY } from "@/components/ThemeProvider";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const metadata: Metadata = {
   title: "Team EESSI Nav",
@@ -33,29 +31,16 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <Box
-            as="header"
-            paddingInline={{ xs: "space-16", md: "space-32" }}
-            paddingBlock="space-16"
-            borderWidth="0 0 1 0"
-            borderColor="neutral-subtle"
-          >
-            <HStack justify="space-between" align="center" gap="space-16">
-              <Link
-                href="/"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Heading level="1" size="small">
-                  Team EESSI Nav
-                </Heading>
-              </Link>
-              <ThemeToggle />
-            </HStack>
-          </Box>
+          <a href="#main" className="portal-skip-link">
+            Hopp til innhold
+          </a>
           <div className="portal-shell">
             <Sidebar />
             <Box
               as="main"
+              id="main"
+              tabIndex={-1}
+              className="portal-main"
               paddingInline={{ xs: "space-16", md: "space-40" }}
               paddingBlock={{ xs: "space-24", md: "space-48" }}
               style={{ maxWidth: "var(--portal-wide-max)", width: "100%" }}

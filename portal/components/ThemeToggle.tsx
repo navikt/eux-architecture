@@ -1,34 +1,46 @@
 "use client";
 
-import { ToggleGroup } from "@navikt/ds-react";
+import { ActionMenu, Button } from "@navikt/ds-react";
 import { MoonIcon, MonitorIcon, SunIcon } from "@navikt/aksel-icons";
 import { useThemeMode, type ThemeMode } from "./ThemeProvider";
 
-const OPTIONS: { value: ThemeMode; label: string; icon: React.ReactNode }[] = [
-  { value: "light", label: "Lyst", icon: <SunIcon aria-hidden /> },
-  { value: "dark", label: "Mørkt", icon: <MoonIcon aria-hidden /> },
-  { value: "system", label: "System", icon: <MonitorIcon aria-hidden /> },
+const OPTIONS: { value: ThemeMode; label: string; Icon: typeof SunIcon }[] = [
+  { value: "light", label: "Lyst", Icon: SunIcon },
+  { value: "dark", label: "Mørkt", Icon: MoonIcon },
+  { value: "system", label: "Følg systemet", Icon: MonitorIcon },
 ];
 
-/** Header control for switching between light, dark and system colour themes. */
+/** Compact icon button for switching between light, dark and system theme. */
 export function ThemeToggle() {
   const { mode, setMode } = useThemeMode();
+  const current = OPTIONS.find((o) => o.value === mode) ?? OPTIONS[2];
+  const label = `Fargetema: ${current.label}`;
 
   return (
-    <ToggleGroup
-      value={mode}
-      onChange={(value) => setMode(value as ThemeMode)}
-      size="small"
-      aria-label="Fargetema"
-    >
-      {OPTIONS.map((option) => (
-        <ToggleGroup.Item
-          key={option.value}
-          value={option.value}
-          label={option.label}
-          icon={option.icon}
+    <ActionMenu>
+      <ActionMenu.Trigger>
+        <Button
+          variant="tertiary"
+          data-color="neutral"
+          size="small"
+          aria-label={label}
+          title={label}
+          icon={<current.Icon aria-hidden />}
         />
-      ))}
-    </ToggleGroup>
+      </ActionMenu.Trigger>
+      <ActionMenu.Content align="end">
+        <ActionMenu.RadioGroup
+          label="Fargetema"
+          value={mode}
+          onValueChange={(value) => setMode(value as ThemeMode)}
+        >
+          {OPTIONS.map(({ value, label: optionLabel }) => (
+            <ActionMenu.RadioItem key={value} value={value}>
+              {optionLabel}
+            </ActionMenu.RadioItem>
+          ))}
+        </ActionMenu.RadioGroup>
+      </ActionMenu.Content>
+    </ActionMenu>
   );
 }
