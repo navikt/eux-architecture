@@ -12,6 +12,7 @@ import { Catalogue } from "@/components/architecture/Catalogue";
 import { PatternMatrix } from "@/components/architecture/PatternMatrix";
 import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
 import { JOB_COUNT, NODES, NODE_BY_ID, SERVICE_COUNT, TOPIC_COUNT, incoming } from "@/components/architecture/data";
+import { GLOSSARY } from "@/components/architecture/glossary";
 
 const SECTIONS = [
   { id: "kart", label: "Kart" },
@@ -233,26 +234,6 @@ const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[]
   },
 ];
 
-const GLOSSARY: { term: string; full?: string; text: string }[] = [
-  { term: "EESSI", full: "Electronic Exchange of Social Security Information", text: "EUs system for elektronisk utveksling av trygdeinformasjon mellom landene." },
-  { term: "RINA", full: "Reference Implementation of a National Application", text: "Europakommisjonens referanseimplementasjon for å behandle EESSI-saker." },
-  { term: "CPI", full: "Case Processing Interface", text: "RINAs REST-API." },
-  { term: "NIE", full: "National Interface Endpoint", text: "Måten RINA sender hendelser til nasjonale systemer på." },
-  { term: "BUC", full: "Business Use Case", text: "En saksprosess i EESSI. En RINA-sak følger én BUC." },
-  { term: "SED", full: "Structured Electronic Document", text: "Et strukturert dokument som sendes mellom landene i en BUC." },
-  { term: "nEESSI", text: "NAVs saksbehandlerløsning for EESSI: eux-web-app med eux-neessi som backend." },
-  { term: "CAS-billett", text: "Innloggingsbilletten RINA krever før den gir en sesjon (JSESSIONID)." },
-  { term: "On-behalf-of (OBO)", text: "Tokenveksling i Azure AD der en tjeneste kaller videre på vegne av den innloggede brukeren." },
-  { term: "Wonderwall", text: "NAIS-sidecar som håndterer innlogging for nettapplikasjoner." },
-  { term: "NAIS", text: "NAVs applikasjonsplattform på Kubernetes. EUX kjører i dev-gcp og prod-gcp." },
-  { term: "FSS", text: "NAVs fagsystemsone. Tjenester der nås fra GCP via *.prod-fss-pub.nais.io." },
-  { term: "PDL", full: "Persondataløsningen", text: "NAVs kilde til persondata." },
-  { term: "SAF", text: "NAVs API for å søke i journalposter og dokumenter." },
-  { term: "Dokarkiv", text: "API for å opprette og oppdatere journalposter." },
-  { term: "Fagsak", text: "En sak i et av NAVs fagsystemer, f.eks. pensjon eller sykepenger." },
-  { term: "Journalpost", text: "Et registrert dokument i arkivet." },
-  { term: "Oppgave", text: "En arbeidsoppgave for saksbehandler i NAV Oppgave." },
-];
 
 const FURTHER: { href: string; title: string; text: string; external?: boolean }[] = [
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
