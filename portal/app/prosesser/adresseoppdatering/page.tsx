@@ -401,18 +401,29 @@ export default function AdresseoppdateringPage() {
           </BodyLong>
         </div>
 
-        <dl className="arch-stats">
+        <dl className="arch-stats adr-stats">
           {[
-            { n: SEKTORER.length, label: "sektorer", sub: SEKTORER.map((s) => s.id).join(" · ") },
-            { n: 3, label: "adressetyper", sub: "kontakt · opphold · bosted" },
-            { n: 3, label: "personer per SED", sub: "bruker · ektefelle · annen" },
-            { n: 3, label: "forsøk per SED", sub: "15 s mellom, så DLT" },
+            { n: SEKTORER.length, label: "sektorer", items: SEKTORER.map((s) => ({ text: s.id, title: s.label })) },
+            { n: 3, label: "adressetyper", items: ["kontakt", "opphold", "bosted"] },
+            { n: 3, label: "personer per SED", items: ["bruker", "ektefelle", "annen"] },
+            { n: 3, label: "forsøk per SED", items: ["15 s mellom", "så DLT"] },
           ].map((s, i) => (
-            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
-              <dt>{s.label}</dt>
+            <div key={s.label} className="adr-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
+              <dt>
+                <span className="adr-stat__n">{s.n}</span>
+                <span className="adr-stat__label">{s.label}</span>
+              </dt>
               <dd>
-                <span className="arch-stat__n">{s.n}</span>
-                <span className="arch-stat__sub">{s.sub}</span>
+                <ul className="adr-stat__items">
+                  {s.items.map((it) => {
+                    const { text, title } = typeof it === "string" ? { text: it, title: undefined } : it;
+                    return (
+                      <li key={text} title={title}>
+                        {text}
+                      </li>
+                    );
+                  })}
+                </ul>
               </dd>
             </div>
           ))}
