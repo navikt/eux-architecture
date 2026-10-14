@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type SVGProps } from "react";
+import { useMemo, useRef, useState, type SVGProps } from "react";
 import NextLink from "next/link";
 import { BodyLong, BodyShort, Button, Detail, Heading, HStack, Link as DsLink, ToggleGroup } from "@navikt/ds-react";
 import { ArrowRightIcon, ExternalLinkIcon, XMarkIcon } from "@navikt/aksel-icons";
@@ -63,19 +63,75 @@ const EDGE_LABELS: { edge: string; x: number; y: number; text: string; mono?: bo
   { edge: "dlt", x: 140, y: (RETRY_CY + DLT_CY) / 2 + 4, text: "etter 3 forsøk" },
 ];
 
-const PACKETS: Record<Mode, { d: string; dur: number; begin?: number }[]> = {
+/*
+ * Én SED om gangen: hver etappe får et tidsvindu i en felles syklus, så bare én prikk er synlig
+ * og bare kanten den følger lyser opp. Rad = steget inne i appen som er i arbeid.
+ */
+type Leg = { edge?: string; kind?: "go" | "back" | "outback"; dur: number; row?: number };
+
+const TIMELINE: Record<Mode, Leg[]> = {
   vanlig: [
-    { d: "M 130 122 L 130 158", dur: 0.9 },
-    { d: `M 130 204 L 130 ${TOPIC_CY - 15}`, dur: 0.9, begin: -0.4 },
-    { d: P_TOPIC, dur: 2.2, begin: -0.8 },
-    ...PIPE.filter((p) => p.to).map((p, i) => ({ d: `M ${APP_X + APP_W} ${p.cy} L ${D_X} ${p.cy}`, dur: 1.5, begin: -i * 0.45 })),
-    { d: P_CPI, dur: 3.4, begin: -1.2 },
+    { dur: 0.4 },
+    { edge: "nie", kind: "go", dur: 1 },
+    { edge: "pub", kind: "go", dur: 1 },
+    { edge: "topic", kind: "go", dur: 1.8 },
+    { row: 1, dur: 0.9 },
+    { edge: "to-rinaapi", kind: "go", dur: 1.1, row: 2 },
+    { edge: "cpi", kind: "outback", dur: 2.8, row: 2 },
+    { edge: "to-rinaapi", kind: "back", dur: 1.1, row: 2 },
+    { row: 3, dur: 0.9 },
+    { row: 4, dur: 0.9 },
+    { edge: "to-pdlapi", kind: "outback", dur: 2, row: 5 },
+    { edge: "to-pdlmottak", kind: "outback", dur: 2, row: 6 },
+    { dur: 2.6 },
   ],
   feil: [
-    { d: P_RETRY_OUT, dur: 2.2 },
-    { d: P_RETRY_IN, dur: 2.2, begin: -1.1 },
-    { d: P_DLT, dur: 1.3, begin: -0.6 },
+    { dur: 0.4 },
+    { edge: "topic", kind: "go", dur: 1.8 },
+    { row: 1, dur: 0.8 },
+    { edge: "retry-out", kind: "go", dur: 1.6 },
+    { dur: 0.8 },
+    { edge: "retry-in", kind: "go", dur: 1.6 },
+    { row: 1, dur: 0.8 },
+    { edge: "retry-out", kind: "go", dur: 1.6 },
+    { dur: 0.8 },
+    { edge: "retry-in", kind: "go", dur: 1.6 },
+    { row: 1, dur: 0.8 },
+    { edge: "retry-out", kind: "go", dur: 1.6 },
+    { edge: "dlt", kind: "go", dur: 1.1 },
+    { dur: 2.6 },
   ],
+};
+
+type Timed = Leg & { s: number; e: number };
+
+function schedule(mode: Mode) {
+  let t = 0;
+  const legs: Timed[] = TIMELINE[mode].map((l) => {
+    const timed = { ...l, s: t, e: t + l.dur };
+    t += l.dur;
+    return timed;
+  });
+  const rows: { row: number; s: number; e: number }[] = [];
+  for (const l of legs) {
+    const last = rows[rows.length - 1];
+    if (l.row == null) continue;
+    if (last && last.row === l.row && Math.abs(last.e - l.s) < 1e-6) last.e = l.e;
+    else rows.push({ row: l.row, s: l.s, e: l.e });
+  }
+  return { total: t, legs, rows };
+}
+
+/** keyTimes for en verdi som tones inn ved s og ut ved e, i en syklus på total sekunder. */
+const fade = (s: number, e: number, total: number, inn = 0.25, ut = 0.45) => {
+  const k = (x: number) => Math.min(1, Math.max(0, x / total)).toFixed(4);
+  return { values: "0;0;1;1;0;0", keyTimes: `0;${k(s)};${k(s + inn)};${k(e)};${k(Math.min(e + ut, total - 0.01))};1` };
+};
+
+const GLOW: Record<string, string> = {
+  "retry-out": "var(--ax-border-warning)",
+  "retry-in": "var(--ax-border-warning)",
+  dlt: "var(--ax-border-danger)",
 };
 
 const MODE_NODES: Record<Mode, NodeId[]> = {
@@ -205,6 +261,13 @@ export function SystemFlow() {
   const [mode, setMode] = useState<Mode>("vanlig");
   const [selected, setSelected] = useState<NodeId | null>(null);
   const reduced = useReducedMotion();
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [t0, setT0] = useState(0);
+  const plan = useMemo(() => schedule(mode), [mode]);
+  const changeMode = (m: Mode) => {
+    setMode(m);
+    setT0(svgRef.current?.getCurrentTime() ?? 0);
+  };
 
   const nodeState = (id: NodeId) => {
     const cls = [];
@@ -231,7 +294,7 @@ export function SystemFlow() {
   return (
     <div className="avs-sys adr-sys">
       <div className="avs-toolbar">
-        <ToggleGroup size="small" value={mode} onChange={(v) => setMode(v as Mode)} label="Vis">
+        <ToggleGroup size="small" value={mode} onChange={(v) => changeMode(v as Mode)} label="Vis">
           {MODES.map((m) => (
             <ToggleGroup.Item key={m.id} value={m.id} label={m.label} />
           ))}
@@ -243,6 +306,7 @@ export function SystemFlow() {
 
       <div className="portal-diagram avs-surface">
         <svg
+          ref={svgRef}
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: "100%", minWidth: 860, height: "auto", display: "block" }}
           role="group"
@@ -298,21 +362,34 @@ export function SystemFlow() {
               <path
                 d={e.d}
                 stroke="var(--ax-border-neutral-strong)"
-                strokeOpacity={0.75}
-                strokeWidth={1.6}
+                strokeOpacity={0.55}
+                strokeWidth={1.4}
                 strokeDasharray={e.dashed ? "5 4" : undefined}
                 fill="none"
                 markerEnd="url(#adr-sys-arrow)"
               />
-              <path
-                d={e.d}
-                stroke={e.mode === "feil" ? "var(--ax-border-warning)" : "var(--ax-border-accent)"}
-                strokeWidth={2.6}
-                fill="none"
-                className="arch-flow arch-flow--slow"
-              />
             </g>
           ))}
+          {!reduced && (
+            <g key={`glow-${mode}-${t0}`} aria-hidden style={{ pointerEvents: "none" }}>
+              {plan.legs
+                .filter((l) => l.edge)
+                .map((l, i) => (
+                  <path
+                    key={i}
+                    d={EDGES.find((x) => x.id === l.edge)!.d}
+                    stroke={GLOW[l.edge!] ?? "var(--ax-border-accent)"}
+                    strokeWidth={2.4}
+                    strokeLinecap="round"
+                    strokeDasharray={EDGES.find((x) => x.id === l.edge)!.dashed ? "5 4" : undefined}
+                    fill="none"
+                    opacity={0}
+                  >
+                    <animate attributeName="opacity" dur={`${plan.total}s`} begin={`${t0}s`} repeatCount="indefinite" {...fade(l.s, l.e, plan.total)} />
+                  </path>
+                ))}
+            </g>
+          )}
           {EDGE_LABELS.map((l) => {
             const e = EDGES.find((x) => x.id === l.edge)!;
             return (
@@ -331,17 +408,35 @@ export function SystemFlow() {
             );
           })}
 
-          {!reduced &&
-            PACKETS[mode].map((p, i) => (
-              <circle
-                key={`${mode}-${i}`}
-                r={5}
-                fill={mode === "feil" ? "var(--ax-bg-warning-strong)" : "var(--ax-bg-accent-strong)"}
-                className="arch-packet"
-              >
-                <animateMotion dur={`${p.dur}s`} begin={`${p.begin ?? 0}s`} repeatCount="indefinite" path={p.d} />
-              </circle>
-            ))}
+          {!reduced && (
+            <g key={`sed-${mode}-${t0}`} aria-hidden style={{ pointerEvents: "none" }}>
+              {plan.legs
+                .filter((l) => l.edge)
+                .map((l, i) => {
+                  const k = (x: number) => (x / plan.total).toFixed(4);
+                  const motion =
+                    l.kind === "outback"
+                      ? { keyPoints: "0;0;1;0;0", keyTimes: `0;${k(l.s)};${k((l.s + l.e) / 2)};${k(l.e)};1` }
+                      : { keyPoints: l.kind === "back" ? "1;1;0;0" : "0;0;1;1", keyTimes: `0;${k(l.s)};${k(l.e)};1` };
+                  const color = l.edge === "dlt" ? "var(--ax-bg-danger-strong)" : mode === "feil" && l.edge !== "topic" ? "var(--ax-bg-warning-strong)" : "var(--ax-bg-accent-strong)";
+                  return (
+                    <g key={i} opacity={0}>
+                      <circle r={9} fill={color} opacity={0.18} />
+                      <circle r={4.5} fill={color} />
+                      <animateMotion
+                        dur={`${plan.total}s`}
+                        begin={`${t0}s`}
+                        repeatCount="indefinite"
+                        calcMode="linear"
+                        path={EDGES.find((x) => x.id === l.edge)!.d}
+                        {...motion}
+                      />
+                      <animate attributeName="opacity" dur={`${plan.total}s`} begin={`${t0}s`} repeatCount="indefinite" {...fade(l.s, l.e, plan.total, 0.12, 0.12)} />
+                    </g>
+                  );
+                })}
+            </g>
+          )}
 
           {/* RINA */}
           <g {...nodeProps("rina", "RINA")}>
@@ -364,7 +459,6 @@ export function SystemFlow() {
           {/* eux-adresse-oppdatering */}
           <g {...nodeProps("app", "eux-adresse-oppdatering")}>
             <rect x={APP_X} y={34} width={APP_W} height={360} rx={16} fill={t.fill} stroke={t.stroke} strokeWidth={1.8} className="arch-box" />
-            <rect x={APP_X} y={34} width={APP_W} height={360} rx={16} fill="none" stroke={t.stroke} className="arch-pulse" />
             <text x={APP_X + APP_W / 2} y={58} textAnchor="middle" fontSize={13.5} fontWeight={800} fill="var(--ax-text-neutral)">
               eux-adresse-oppdatering
             </text>
@@ -377,6 +471,25 @@ export function SystemFlow() {
               return (
                 <g key={p.no} opacity={lit ? 1 : 0.35} style={{ transition: "opacity 220ms ease" }}>
                   <rect x={APP_X + 14} y={p.cy - 17} width={APP_W - 28} height={34} rx={9} fill="var(--ax-bg-default)" stroke={t.stroke} strokeOpacity={0.45} />
+                  {!reduced &&
+                    plan.rows
+                      .filter((r) => r.row === p.no)
+                      .map((r, i) => (
+                        <rect
+                          key={`${mode}-${t0}-${i}`}
+                          x={APP_X + 14}
+                          y={p.cy - 17}
+                          width={APP_W - 28}
+                          height={34}
+                          rx={9}
+                          fill={TONE.accent.fill}
+                          stroke={TONE.accent.stroke}
+                          strokeWidth={1.4}
+                          opacity={0}
+                        >
+                          <animate attributeName="opacity" dur={`${plan.total}s`} begin={`${t0}s`} repeatCount="indefinite" {...fade(r.s, r.e, plan.total, 0.3, 0.6)} />
+                        </rect>
+                      ))}
                   <circle cx={APP_X + 28} cy={p.cy} r={9} fill={TONE.accent.strong} />
                   <text x={APP_X + 28} y={p.cy + 3.6} textAnchor="middle" fontSize={10} fontWeight={800} fill="var(--ax-text-accent-contrast)">
                     {p.no}
