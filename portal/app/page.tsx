@@ -16,6 +16,7 @@ import {
   LayersIcon,
   LightningIcon,
   LinkIcon,
+  LocationPinIcon,
   PadlockLockedIcon,
   TestFlaskIcon,
   TrashIcon,
@@ -27,6 +28,7 @@ import { GLOSSARY_BY_TERM } from "@/components/architecture/glossary";
 import { BUCS, JOBS as AVSLUTNING_JOBS } from "@/components/avslutning/data";
 import { GRENSE_DAGER, JOBS as SLETTING_JOBS } from "@/components/sletting/data";
 import { JOBS as JOURNAL_JOBS } from "@/components/journalfoering/data";
+import { PRESETS as ADRESSE_PRESETS } from "@/components/adresse/data";
 
 const REPO = "https://github.com/navikt/eux-architecture";
 
@@ -141,6 +143,13 @@ const AREAS: { id: string; title: string; lead: string; tone: Tone; Icon: Icon; 
         text: "SED-er arkiveres i Dokarkiv – med tema, enhet og oppgave.",
         meta: `Kafka · ${JOURNAL_JOBS.length} NAIS-jobber`,
         Icon: FolderFileIcon,
+      },
+      {
+        href: "/prosesser/adresseoppdatering",
+        title: "Adresseoppdatering",
+        text: "Utenlandske adresser fra innkommende SED-er vaskes og sendes til PDL.",
+        meta: `Kafka · PDL-Mottak · ${ADRESSE_PRESETS.length} eksempler`,
+        Icon: LocationPinIcon,
       },
     ],
   },

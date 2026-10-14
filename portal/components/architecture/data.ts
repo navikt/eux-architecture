@@ -325,8 +325,15 @@ export const NODES: ArchNode[] = [
     "eux-adresse-oppdatering",
     "bakgrunn",
     "Kotlin",
-    "Leser dokumenthendelser og oppdaterer utenlandske adresser i PDL via PDL-Mottak.",
-    { facts: ["@RetryableTopic: 3 forsøk med 15 s mellomrom, deretter DLT."] },
+    "Leser dokumenthendelser og sender adresser fra mottatte SED-er til PDL via PDL-Mottak.",
+    {
+      facts: [
+        "Henter SED-en og RINA-saken fra eux-rina-api.",
+        "Sjekker personen og eksisterende adresser i PDL før den sender.",
+        "@RetryableTopic: 3 forsøk med 15 s mellomrom, deretter DLT.",
+      ],
+      link: { href: "/prosesser/adresseoppdatering", label: "Adresseoppdatering" },
+    },
   ),
   app(
     "eux-person-oppdatering",

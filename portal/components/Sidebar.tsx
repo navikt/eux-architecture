@@ -14,6 +14,7 @@ import {
   HouseIcon,
   LayersIcon,
   LinkIcon,
+  LocationPinIcon,
   MenuHamburgerIcon,
   PadlockLockedIcon,
   TestFlaskIcon,
@@ -49,6 +50,7 @@ const NAV_SECTIONS: { heading?: string; items: NavItem[] }[] = [
       { href: "/prosesser/automatisk-avslutning", label: "Automatisk avslutning", Icon: ArchiveIcon },
       { href: "/prosesser/automatisk-sletting", label: "Automatisk sletting", Icon: TrashIcon },
       { href: "/prosesser/journalfoering", label: "Journalføring", Icon: FolderFileIcon },
+      { href: "/prosesser/adresseoppdatering", label: "Adresseoppdatering", Icon: LocationPinIcon },
     ],
   },
   {

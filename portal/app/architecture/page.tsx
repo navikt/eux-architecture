@@ -241,6 +241,7 @@ const FURTHER: { href: string; title: string; text: string; external?: boolean }
   { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan inaktive RINA-saker lukkes og arkiveres – med regler per BUC, statuser og nattjobber." },
   { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker uten sendt SED slettes etter 15 dager." },
   { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hvordan SED-er journalføres automatisk." },
+  { href: "/prosesser/adresseoppdatering", title: "Adresseoppdatering", text: "Hvordan utenlandske adresser i innkommende SED-er havner i PDL." },
   { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Sanntidsmonitor for sedmottatt og sedsendt i Q1 og Q2." },
   {
     href: "https://github.com/navikt/eux-architecture#readme",
