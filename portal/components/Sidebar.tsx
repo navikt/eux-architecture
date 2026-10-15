@@ -11,6 +11,7 @@ import {
   ExternalLinkIcon,
   FilesIcon,
   FolderFileIcon,
+  HandShakeHeartIcon,
   HouseIcon,
   LayersIcon,
   LinkIcon,
@@ -34,7 +35,10 @@ type NavItem = {
 
 const NAV_SECTIONS: { heading?: string; items: NavItem[] }[] = [
   {
-    items: [{ href: "/", label: "Oversikt", Icon: HouseIcon }],
+    items: [
+      { href: "/", label: "Oversikt", Icon: HouseIcon },
+      { href: "/ny-i-teamet", label: "Ny i teamet", Icon: HandShakeHeartIcon },
+    ],
   },
   {
     heading: "Plattform",

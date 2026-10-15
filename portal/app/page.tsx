@@ -309,6 +309,9 @@ export default function Home() {
             <a href={`${REPO}#readme`} className="home-cta__btn" target="_blank" rel="noreferrer">
               Les README-en <ExternalLinkIcon title="åpnes i ny fane" />
             </a>
+            <NextLink href="/ny-i-teamet" className="home-cta__btn">
+              Ny i teamet? Start her
+            </NextLink>
           </div>
 
           <dl className="home-facts">
