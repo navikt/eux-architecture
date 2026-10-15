@@ -1,36 +1,35 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import {
-  Heading,
-  BodyShort,
-  Box,
-  VStack,
-  HStack,
-  HGrid,
-  Table,
-  ToggleGroup,
-  Search,
-  Tag,
-  Alert,
-  Detail,
-  Label,
-  Loader,
-  CopyButton,
-  Link as DsLink,
-} from "@navikt/ds-react";
-import {
-  safeDate,
-  formatTime,
-  formatDateTime,
-  formatDayHeading,
-  dayKey,
-  isToday,
-} from "@/lib/datetime";
+import { useCallback, useMemo, useState, type CSSProperties } from "react";
+import NextLink from "next/link";
+import { Table, ToggleGroup } from "@navikt/ds-react";
+import { formatDateTime, formatTime, isToday, safeDate } from "@/lib/datetime";
 import { neessiSakUrl } from "@/lib/neessi";
-import { StatusDot, type ConnectionStatus } from "@/components/StatusDot";
-
-/* ── Types ─────────────────────────────────────────── */
+import { archHref } from "@/components/avslutning/tones";
+import { NeessiArt } from "@/components/live/art";
+import { groupByDay, matchesAll, ms, tokens, useLiveStream, useNow, useSnapshot, useUrlState } from "@/components/live/hooks";
+import {
+  DayRow,
+  DetailCard,
+  DetailLinks,
+  EmptyValue,
+  EnvPill,
+  ExtLink,
+  Field,
+  Hl,
+  LiveAbout,
+  LiveFurther,
+  LiveHero,
+  LiveMessage,
+  LiveTable,
+  LiveToolbar,
+  PortalLink,
+  RinaSak,
+  SedType,
+  ShortId,
+  TableSkeleton,
+  rowStyle,
+} from "@/components/live/ui";
 
 interface FagsakInfo {
   tema?: string;
@@ -78,543 +77,171 @@ interface NavRinasakSedRecord {
   sentStatus: SentStatus;
 }
 
-/* ── Helpers ─────────────────────────────────────────── */
+/** Same cap as NavRinasakSedStore in eux-portal-core. */
+const MAX_ROWS = 1000;
+const COLS = 9;
+const HIGHLIGHT_WINDOW_MS = 60_000;
+const FLASH_MS = 1100;
+const SENT_FLASH_MS = 1600;
+const TICK_MS = 3000;
+const FIRST_SEEN_CAP = 2000;
+const CREATED_TINT = "#a7f3d0";
 
-/** Business time of a SED: when it was created in nEESSI. Falls back through the
- *  available timestamps, skipping any that are missing or unparseable. */
+/** When the SED was created in nEESSI, falling back through the known timestamps. */
 function sedTime(r: NavRinasakSedRecord): string {
   return (
-    [
-      r.sed.opprettetTidspunkt,
-      r.sed.navRinasakOpprettetTidspunkt,
-      r.receivedAt,
-    ].find((c) => safeDate(c) !== null) ?? r.receivedAt
+    [r.sed.opprettetTidspunkt, r.sed.navRinasakOpprettetTidspunkt, r.receivedAt].find((c) => safeDate(c) !== null) ??
+    r.receivedAt
   );
 }
 
-/** Epoch millis for a SED's business time, or 0 when unparseable (used for
- *  sorting / "seen at" bookkeeping). */
-function sedTimeMs(r: NavRinasakSedRecord): number {
-  return safeDate(sedTime(r))?.getTime() ?? 0;
-}
+const recordKey = (r: NavRinasakSedRecord) =>
+  `${r.environment}|${r.sed.rinasakId}|${r.sed.sedId ?? "∅"}|${r.sed.sedVersjon ?? "∅"}`;
 
-/** Unique key for a table row: a case placeholder (no SED yet) or a single SED. */
-function recordKey(r: NavRinasakSedRecord): string {
-  return `${r.environment}|${r.sed.rinasakId}|${r.sed.sedId ?? "∅"}|${r.sed.sedVersjon ?? "∅"}`;
-}
+/** A case created in nEESSI whose SED is not registered in eux-nav-rinasak yet. */
+const isPlaceholder = (r: NavRinasakSedRecord) => r.sed.sedId == null;
 
-/** True when the row is a case created in nEESSI whose SED is not yet
- *  registered in eux-nav-rinasak (no SED-ID yet). */
-function isPlaceholder(r: NavRinasakSedRecord): boolean {
-  return r.sed.sedId == null;
-}
-
-/* ── Flash / tint constants ─────────────────────────── */
-
-const HIGHLIGHT_WINDOW_MS = 60 * 1000;
-const FLASH_DURATION_MS = 1100;
-const SENT_FLASH_MS = 1600;
-const TICK_MS = 3000;
-const RECONNECT_MS = 5000;
-const MAX_ROWS = 500;
-const FIRST_SEEN_CAP = 2000;
-const CREATED_TINT = "#a7f3d0"; // mint — "created in nEESSI"
-
-/** Eased alpha: starts vivid, fades to 0 at 1 min. */
 function tintAlpha(ageMs: number): number {
   if (ageMs <= 0) return 1;
   if (ageMs >= HIGHLIGHT_WINDOW_MS) return 0;
-  const remaining = 1 - ageMs / HIGHLIGHT_WINDOW_MS;
-  return Math.pow(remaining, 0.7);
+  return Math.pow(1 - ageMs / HIGHLIGHT_WINDOW_MS, 0.7);
 }
 
-/* ── Badges ─────────────────────────────────────────── */
+const fmtDate = (iso?: string | null) => (safeDate(iso) ? formatDateTime(iso) : undefined);
 
-function EnvBadge({ env }: { env: string }) {
+function SentTag({ status }: { status: SentStatus }) {
+  const s = { SENDT: "sendt", IKKE_SENDT: "ikke-sendt", UKJENT: "ukjent" }[status];
   return (
-    <Tag size="xsmall" variant="neutral">
-      {env.toUpperCase()}
-    </Tag>
-  );
-}
-
-function SentStatusTag({ status }: { status: SentStatus }) {
-  if (status === "SENDT") {
-    return (
-      <Tag size="xsmall" variant="success-moderate">
-        ✓ Sendt
-      </Tag>
-    );
-  }
-  if (status === "IKKE_SENDT") {
-    return (
-      <Tag size="xsmall" variant="warning-moderate">
-        Ikke sendt
-      </Tag>
-    );
-  }
-  return (
-    <Tag size="xsmall" variant="neutral-moderate">
-      Ukjent
-    </Tag>
-  );
-}
-
-/* ── SSE hook ───────────────────────────────────────── */
-
-function useNavRinasakSSE(
-  onCreated: (record: NavRinasakSedRecord) => void,
-  onStatus: (record: NavRinasakSedRecord) => void,
-  onRemoved: (environment: string, rinasakId: number) => void,
-) {
-  const [status, setStatus] = useState<ConnectionStatus>("disconnected");
-  const onCreatedRef = useRef(onCreated);
-  const onStatusRef = useRef(onStatus);
-  const onRemovedRef = useRef(onRemoved);
-
-  useEffect(() => {
-    onCreatedRef.current = onCreated;
-    onStatusRef.current = onStatus;
-    onRemovedRef.current = onRemoved;
-  });
-
-  useEffect(() => {
-    let source: EventSource | null = null;
-    let closed = false;
-    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-
-    function connect() {
-      if (closed) return;
-      setStatus("connecting");
-      source = new EventSource("/api/nav-rinasak/sed-er/stream");
-
-      source.addEventListener("nav-rinasak-sed", (e) => {
-        try {
-          onCreatedRef.current(JSON.parse(e.data) as NavRinasakSedRecord);
-        } catch {
-          /* ignore malformed */
-        }
-      });
-
-      source.addEventListener("nav-rinasak-sed-status", (e) => {
-        try {
-          onStatusRef.current(JSON.parse(e.data) as NavRinasakSedRecord);
-        } catch {
-          /* ignore malformed */
-        }
-      });
-
-      source.addEventListener("nav-rinasak-sed-removed", (e) => {
-        try {
-          const { environment, rinasakId } = JSON.parse(e.data) as {
-            environment: string;
-            rinasakId: number;
-          };
-          onRemovedRef.current(environment, rinasakId);
-        } catch {
-          /* ignore malformed */
-        }
-      });
-
-      source.addEventListener("heartbeat", () => {
-        setStatus("connected");
-      });
-
-      source.onopen = () => setStatus("connected");
-
-      source.onerror = () => {
-        setStatus("disconnected");
-        source?.close();
-        if (!closed) {
-          reconnectTimer = setTimeout(connect, RECONNECT_MS);
-        }
-      };
-    }
-
-    connect();
-
-    return () => {
-      closed = true;
-      if (reconnectTimer) clearTimeout(reconnectTimer);
-      source?.close();
-    };
-  }, []);
-
-  return status;
-}
-
-/* ── Small presentational helpers ───────────────────── */
-
-const MONO_FONT = "var(--ax-font-family-mono, ui-monospace, monospace)";
-
-/** Formats a timestamp, or returns undefined when missing/unparseable so that
- *  <Field> renders the subtle empty state instead of a literal dash. */
-function fmtDate(iso?: string | null): string | undefined {
-  return safeDate(iso) ? formatDateTime(iso) : undefined;
-}
-
-/** Subtle stand-in for a missing value — quieter and prettier than a bare "-". */
-function EmptyValue() {
-  return (
-    <span
-      aria-label="ingen verdi"
-      style={{ color: "var(--ax-text-subtle, #767676)", opacity: 0.4 }}
-    >
-      —
-    </span>
-  );
-}
-
-/** SED type shown as a compact, calm mono chip (falls back to a muted hint). */
-function SedTypeChip({ type }: { type?: string | null }) {
-  if (!type) {
-    return (
-      <BodyShort
-        size="small"
-        style={{ color: "var(--ax-text-subtle, #767676)", opacity: 0.7 }}
-      >
-        ukjent
-      </BodyShort>
-    );
-  }
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        fontFamily: MONO_FONT,
-        fontSize: "0.8rem",
-        fontWeight: 600,
-        letterSpacing: "0.02em",
-        padding: "0.1rem 0.45rem",
-        borderRadius: 6,
-        background: "var(--ax-bg-neutral-soft, #f1f3f5)",
-        border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-        color: "var(--ax-text-default, #1a1a1a)",
-      }}
-    >
-      {type}
-    </span>
-  );
-}
-
-/** Low-key inline stat for the page header — no boxes, no loud colours. */
-function StatInline({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: number;
-  hint?: boolean;
-}) {
-  return (
-    <HStack gap="space-2" align="baseline">
-      <span
-        style={{
-          fontSize: "1.25rem",
-          fontWeight: 600,
-          fontVariantNumeric: "tabular-nums",
-          color: "var(--ax-text-default, #1a1a1a)",
-        }}
-      >
-        {value}
+    <span className="live-state" data-state={s}>
+      <span className="live-state__icon" aria-hidden>
+        {status === "SENDT" ? "✓" : status === "UKJENT" ? "?" : ""}
       </span>
-      <HStack gap="space-1" align="center">
-        {hint && (
-          <span
-            aria-hidden="true"
-            style={{
-              width: 7,
-              height: 7,
-              borderRadius: "50%",
-              background: "var(--ax-border-warning, #c77300)",
-              opacity: 0.45,
-            }}
-          />
-        )}
-        <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>{label}</Detail>
-      </HStack>
-    </HStack>
+      {{ SENDT: "Sendt", IKKE_SENDT: "Ikke sendt", UKJENT: "Ukjent" }[status]}
+    </span>
   );
 }
 
-/* ── Expanded row details ───────────────────────────── */
+/* ---------- Detaljer ---------- */
 
-function Field({ label, value, mono }: { label: string; value?: string | null; mono?: boolean }) {
-  const hasValue = Boolean(value && value.length > 0);
-  return (
-    <VStack gap="space-1">
-      <Detail
-        textColor="subtle"
-        style={{ textTransform: "uppercase", letterSpacing: "0.04em", fontSize: "0.7rem" }}
-      >
-        {label}
-      </Detail>
-      <HStack gap="space-1" align="center" wrap={false}>
-        {hasValue ? (
-          <>
-            <BodyShort
-              size="small"
-              style={{
-                fontFamily: mono ? MONO_FONT : undefined,
-                wordBreak: "break-all",
-              }}
-            >
-              {value}
-            </BodyShort>
-            <CopyButton
-              size="xsmall"
-              copyText={value!}
-              variant="action"
-              title={`Kopier ${label.toLowerCase()}`}
-            />
-          </>
-        ) : (
-          <EmptyValue />
-        )}
-      </HStack>
-    </VStack>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <Box
-      paddingBlock="space-4"
-      paddingInline="space-4"
-      style={{
-        borderRadius: 10,
-        background: "var(--ax-bg-default, #fff)",
-        border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-      }}
-    >
-      <VStack gap="space-2">
-        <Detail
-          textColor="subtle"
-          style={{ textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}
-        >
-          {title}
-        </Detail>
-        <HGrid gap="space-4" columns={{ xs: 1, sm: 2 }}>
-          {children}
-        </HGrid>
-      </VStack>
-    </Box>
-  );
-}
-
-function SedDetails({ record }: { record: NavRinasakSedRecord }) {
-  const s = record.sed;
+function SedDetails({ r }: { r: NavRinasakSedRecord }) {
+  const s = r.sed;
   const f = s.fagsak;
   const inf = s.initiellFagsak;
-  const placeholder = s.sedId == null;
+  const env = r.environment;
   return (
-    <Box
-      paddingBlock="space-4"
-      paddingInline="space-4"
-      style={{ background: "var(--ax-bg-neutral-soft, #f7f8fa)" }}
-    >
-      <VStack gap="space-4">
-        {/* Header: identity chips on the left, jump-to-nEESSI on the right */}
-        <HStack justify="space-between" align="center" gap="space-4" wrap>
-          <HStack gap="space-2" align="center" wrap>
-            <SedTypeChip type={s.sedType} />
-            {s.bucType && (
-              <Tag size="xsmall" variant="neutral-moderate">
-                BUC {s.bucType}
-              </Tag>
-            )}
-            <SentStatusTag status={record.sentStatus} />
-          </HStack>
-          <DsLink
-            href={neessiSakUrl(record.environment, s.rinasakId)}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Åpne sak {s.rinasakId} i nEESSI
-            <span aria-hidden="true" style={{ marginLeft: 4, opacity: 0.6 }}>
-              ↗
-            </span>
-          </DsLink>
-        </HStack>
-
-        {placeholder && (
-          <Alert variant="info" size="small" inline>
-            {s.sedType ? (
-              <>
-                SED-typen {s.sedType}
-                {s.bucType ? ` (BUC ${s.bucType})` : ""} er hentet fra
-                RINA-hendelser. Saken er opprettet i nEESSI, men SED-en er ennå
-                ikke registrert i eux-nav-rinasak, så SED-ID og dokument-info
-                mangler fortsatt. Raden oppdateres automatisk når SED-en
-                registreres.
-              </>
-            ) : (
-              <>
-                Saken er opprettet i nEESSI, men SED-en er ennå ikke registrert i
-                eux-nav-rinasak, så SED-type, SED-ID og dokument-info mangler.
-                Raden oppdateres automatisk når SED-en registreres.
-              </>
-            )}
-          </Alert>
+    <div className="live-details">
+      {isPlaceholder(r) && (
+        <p className="live-note">
+          Saken er opprettet i nEESSI, men SED-en er ikke registrert i eux-nav-rinasak ennå
+          {s.sedType ? <>. SED-type og BUC er hentet fra RINA-hendelsene</> : null}. Raden oppdateres av seg selv når
+          SED-en kommer.
+        </p>
+      )}
+      <div className="live-details__grid">
+        <DetailCard title="SED" aside={<SentTag status={r.sentStatus} />}>
+          <Field label="SED-type" value={s.sedType} />
+          <Field label="BUC" value={s.bucType} />
+          <Field label="SED-ID" value={s.sedId} mono />
+          <Field label="Versjon" value={s.sedVersjon} />
+          <Field label="Dokument-info-ID" value={s.dokumentInfoId} mono />
+          <Field label="Opprettet av" value={s.opprettetBruker} />
+          <Field label="Opprettet" value={fmtDate(s.opprettetTidspunkt)} />
+        </DetailCard>
+        <DetailCard title="RINA-sak" aside={<EnvPill env={env} />}>
+          <Field label="RINA-sak">
+            <RinaSak env={env} id={s.rinasakId} />
+          </Field>
+          <Field label="Overstyrt enhet" value={s.overstyrtEnhetsnummer} />
+          <Field label="Opprettet av" value={s.navRinasakOpprettetBruker} />
+          <Field label="Opprettet" value={fmtDate(s.navRinasakOpprettetTidspunkt)} />
+        </DetailCard>
+        {f && (
+          <DetailCard title="Fagsak">
+            <Field label="Tema" value={f.tema} />
+            <Field label="Type" value={f.type} />
+            <Field label="System" value={f.system} />
+            <Field label="Fagsaknr" value={f.nr} mono />
+            <Field label="Fnr" value={f.fnr} mono />
+            <Field label="Opprettet" value={fmtDate(f.opprettetTidspunkt)} />
+            <Field label="Endret" value={fmtDate(f.endretTidspunkt)} />
+          </DetailCard>
         )}
-
-        <HGrid gap="space-4" columns={{ xs: 1, lg: 2 }}>
-          <Section title="SED">
-            <Field label="SED-ID (setId i RINA)" value={s.sedId} mono />
-            <Field
-              label="SED-versjon"
-              value={s.sedVersjon != null ? String(s.sedVersjon) : undefined}
-            />
-            <Field label="Dokument-info-ID" value={s.dokumentInfoId} mono />
-            <Field label="Opprettet av" value={s.opprettetBruker} />
-            <Field label="Opprettet" value={fmtDate(s.opprettetTidspunkt)} />
-          </Section>
-
-          <Section title="RINA-sak">
-            <Field label="RINA-sak-ID" value={String(s.rinasakId)} mono />
-            <Field label="Overstyrt enhet" value={s.overstyrtEnhetsnummer} />
-            <Field label="Opprettet av (sak)" value={s.navRinasakOpprettetBruker} />
-            <Field label="Opprettet (sak)" value={fmtDate(s.navRinasakOpprettetTidspunkt)} />
-          </Section>
-
-          {f && (
-            <Section title="Fagsak">
-              <Field label="Tema" value={f.tema} />
-              <Field label="Type" value={f.type} />
-              <Field label="System" value={f.system} />
-              <Field label="Fagsaknr" value={f.nr} mono />
-              <Field label="Fnr" value={f.fnr} mono />
-              <Field label="Opprettet" value={fmtDate(f.opprettetTidspunkt)} />
-              <Field label="Endret" value={fmtDate(f.endretTidspunkt)} />
-            </Section>
-          )}
-
-          {inf && (
-            <Section title="Initiell fagsak">
-              <Field label="Tema" value={inf.tema} />
-              <Field label="Type" value={inf.type} />
-              <Field label="System" value={inf.system} />
-              <Field label="Fagsaknr" value={inf.nr} mono />
-              <Field label="Arkiv" value={inf.arkiv} />
-              <Field label="Fnr" value={inf.fnr} mono />
-              <Field label="Opprettet" value={fmtDate(inf.opprettetTidspunkt)} />
-            </Section>
-          )}
-        </HGrid>
-
-        <HStack gap="space-2" align="center" wrap>
-          <Detail style={{ color: "var(--ax-text-subtle, #767676)" }}>
-            {record.environment.toUpperCase()}
-          </Detail>
-          <span aria-hidden="true" style={{ color: "var(--ax-text-subtle, #767676)", opacity: 0.5 }}>
-            ·
-          </span>
-          <Detail style={{ color: "var(--ax-text-subtle, #767676)" }}>
-            Observert av portal {formatDateTime(record.receivedAt)}
-          </Detail>
-        </HStack>
-      </VStack>
-    </Box>
+        {inf && (
+          <DetailCard title="Initiell fagsak">
+            <Field label="Tema" value={inf.tema} />
+            <Field label="Type" value={inf.type} />
+            <Field label="System" value={inf.system} />
+            <Field label="Fagsaknr" value={inf.nr} mono />
+            <Field label="Arkiv" value={inf.arkiv} />
+            <Field label="Fnr" value={inf.fnr} mono />
+            <Field label="Opprettet" value={fmtDate(inf.opprettetTidspunkt)} />
+          </DetailCard>
+        )}
+      </div>
+      <DetailLinks>
+        <PortalLink href={`/kafka/sed-hendelser?q=${s.rinasakId}&miljo=${env}`}>Hendelsene i SED-hendelser</PortalLink>
+        {r.sentStatus === "SENDT" && (
+          <PortalLink href={`/kafka/sed-kobling?q=${s.rinasakId}`}>Kom den fram? Se SED-kobling</PortalLink>
+        )}
+        <PortalLink href="/applications#eux-nav-rinasak">Om eux-nav-rinasak</PortalLink>
+        <ExtLink href={neessiSakUrl(env, s.rinasakId)}>Åpne sak {s.rinasakId} i nEESSI</ExtLink>
+        <span className="arch-subtle live-small live-links__meta">Sett av portalen {formatDateTime(r.receivedAt)}</span>
+      </DetailLinks>
+    </div>
   );
 }
 
-/* ── Page component ─────────────────────────────────── */
+/* ---------- Side ---------- */
 
 export default function NavRinasakSedPage() {
   const [records, setRecords] = useState<NavRinasakSedRecord[]>([]);
-  const [envFilter, setEnvFilter] = useState<string>("alle");
-  const [statusFilter, setStatusFilter] = useState<string>("alle");
-  const [search, setSearch] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [firstSeenAt, setFirstSeenAt] = useState<Map<string, number>>(() => new Map());
+  const [sentFlash, setSentFlash] = useState<Set<string>>(() => new Set());
+  const [q, setQ] = useUrlState("q", "");
+  const [env, setEnv] = useUrlState("miljo", "alle");
+  const [status, setStatus] = useUrlState("status", "alle");
+  const now = useNow(TICK_MS);
 
-  // Wall-clock ms when each record was first observed in this browser session.
-  // Snapshot rows use their creation time (no flash); SSE rows use now (flash).
-  const [firstSeenAt, setFirstSeenAt] = useState<Map<string, number>>(
-    () => new Map(),
-  );
-  // Keys of rows that just flipped to "Sendt" — drives a transient green flash.
-  const [sentFlashKeys, setSentFlashKeys] = useState<Set<string>>(
-    () => new Set(),
-  );
+  const { loading, error } = useSnapshot<NavRinasakSedRecord[]>("/api/nav-rinasak/sed-er", (data) => {
+    const capped = [...data].sort((a, b) => ms(sedTime(b)) - ms(sedTime(a))).slice(0, MAX_ROWS);
+    setFirstSeenAt((prev) => {
+      const next = new Map(prev);
+      for (const r of capped) if (!next.has(recordKey(r))) next.set(recordKey(r), ms(sedTime(r)));
+      return next;
+    });
+    setRecords(capped);
+  });
 
-  const [now, setNow] = useState<number>(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), TICK_MS);
-    return () => clearInterval(id);
-  }, []);
-
-  // Initial snapshot
-  useEffect(() => {
-    fetch("/api/nav-rinasak/sed-er")
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((data: NavRinasakSedRecord[]) => {
-        setFirstSeenAt((prev) => {
-          const next = new Map(prev);
-          for (const r of data) {
-            const k = recordKey(r);
-            if (!next.has(k)) next.set(k, sedTimeMs(r));
-          }
-          return next;
-        });
-        setRecords(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message ?? "Kunne ikke hente SED-er");
-        setLoading(false);
-      });
-  }, []);
-
-  const handleCreated = useCallback((record: NavRinasakSedRecord) => {
+  const onCreated = useCallback((data: unknown) => {
+    const record = data as NavRinasakSedRecord;
     const k = recordKey(record);
     setFirstSeenAt((prev) => {
       if (prev.has(k)) return prev;
-      const next = new Map(prev);
-      next.set(k, Date.now());
-      // Bound growth over long-lived sessions: the oldest-seen entries are well
-      // past the highlight window, so dropping them never affects a visible tint.
-      while (next.size > FIRST_SEEN_CAP) {
-        const oldest = next.keys().next().value;
-        if (oldest === undefined) break;
-        next.delete(oldest);
+      const next = new Map(prev).set(k, Date.now());
+      for (const old of next.keys()) {
+        if (next.size <= FIRST_SEEN_CAP) break;
+        next.delete(old);
       }
       return next;
     });
     setRecords((prev) => {
       const idx = prev.findIndex((r) => recordKey(r) === k);
-      if (idx >= 0) {
-        // Same row (e.g. a placeholder enriched with its SED type from the RINA
-        // document-events stream) — replace it in place, keeping its position so
-        // the "new row" flash does not re-trigger.
-        const next = [...prev];
-        next[idx] = record;
-        return next;
-      }
-      return [record, ...prev].slice(0, MAX_ROWS);
+      if (idx < 0) return [record, ...prev].slice(0, MAX_ROWS);
+      // A placeholder enriched with its SED type: replace in place.
+      const next = [...prev];
+      next[idx] = record;
+      return next;
     });
   }, []);
 
-  const handleStatus = useCallback((record: NavRinasakSedRecord) => {
+  const onStatus = useCallback((data: unknown) => {
+    const record = data as NavRinasakSedRecord;
     const k = recordKey(record);
-    setRecords((prev) =>
-      prev.map((r) =>
-        recordKey(r) === k ? { ...r, sentStatus: record.sentStatus } : r,
-      ),
-    );
+    setRecords((prev) => prev.map((r) => (recordKey(r) === k ? { ...r, sentStatus: record.sentStatus } : r)));
     if (record.sentStatus === "SENDT") {
-      setSentFlashKeys((prev) => {
-        const next = new Set(prev);
-        next.add(k);
-        return next;
-      });
+      setSentFlash((prev) => new Set(prev).add(k));
       setTimeout(() => {
-        setSentFlashKeys((prev) => {
+        setSentFlash((prev) => {
           const next = new Set(prev);
           next.delete(k);
           return next;
@@ -623,304 +250,235 @@ export default function NavRinasakSedPage() {
     }
   }, []);
 
-  // A case's SED got journalført → drop the "no SED yet" placeholder row.
-  const handleRemoved = useCallback((environment: string, rinasakId: number) => {
+  const onRemoved = useCallback((data: unknown) => {
+    const { environment, rinasakId } = data as { environment: string; rinasakId: number };
     setRecords((prev) =>
-      prev.filter(
-        (r) =>
-          !(
-            r.environment === environment &&
-            r.sed.rinasakId === rinasakId &&
-            r.sed.sedId == null
-          ),
-      ),
+      prev.filter((r) => !(r.environment === environment && r.sed.rinasakId === rinasakId && r.sed.sedId == null)),
     );
   }, []);
 
-  const sseStatus = useNavRinasakSSE(handleCreated, handleStatus, handleRemoved);
-
-  // Filter
-  const query = search.trim().toLowerCase();
-  const filtered = records.filter((r) => {
-    if (envFilter !== "alle" && r.environment !== envFilter) return false;
-    if (statusFilter === "ikke-sendt" && r.sentStatus === "SENDT") return false;
-    if (statusFilter === "sendt" && r.sentStatus !== "SENDT") return false;
-    if (query) {
-      const haystack = [
-        String(r.sed.rinasakId),
-        r.sed.sedType,
-        r.sed.bucType,
-        r.sed.sedId,
-        r.sed.opprettetBruker,
-        r.sed.navRinasakOpprettetBruker,
-        r.sed.fagsak?.tema,
-        r.sed.fagsak?.fnr,
-        r.sed.initiellFagsak?.tema,
-        r.sed.initiellFagsak?.fnr,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      if (!haystack.includes(query)) return false;
-    }
-    return true;
+  const live = useLiveStream("/api/nav-rinasak/sed-er/stream", {
+    "nav-rinasak-sed": onCreated,
+    "nav-rinasak-sed-status": onStatus,
+    "nav-rinasak-sed-removed": onRemoved,
   });
 
-  // Newest created first
-  const sorted = [...filtered].sort((a, b) => sedTimeMs(b) - sedTimeMs(a));
+  const toks = tokens(q);
+  const sorted = useMemo(() => [...records].sort((a, b) => ms(sedTime(b)) - ms(sedTime(a))), [records]);
+  const filtered = sorted.filter((r) => {
+    if (env !== "alle" && r.environment !== env) return false;
+    if (status === "ikke-sendt" && r.sentStatus === "SENDT") return false;
+    if (status === "sendt" && r.sentStatus !== "SENDT") return false;
+    const s = r.sed;
+    return matchesAll(
+      [
+        s.rinasakId,
+        s.sedType,
+        s.bucType,
+        s.sedId,
+        s.dokumentInfoId,
+        s.opprettetBruker,
+        s.navRinasakOpprettetBruker,
+        s.overstyrtEnhetsnummer,
+        s.fagsak?.tema,
+        s.fagsak?.nr,
+        s.fagsak?.fnr,
+        s.initiellFagsak?.tema,
+        s.initiellFagsak?.nr,
+        s.initiellFagsak?.fnr,
+      ],
+      toks,
+    );
+  });
+  const groups = groupByDay(filtered, sedTime);
 
-  // Header stats (computed over env-filtered set, ignoring search/status)
-  const envScoped = records.filter(
-    (r) => envFilter === "alle" || r.environment === envFilter,
-  );
-  const antallIkkeSendt = envScoped.filter(
-    (r) => r.sentStatus !== "SENDT",
-  ).length;
-  const antallIDag = envScoped.filter((r) => isToday(sedTime(r))).length;
-
-  // Group into one table per day
-  const groups: { key: string; heading: string; rows: NavRinasakSedRecord[] }[] = [];
-  for (const r of sorted) {
-    const t = sedTime(r);
-    const key = dayKey(t);
-    const last = groups[groups.length - 1];
-    if (last && last.key === key) {
-      last.rows.push(r);
-    } else {
-      groups.push({ key, heading: formatDayHeading(t), rows: [r] });
-    }
-  }
+  const scoped = records.filter((r) => env === "alle" || r.environment === env);
+  const today = scoped.filter((r) => isToday(sedTime(r)));
+  const notSent = scoped.filter((r) => r.sentStatus !== "SENDT").length;
+  const placeholders = scoped.filter(isPlaceholder).length;
+  const filtering = q !== "" || env !== "alle" || status !== "alle";
+  let index = 0;
 
   return (
-    <VStack gap="space-6" className="portal-page--wide">
-      <Box>
-        <HStack gap="space-4" align="center" wrap>
-          <Heading size="large" level="1">
-            SED-er i nEESSI
-          </Heading>
-          <StatusDot status={sseStatus} />
-        </HStack>
-        <BodyShort style={{ color: "var(--ax-text-subtle, #555)", marginTop: 6, maxWidth: "56rem" }}>
-          Sanntidsmonitor for saker og SED-er som opprettes i nEESSI og
-          registreres i eux-nav-rinasak. Nye saker dukker opp umiddelbart –
-          SED-type og SED-ID fylles inn når SED-en registreres.
-        </BodyShort>
-      </Box>
+    <div className="portal-page--wide arch-page lite-page live-page">
+      <LiveHero
+        page="neessi"
+        title="SED-er i nEESSI"
+        lead={
+          <>
+            Saker og SED-er som opprettes i nEESSI, med en gang de lagres i eux-nav-rinasak. Nye saker vises med en
+            gang, og SED-type og SED-ID fylles inn når SED-en er registrert.
+          </>
+        }
+        status={live.status}
+        lastEventAt={live.lastEventAt}
+        art={<NeessiArt />}
+        stats={[
+          { label: "Opprettet i dag", value: today.length, sub: `av ${scoped.length} i minnet`, tone: "success" },
+          { label: "Ikke sendt", value: notSent, sub: "opprettet, men ikke sendt" },
+          { label: "Uten SED", value: placeholders, sub: "sak opprettet, SED kommer" },
+        ]}
+      />
 
-      {/* Stats — deliberately low-key: an at-a-glance summary, not an alarm */}
-      <HStack gap="space-6" align="center" wrap>
-        <StatInline label="opprettet i dag" value={antallIDag} />
-        <span
-          aria-hidden="true"
-          style={{
-            width: 1,
-            height: 26,
-            background: "var(--ax-border-subtle, rgba(0,0,0,0.12))",
-          }}
-        />
-        <StatInline label="venter på sending" value={antallIkkeSendt} hint />
-      </HStack>
-
-      {/* Filters */}
-      <HStack gap="space-4" wrap align="end">
-        <ToggleGroup
-          size="small"
-          value={envFilter}
-          onChange={(v) => setEnvFilter(v)}
-          label="Miljø"
-        >
-          <ToggleGroup.Item value="alle">Alle</ToggleGroup.Item>
+      <LiveToolbar
+        query={q}
+        onQuery={setQ}
+        placeholder="RINA-sak, SED-type, fnr, saksbehandler …"
+        shown={filtered.length}
+        total={records.length}
+        unit="SED-er"
+        onReset={filtering ? () => (setQ(""), setEnv("alle"), setStatus("alle")) : undefined}
+      >
+        <ToggleGroup size="small" value={env} onChange={setEnv} aria-label="Miljø">
+          <ToggleGroup.Item value="alle">Alle miljøer</ToggleGroup.Item>
           <ToggleGroup.Item value="q1">Q1</ToggleGroup.Item>
           <ToggleGroup.Item value="q2">Q2</ToggleGroup.Item>
         </ToggleGroup>
-
-        <ToggleGroup
-          size="small"
-          value={statusFilter}
-          onChange={(v) => setStatusFilter(v)}
-          label="Status"
-        >
+        <ToggleGroup size="small" value={status} onChange={setStatus} aria-label="Status">
           <ToggleGroup.Item value="alle">Alle</ToggleGroup.Item>
-          <ToggleGroup.Item value="ikke-sendt">Kun ikke sendt</ToggleGroup.Item>
-          <ToggleGroup.Item value="sendt">Kun sendt</ToggleGroup.Item>
+          <ToggleGroup.Item value="ikke-sendt">Ikke sendt</ToggleGroup.Item>
+          <ToggleGroup.Item value="sendt">Sendt</ToggleGroup.Item>
         </ToggleGroup>
+      </LiveToolbar>
 
-        <Box style={{ minWidth: 240 }}>
-          <Search
-            label="Søk"
-            size="small"
-            variant="simple"
-            placeholder="RINA-sak, SED-type, fnr, bruker …"
-            value={search}
-            onChange={(v) => setSearch(v)}
-            onClear={() => setSearch("")}
-          />
-        </Box>
-      </HStack>
-
-      {/* Table */}
       {loading ? (
-        <HStack justify="center" style={{ padding: "2rem" }}>
-          <Loader size="xlarge" />
-        </HStack>
+        <TableSkeleton cols={7} />
       ) : error ? (
-        <Alert variant="error" size="small">
-          Kunne ikke koble til portal-core: {error}
-        </Alert>
-      ) : sorted.length === 0 ? (
-        <Alert variant="info" size="small">
-          Ingen SED-er å vise{records.length > 0 ? " for gjeldende filter" : " ennå"}.
-          Nye SED-er vises automatisk.
-        </Alert>
+        <LiveMessage tone="danger" title="Fikk ikke kontakt med eux-portal-core">
+          {error}. Siden prøver å koble til strømmen igjen av seg selv.
+        </LiveMessage>
+      ) : records.length === 0 ? (
+        <LiveMessage title="Ingen SED-er ennå">Opprett en sak i nEESSI, så dukker den opp her.</LiveMessage>
+      ) : filtered.length === 0 ? (
+        <LiveMessage title="Ingen treff">Prøv et annet søk, eller nullstill filtrene.</LiveMessage>
       ) : (
-        <Box
-          className="sed-hendelser-table nav-rinasak-table"
-          style={{
-            borderRadius: 8,
-            border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-          }}
-        >
-          <Table size="small">
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell />
-                <Table.HeaderCell>Tid</Table.HeaderCell>
-                <Table.HeaderCell>Miljø</Table.HeaderCell>
-                <Table.HeaderCell>SED-type</Table.HeaderCell>
-                <Table.HeaderCell>RINA-sak</Table.HeaderCell>
-                <Table.HeaderCell>Tema</Table.HeaderCell>
-                <Table.HeaderCell>Opprettet av</Table.HeaderCell>
-                <Table.HeaderCell>Status</Table.HeaderCell>
-                <Table.HeaderCell>SED-ID</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {groups.flatMap((group) => [
-                <Table.Row key={`day-${group.key}`}>
-                  <Table.DataCell
-                    colSpan={9}
-                    style={{
-                      background: "var(--ax-bg-neutral-soft, #f1f3f5)",
-                      borderTop:
-                        "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-                      padding: "0.5rem 1rem",
-                    }}
+        <LiveTable className="live-table--neessi">
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell />
+              <Table.HeaderCell>Tid</Table.HeaderCell>
+              <Table.HeaderCell>Miljø</Table.HeaderCell>
+              <Table.HeaderCell>SED</Table.HeaderCell>
+              <Table.HeaderCell>BUC</Table.HeaderCell>
+              <Table.HeaderCell>RINA-sak</Table.HeaderCell>
+              <Table.HeaderCell>Tema</Table.HeaderCell>
+              <Table.HeaderCell>Opprettet av</Table.HeaderCell>
+              <Table.HeaderCell>Status</Table.HeaderCell>
+              <Table.HeaderCell>SED-ID</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {groups.flatMap((g) => [
+              <DayRow key={`day-${g.key}`} heading={g.heading} count={g.rows.length} unit={g.rows.length === 1 ? "SED" : "SED-er"} colSpan={COLS + 1} />,
+              ...g.rows.map((r) => {
+                const k = recordKey(r);
+                const seen = firstSeenAt.get(k);
+                const age = seen !== undefined ? now - seen : Infinity;
+                const alpha = tintAlpha(age);
+                const cls = ["live-row"];
+                if (alpha > 0) cls.push("live-row--tint");
+                if (age < FLASH_MS) cls.push("live-row--new");
+                if (r.sentStatus === "IKKE_SENDT") cls.push("live-row--unsent");
+                if (sentFlash.has(k)) cls.push("live-row--sent");
+                if (isPlaceholder(r)) cls.push("live-row--placeholder");
+                const s = r.sed;
+                return (
+                  <Table.ExpandableRow
+                    key={k}
+                    expandOnRowClick
+                    togglePlacement="left"
+                    content={<SedDetails r={r} />}
+                    className={cls.join(" ")}
+                    style={rowStyle(
+                      index++,
+                      alpha > 0 ? ({ "--row-tint": CREATED_TINT, "--row-tint-alpha": alpha } as CSSProperties) : undefined,
+                    )}
                   >
-                    <HStack gap="space-2" align="center" wrap>
-                      <Label size="small" style={{ textTransform: "none" }}>
-                        {group.heading}
-                      </Label>
-                      <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
-                        {group.rows.length}{" "}
-                        {group.rows.length === 1 ? "SED" : "SED-er"}
-                      </Detail>
-                    </HStack>
-                  </Table.DataCell>
-                </Table.Row>,
-                ...group.rows.map((r, i) => {
-                  const rk = recordKey(r);
-                  const firstSeen = firstSeenAt.get(rk);
-                  const age = firstSeen !== undefined ? now - firstSeen : Infinity;
-                  const alpha = tintAlpha(age);
-                  const isNew = firstSeen !== undefined && age < FLASH_DURATION_MS;
-                  const classNames: string[] = [];
-                  if (alpha > 0) classNames.push("sed-tint");
-                  if (isNew) classNames.push("sed-tint--flash");
-                  if (r.sentStatus === "IKKE_SENDT")
-                    classNames.push("nav-rinasak-row--ikke-sendt");
-                  if (sentFlashKeys.has(rk))
-                    classNames.push("nav-rinasak-row--sent-flash");
-                  const rowStyle =
-                    alpha > 0
-                      ? ({
-                          "--row-tint": CREATED_TINT,
-                          "--row-tint-alpha": alpha,
-                        } as React.CSSProperties)
-                      : undefined;
-                  const fagsakTema =
-                    r.sed.fagsak?.tema ?? r.sed.initiellFagsak?.tema;
-                  return (
-                    <Table.ExpandableRow
-                      key={`${rk}-${i}`}
-                      expandOnRowClick
-                      content={<SedDetails record={r} />}
-                      className={classNames.join(" ") || undefined}
-                      style={rowStyle}
-                    >
-                      <Table.DataCell>
-                        <Detail>
-                          <strong>{formatTime(sedTime(r))}</strong>
-                        </Detail>
-                      </Table.DataCell>
-                      <Table.DataCell>
-                        <EnvBadge env={r.environment} />
-                      </Table.DataCell>
-                      <Table.DataCell>
-                        <SedTypeChip type={r.sed.sedType} />
-                      </Table.DataCell>
-                      <Table.DataCell>
-                        <DsLink
-                          href={neessiSakUrl(r.environment, r.sed.rinasakId)}
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {r.sed.rinasakId}
-                          <span
-                            aria-hidden="true"
-                            style={{ marginLeft: 4, opacity: 0.6, fontSize: "0.85em" }}
-                          >
-                            ↗
-                          </span>
-                        </DsLink>
-                      </Table.DataCell>
-                      <Table.DataCell>{fagsakTema ?? <EmptyValue />}</Table.DataCell>
-                      <Table.DataCell>
-                        {r.sed.opprettetBruker ??
-                          r.sed.navRinasakOpprettetBruker ?? <EmptyValue />}
-                      </Table.DataCell>
-                      <Table.DataCell>
-                        <SentStatusTag status={r.sentStatus} />
-                      </Table.DataCell>
-                      <Table.DataCell>
-                        {isPlaceholder(r) ? (
-                          <BodyShort
-                            size="small"
-                            title="SED-ID registreres i eux-nav-rinasak når SED-en behandles"
-                            style={{
-                              color: "var(--ax-text-subtle, #767676)",
-                              fontStyle: "italic",
-                              opacity: 0.8,
-                            }}
-                          >
-                            avventer
-                          </BodyShort>
-                        ) : (
-                          <code
-                            style={{
-                              fontSize: "0.8em",
-                              color: "var(--ax-text-subtle, #555)",
-                            }}
-                          >
-                            {r.sed.sedId!.slice(0, 8)}…
-                          </code>
-                        )}
-                      </Table.DataCell>
-                    </Table.ExpandableRow>
-                  );
-                }),
-              ])}
-            </Table.Body>
-          </Table>
-        </Box>
+                    <Table.DataCell className="live-time">{formatTime(sedTime(r))}</Table.DataCell>
+                    <Table.DataCell>
+                      <EnvPill env={r.environment} />
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <SedType type={s.sedType} toks={toks} />
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      {s.bucType ? <Hl text={s.bucType} toks={toks} /> : <EmptyValue />}
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <RinaSak env={r.environment} id={s.rinasakId} toks={toks} />
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      {s.fagsak?.tema ?? s.initiellFagsak?.tema ? (
+                        <Hl text={s.fagsak?.tema ?? s.initiellFagsak?.tema} toks={toks} />
+                      ) : (
+                        <EmptyValue />
+                      )}
+                    </Table.DataCell>
+                    <Table.DataCell className="live-small">
+                      {s.opprettetBruker ?? s.navRinasakOpprettetBruker ? (
+                        <Hl text={s.opprettetBruker ?? s.navRinasakOpprettetBruker} toks={toks} />
+                      ) : (
+                        <EmptyValue />
+                      )}
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <SentTag status={r.sentStatus} />
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      {isPlaceholder(r) ? (
+                        <span className="live-pending" title="SED-ID kommer når SED-en registreres i eux-nav-rinasak">
+                          avventer
+                        </span>
+                      ) : (
+                        <ShortId id={s.sedId} toks={toks} />
+                      )}
+                    </Table.DataCell>
+                  </Table.ExpandableRow>
+                );
+              }),
+            ])}
+          </Table.Body>
+        </LiveTable>
       )}
 
-      <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
-        Viser {sorted.length} av maks {MAX_ROWS} SED-er, gruppert per dag.
-        Portal-core poller <code>eux-nav-rinasak</code> og oppdaterer via SSE.
-        Sendt-status utledes fra <code>sedsendt</code>-hendelser og er beste
-        forsøk.
-      </Detail>
-    </VStack>
+      <LiveAbout
+        title="Hvor SED-ene kommer fra"
+        lead="Siden spør eux-nav-rinasak, der nEESSI lagrer sakene og SED-ene sine, og blander inn hendelser fra Kafka."
+        chain={[
+          { label: "nEESSI", sub: "saksbehandler oppretter", href: "/applications#eux-neessi" },
+          { label: "eux-nav-rinasak", sub: "lagrer sak og SED", href: "/applications#eux-nav-rinasak", tone: "success" },
+          { label: "eux-portal-core", sub: "spør hvert 5. sekund", href: "https://github.com/navikt/eux-architecture/tree/main/portal-core" },
+          { label: "Denne siden", sub: "SSE, live" },
+        ]}
+        facts={[
+          <>
+            eux-portal-core henter de 200 nyeste sakene i Q1 og Q2 hvert 5. sekund og holder opptil {MAX_ROWS} rader i
+            minnet. Det som fantes ved oppstart vises uten grønt blink.
+          </>,
+          <>
+            En sak uten SED vises med «avventer». Mens den venter, hentes SED-type og BUC fra{" "}
+            <NextLink href={archHref("eux-rina-document-events-v1")} className="live-inline-link">
+              eux-rina-document-events-v1
+            </NextLink>
+            .
+          </>,
+          <>
+            «Sendt» er beste forsøk. Den settes når en melding på{" "}
+            <NextLink href={archHref("sedsendt-v1")} className="live-inline-link">
+              sedsendt-v1
+            </NextLink>{" "}
+            har samme RINA-sak og SED-ID, eller samme RINA-sak og SED-type.
+          </>,
+        ]}
+      />
+
+      <LiveFurther
+        current="neessi"
+        extra={[
+          { href: "/nytt-i-neessi", title: "Nytt i nEESSI", text: "Hva som er endret i nEESSI den siste tiden." },
+          { href: "/environments", title: "Miljøer", text: "Hvor du finner nEESSI og Gosys i Q1 og Q2." },
+        ]}
+      />
+    </div>
   );
 }

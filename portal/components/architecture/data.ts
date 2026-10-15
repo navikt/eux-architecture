@@ -247,7 +247,6 @@ export const NODES: ArchNode[] = [
         "Endepunkt: POST /events/v1/{eventType}.",
         "Bruker spring-boot-starter-parent, ikke eux-parent-pom.",
       ],
-      link: { href: "/kafka/sed-hendelser", label: "SED-hendelser" },
     },
   ),
   app(
@@ -260,6 +259,7 @@ export const NODES: ArchNode[] = [
         "Logger inn i RINA med systembruker og CAS-billett.",
         "Bruker spring-boot-starter-parent, ikke eux-parent-pom.",
       ],
+      link: { href: "/kafka/sed-hendelser", label: "SED-hendelser" },
     },
   ),
 

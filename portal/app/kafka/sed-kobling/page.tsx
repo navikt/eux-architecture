@@ -1,33 +1,32 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { Table, ToggleGroup } from "@navikt/ds-react";
+import { formatDateTime, formatTime } from "@/lib/datetime";
+import { archHref } from "@/components/avslutning/tones";
+import { ENVS, type EnvId } from "@/components/miljoer/data";
+import { KoblingArt } from "@/components/live/art";
+import { groupByDay, matchesAll, ms, tokens, useLiveStream, useNow, useSnapshot, useUrlState } from "@/components/live/hooks";
 import {
-  Heading,
-  BodyShort,
-  Box,
-  VStack,
-  HStack,
-  HGrid,
-  Table,
-  ToggleGroup,
-  Tag,
-  Alert,
-  Detail,
-  Label,
-  Loader,
-  CopyButton,
-  Link as DsLink,
-} from "@navikt/ds-react";
-import {
-  formatTime,
-  formatDateTime,
-  formatDayHeading,
-  dayKey,
-} from "@/lib/datetime";
-import { neessiSakUrl } from "@/lib/neessi";
-import { StatusDot, type ConnectionStatus } from "@/components/StatusDot";
-
-/* ── Types ─────────────────────────────────────────── */
+  DayRow,
+  DetailLinks,
+  EnvPill,
+  Field,
+  Hl,
+  LiveAbout,
+  LiveFurther,
+  LiveHero,
+  LiveMessage,
+  LiveTable,
+  LiveToolbar,
+  PortalLink,
+  RinaSak,
+  SedType,
+  TableSkeleton,
+  rowStyle,
+  DetailCard,
+  Institution,
+} from "@/components/live/ui";
 
 interface SedHendelse {
   id?: string;
@@ -57,897 +56,470 @@ interface SedHendelseRecord {
   partition: number;
 }
 
-type FlowDirection = "q1-to-q2" | "q2-to-q1";
+type Flow = "q1-to-q2" | "q2-to-q1";
+type PairStatus = "complete" | "waiting" | "source-missing";
 
 interface SedPair {
-  pairKey: string;
-  sedType: string;
-  bucType: string;
-  rinaSakId: string;
+  key: string;
+  flow: Flow;
+  from: EnvId;
+  to: EnvId;
+  sedType?: string;
+  bucType?: string;
   rinaDokumentId: string;
-  dokumentVersjon: string;
-  flowDirection: FlowDirection;
+  versjon: string;
   source: SedHendelseRecord | null;
   destination: SedHendelseRecord | null;
-  transitTimeMs: number | null;
-  status: "complete" | "waiting" | "source-missing";
-  newestReceivedAt: string;
+  transitMs: number | null;
+  status: PairStatus;
+  newestAt: string;
 }
 
-/* ── Helpers ─────────────────────────────────────────── */
+/** Same cap as SedHendelseStore in eux-portal-core. */
+const MAX_ROWS = 500;
+const COLS = 7;
+const FLASH_MS = 1600;
 
-function formatDuration(ms: number): string {
-  if (ms < 0) return "–";
-  if (ms < 1000) return `${ms} ms`;
-  if (ms < 60_000) return `${(ms / 1000).toFixed(1)} s`;
-  const minutes = Math.floor(ms / 60_000);
-  const seconds = Math.round((ms % 60_000) / 1000);
-  return `${minutes} min ${seconds} s`;
-}
+const recordKey = (r: SedHendelseRecord) => `${r.topic}|${r.partition}|${r.offset}`;
 
-function formatAvgDuration(ms: number): string {
-  if (ms < 1000) return `${Math.round(ms)} ms`;
-  if (ms < 60_000) return `${(ms / 1000).toFixed(1)} s`;
-  const minutes = Math.floor(ms / 60_000);
-  const seconds = Math.round((ms % 60_000) / 1000);
-  return `${minutes} min ${seconds} s`;
-}
+/* ---------- Kobling ---------- */
 
-function durationVariant(
-  ms: number | null,
-): "success" | "info" | "warning" | "error" | "neutral" {
-  if (ms === null || ms < 0) return "neutral";
-  if (ms < 5000) return "success";
-  if (ms < 30_000) return "info";
-  if (ms < 120_000) return "warning";
-  return "error";
-}
-
-function recordKey(r: SedHendelseRecord): string {
-  return `${r.topic}|${r.partition}|${r.offset}`;
-}
-
-/* ── Pairing logic ──────────────────────────────────── */
-
+/**
+ * Pairs events on RINA document ID and version: sent from one environment and
+ * received in the other. A lone event only becomes a pair when its counterpart
+ * is our other test institution, so SEDs to and from other countries are left
+ * out instead of waiting forever.
+ */
 function buildPairs(records: SedHendelseRecord[]): SedPair[] {
-  const pairable = records.filter(
-    (r) => r.hendelse.rinaDokumentId && r.hendelse.rinaDokumentVersjon,
-  );
-
   const groups = new Map<string, SedHendelseRecord[]>();
-  for (const r of pairable) {
-    const key = `${r.hendelse.rinaDokumentId}|${r.hendelse.rinaDokumentVersjon}`;
-    const list = groups.get(key) ?? [];
-    list.push(r);
-    groups.set(key, list);
+  for (const r of records) {
+    const { rinaDokumentId: id, rinaDokumentVersjon: v } = r.hendelse;
+    if (!id || !v) continue;
+    const k = `${id}|${v}`;
+    groups.set(k, [...(groups.get(k) ?? []), r]);
   }
+
+  const earliest = (recs: SedHendelseRecord[], env: EnvId, direction: string) =>
+    recs
+      .filter((r) => r.environment === env && r.direction === direction)
+      .sort((a, b) => ms(a.receivedAt) - ms(b.receivedAt))[0] ?? null;
 
   const pairs: SedPair[] = [];
-  const byTime = (a: SedHendelseRecord, b: SedHendelseRecord) =>
-    new Date(a.receivedAt).getTime() - new Date(b.receivedAt).getTime();
+  for (const [k, recs] of groups) {
+    for (const [from, to] of [
+      ["q1", "q2"],
+      ["q2", "q1"],
+    ] as [EnvId, EnvId][]) {
+      const source = earliest(recs, from, "sendt");
+      const destination = earliest(recs, to, "mottatt");
+      if (!source && !destination) continue;
 
-  for (const [key, recs] of groups) {
-    const q1Sendt = recs
-      .filter((r) => r.environment === "q1" && r.direction === "sendt")
-      .sort(byTime);
-    const q1Mottatt = recs
-      .filter((r) => r.environment === "q1" && r.direction === "mottatt")
-      .sort(byTime);
-    const q2Sendt = recs
-      .filter((r) => r.environment === "q2" && r.direction === "sendt")
-      .sort(byTime);
-    const q2Mottatt = recs
-      .filter((r) => r.environment === "q2" && r.direction === "mottatt")
-      .sort(byTime);
+      if (source && !destination) {
+        const target = source.hendelse.mottakerId;
+        if (target && target !== ENVS[to].institution) continue;
+        if (!target && earliest(recs, from, "mottatt") && !recs.some((r) => r.environment === to)) continue;
+      }
+      if (destination && !source) {
+        const sender = destination.hendelse.avsenderId;
+        if (sender && sender !== ENVS[from].institution) continue;
+      }
 
-    const firstRecord = recs[0];
-    const sedType = firstRecord.hendelse.sedType ?? "–";
-    const bucType = firstRecord.hendelse.bucType ?? "–";
-    const rinaSakId = firstRecord.hendelse.rinaSakId ?? "";
-    const rinaDokumentId = firstRecord.hendelse.rinaDokumentId ?? "";
-    const dokumentVersjon = firstRecord.hendelse.rinaDokumentVersjon ?? "";
-
-    // Q1→Q2 pair: q1-sendt as source, q2-mottatt as destination
-    const hasQ1ToQ2 = q1Sendt.length > 0 || q2Mottatt.length > 0;
-    const isOnlyQ1Internal =
-      q1Sendt.length > 0 &&
-      q1Mottatt.length > 0 &&
-      q2Sendt.length === 0 &&
-      q2Mottatt.length === 0;
-
-    if (hasQ1ToQ2 && !isOnlyQ1Internal) {
-      const source = q1Sendt[0] ?? null;
-      const destination = q2Mottatt[0] ?? null;
-      const rawTransit =
-        source && destination
-          ? new Date(destination.receivedAt).getTime() -
-            new Date(source.receivedAt).getTime()
-          : null;
-
-      let status: SedPair["status"] = "complete";
-      if (!source) status = "source-missing";
-      else if (!destination) status = "waiting";
-
-      const newestReceivedAt = [source, destination]
-        .filter(Boolean)
-        .map((r) => r!.receivedAt)
-        .sort()
-        .pop()!;
-
+      const raw = source && destination ? ms(destination.receivedAt) - ms(source.receivedAt) : null;
+      const any = (source ?? destination)!.hendelse;
       pairs.push({
-        pairKey: `q1q2:${key}`,
-        sedType,
-        bucType,
-        rinaSakId,
-        rinaDokumentId,
-        dokumentVersjon,
-        flowDirection: "q1-to-q2",
+        key: `${from}${to}:${k}`,
+        flow: from === "q1" ? "q1-to-q2" : "q2-to-q1",
+        from,
+        to,
+        sedType: source?.hendelse.sedType ?? destination?.hendelse.sedType,
+        bucType: source?.hendelse.bucType ?? destination?.hendelse.bucType,
+        rinaDokumentId: any.rinaDokumentId ?? "",
+        versjon: any.rinaDokumentVersjon ?? "",
         source,
         destination,
-        transitTimeMs: rawTransit !== null && rawTransit >= 0 ? rawTransit : null,
-        status,
-        newestReceivedAt,
+        transitMs: raw !== null && raw >= 0 ? raw : null,
+        status: !source ? "source-missing" : !destination ? "waiting" : "complete",
+        newestAt: [source, destination]
+          .filter((r): r is SedHendelseRecord => r !== null)
+          .map((r) => r.receivedAt)
+          .sort((a, b) => ms(b) - ms(a))[0],
       });
     }
-
-    // Q2→Q1 pair: q2-sendt as source, q1-mottatt as destination
-    const hasQ2ToQ1 = q2Sendt.length > 0 || q1Mottatt.length > 0;
-    const isOnlyQ2Internal =
-      q2Sendt.length > 0 &&
-      q2Mottatt.length > 0 &&
-      q1Sendt.length === 0 &&
-      q1Mottatt.length === 0;
-
-    if (hasQ2ToQ1 && !isOnlyQ2Internal) {
-      const source = q2Sendt[0] ?? null;
-      const destination = q1Mottatt[0] ?? null;
-      const rawTransit =
-        source && destination
-          ? new Date(destination.receivedAt).getTime() -
-            new Date(source.receivedAt).getTime()
-          : null;
-
-      let status: SedPair["status"] = "complete";
-      if (!source) status = "source-missing";
-      else if (!destination) status = "waiting";
-
-      const isOnlyQ2Internal2 =
-        q2Sendt.length > 0 &&
-        q2Mottatt.length > 0 &&
-        q1Sendt.length === 0 &&
-        q1Mottatt.length === 0;
-
-      if (!isOnlyQ2Internal2) {
-        const newestReceivedAt = [source, destination]
-          .filter(Boolean)
-          .map((r) => r!.receivedAt)
-          .sort()
-          .pop()!;
-
-        pairs.push({
-          pairKey: `q2q1:${key}`,
-          sedType,
-          bucType,
-          rinaSakId,
-          rinaDokumentId,
-          dokumentVersjon,
-          flowDirection: "q2-to-q1",
-          source,
-          destination,
-          transitTimeMs:
-            rawTransit !== null && rawTransit >= 0 ? rawTransit : null,
-          status,
-          newestReceivedAt,
-        });
-      }
-    }
   }
-
-  pairs.sort(
-    (a, b) =>
-      new Date(b.newestReceivedAt).getTime() -
-      new Date(a.newestReceivedAt).getTime(),
-  );
-
-  return pairs;
+  return pairs.sort((a, b) => ms(b.newestAt) - ms(a.newestAt));
 }
 
-/* ── Badges ─────────────────────────────────────────── */
+/* ---------- Tid ---------- */
 
-function FlowBadge({ direction }: { direction: FlowDirection }) {
-  if (direction === "q1-to-q2") {
-    return (
-      <Tag size="xsmall" variant="alt1">
-        Q1 → Q2
-      </Tag>
-    );
-  }
+function formatDuration(d: number): string {
+  if (d < 1000) return `${Math.round(d)} ms`;
+  if (d < 60_000) return `${(d / 1000).toFixed(1).replace(".", ",")} s`;
+  return `${Math.floor(d / 60_000)} min ${Math.round((d % 60_000) / 1000)} s`;
+}
+
+function speedTone(d: number): string {
+  if (d < 5000) return "success";
+  if (d < 30_000) return "info";
+  if (d < 120_000) return "warning";
+  return "danger";
+}
+
+function median(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const s = [...values].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+function Transit({ d }: { d: number | null }) {
+  if (d === null) return <span className="arch-subtle">–</span>;
   return (
-    <Tag size="xsmall" variant="alt2">
-      Q2 → Q1
-    </Tag>
+    <span className="live-transit" data-tone={speedTone(d)}>
+      <span className="live-transit__dot" aria-hidden />
+      {formatDuration(d)}
+    </span>
   );
 }
 
-function StatusBadge({ status }: { status: SedPair["status"] }) {
-  if (status === "complete") {
-    return (
-      <Tag size="xsmall" variant="success">
-        ✓ Komplett
-      </Tag>
-    );
-  }
-  if (status === "waiting") {
-    return (
-      <Tag size="xsmall" variant="warning" className="sed-kobling-pulse">
-        ⏳ Venter
-      </Tag>
-    );
-  }
+function FlowPills({ from, to }: { from: EnvId; to: EnvId }) {
   return (
-    <Tag size="xsmall" variant="neutral">
-      ◌ Kilde ukjent
-    </Tag>
+    <span className="live-flow" aria-label={`${from.toUpperCase()} til ${to.toUpperCase()}`}>
+      <EnvPill env={from} />
+      <span className="live-flow__arrow" aria-hidden>
+        →
+      </span>
+      <EnvPill env={to} />
+    </span>
   );
 }
 
-/* ── Summary card ───────────────────────────────────── */
-
-function SummaryCard({
-  label,
-  value,
-  detail,
-  variant = "neutral",
-}: {
-  label: string;
-  value: string;
-  detail?: string;
-  variant?: "neutral" | "success" | "info" | "warning";
-}) {
-  const bgMap: Record<string, string> = {
-    neutral: "var(--ax-bg-neutral-soft, #f1f3f5)",
-    success: "var(--ax-bg-success-soft, #e0f1e3)",
-    info: "var(--ax-bg-info-soft, #e6f0fa)",
-    warning: "var(--ax-bg-warning-soft, #fcecd6)",
-  };
+function StatusTag({ status }: { status: PairStatus }) {
+  const label = { complete: "Koblet", waiting: "Venter", "source-missing": "Kilde ukjent" }[status];
   return (
-    <Box
-      padding="space-4"
-      borderRadius="8"
-      style={{
-        background: bgMap[variant],
-        border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-        minWidth: 140,
-      }}
-    >
-      <VStack gap="space-1">
-        <Detail
-          style={{
-            color: "var(--ax-text-subtle, #555)",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            fontWeight: 600,
-          }}
-        >
-          {label}
-        </Detail>
-        <Heading size="medium" level="3" style={{ margin: 0 }}>
-          {value}
-        </Heading>
-        {detail && (
-          <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
-            {detail}
-          </Detail>
+    <span className="live-state" data-state={status}>
+      <span className="live-state__icon" aria-hidden>
+        {status === "complete" ? "✓" : status === "waiting" ? "" : "?"}
+      </span>
+      {label}
+    </span>
+  );
+}
+
+function Side({ r, env, toks }: { r: SedHendelseRecord | null; env: EnvId; toks: string[] }) {
+  if (!r) return null;
+  return (
+    <span className="live-side">
+      <span className="live-time">{formatTime(r.receivedAt)}</span>
+      <RinaSak env={env} id={r.hendelse.rinaSakId} toks={toks} />
+    </span>
+  );
+}
+
+/* ---------- Detaljer ---------- */
+
+function SideCard({ r, env, role }: { r: SedHendelseRecord | null; env: EnvId; role: "sendt" | "mottatt" }) {
+  const title = (
+    <>
+      {role === "sendt" ? "Sendt fra" : "Mottatt i"} <EnvPill env={env} />
+    </>
+  );
+  if (!r) {
+    return (
+      <section className="live-card live-card--missing" data-tone={ENVS[env].tone}>
+        <header className="live-card__head">
+          <span className="live-card__title">{title}</span>
+        </header>
+        <p className="live-card__note">
+          {role === "mottatt"
+            ? "Ikke mottatt ennå. Raden oppdateres med en gang hendelsen kommer."
+            : "Sendingen er ikke i minnet. Den kan være eldre enn de 500 nyeste hendelsene."}
+        </p>
+      </section>
+    );
+  }
+  const h = r.hendelse;
+  return (
+    <DetailCard title={title} tone={ENVS[env].tone} aside={<span className="arch-subtle live-small">{formatDateTime(r.receivedAt)}</span>}>
+      <Field label="RINA-sak">
+        <RinaSak env={env} id={h.rinaSakId} />
+      </Field>
+      <Field label="SED-ID" value={h.sedId} mono />
+      <Field label="Avsender">
+        <Institution id={h.avsenderId} name={h.avsenderNavn} land={h.avsenderLand} max={40} />
+      </Field>
+      <Field label="Mottaker">
+        <Institution id={h.mottakerId} name={h.mottakerNavn} land={h.mottakerLand} max={40} />
+      </Field>
+      <Field label="NAV-bruker" value={h.navBruker} mono />
+      <Field label="Topic" value={r.topic} mono />
+    </DetailCard>
+  );
+}
+
+function PairDetails({ p }: { p: SedPair }) {
+  const src = p.source?.hendelse.rinaSakId;
+  const dst = p.destination?.hendelse.rinaSakId;
+  return (
+    <div className="live-details">
+      <div className="live-pair">
+        <SideCard r={p.source} env={p.from} role="sendt" />
+        <div className="live-pair__link" data-state={p.status}>
+          <span className="live-pair__line" aria-hidden />
+          <Transit d={p.transitMs} />
+          <span className="live-pair__sub">
+            {p.status === "complete" ? "transporttid" : p.status === "waiting" ? "venter" : "ukjent start"}
+          </span>
+        </div>
+        <SideCard r={p.destination} env={p.to} role="mottatt" />
+      </div>
+      <dl className="live-card__fields live-pair__meta">
+        <Field label="SED-type" value={p.sedType} />
+        <Field label="BUC" value={p.bucType} />
+        <Field label="RINA-dokument" value={p.rinaDokumentId} mono />
+        <Field label="Versjon" value={p.versjon} />
+      </dl>
+      <DetailLinks>
+        <PortalLink href={`/kafka/sed-hendelser?q=${encodeURIComponent(p.rinaDokumentId)}`}>
+          Hendelsene i SED-hendelser
+        </PortalLink>
+        {src && (
+          <PortalLink href={`/nav-rinasak/sed-er?q=${encodeURIComponent(src)}&miljo=${p.from}`}>
+            Saken i SED-er i nEESSI
+          </PortalLink>
         )}
-      </VStack>
-    </Box>
-  );
-}
-
-/* ── SSE hook ───────────────────────────────────────── */
-
-function useSedHendelserSSE(onMessage: (record: SedHendelseRecord) => void) {
-  const [status, setStatus] = useState<ConnectionStatus>("disconnected");
-  const onMessageRef = useRef(onMessage);
-
-  useEffect(() => {
-    onMessageRef.current = onMessage;
-  });
-
-  useEffect(() => {
-    let source: EventSource | null = null;
-    let closed = false;
-    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-
-    function connect() {
-      if (closed) return;
-      setStatus("connecting");
-      source = new EventSource("/api/kafka/sed-hendelser/stream");
-
-      source.addEventListener("sed-hendelse", (e) => {
-        try {
-          const record = JSON.parse(e.data) as SedHendelseRecord;
-          onMessageRef.current(record);
-        } catch {
-          /* ignore malformed */
-        }
-      });
-
-      source.addEventListener("heartbeat", () => {
-        setStatus("connected");
-      });
-
-      source.onopen = () => setStatus("connected");
-
-      source.onerror = () => {
-        setStatus("disconnected");
-        source?.close();
-        if (!closed) {
-          reconnectTimer = setTimeout(connect, 5000);
-        }
-      };
-    }
-
-    connect();
-
-    return () => {
-      closed = true;
-      if (reconnectTimer) clearTimeout(reconnectTimer);
-      source?.close();
-    };
-  }, []);
-
-  return status;
-}
-
-/* ── Expanded pair details ──────────────────────────── */
-
-function Field({
-  label,
-  value,
-  mono,
-}: {
-  label: string;
-  value?: string;
-  mono?: boolean;
-}) {
-  const display = value && value.length > 0 ? value : "–";
-  const hasValue = Boolean(value);
-  return (
-    <VStack gap="space-1">
-      <Label size="small" textColor="subtle">
-        {label}
-      </Label>
-      <HStack gap="space-1" align="center" wrap={false}>
-        <BodyShort
-          size="small"
-          style={{
-            fontFamily: mono
-              ? "var(--ax-font-family-mono, ui-monospace, monospace)"
-              : undefined,
-            wordBreak: "break-all",
-          }}
-        >
-          {display}
-        </BodyShort>
-        {hasValue && (
-          <CopyButton
-            size="xsmall"
-            copyText={value!}
-            variant="action"
-            title={`Kopier ${label.toLowerCase()}`}
-          />
+        {dst && dst !== src && (
+          <PortalLink href={`/nav-rinasak/sed-er?q=${encodeURIComponent(dst)}&miljo=${p.to}`}>
+            Mottakersaken i SED-er i nEESSI
+          </PortalLink>
         )}
-      </HStack>
-    </VStack>
+        <PortalLink href="/environments#samspill">Slik snakker Q1 og Q2 sammen</PortalLink>
+      </DetailLinks>
+    </div>
   );
 }
 
-function RecordSection({
-  title,
-  record,
-  env,
-}: {
-  title: string;
-  record: SedHendelseRecord | null;
-  env: string;
-}) {
-  if (!record) {
-    return (
-      <Box
-        padding="space-4"
-        borderRadius="4"
-        style={{
-          background: "var(--ax-bg-warning-soft, #fcecd6)",
-          border: "1px dashed var(--ax-border-warning, #c77300)",
-        }}
-      >
-        <VStack gap="space-2">
-          <HStack gap="space-2" align="center">
-            <Heading size="xsmall" level="4">
-              {title}
-            </Heading>
-            <Tag size="xsmall" variant="neutral">
-              {env.toUpperCase()}
-            </Tag>
-          </HStack>
-          <BodyShort
-            size="small"
-            style={{ color: "var(--ax-text-subtle, #555)" }}
-          >
-            Ikke registrert i nåværende vindu. Hendelsen kan ha falt ut av
-            bufferen eller er ikke mottatt ennå.
-          </BodyShort>
-        </VStack>
-      </Box>
-    );
-  }
-
-  const h = record.hendelse;
-  return (
-    <Box
-      padding="space-4"
-      borderRadius="4"
-      style={{
-        background: "var(--ax-bg-neutral-soft, #f7f7f7)",
-        border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-      }}
-    >
-      <VStack gap="space-4">
-        <HStack gap="space-2" align="center">
-          <Heading size="xsmall" level="4">
-            {title}
-          </Heading>
-          <Tag size="xsmall" variant="neutral">
-            {env.toUpperCase()}
-          </Tag>
-          <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
-            {formatDateTime(record.receivedAt)}
-          </Detail>
-        </HStack>
-
-        <HGrid gap="space-4" columns={{ xs: 1, sm: 2, lg: 3 }}>
-          <Field label="SED-ID" value={h.sedId} mono />
-          <Field label="SED-type" value={h.sedType} />
-          <Field label="Sektor" value={h.sektorKode} />
-          <Field label="BUC-type" value={h.bucType} />
-          <Field label="RINA-dokument-ID" value={h.rinaDokumentId} mono />
-          <Field label="Dokumentversjon" value={h.rinaDokumentVersjon} />
-          <Field label="RINA-sak" value={h.rinaSakId} mono />
-          <Field label="NAV-bruker" value={h.navBruker} mono />
-          <Field label="Hendelse-ID" value={h.id} mono />
-        </HGrid>
-
-        <HGrid gap="space-4" columns={{ xs: 1, sm: 2 }}>
-          <VStack gap="space-2">
-            <Label size="small" textColor="subtle">
-              Avsender
-            </Label>
-            <BodyShort size="small">
-              {h.avsenderNavn ?? h.avsenderId ?? "–"}
-              {h.avsenderLand ? ` (${h.avsenderLand})` : ""}
-            </BodyShort>
-          </VStack>
-          <VStack gap="space-2">
-            <Label size="small" textColor="subtle">
-              Mottaker
-            </Label>
-            <BodyShort size="small">
-              {h.mottakerNavn ?? h.mottakerId ?? "–"}
-              {h.mottakerLand ? ` (${h.mottakerLand})` : ""}
-            </BodyShort>
-          </VStack>
-        </HGrid>
-
-        <HGrid gap="space-4" columns={{ xs: 1, sm: 2, lg: 3 }}>
-          <Field label="Topic" value={record.topic} mono />
-          <Field label="Partisjon" value={String(record.partition)} />
-          <Field label="Offset" value={String(record.offset)} />
-          <Field label="Miljø" value={record.environment.toUpperCase()} />
-          <Field label="Retning" value={record.direction} />
-        </HGrid>
-      </VStack>
-    </Box>
-  );
-}
-
-function PairDetails({ pair }: { pair: SedPair }) {
-  const sourceLabel =
-    pair.flowDirection === "q1-to-q2" ? "Sendt fra Q1" : "Sendt fra Q2";
-  const destLabel =
-    pair.flowDirection === "q1-to-q2" ? "Mottatt i Q2" : "Mottatt i Q1";
-  const sourceEnv = pair.flowDirection === "q1-to-q2" ? "q1" : "q2";
-  const destEnv = pair.flowDirection === "q1-to-q2" ? "q2" : "q1";
-
-  return (
-    <Box paddingBlock="space-4" paddingInline="space-2">
-      <VStack gap="space-4">
-        {pair.transitTimeMs !== null && (
-          <Box
-            padding="space-4"
-            borderRadius="4"
-            style={{
-              background: "var(--ax-bg-success-soft, #e0f1e3)",
-              border: "1px solid var(--ax-border-success, #067a3a)",
-              textAlign: "center",
-            }}
-          >
-            <Detail style={{ fontWeight: 600 }}>
-              Observert transporttid: {formatDuration(pair.transitTimeMs)}
-            </Detail>
-          </Box>
-        )}
-
-        <HGrid gap="space-4" columns={{ xs: 1, lg: 2 }}>
-          <RecordSection
-            title={sourceLabel}
-            record={pair.source}
-            env={sourceEnv}
-          />
-          <RecordSection
-            title={destLabel}
-            record={pair.destination}
-            env={destEnv}
-          />
-        </HGrid>
-      </VStack>
-    </Box>
-  );
-}
-
-/* ── Page component ─────────────────────────────────── */
+/* ---------- Side ---------- */
 
 export default function SedKoblingPage() {
   const [records, setRecords] = useState<SedHendelseRecord[]>([]);
-  const [flowFilter, setFlowFilter] = useState<string>("alle");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [liveSeen, setLiveSeen] = useState<Map<string, number>>(() => new Map());
+  const [q, setQ] = useUrlState("q", "");
+  const [flow, setFlow] = useUrlState("flyt", "alle");
+  const now = useNow(1000);
 
-  const seenKeys = useRef(new Set<string>());
+  const { loading, error } = useSnapshot<SedHendelseRecord[]>("/api/kafka/sed-hendelser", (data) => {
+    const seen = new Set<string>();
+    setRecords(data.filter((r) => !seen.has(recordKey(r)) && seen.add(recordKey(r))).slice(0, MAX_ROWS));
+  });
 
-  useEffect(() => {
-    fetch("/api/kafka/sed-hendelser")
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((data: SedHendelseRecord[]) => {
-        const deduped: SedHendelseRecord[] = [];
-        for (const r of data) {
-          const k = recordKey(r);
-          if (!seenKeys.current.has(k)) {
-            seenKeys.current.add(k);
-            deduped.push(r);
-          }
-        }
-        setRecords(deduped);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message ?? "Kunne ikke hente hendelser");
-        setLoading(false);
-      });
-  }, []);
-
-  const handleNewRecord = useCallback((record: SedHendelseRecord) => {
+  const onRecord = useCallback((data: unknown) => {
+    const record = data as SedHendelseRecord;
     const k = recordKey(record);
-    if (seenKeys.current.has(k)) return;
-    seenKeys.current.add(k);
-    setRecords((prev) => [record, ...prev].slice(0, 500));
+    setLiveSeen((prev) => (prev.has(k) ? prev : new Map(prev).set(k, Date.now())));
+    setRecords((prev) => (prev.some((r) => recordKey(r) === k) ? prev : [record, ...prev].slice(0, MAX_ROWS)));
   }, []);
 
-  const sseStatus = useSedHendelserSSE(handleNewRecord);
+  const { status, lastEventAt } = useLiveStream("/api/kafka/sed-hendelser/stream", { "sed-hendelse": onRecord });
 
-  const allPairs = useMemo(() => buildPairs(records), [records]);
+  const pairs = useMemo(() => buildPairs(records), [records]);
+  const toks = tokens(q);
 
-  const filteredPairs = useMemo(() => {
-    return allPairs.filter((p) => {
-      if (flowFilter === "q1-to-q2") return p.flowDirection === "q1-to-q2";
-      if (flowFilter === "q2-to-q1") return p.flowDirection === "q2-to-q1";
-      if (flowFilter === "venter") return p.status !== "complete";
-      return true;
-    });
-  }, [allPairs, flowFilter]);
-
-  const stats = useMemo(() => {
-    const complete = allPairs.filter((p) => p.status === "complete");
-    const q1ToQ2 = complete.filter(
-      (p) => p.flowDirection === "q1-to-q2" && p.transitTimeMs !== null,
+  const filtered = pairs.filter((p) => {
+    if (flow === "q1-to-q2" || flow === "q2-to-q1") {
+      if (p.flow !== flow) return false;
+    } else if (flow === "venter" && p.status === "complete") return false;
+    const s = p.source?.hendelse;
+    const d = p.destination?.hendelse;
+    return matchesAll(
+      [
+        p.sedType,
+        p.bucType,
+        p.rinaDokumentId,
+        s?.rinaSakId,
+        d?.rinaSakId,
+        s?.sedId,
+        d?.sedId,
+        s?.navBruker,
+        d?.navBruker,
+        `${p.from}→${p.to}`,
+      ],
+      toks,
     );
-    const q2ToQ1 = complete.filter(
-      (p) => p.flowDirection === "q2-to-q1" && p.transitTimeMs !== null,
-    );
-    const waiting = allPairs.filter((p) => p.status !== "complete");
+  });
+  const groups = groupByDay(filtered, (p) => p.newestAt);
 
-    const avgQ1Q2 =
-      q1ToQ2.length > 0
-        ? q1ToQ2.reduce((sum, p) => sum + p.transitTimeMs!, 0) / q1ToQ2.length
-        : null;
-    const avgQ2Q1 =
-      q2ToQ1.length > 0
-        ? q2ToQ1.reduce((sum, p) => sum + p.transitTimeMs!, 0) / q2ToQ1.length
-        : null;
-
+  const timesFor = (f: Flow) => pairs.filter((p) => p.flow === f && p.transitMs !== null).map((p) => p.transitMs!);
+  const q1q2 = timesFor("q1-to-q2");
+  const q2q1 = timesFor("q2-to-q1");
+  const waiting = pairs.filter((p) => p.status !== "complete").length;
+  const avg = (v: number[]) => v.reduce((a, b) => a + b, 0) / v.length;
+  const speedStat = (label: string, v: number[], tone: string) => {
+    const m = median(v);
     return {
-      total: allPairs.length,
-      complete: complete.length,
-      waiting: waiting.length,
-      avgQ1Q2,
-      avgQ2Q1,
+      label,
+      value: m === null ? "–" : formatDuration(m),
+      sub: m === null ? "ingen målinger" : `snitt ${formatDuration(avg(v))} · ${v.length} målt`,
+      tone,
     };
-  }, [allPairs]);
+  };
 
-  const groups: { key: string; heading: string; rows: SedPair[] }[] = [];
-  for (const p of filteredPairs) {
-    const key = dayKey(p.newestReceivedAt);
-    const last = groups[groups.length - 1];
-    if (last && last.key === key) {
-      last.rows.push(p);
-    } else {
-      groups.push({
-        key,
-        heading: formatDayHeading(p.newestReceivedAt),
-        rows: [p],
-      });
-    }
-  }
+  const flash = (r: SedHendelseRecord | null) => {
+    const t = r ? liveSeen.get(recordKey(r)) : undefined;
+    return t !== undefined && now - t < FLASH_MS;
+  };
+  const filtering = q !== "" || flow !== "alle";
+  let index = 0;
 
   return (
-    <VStack gap="space-6" className="portal-page--wide">
-      <Box>
-        <HStack gap="space-4" align="center" wrap>
-          <Heading size="large" level="1">
-            SED-kobling
-          </Heading>
-          <StatusDot status={sseStatus} />
-        </HStack>
-        <BodyShort
-          style={{ color: "var(--ax-text-subtle, #555)", marginTop: 4 }}
-        >
-          Kobler SED-hendelser mellom Q1 og Q2 basert på RINA-dokument-ID og
-          dokumentversjon. Viser observert transporttid mellom miljøene.
-        </BodyShort>
-      </Box>
+    <div className="portal-page--wide arch-page lite-page live-page">
+      <LiveHero
+        page="kobling"
+        title="SED-kobling"
+        lead={
+          <>
+            Følg en SED fra det ene miljøet til det andre. Når en SED sendes fra Q1 til Q2, eller omvendt, kobles
+            sendingen og mottaket sammen, og du ser hvor lang tid det tok.
+          </>
+        }
+        status={status}
+        lastEventAt={lastEventAt}
+        art={<KoblingArt />}
+        stats={[
+          { label: "Par", value: pairs.length, sub: `${pairs.length - waiting} koblet` },
+          speedStat("Median Q1 → Q2", q1q2, ENVS.q1.tone),
+          speedStat("Median Q2 → Q1", q2q1, ENVS.q2.tone),
+          { label: "Venter", value: waiting, sub: waiting ? "uten partner" : "alt er koblet", tone: waiting ? "warning" : "success" },
+        ]}
+      />
 
-      {!loading && !error && allPairs.length > 0 && (
-        <HGrid gap="space-4" columns={{ xs: 2, md: 4 }}>
-          <SummaryCard
-            label="Totalt par"
-            value={String(stats.total)}
-            detail={`${stats.complete} komplett`}
-          />
-          <SummaryCard
-            label="Snitt Q1 → Q2"
-            value={
-              stats.avgQ1Q2 !== null ? formatAvgDuration(stats.avgQ1Q2) : "–"
-            }
-            detail={
-              stats.avgQ1Q2 !== null
-                ? `${allPairs.filter((p) => p.flowDirection === "q1-to-q2" && p.transitTimeMs !== null).length} målinger`
-                : "Ingen data"
-            }
-            variant="info"
-          />
-          <SummaryCard
-            label="Snitt Q2 → Q1"
-            value={
-              stats.avgQ2Q1 !== null ? formatAvgDuration(stats.avgQ2Q1) : "–"
-            }
-            detail={
-              stats.avgQ2Q1 !== null
-                ? `${allPairs.filter((p) => p.flowDirection === "q2-to-q1" && p.transitTimeMs !== null).length} målinger`
-                : "Ingen data"
-            }
-            variant="info"
-          />
-          <SummaryCard
-            label="Venter"
-            value={String(stats.waiting)}
-            detail={stats.waiting === 0 ? "Alt koblet" : "Ufullstendige par"}
-            variant={stats.waiting > 0 ? "warning" : "success"}
-          />
-        </HGrid>
-      )}
-
-      <HStack gap="space-4" wrap>
-        <ToggleGroup
-          size="small"
-          value={flowFilter}
-          onChange={(v) => setFlowFilter(v)}
-          label="Flyt"
-        >
+      <LiveToolbar
+        query={q}
+        onQuery={setQ}
+        placeholder="SED-type, RINA-sak, dokument-ID …"
+        shown={filtered.length}
+        total={pairs.length}
+        unit="par"
+        onReset={filtering ? () => (setQ(""), setFlow("alle")) : undefined}
+      >
+        <ToggleGroup size="small" value={flow} onChange={setFlow} aria-label="Retning">
           <ToggleGroup.Item value="alle">Alle</ToggleGroup.Item>
           <ToggleGroup.Item value="q1-to-q2">Q1 → Q2</ToggleGroup.Item>
           <ToggleGroup.Item value="q2-to-q1">Q2 → Q1</ToggleGroup.Item>
           <ToggleGroup.Item value="venter">Venter</ToggleGroup.Item>
         </ToggleGroup>
-      </HStack>
+      </LiveToolbar>
 
       {loading ? (
-        <HStack justify="center" style={{ padding: "2rem" }}>
-          <Loader size="xlarge" />
-        </HStack>
+        <TableSkeleton cols={6} />
       ) : error ? (
-        <Alert variant="error" size="small">
-          Kunne ikke koble til portal-core: {error}
-        </Alert>
-      ) : filteredPairs.length === 0 ? (
-        <Alert variant="info" size="small">
-          {allPairs.length === 0
-            ? "Ingen SED-par funnet ennå. Nye par vises automatisk når hendelser med matchende RINA-dokument-ID ankommer begge miljøer."
-            : "Ingen par matcher filteret."}
-        </Alert>
+        <LiveMessage tone="danger" title="Fikk ikke kontakt med eux-portal-core">
+          {error}. Siden prøver å koble til strømmen igjen av seg selv.
+        </LiveMessage>
+      ) : pairs.length === 0 ? (
+        <LiveMessage title="Ingen par ennå">
+          Send en SED mellom Q1 og Q2, så dukker den opp her med en gang.
+        </LiveMessage>
+      ) : filtered.length === 0 ? (
+        <LiveMessage title="Ingen treff">Prøv et annet søk, eller nullstill filtrene.</LiveMessage>
       ) : (
-        <Box
-          className="sed-kobling-table"
-          style={{
-            borderRadius: 8,
-            border: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-          }}
-        >
-          <Table size="small">
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell />
-                <Table.HeaderCell>SED</Table.HeaderCell>
-                <Table.HeaderCell>BUC</Table.HeaderCell>
-                <Table.HeaderCell>RINA-sak</Table.HeaderCell>
-                <Table.HeaderCell>Flyt</Table.HeaderCell>
-                <Table.HeaderCell>Sendt</Table.HeaderCell>
-                <Table.HeaderCell>Mottatt</Table.HeaderCell>
-                <Table.HeaderCell>Transporttid</Table.HeaderCell>
-                <Table.HeaderCell>Status</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {groups.flatMap((group) => [
-                <Table.Row key={`day-${group.key}`}>
-                  <Table.DataCell
-                    colSpan={9}
-                    style={{
-                      background: "var(--ax-bg-neutral-soft, #f1f3f5)",
-                      borderTop:
-                        "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-                      padding: "0.5rem 1rem",
-                    }}
+        <LiveTable className="live-table--kobling">
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell />
+              <Table.HeaderCell>SED</Table.HeaderCell>
+              <Table.HeaderCell>BUC</Table.HeaderCell>
+              <Table.HeaderCell>Retning</Table.HeaderCell>
+              <Table.HeaderCell>Sendt · RINA-sak</Table.HeaderCell>
+              <Table.HeaderCell>Mottatt · RINA-sak</Table.HeaderCell>
+              <Table.HeaderCell>Transporttid</Table.HeaderCell>
+              <Table.HeaderCell>Status</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {groups.flatMap((g) => [
+              <DayRow key={`day-${g.key}`} heading={g.heading} count={g.rows.length} unit="par" colSpan={COLS + 1} />,
+              ...g.rows.map((p) => {
+                const cls = ["live-row", `live-row--${p.status}`];
+                if (flash(p.destination) && p.status === "complete") cls.push("live-row--done");
+                else if (flash(p.source)) cls.push("live-row--new");
+                return (
+                  <Table.ExpandableRow
+                    key={p.key}
+                    expandOnRowClick
+                    togglePlacement="left"
+                    content={<PairDetails p={p} />}
+                    className={cls.join(" ")}
+                    style={rowStyle(index++)}
                   >
-                    <HStack gap="space-2" align="center" wrap>
-                      <Label size="small" style={{ textTransform: "none" }}>
-                        {group.heading}
-                      </Label>
-                      <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
-                        {group.rows.length}{" "}
-                        {group.rows.length === 1 ? "par" : "par"}
-                      </Detail>
-                    </HStack>
-                  </Table.DataCell>
-                </Table.Row>,
-                ...group.rows.map((pair) => {
-                  const rowClass =
-                    pair.status === "waiting"
-                      ? "sed-kobling-row sed-kobling-row--waiting"
-                      : pair.status === "source-missing"
-                        ? "sed-kobling-row sed-kobling-row--missing"
-                        : "sed-kobling-row";
-
-                  return (
-                    <Table.ExpandableRow
-                      key={pair.pairKey}
-                      expandOnRowClick
-                      content={<PairDetails pair={pair} />}
-                      className={rowClass}
-                    >
-                      <Table.DataCell>
-                        <strong>{pair.sedType}</strong>
-                      </Table.DataCell>
-                      <Table.DataCell>{pair.bucType}</Table.DataCell>
-                      <Table.DataCell>
-                        {pair.rinaSakId ? (
-                          <DsLink
-                            href={neessiSakUrl(
-                              pair.source?.environment ??
-                                pair.destination?.environment ??
-                                "q1",
-                              pair.rinaSakId,
-                            )}
-                            target="_blank"
-                            rel="noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {pair.rinaSakId}
-                            <span
-                              aria-hidden="true"
-                              style={{
-                                marginLeft: 4,
-                                opacity: 0.6,
-                                fontSize: "0.85em",
-                              }}
-                            >
-                              ↗
-                            </span>
-                          </DsLink>
-                        ) : (
-                          "–"
-                        )}
-                      </Table.DataCell>
-                      <Table.DataCell>
-                        <FlowBadge direction={pair.flowDirection} />
-                      </Table.DataCell>
-                      <Table.DataCell>
-                        {pair.source ? (
-                          <Detail>
-                            <strong>{formatTime(pair.source.receivedAt)}</strong>
-                            <span
-                              style={{
-                                marginLeft: 4,
-                                opacity: 0.6,
-                              }}
-                            >
-                              {pair.source.environment.toUpperCase()}
-                            </span>
-                          </Detail>
-                        ) : (
-                          <Detail
-                            style={{ color: "var(--ax-text-subtle, #555)" }}
-                          >
-                            Ikke i vindu
-                          </Detail>
-                        )}
-                      </Table.DataCell>
-                      <Table.DataCell>
-                        {pair.destination ? (
-                          <Detail>
-                            <strong>
-                              {formatTime(pair.destination.receivedAt)}
-                            </strong>
-                            <span
-                              style={{
-                                marginLeft: 4,
-                                opacity: 0.6,
-                              }}
-                            >
-                              {pair.destination.environment.toUpperCase()}
-                            </span>
-                          </Detail>
-                        ) : (
-                          <Detail className="sed-kobling-waiting-text">
-                            ⏳ Venter …
-                          </Detail>
-                        )}
-                      </Table.DataCell>
-                      <Table.DataCell>
-                        {pair.transitTimeMs !== null ? (
-                          <Tag
-                            size="xsmall"
-                            variant={durationVariant(pair.transitTimeMs)}
-                          >
-                            {formatDuration(pair.transitTimeMs)}
-                          </Tag>
-                        ) : (
-                          <Detail
-                            style={{ color: "var(--ax-text-subtle, #555)" }}
-                          >
-                            –
-                          </Detail>
-                        )}
-                      </Table.DataCell>
-                      <Table.DataCell>
-                        <StatusBadge status={pair.status} />
-                      </Table.DataCell>
-                    </Table.ExpandableRow>
-                  );
-                }),
-              ])}
-            </Table.Body>
-          </Table>
-        </Box>
+                    <Table.DataCell>
+                      <SedType type={p.sedType} toks={toks} />
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <Hl text={p.bucType} toks={toks} />
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <FlowPills from={p.from} to={p.to} />
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      {p.source ? <Side r={p.source} env={p.from} toks={toks} /> : <span className="arch-subtle">Ikke i minnet</span>}
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      {p.destination ? (
+                        <Side r={p.destination} env={p.to} toks={toks} />
+                      ) : (
+                        <span className="live-waiting">Venter</span>
+                      )}
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <Transit d={p.transitMs} />
+                    </Table.DataCell>
+                    <Table.DataCell>
+                      <StatusTag status={p.status} />
+                    </Table.DataCell>
+                  </Table.ExpandableRow>
+                );
+              }),
+            ])}
+          </Table.Body>
+        </LiveTable>
       )}
 
-      <Detail style={{ color: "var(--ax-text-subtle, #555)" }}>
-        Viser {filteredPairs.length} par (av {allPairs.length} totalt). Par
-        kobles basert på matchende RINA-dokument-ID og dokumentversjon.
-        Transporttid er observert tid mellom Kafka-hendelser.
-      </Detail>
-    </VStack>
+      <LiveAbout
+        title="Slik kobles SED-ene"
+        lead="Siden bruker de samme hendelsene som SED-hendelser, og ser etter samme dokument på begge sider."
+        chain={[
+          { label: "Sendt fra Q1 eller Q2", sub: "sedsendt-v1", href: archHref("sedsendt-v1"), tone: "info", mono: false },
+          { label: "Mottatt i det andre", sub: "sedmottatt-v1", href: archHref("sedmottatt-v1"), tone: "info" },
+          { label: "eux-portal-core", sub: "holder de 500 nyeste", href: "https://github.com/navikt/eux-architecture/tree/main/portal-core" },
+          { label: "Denne siden", sub: "kobler i nettleseren" },
+        ]}
+        facts={[
+          <>
+            En sending og et mottak hører sammen når de har samme RINA-dokument-ID og dokumentversjon. RINA-saken har
+            ofte et eget nummer hos mottakeren, så siden viser saken på begge sider.
+          </>,
+          <>
+            Transporttiden er tiden mellom de to Kafka-meldingene, ikke tiden i RINA. Median sier mest, siden én treg
+            sending kan dra snittet langt opp.
+          </>,
+          <>
+            Bare SED-er mellom NAV ACC 06 (Q1) og NAV ACC 07 (Q2) tas med. SED-er til og fra andre land finner du i
+            SED-hendelser.
+          </>,
+          <>
+            «Kilde ukjent» betyr at mottaket er i minnet, men ikke sendingen. Den kan være eldre enn de {MAX_ROWS}
+            nyeste hendelsene.
+          </>,
+        ]}
+      />
+
+      <LiveFurther
+        current="kobling"
+        extra={[
+          { href: "/environments", title: "Miljøer", text: "Q1 og Q2, institusjonene og RINA-versjonene." },
+          { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hva som skjer når en SED er sendt eller mottatt." },
+        ]}
+      />
+    </div>
   );
 }

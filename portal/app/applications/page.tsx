@@ -484,7 +484,7 @@ export default function ApplicationsPage() {
             </span>
             <span>
               <strong>Hendelser live</strong>
-              <span className="arch-flow-card__text">Det eux-all-rina-events legger på Kafka, akkurat nå.</span>
+              <span className="arch-flow-card__text">sedsendt-v1 og sedmottatt-v1 fra eux-legacy-rina-events, akkurat nå.</span>
             </span>
             <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
           </NextLink>
