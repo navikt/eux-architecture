@@ -1,580 +1,612 @@
-import { Heading, BodyLong, VStack, BodyShort } from "@navikt/ds-react";
+"use client";
 
-export const metadata = {
-  title: "Applikasjoner · Team EESSI Nav",
-};
+import { useCallback, useEffect, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import NextLink from "next/link";
+import { BodyLong, BodyShort, Button, Chips, Detail, Heading, Search, Tag } from "@navikt/ds-react";
+import { ArrowRightIcon, BranchingIcon, ChevronDownIcon, ExternalLinkIcon, GlobeIcon, LightningIcon } from "@navikt/aksel-icons";
+import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
+import {
+  JOB_COUNT,
+  NODES,
+  NODE_BY_ID,
+  SERVICE_COUNT,
+  TOPIC_COUNT,
+  edgeLabel,
+  incoming,
+  outgoing,
+  type ArchEdge,
+  type ArchNode,
+  type Lang,
+  type Zone,
+} from "@/components/architecture/data";
+import { archHref, ghHref } from "@/components/avslutning/tones";
+import { ENV_IDS, ENVS, ENV_SERVICE_BY_ID, hostUrl, swaggerUrl } from "@/components/miljoer/data";
 
-type AppDetail = {
-  role?: string;
-  inbound?: string[];
-  outbound?: string[];
-  kafkaConsumes?: string[];
-  kafkaProduces?: string[];
-  auth?: string;
-  patterns?: string[];
-  notes?: string[];
-};
+/* ---------- Innhold ---------- */
 
-type App = {
-  name: string;
-  repo?: string;
-  tech: string;
-  db: string;
-  description: string;
-  detail?: AppDetail;
-};
+type Tone = "accent" | "success" | "info" | "meta-purple" | "meta-lime" | "warning";
 
-const core: App[] = [
+const LAYERS: { id: string; short: string; title: string; zones: Zone[]; tone: Tone; lead: string }[] = [
   {
-    name: "nEESSI",
-    repo: "eux-web-app",
-    tech: "React / TypeScript / Node.js",
-    db: "—",
-    description:
-      "Frontend for saksbehandlere. Node.js BFF videresender forespørsler til eux-neessi med OAuth2 on-behalf-of.",
-    detail: {
-      role: "Eneste web-klient saksbehandlere bruker. En liten Express-basert BFF foran React-appen håndterer Azure AD-innlogging via Wonderwall sidecar og proxer /api og /v2–/v5 videre til eux-neessi.",
-      inbound: ["Saksbehandler i nettleser (Azure AD via Wonderwall)"],
-      outbound: ["eux-neessi (HTTP, OBO-token)"],
-      auth: "Azure AD via Wonderwall sidecar; OAuth2 on-behalf-of mot eux-neessi.",
-      patterns: ["React", "TypeScript", "Node.js BFF", "Wonderwall", "NAV Aksel"],
-    },
+    id: "frontend",
+    short: "Frontend",
+    title: "Frontend og orkestrering",
+    zones: ["frontend", "orkestrering"],
+    tone: "accent",
+    lead: "nEESSI er det saksbehandlerne ser. eux-neessi står bak og setter sammen data fra resten av EUX og NAV.",
   },
   {
-    name: "eux-neessi",
-    tech: "Java / Spring Boot",
-    db: "—",
-    description:
-      "Backend-for-frontend / orkestrator. Kaller eux-* tjenester, PDL, Dokarkiv, SAF.",
-    detail: {
-      role: "Sentral orkestrator. All trafikk fra nEESSI går hit, og denne kaller alle underliggende eux-* tjenester pluss eksterne NAV-systemer. Driver mesteparten av forretningslogikken for saksbehandlerflyten.",
-      inbound: ["nEESSI (OBO-token)"],
-      outbound: [
-        "eux-rina-api",
-        "eux-nav-rinasak",
-        "eux-journal",
-        "eux-oppgave",
-        "eux-saksbehandler",
-        "Dokarkiv (REST)",
-        "SAF (GraphQL)",
-        "PDL (GraphQL)",
-        "NORG2",
-        "Aa-registeret",
-        "A-Inntekt",
-      ],
-      auth: "Azure AD OBO inn fra nEESSI; OBO eller client-credentials videre nedstrøms.",
-      patterns: ["Caffeine cache", "Resilience4j retry", "GraphQL-klient"],
-    },
+    id: "domene",
+    short: "Domene",
+    title: "Domenetjenester",
+    zones: ["domene"],
+    tone: "success",
+    lead: "Små tjenester som eier hver sin del av domenet, alle med egen PostgreSQL-database.",
   },
   {
-    name: "eux-rina-api",
-    tech: "Java / Spring Boot",
-    db: "—",
-    description:
-      "Mellomvare mot RINA CPI. SED-malrendering, PDF-generering, saksstyring.",
-    detail: {
-      role: "Oversetter mellom NAV-format og EU/SED-format, renderer SED-maler fra classpath, genererer PDF og styrer saksoperasjoner mot RINA CPI. ACL-laget (EessiAcl) er transformasjonsmotoren — ikke adgangskontroll.",
-      inbound: [
-        "eux-neessi",
-        "eux-fagmodul-journalfoering",
-        "eux-journalarkivar",
-        "eux-barnetrygd",
-        "eux-adresse-oppdatering",
-        "eux-person-oppdatering",
-      ],
-      outbound: [
-        "RINA CPI (shared-secret JWT → CAS-ticket → JSESSIONID)",
-        "PDL (GraphQL)",
-        "eux-pdf (for U020/U029)",
-      ],
-      auth: "Azure AD client credentials inn; shared-secret JWT ut mot RINA CPI.",
-      patterns: ["Caffeine cache", "GraphQL-klient", "iText PDF"],
-      notes: [
-        "ACL er IKKE adgangskontroll — det er SED-transformasjonslaget. Manglende kodemapping gir tom streng og en warning, ikke feilkast.",
-        "CPI-sesjonscache utløper på 29 min, RINA på 30 min. Lange operasjoner kan treffe auth-feil uten automatisk fornyelse.",
-        "Manglende actions på et dokument returnerer 404 — vanskelig å skille fra «ikke funnet».",
-        "Polling av vedlegg (1 s × 2 min) kaster 504 Gateway Timeout som exception, ikke null.",
-        "U020 og U029 PDF-generering går mot ekstern eux-pdf-tjeneste; resten genereres internt med iText.",
-        "Retry mot CPI er hardkodet til 10 forsøk × 1 s og gjelder bare enkelte kodebaner.",
-        "Vedleggs-filnavn med / eller \\ erstattes med Unicode-fullwidth-tegn (\\uFF0F, \\uFF3C).",
-      ],
-    },
+    id: "rina",
+    short: "RINA",
+    title: "RINA-integrasjon",
+    zones: ["rina-integrasjon"],
+    tone: "info",
+    lead: "Tjenestene som er bygget rundt RINA: mellomvaren mot CPI, avslutning og sletting, søk og PDF.",
   },
   {
-    name: "eux-nav-rinasak",
-    tech: "Kotlin / Spring Boot",
-    db: "PostgreSQL",
-    description:
-      "Kobler NAV-fagsaker til RINA-saker. Holder styr på journalstatus per SED.",
-    detail: {
-      role: "Sentralt register som binder en RINA-sak til en NAV-fagsak (pensjon, sykdom, barnetrygd, m.fl.) og sporer journalstatus per SED. Brukes av både frontend-flyten og bakgrunnsarbeiderne.",
-      inbound: [
-        "eux-neessi",
-        "eux-fagmodul-journalfoering",
-        "eux-journalarkivar",
-        "eux-barnetrygd",
-      ],
-      outbound: ["PostgreSQL (Cloud SQL)"],
-      auth: "Azure AD client credentials.",
-      patterns: ["PostgreSQL", "Flyway", "OpenAPI codegen", "Multi-modul Maven"],
-    },
+    id: "hendelser",
+    short: "Hendelser",
+    title: "Hendelsesinfrastruktur",
+    zones: ["hendelser"],
+    tone: "meta-purple",
+    lead: "Tar imot hendelser fra RINA og legger dem på Kafka, i nytt og gammelt format.",
   },
   {
-    name: "eux-journal",
-    tech: "Kotlin / Spring Boot",
-    db: "PostgreSQL",
-    description: "Feilregistrering og ferdigstilling av journalposter.",
-    detail: {
-      role: "Domenetjeneste for journalpost-livssyklus: feilregistrering når noe har gått galt, og ferdigstilling når en journalpost er klar. Snakker direkte med Dokarkiv og SAF.",
-      inbound: ["eux-neessi", "eux-journalarkivar"],
-      outbound: ["Dokarkiv (REST)", "SAF (GraphQL)", "PostgreSQL"],
-      auth: "Azure AD client credentials.",
-      patterns: ["PostgreSQL", "Flyway", "OpenAPI codegen", "GraphQL-klient"],
-    },
+    id: "bakgrunn",
+    short: "Bakgrunn",
+    title: "Bakgrunnstjenester",
+    zones: ["bakgrunn"],
+    tone: "meta-lime",
+    lead: "Tjenester uten brukerflate. De lytter på Kafka eller kjøres på tidsplan.",
   },
   {
-    name: "eux-oppgave",
-    tech: "Kotlin / Spring Boot",
-    db: "PostgreSQL",
-    description: "Integrasjonslag mot NAV Oppgave.",
-    detail: {
-      role: "Tynt integrasjonslag mellom EUX-tjenestene og NAV Oppgave. Oppretter, oppdaterer og ferdigstiller oppgaver. Beholder en lokal kopi for sporing og idempotens.",
-      inbound: [
-        "eux-neessi",
-        "eux-fagmodul-journalfoering",
-        "eux-journalarkivar",
-        "eux-barnetrygd",
-      ],
-      outbound: ["NAV Oppgave (REST)", "PostgreSQL"],
-      auth: "Azure AD client credentials.",
-      patterns: ["PostgreSQL", "Flyway", "OpenAPI codegen", "Spring Retry"],
-    },
-  },
-  {
-    name: "eux-saksbehandler",
-    tech: "Kotlin / Spring Boot",
-    db: "PostgreSQL",
-    description: "Saksbehandlerinnstillinger (f.eks. favorittenhet).",
-    detail: {
-      role: "Lagrer per-bruker innstillinger for saksbehandlere, som favorittenhet. Kalles utelukkende av nEESSI via eux-neessi.",
-      inbound: ["eux-neessi"],
-      outbound: ["PostgreSQL"],
-      auth: "Azure AD OBO (kjenner saksbehandleren).",
-      patterns: ["PostgreSQL", "Flyway", "OpenAPI codegen"],
-    },
-  },
-  {
-    name: "eux-rina-terminator-api",
-    tech: "Kotlin / Spring Boot",
-    db: "—",
-    description: "REST-API for å lukke, arkivere og slette RINA-saker.",
-    detail: {
-      role: "Eneste vei inn til lukk-/arkiver-/slett-operasjoner mot RINA CPI. Brukes av opprydnings-arbeiderne, ikke direkte av saksbehandlere.",
-      inbound: ["eux-avslutt-rinasaker", "eux-slett-usendte-rinasaker"],
-      outbound: ["RINA CPI (service user credentials)"],
-      auth: "Azure AD client credentials inn; service-bruker (CAS-ticket) ut mot RINA CPI.",
-      patterns: ["Caffeine cache"],
-    },
-  },
-  {
-    name: "eux-rina-case-search",
-    tech: "Java / Spring Boot",
-    db: "PostgreSQL",
-    description: "Søkeindeks for RINA-saker. Bygges fra Kafka-hendelser.",
-    detail: {
-      role: "Bygger og holder vedlike en søkbar indeks over RINA-saker ved å konsumere case- og dokument-hendelser fra Kafka. Eksponerer et REST-søke-API som eux-neessi bruker.",
-      inbound: ["eux-neessi"],
-      outbound: ["RINA CPI (CAS-ticket)", "PostgreSQL"],
-      kafkaConsumes: ["eux-rina-case-events-v1", "eux-rina-document-events-v1"],
-      auth: "Azure AD client credentials inn; CAS-ticket ut mot RINA CPI.",
-      patterns: ["PostgreSQL", "Flyway", "Kafka consumer", "Egendefinert retry"],
-    },
+    id: "jobber",
+    short: "Jobber",
+    title: "NAIS-jobber",
+    zones: ["jobber"],
+    tone: "warning",
+    lead: "Cron-utløsere uten forretningslogikk. De kaller et endepunkt i tjenesten de hører til.",
   },
 ];
 
-const events: App[] = [
-  {
-    name: "eux-all-rina-events",
-    tech: "Java / Spring Boot",
-    db: "—",
-    description:
-      "Mottar NIE-hendelser fra RINA via HTTP POST. Publiserer på tre Kafka-topics.",
-    detail: {
-      role: "Eneste inngang for NIE-hendelser fra RINA CPI. Validerer og fan-outer på tre Kafka-topics. Eneste applikasjon som publiserer disse topicene.",
-      inbound: ["RINA CPI (NIE, HTTP POST)"],
-      kafkaProduces: [
-        "eux-rina-case-events-v1",
-        "eux-rina-document-events-v1",
-        "eux-rina-notification-events-v1",
-      ],
-      auth: "Token/shared-secret fra RINA inn; Aiven Kafka ut.",
-      patterns: ["Kafka producer"],
-    },
-  },
-  {
-    name: "eux-legacy-rina-events",
-    tech: "Java / Spring Boot",
-    db: "—",
-    description:
-      "Bro fra nye dokumenthendelser til legacy-topicene sedmottatt-v1 / sedsendt-v1.",
-    detail: {
-      role: "Bakoverkompatibilitetsbro. Konverterer nye dokument-hendelser til legacy-format slik at eldre konsumenter (eux-fagmodul-journalfoering, eux-person-oppdatering, eessi-pensjon) fortsatt fungerer.",
-      kafkaConsumes: ["eux-rina-document-events-v1"],
-      kafkaProduces: ["sedmottatt-v1", "sedsendt-v1"],
-      patterns: ["Kafka consumer", "Kafka producer"],
-    },
-  },
+const LIBRARIES = [
+  { repo: "eux-parent-pom", tech: "Maven-parent", text: "Felles avhengighetsversjoner for Spring Boot, Kotlin, Java, token-validering og PostgreSQL." },
+  { repo: "eux-logging", tech: "Kotlin-bibliotek", text: "MDC-filter for sporing av request-id og EUX-spesifikk loggkontekst." },
+  { repo: "eux-versions-maven-plugin", tech: "Maven-plugin", text: "Øker patch-versjonen automatisk ut fra git-tagger. Brukes i CI/CD." },
 ];
 
-const workers: App[] = [
-  {
-    name: "eux-fagmodul-journalfoering",
-    tech: "Java / Spring Boot",
-    db: "—",
-    description:
-      "Konsumerer sedmottatt/sedsendt. Auto-journalfører SED-er via Dokarkiv, PDL, eux-nav-rinasak, eux-oppgave.",
-    detail: {
-      role: "Auto-journalfører innkomne og utgående SED-er. Henter SED-innhold fra eux-rina-api, slår opp person i PDL, oppretter journalpost i Dokarkiv, kobler til fagsak via eux-nav-rinasak og oppretter eventuell oppgave.",
-      kafkaConsumes: ["sedmottatt-v1", "sedsendt-v1"],
-      outbound: [
-        "eux-rina-api",
-        "PDL (GraphQL)",
-        "SAF (GraphQL)",
-        "Dokarkiv (REST)",
-        "eux-nav-rinasak",
-        "eux-oppgave",
-      ],
-      auth: "Azure AD client credentials.",
-      patterns: ["Kafka consumer", "Caffeine cache", "GraphQL-klient"],
-    },
-  },
-  {
-    name: "eux-journalarkivar",
-    tech: "Kotlin / Spring Boot",
-    db: "—",
-    description:
-      "Orkestrerer ferdigstilling og feilregistrering av journalposter. Trigges av NAIS-jobber.",
-    detail: {
-      role: "Ferdigstiller og feilregistrerer journalposter, og reconciler journalstatus mellom eux-nav-rinasak og Dokarkiv når disse har kommet i utakt.",
-      inbound: [
-        "NAIS-jobb (ferdigstill 01:00)",
-        "NAIS-jobb (feilregistrer 02:00)",
-      ],
-      outbound: [
-        "eux-journal",
-        "eux-nav-rinasak",
-        "eux-oppgave",
-        "eux-rina-api",
-        "SAF (GraphQL)",
-        "Dokarkiv (REST)",
-      ],
-      auth: "Azure AD client credentials.",
-      patterns: ["NAIS-cronjob-trigget", "GraphQL-klient"],
-    },
-  },
-  {
-    name: "eux-avslutt-rinasaker",
-    tech: "Kotlin / Spring Boot",
-    db: "PostgreSQL",
-    description:
-      "Håndterer livssyklusen for lukking/arkivering av RINA-saker. Trigges av NAIS-jobber.",
-    detail: {
-      role: "Tilstandsmaskin som styrer lukking, arkivering og opprydding av RINA-saker. Lytter på Kafka for å holde tilstanden oppdatert, og kjører selve operasjonene når NAIS-jobben trigger.",
-      inbound: [
-        "NAIS-jobb (arkiver 05:00)",
-        "NAIS-jobb (sett-uvirksom, til-avslutning, avslutt, slett-dokumentutkast)",
-      ],
-      outbound: ["eux-rina-terminator-api", "PostgreSQL"],
-      kafkaConsumes: [
-        "eux-rina-case-events-v1",
-        "eux-rina-document-events-v1",
-      ],
-      auth: "Azure AD client credentials.",
-      patterns: ["PostgreSQL", "Flyway", "Kafka consumer", "OpenAPI codegen"],
-    },
-  },
-  {
-    name: "eux-slett-usendte-rinasaker",
-    tech: "Kotlin / Spring Boot",
-    db: "PostgreSQL",
-    description:
-      "Sletter RINA-saker som aldri fikk en SED. Trigges av NAIS-jobber.",
-    detail: {
-      role: "Finner og fjerner foreldreløse RINA-saker — saker som ble opprettet men aldri fikk en SED — for å hindre opphopning av utkast.",
-      inbound: [
-        "NAIS-jobb (slett 01:00, til-sletting 02:00)",
-        "NAIS-jobb (månedlig rapport 1. kl 06:00)",
-      ],
-      outbound: ["eux-rina-terminator-api", "PostgreSQL"],
-      kafkaConsumes: [
-        "eux-rina-case-events-v1",
-        "eux-rina-document-events-v1",
-      ],
-      auth: "Azure AD client credentials.",
-      patterns: ["PostgreSQL", "Flyway", "Kafka consumer", "OpenAPI codegen"],
-    },
-  },
-  {
-    name: "eux-adresse-oppdatering",
-    tech: "Kotlin / Spring Boot",
-    db: "—",
-    description:
-      "Oppdaterer adresser i PDL når adressedata finnes i innkommende SED-er.",
-    detail: {
-      role: "Plukker adressedata ut av innkommende SED-er og sender oppdateringer til PDL via PDL-Mottak.",
-      kafkaConsumes: ["eux-rina-document-events-v1"],
-      outbound: ["PDL-Mottak (REST)", "PDL (GraphQL)", "eux-rina-api"],
-      auth: "Azure AD client credentials.",
-      patterns: ["Kafka consumer (3 retries → DLT)", "GraphQL-klient"],
-    },
-  },
-  {
-    name: "eux-person-oppdatering",
-    tech: "Java / Spring Boot",
-    db: "PostgreSQL",
-    description:
-      "Henter utenlandske ID-nummer fra innkommende SED-er og sender oppdateringer til PDL.",
-    detail: {
-      role: "Ekstraherer utenlandske identifikatorer fra innkommende SED-er og sender oppdateringer til PDL via PDL-Mottak. Sporer oppdateringsstatus i database for idempotens.",
-      kafkaConsumes: ["sedmottatt-v1"],
-      outbound: [
-        "eux-rina-api",
-        "PDL-Mottak (REST)",
-        "PDL (GraphQL)",
-        "PostgreSQL",
-      ],
-      auth: "Azure AD client credentials.",
-      patterns: ["PostgreSQL", "Flyway", "Kafka consumer", "GraphQL-klient"],
-    },
-  },
-  {
-    name: "eux-barnetrygd",
-    tech: "Java / Spring Boot",
-    db: "—",
-    description: "Planlagt arbeider for årlig fornyelse av barnetrygdsaker.",
-    detail: {
-      role: "Schedulert arbeider som starter den årlige fornyelsesrunden av barnetrygdsaker — oppretter oppgaver og forbereder SED-utveksling.",
-      outbound: [
-        "eux-oppgave",
-        "eux-rina-api",
-        "eux-nav-rinasak",
-        "PDL (GraphQL)",
-        "SAF (GraphQL)",
-      ],
-      auth: "Azure AD client credentials.",
-      patterns: ["Scheduled", "GraphQL-klient"],
-    },
-  },
+const FURTHER: { href: string; title: string; text: string }[] = [
+  { href: "/architecture", title: "Arkitektur", text: "Hele plattformen i ett kart, med flyter, mønstre og eksterne systemer." },
+  { href: "/environments", title: "Miljøer", text: "Q1 og Q2: RINA, institusjoner, adresser, Swagger og helse." },
+  { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Hendelser fra RINA, live fra Kafka i Q1 og Q2." },
+  { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hvordan SED-er havner i arkivet, steg for steg." },
+  { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan RINA-saker lukkes og arkiveres." },
+  { href: "/nytt-i-neessi", title: "Nytt i nEESSI", text: "Siste endringer i nEESSI." },
 ];
 
-const libs: App[] = [
-  {
-    name: "eux-parent-pom",
-    tech: "Maven parent POM",
-    db: "—",
-    description:
-      "Felles avhengighetsversjoner (Spring Boot, Kotlin, Java, token-validation, PostgreSQL).",
-    detail: {
-      role: "Felles Maven-parent for alle JVM-tjenester i plattformen. Pinner versjoner på Spring Boot, Kotlin, Java, token-validation, PostgreSQL-driver og testbiblioteker. Endringer her propagerer ved neste bygg.",
-      patterns: ["Maven"],
-    },
-  },
-  {
-    name: "eux-logging",
-    tech: "Kotlin-bibliotek",
-    db: "—",
-    description:
-      "MDC-filter for sporing av request-id og EUX-spesifikk loggekontekst.",
-    detail: {
-      role: "Logback MDC-filter som propagerer x_request_id på tvers av tjenester og legger til EUX-spesifikke felter (rinasakId, sedId, sedType, bucId, m.fl.) i strukturert logg.",
-      patterns: ["Kotlin-bibliotek", "Logback MDC"],
-    },
-  },
-  {
-    name: "eux-versions-maven-plugin",
-    tech: "Maven-plugin",
-    db: "—",
-    description:
-      "Auto-inkrementerer patch-versjoner fra git-tagger. Brukes i CI/CD.",
-    detail: {
-      role: "Maven-plugin som auto-inkrementerer patch-versjon basert på siste Git-tag. Kjøres i CI med mvn eux-versions:set-next før release.",
-      patterns: ["Maven-plugin", "CI/CD"],
-    },
-  },
-];
+const SECTIONS = [...LAYERS.map((l) => ({ id: l.id, label: l.short })), { id: "biblioteker", label: "Biblioteker" }, { id: "videre", label: "Videre" }];
+const SECTION_IDS = SECTIONS.map((s) => s.id);
 
-function Field({
-  label,
-  children,
-  wide,
-}: {
-  label: string;
-  children: React.ReactNode;
-  wide?: boolean;
-}) {
+const APPS = NODES.filter((n) => n.kind === "app" || n.kind === "job");
+const APP_IDS = new Set(APPS.map((n) => n.id));
+const TONE_BY_ID: Record<string, Tone> = Object.fromEntries(
+  APPS.map((n) => [n.id, LAYERS.find((l) => l.zones.includes(n.zone))?.tone ?? "accent"]),
+);
+const LANGS: Lang[] = ["Kotlin", "Java", "TypeScript"];
+const LANG_COUNT = Object.fromEntries(LANGS.map((l) => [l, APPS.filter((n) => n.kind === "app" && n.lang === l).length]));
+const DB_COUNT = APPS.filter((n) => n.db).length;
+
+const usesKafka = (id: string) =>
+  [...incoming(id), ...outgoing(id)].some((e) => e.kind === "event" && (NODE_BY_ID[e.from].kind === "topic" || NODE_BY_ID[e.to].kind === "topic"));
+
+const haystack = (n: ArchNode) =>
+  [n.name, n.summary, ...(n.facts ?? []), n.lang ?? "", ...[...incoming(n.id), ...outgoing(n.id)].map((e) => `${NODE_BY_ID[e.from].name} ${NODE_BY_ID[e.to].name}`)]
+    .join(" ")
+    .toLowerCase();
+const HAYSTACK: Record<string, string> = Object.fromEntries(APPS.map((n) => [n.id, haystack(n)]));
+
+type Filter = { q: string; langs: Lang[]; db: boolean; kafka: boolean };
+const NO_FILTER: Filter = { q: "", langs: [], db: false, kafka: false };
+
+const matches = (n: ArchNode, f: Filter) =>
+  (f.langs.length === 0 || (n.lang && f.langs.includes(n.lang))) &&
+  (!f.db || n.db) &&
+  (!f.kafka || usesKafka(n.id)) &&
+  f.q
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((t) => HAYSTACK[n.id].includes(t));
+
+const KIND_RANK: Record<string, number> = { app: 0, job: 0, topic: 1, team: 2, person: 2, external: 3 };
+
+function group(title: string, edges: ArchEdge[], side: "from" | "to") {
+  const items = edges
+    .map((e) => ({ id: e[side], label: edgeLabel(e) }))
+    .sort((a, b) => {
+      const na = NODE_BY_ID[a.id];
+      const nb = NODE_BY_ID[b.id];
+      return KIND_RANK[na.kind] - KIND_RANK[nb.kind] || na.name.localeCompare(nb.name, "no");
+    });
+  return { title, items };
+}
+
+function relations(id: string) {
+  const ins = incoming(id);
+  const outs = outgoing(id);
+  return [
+    group("Startes av", ins.filter((e) => e.kind === "cron"), "from"),
+    group("Kalles av", ins.filter((e) => e.kind === "rest"), "from"),
+    group("Hendelser inn", ins.filter((e) => e.kind === "event"), "from"),
+    group("Kaller", outs.filter((e) => e.kind === "rest"), "to"),
+    group("Hendelser ut", outs.filter((e) => e.kind === "event"), "to"),
+    group("Starter", outs.filter((e) => e.kind === "cron"), "to"),
+  ].filter((g) => g.items.length > 0);
+}
+
+/* ---------- Byggeklosser ---------- */
+
+function Section({ id, eyebrow, title, lead, children }: { id: string; eyebrow: string; title: string; lead?: ReactNode; children: ReactNode }) {
   return (
-    <div
-      className={`portal-app__field${wide ? " portal-app__field--wide" : ""}`}
-    >
-      <div className="portal-app__label">{label}</div>
+    <section id={id} className="arch-section" aria-labelledby={`${id}-title`}>
+      <header className="arch-section__head">
+        <Detail className="arch-eyebrow">{eyebrow}</Detail>
+        <Heading level="2" size="large" id={`${id}-title`}>
+          {title}
+        </Heading>
+        {lead && <BodyLong className="arch-section__lead">{lead}</BodyLong>}
+      </header>
       {children}
+    </section>
+  );
+}
+
+/** Lagene i plattformen som en stabel. Ved rulling glir lagene fra hverandre. */
+function HeroArt() {
+  const cx = 186;
+  const w = 146;
+  const h = 44;
+  const box = "0 0 420 380";
+  return (
+    <div className="lite-hero__art" aria-hidden>
+      {LAYERS.map((l, li) => {
+        const cy = 78 + li * 46;
+        const nodes = APPS.filter((n) => l.zones.includes(n.zone));
+        const cols = Math.min(nodes.length, 4);
+        const rows = Math.ceil(nodes.length / cols);
+        const at = (a: number, b: number) => [cx + (a - b) * w, cy - h + (a + b) * h] as const;
+        const depth = 0.9 - li * 0.16;
+        return (
+          <svg key={l.id} className="lite-layer" style={{ "--depth": depth } as CSSProperties} viewBox={box}>
+            <g data-tone={l.tone} className="apps-plane" style={{ "--i": li } as CSSProperties}>
+              <path d={`M ${cx} ${cy - h} L ${cx + w} ${cy} L ${cx} ${cy + h} L ${cx - w} ${cy} Z`} className="apps-plane__face" />
+              {nodes.map((n, i) => {
+                const [x, y] = at((((i % cols) + 1) / (cols + 1)) * 0.9 + 0.05, ((Math.floor(i / cols) + 1) / (rows + 1)) * 0.9 + 0.05);
+                return <circle key={n.id} cx={x} cy={y} r={4.2} className="apps-plane__dot" style={{ "--j": i + li * 3 } as CSSProperties} />;
+              })}
+              <text x={cx + w + 10} y={cy + 4} className="apps-plane__label">
+                {l.short}
+              </text>
+            </g>
+          </svg>
+        );
+      })}
     </div>
   );
 }
 
-function List({ items }: { items: string[] }) {
+function NodeChip({ id, label, onJump }: { id: string; label: string; onJump: (id: string) => void }) {
+  const n = NODE_BY_ID[id];
+  const inPage = APP_IDS.has(id);
+  const extra = label === "CPI" || label === "NIE" || label === "GraphQL" ? label : null;
+  const body = (
+    <>
+      {n.name}
+      {extra && <small>{extra}</small>}
+    </>
+  );
+  if (inPage) {
+    return (
+      <a
+        href={`#${id}`}
+        className="apps-chip"
+        data-tone={TONE_BY_ID[id]}
+        onClick={(e: MouseEvent) => {
+          e.preventDefault();
+          onJump(id);
+        }}
+      >
+        {body}
+      </a>
+    );
+  }
   return (
-    <ul className="portal-app__list">
-      {items.map((it) => (
-        <li key={it}>{it}</li>
-      ))}
-    </ul>
+    <NextLink href={archHref(id)} className="apps-chip" data-kind={n.kind} title={`${n.summary} Vis i arkitekturkartet.`}>
+      {body}
+    </NextLink>
   );
 }
 
-function AppCard({ app }: { app: App }) {
-  const d = app.detail;
+function EnvLinks({ id }: { id: string }) {
+  const s = ENV_SERVICE_BY_ID[id];
+  if (!s) return null;
   return (
-    <details className="portal-app">
-      <summary className="portal-app__summary">
-        <BodyShort as="div">
-          <span className="portal-app__name">{app.name}</span>
-          <span className="portal-app__meta">
-            {" — "}
-            {app.tech}
-            {app.db !== "—" ? ` · ${app.db}` : ""}
-          </span>
-        </BodyShort>
-        <div className="portal-app__desc">{app.description}</div>
-      </summary>
-
-      {d && (
-        <div className="portal-app__body">
-          {d.role && (
-            <Field label="Rolle" wide>
-              <BodyShort size="small">{d.role}</BodyShort>
-            </Field>
+    <div className="apps-envs">
+      {ENV_IDS.map((env) => (
+        <div key={env} className="apps-env" data-tone={ENVS[env].tone}>
+          <span className="apps-env__badge">{ENVS[env].name}</span>
+          {!s.envs.includes(env) ? (
+            <span className="arch-subtle">Ikke i {ENVS[env].name}</span>
+          ) : !s.health ? (
+            <span className="arch-subtle">Ingen åpne endepunkter</span>
+          ) : (
+            <>
+              <a href={hostUrl(s, env)} target="_blank" rel="noreferrer">
+                Åpne <ExternalLinkIcon aria-hidden />
+              </a>
+              {s.swagger.includes(env) && (
+                <a href={swaggerUrl(s, env)} target="_blank" rel="noreferrer">
+                  Swagger <ExternalLinkIcon aria-hidden />
+                </a>
+              )}
+            </>
           )}
-
-          {d.inbound && d.inbound.length > 0 && (
-            <Field label="Inn / triggere">
-              <List items={d.inbound} />
-            </Field>
-          )}
-
-          {d.outbound && d.outbound.length > 0 && (
-            <Field label="Ut / avhengigheter">
-              <List items={d.outbound} />
-            </Field>
-          )}
-
-          {d.kafkaConsumes && d.kafkaConsumes.length > 0 && (
-            <Field label="Kafka — konsumerer">
-              <List items={d.kafkaConsumes} />
-            </Field>
-          )}
-
-          {d.kafkaProduces && d.kafkaProduces.length > 0 && (
-            <Field label="Kafka — produserer">
-              <List items={d.kafkaProduces} />
-            </Field>
-          )}
-
-          {d.auth && (
-            <Field label="Autentisering" wide>
-              <BodyShort size="small">{d.auth}</BodyShort>
-            </Field>
-          )}
-
-          {d.patterns && d.patterns.length > 0 && (
-            <Field label="Mønstre" wide>
-              <div className="portal-app__tags">
-                {d.patterns.map((p) => (
-                  <span key={p} className="portal-app__tag">
-                    {p}
-                  </span>
-                ))}
-              </div>
-            </Field>
-          )}
-
-          {d.notes && d.notes.length > 0 && (
-            <Field label="Merknader" wide>
-              <ul className="portal-app__notes">
-                {d.notes.map((n) => (
-                  <li key={n}>{n}</li>
-                ))}
-              </ul>
-            </Field>
-          )}
-
-          <Field label="Repo" wide>
-            <a
-              className="portal-app__github"
-              href={`https://github.com/navikt/${app.repo ?? app.name}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              github.com/navikt/{app.repo ?? app.name} ↗
-            </a>
-          </Field>
         </div>
-      )}
-    </details>
+      ))}
+      <NextLink href="/environments#tjenester" className="apps-envs__all">
+        Alle endepunkter <ArrowRightIcon aria-hidden />
+      </NextLink>
+    </div>
   );
 }
 
-function AppTable({ rows }: { rows: App[] }) {
+function AppCard({
+  n,
+  tone,
+  open,
+  flash,
+  onToggle,
+  onJump,
+}: {
+  n: ArchNode;
+  tone: Tone;
+  open: boolean;
+  flash: boolean;
+  onToggle: () => void;
+  onJump: (id: string) => void;
+}) {
+  const ins = incoming(n.id).length;
+  const outs = outgoing(n.id).length;
+  const env = ENV_SERVICE_BY_ID[n.id];
+  const q2Only = env && env.envs.length === 1 && env.envs[0] === "q2";
+  const rels = relations(n.id);
+
   return (
-    <VStack gap="space-8">
-      {rows.map((r) => (
-        <AppCard key={r.name} app={r} />
-      ))}
-    </VStack>
+    <article id={n.id} className={`apps-card${flash ? " is-flash" : ""}`} data-tone={tone} data-open={open || undefined}>
+      <button type="button" className="apps-card__toggle" aria-expanded={open} aria-controls={`${n.id}-mer`} onClick={onToggle}>
+        <span className="apps-card__top">
+          <span className="apps-card__name arch-mono">{n.name}</span>
+          <ChevronDownIcon aria-hidden className="apps-card__chev" />
+        </span>
+        <span className="apps-card__tags">
+          {n.lang && (
+            <Tag size="xsmall" variant="moderate" data-color="neutral">
+              {n.lang}
+            </Tag>
+          )}
+          {n.db && (
+            <Tag size="xsmall" variant="moderate" data-color="success">
+              PostgreSQL
+            </Tag>
+          )}
+          {n.kind === "job" && (
+            <Tag size="xsmall" variant="moderate" data-color="warning">
+              Naisjob
+            </Tag>
+          )}
+          {q2Only && (
+            <Tag size="xsmall" variant="moderate" data-color="meta-purple">
+              Bare i Q2
+            </Tag>
+          )}
+        </span>
+        <span className="apps-card__summary">{n.summary}</span>
+        <span className="apps-card__meta arch-mono">
+          {ins} inn · {outs} ut
+        </span>
+      </button>
+
+      <div className="apps-card__more" id={`${n.id}-mer`} inert={!open}>
+        <div className="apps-card__inner">
+          {n.facts && n.facts.length > 0 && (
+            <ul className="apps-card__facts">
+              {n.facts.map((f) => (
+                <li key={f}>{f}</li>
+              ))}
+            </ul>
+          )}
+          {rels.length > 0 && (
+            <dl className="apps-rels">
+              {rels.map((r) => (
+                <div key={r.title}>
+                  <dt>{r.title}</dt>
+                  <dd>
+                    {r.items.map((it) => (
+                      <NodeChip key={`${r.title}-${it.id}`} id={it.id} label={it.label} onJump={onJump} />
+                    ))}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <EnvLinks id={n.id} />
+          <div className="apps-card__links">
+            <NextLink href={archHref(n.id)}>
+              Vis i arkitekturkartet <ArrowRightIcon aria-hidden />
+            </NextLink>
+            {n.link && (
+              <NextLink href={n.link.href}>
+                {n.link.label} <ArrowRightIcon aria-hidden />
+              </NextLink>
+            )}
+            {n.repo && (
+              <a href={ghHref(n.repo)} target="_blank" rel="noreferrer">
+                GitHub <ExternalLinkIcon aria-hidden />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </article>
   );
 }
+
+/* ---------- Side ---------- */
 
 export default function ApplicationsPage() {
+  const active = useScrollSpy(SECTION_IDS);
+  const reduced = useReducedMotion();
+  const [filter, setFilter] = useState<Filter>(NO_FILTER);
+  const [open, setOpen] = useState<Set<string>>(() => new Set());
+  const [flash, setFlash] = useState<string | null>(null);
+
+  const visible = useMemo(() => new Set(APPS.filter((n) => matches(n, filter)).map((n) => n.id)), [filter]);
+  const filtered = filter.q !== "" || filter.langs.length > 0 || filter.db || filter.kafka;
+  const allOpen = open.size > 0 && [...visible].every((id) => open.has(id));
+
+  const jump = useCallback(
+    (id: string) => {
+      if (!APP_IDS.has(id)) return;
+      setFilter((f) => (matches(NODE_BY_ID[id], f) ? f : NO_FILTER));
+      setOpen((prev) => new Set(prev).add(id));
+      setFlash(id);
+      if (window.location.hash !== `#${id}`) window.history.pushState(null, "", `#${id}`);
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        el?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+        el?.querySelector<HTMLButtonElement>(".apps-card__toggle")?.focus({ preventScroll: true });
+      });
+    },
+    [reduced],
+  );
+
+  useEffect(() => {
+    const onHash = () => {
+      const id = decodeURIComponent(window.location.hash.slice(1));
+      if (APP_IDS.has(id)) jump(id);
+    };
+    onHash();
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [jump]);
+
+  useEffect(() => {
+    if (!flash) return;
+    const t = window.setTimeout(() => setFlash(null), 1800);
+    return () => window.clearTimeout(t);
+  }, [flash]);
+
+  const toggle = (id: string) =>
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const toggleLang = (l: Lang) =>
+    setFilter((f) => ({ ...f, langs: f.langs.includes(l) ? f.langs.filter((x) => x !== l) : [...f.langs, l] }));
+
   return (
-    <VStack gap="space-32">
-      <div>
-        <Heading level="1" size="xlarge" spacing>
-          Applikasjoner
-        </Heading>
-        <BodyLong size="large">
-          Plattformen består av om lag to dusin små tjenester, organisert i
-          fire grupper. Klikk på en applikasjon for å se rolle, avhengigheter,
-          Kafka-topics og lenke til repo.
-        </BodyLong>
+    <div className="portal-page--wide arch-page lite-page apps-page">
+      <header className="portal-hero arch-hero lite-hero">
+        <HeroArt />
+        <div className="arch-hero__text">
+          <Detail className="arch-eyebrow">Applikasjoner</Detail>
+          <Heading level="1" size="xlarge" spacing>
+            Tjenestene i EUX
+          </Heading>
+          <BodyLong size="large" className="arch-hero__lead">
+            Alle tjenester og jobber i plattformen, lag for lag. Åpne et kort for å se hvem som kaller tjenesten, hva den
+            kaller, og hvor den kjører i Q1 og Q2.
+          </BodyLong>
+        </div>
+
+        <dl className="arch-stats">
+          {[
+            { n: SERVICE_COUNT, label: "tjenester", sub: LANGS.map((l) => `${LANG_COUNT[l]} ${l}`).join(" · ") },
+            { n: JOB_COUNT, label: "NAIS-jobber", sub: "cron-utløsere" },
+            { n: DB_COUNT, label: "med database", sub: "PostgreSQL i Cloud SQL" },
+            { n: TOPIC_COUNT, label: "Kafka-topics", sub: "mellom tjenestene" },
+          ].map((s, i) => (
+            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
+              <dt>{s.label}</dt>
+              <dd>
+                <span className="arch-stat__n">{s.n}</span>
+                <span className="arch-stat__sub">{s.sub}</span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="arch-flows">
+          <NextLink href="/architecture#kart" className="arch-flow-card" data-tone="accent">
+            <span className="arch-flow-card__icon" aria-hidden>
+              <BranchingIcon />
+            </span>
+            <span>
+              <strong>Arkitekturkartet</strong>
+              <span className="arch-flow-card__text">Se hvordan tjenestene henger sammen, med flyter og eksterne systemer.</span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </NextLink>
+          <NextLink href="/environments#tjenester" className="arch-flow-card" data-tone="meta-purple">
+            <span className="arch-flow-card__icon" aria-hidden>
+              <GlobeIcon />
+            </span>
+            <span>
+              <strong>Miljøer</strong>
+              <span className="arch-flow-card__text">Adresser, Swagger og helsesjekk for hver tjeneste i Q1 og Q2.</span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </NextLink>
+          <NextLink href="/kafka/sed-hendelser" className="arch-flow-card" data-tone="info">
+            <span className="arch-flow-card__icon" aria-hidden>
+              <LightningIcon />
+            </span>
+            <span>
+              <strong>Hendelser live</strong>
+              <span className="arch-flow-card__text">Det eux-all-rina-events legger på Kafka, akkurat nå.</span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </NextLink>
+        </div>
+      </header>
+
+      <nav className="arch-jumpnav" aria-label="Innhold på siden">
+        <ol>
+          {SECTIONS.map((s) => (
+            <li key={s.id}>
+              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
+                {s.label}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div className="apps-toolbar" role="search">
+        <div className="apps-toolbar__search">
+          <Search
+            label="Filtrer tjenester"
+            hideLabel
+            variant="simple"
+            size="small"
+            placeholder="Søk i navn, beskrivelse eller avhengighet, f.eks. «pdl»"
+            value={filter.q}
+            onChange={(q) => setFilter((f) => ({ ...f, q }))}
+            onClear={() => setFilter((f) => ({ ...f, q: "" }))}
+          />
+        </div>
+        <Chips size="small" aria-label="Filtrer på egenskaper">
+          {LANGS.map((l) => (
+            <Chips.Toggle key={l} selected={filter.langs.includes(l)} onClick={() => toggleLang(l)}>
+              {l}
+            </Chips.Toggle>
+          ))}
+          <Chips.Toggle selected={filter.db} onClick={() => setFilter((f) => ({ ...f, db: !f.db }))}>
+            PostgreSQL
+          </Chips.Toggle>
+          <Chips.Toggle selected={filter.kafka} onClick={() => setFilter((f) => ({ ...f, kafka: !f.kafka }))}>
+            Kafka
+          </Chips.Toggle>
+        </Chips>
+        <BodyShort size="small" className="arch-subtle apps-toolbar__count" aria-live="polite">
+          {visible.size} av {APPS.length}
+        </BodyShort>
+        <span className="apps-toolbar__actions">
+          {filtered && (
+            <Button size="xsmall" variant="tertiary-neutral" onClick={() => setFilter(NO_FILTER)}>
+              Nullstill
+            </Button>
+          )}
+          <Button
+            size="xsmall"
+            variant="tertiary-neutral"
+            onClick={() => setOpen(allOpen ? new Set() : new Set(visible))}
+          >
+            {allOpen ? "Lukk alle" : "Åpne alle"}
+          </Button>
+        </span>
       </div>
 
-      <section>
-        <Heading level="2" size="medium" spacing>
-          Kjernetjenester
-        </Heading>
-        <AppTable rows={core} />
-      </section>
+      {LAYERS.map((l, li) => {
+        const nodes = APPS.filter((n) => l.zones.includes(n.zone));
+        const shown = nodes.filter((n) => visible.has(n.id));
+        return (
+          <Section key={l.id} id={l.id} eyebrow={`Lag ${li + 1} · ${shown.length} av ${nodes.length}`} title={l.title} lead={l.lead}>
+            {shown.length === 0 ? (
+              <BodyShort size="small" className="arch-subtle apps-empty">
+                Ingen treff i dette laget.
+              </BodyShort>
+            ) : (
+              <div className="apps-grid">
+                {shown.map((n) => (
+                  <AppCard
+                    key={n.id}
+                    n={n}
+                    tone={l.tone}
+                    open={open.has(n.id)}
+                    flash={flash === n.id}
+                    onToggle={() => toggle(n.id)}
+                    onJump={jump}
+                  />
+                ))}
+              </div>
+            )}
+          </Section>
+        );
+      })}
 
-      <section>
-        <Heading level="2" size="medium" spacing>
-          Hendelsesinfrastruktur
-        </Heading>
-        <AppTable rows={events} />
-      </section>
+      <Section
+        id="biblioteker"
+        eyebrow="Felles kode"
+        title="Biblioteker og verktøy"
+        lead="Ikke tjenester, men delt kode som de fleste backendene bygger på."
+      >
+        <div className="apps-libs">
+          {LIBRARIES.map((lib) => (
+            <a key={lib.repo} href={ghHref(lib.repo)} target="_blank" rel="noreferrer" className="apps-lib">
+              <span className="apps-lib__name arch-mono">
+                {lib.repo} <ExternalLinkIcon aria-hidden />
+              </span>
+              <span className="apps-lib__tech">{lib.tech}</span>
+              <span className="apps-lib__text">{lib.text}</span>
+            </a>
+          ))}
+        </div>
+      </Section>
 
-      <section>
-        <Heading level="2" size="medium" spacing>
-          Bakgrunnsarbeidere
-        </Heading>
-        <AppTable rows={workers} />
-      </section>
-
-      <section>
-        <Heading level="2" size="medium" spacing>
-          Biblioteker og byggeverktøy
-        </Heading>
-        <AppTable rows={libs} />
-      </section>
-    </VStack>
+      <Section id="videre" eyebrow="Mer" title="Videre lesing">
+        <div className="arch-further">
+          {FURTHER.map((f) => (
+            <NextLink key={f.href} href={f.href} className="arch-further__card">
+              <strong>
+                {f.title} <ArrowRightIcon aria-hidden />
+              </strong>
+              <span>{f.text}</span>
+            </NextLink>
+          ))}
+        </div>
+      </Section>
+    </div>
   );
 }

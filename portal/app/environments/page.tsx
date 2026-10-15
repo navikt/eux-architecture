@@ -1,585 +1,709 @@
 "use client";
 
+import { useState, type CSSProperties, type ReactNode } from "react";
+import NextLink from "next/link";
+import { Accordion, BodyLong, BodyShort, Button, CopyButton, Detail, Heading, Table, ToggleGroup } from "@navikt/ds-react";
+import { ArrowRightIcon, ArrowsSquarepathIcon, ExternalLinkIcon, PaperplaneIcon, StarIcon, TestFlaskIcon } from "@navikt/aksel-icons";
+import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
+import { NODE_BY_ID, incoming } from "@/components/architecture/data";
+import { archHref } from "@/components/avslutning/tones";
 import {
-  Heading,
-  BodyLong,
-  BodyShort,
-  VStack,
-  HStack,
-  Box,
-  Tag,
-  Chips,
-  Accordion,
-  Detail,
-  CopyButton,
-} from "@navikt/ds-react";
+  ENV_IDS,
+  ENV_SERVICES,
+  ENVS,
+  GOSYS_URL,
+  NAIS_CONSOLE,
+  NEESSI_VARIANTS,
+  Q2_ONLY,
+  SWAGGER_COUNT,
+  hostUrl,
+  neessiUrl,
+  rinaUrl,
+  sameRinaVersion,
+  swaggerUrl,
+  type EnvId,
+  type EnvInfo,
+} from "@/components/miljoer/data";
 
-const subtle = { color: "var(--ax-text-subtle, #555)" };
-const eyebrow = {
-  ...subtle,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase" as const,
-};
+const SECTIONS = [
+  { id: "samspill", label: "Q1 og Q2" },
+  { id: "miljoer", label: "Miljøene" },
+  { id: "tjenester", label: "Tjenester" },
+  { id: "sporsmal", label: "Spørsmål" },
+  { id: "videre", label: "Videre" },
+];
+const SECTION_IDS = SECTIONS.map((s) => s.id);
 
-type Env = "q1" | "q2";
+const IN_BOTH = ENV_SERVICES.filter((s) => s.envs.length === 2).length;
+const SWAGGER_Q1_ONLY = ENV_SERVICES.filter((s) => s.swagger.length === 1 && s.swagger[0] === "q1");
+const CPI_CALLERS = incoming("rina")
+  .filter((e) => e.kind === "rest")
+  .map((e) => NODE_BY_ID[e.from].name);
 
-type ServiceRow = {
-  name: string;
-  repo?: string;
-  description: string;
-  q1?: string;
-  q2?: string;
-  /** path appended for Swagger UI when API docs exist (typically Spring Boot services) */
-  swagger?: string;
-};
+const other = (env: EnvId): EnvId => (env === "q1" ? "q2" : "q1");
 
-const services: ServiceRow[] = [
-  { name: "nEESSI", repo: "eux-web-app", description: "Frontend for saksbehandlere (servert via eux-neessi-ingressen)", q1: "https://eux-neessi-q1.intern.dev.nav.no/", q2: "https://eux-neessi-q2.intern.dev.nav.no/" },
-  { name: "eux-neessi", description: "Backend-for-frontend / orkestrator", q1: "https://eux-neessi-backend-q1.intern.dev.nav.no", q2: "https://eux-neessi-backend-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-rina-api", description: "Mellomvare mot RINA CPI", q1: "https://eux-rina-api-q1.intern.dev.nav.no", q2: "https://eux-rina-api-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-rina-terminator-api", description: "Lukke- og sletteoperasjoner mot RINA", q1: "https://eux-rina-terminator-api-q1.intern.dev.nav.no", q2: "https://eux-rina-terminator-api-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-nav-rinasak", description: "Kobling mellom NAV-fagsaker og RINA-saker", q1: "https://eux-nav-rinasak-q1.intern.dev.nav.no", q2: "https://eux-nav-rinasak-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-journal", description: "Feilregistrering og ferdigstilling av journalposter", q1: "https://eux-journal-q1.intern.dev.nav.no", q2: "https://eux-journal-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-oppgave", description: "Integrasjon mot NAV Oppgave", q1: "https://eux-oppgave-q1.intern.dev.nav.no", q2: "https://eux-oppgave-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-saksbehandler", description: "Saksbehandlerinnstillinger", q1: "https://eux-saksbehandler-q1.intern.dev.nav.no", q2: "https://eux-saksbehandler-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-rina-case-search", description: "Søkeindeks for RINA-saker", q1: "https://eux-rina-case-search-q1.intern.dev.nav.no", q2: "https://eux-rina-case-search-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-all-rina-events", description: "Mottar NIE-hendelser fra RINA og publiserer på Kafka", q1: "https://eux-all-rina-events-q1.intern.dev.nav.no", q2: "https://eux-all-rina-events-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-legacy-rina-events", description: "Bygger bro fra nye dokumenthendelser til legacy-topics", q1: "https://eux-legacy-rina-events-q1.intern.dev.nav.no", q2: "https://eux-legacy-rina-events-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-journalarkivar", description: "Ferdigstiller og feilregistrerer journalposter (kjøres av NAIS-jobber)", q1: "https://eux-journalarkivar-q1.intern.dev.nav.no", q2: "https://eux-journalarkivar-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-avslutt-rinasaker", description: "Lukker og arkiverer RINA-saker", q1: "https://eux-avslutt-rinasaker-q1.intern.dev.nav.no", q2: "https://eux-avslutt-rinasaker-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-slett-usendte-rinasaker", description: "Sletter RINA-saker som aldri fikk SED", q1: "https://eux-slett-usendte-rinasaker-q1.intern.dev.nav.no", q2: "https://eux-slett-usendte-rinasaker-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-adresse-oppdatering", description: "Oppdaterer adresser i PDL fra innkommende SED", q2: "https://eux-adresse-oppdatering-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-person-oppdatering", description: "Sender utenlandske ID-nummer fra SED til PDL", q2: "https://eux-person-oppdatering-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
-  { name: "eux-barnetrygd", description: "Årlig fornyelse av barnetrygdsaker", q1: "https://eux-barnetrygd-q1.intern.dev.nav.no", q2: "https://eux-barnetrygd-q2.intern.dev.nav.no", swagger: "/swagger-ui/index.html" },
+/* ---------- Innhold ---------- */
+
+const FURTHER: { href: string; title: string; text: string; external?: boolean }[] = [
+  { href: "/kafka/sed-kobling", title: "SED-kobling", text: "Se samme SED sendt fra det ene miljøet og mottatt i det andre, med transporttid." },
+  { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Hendelser fra RINA i Q1 og Q2, live fra Kafka." },
+  { href: "/tests", title: "Tester", text: "Send en ekte SED fra Q1 til Q2 eller motsatt, og følg hvert kall." },
+  { href: "/applications", title: "Applikasjoner", text: "Hva hver tjeneste gjør, hvem som kaller den, og lenker til Q1 og Q2." },
+  { href: "/architecture", title: "Arkitektur", text: "Hele plattformen i ett kart, med flyter og integrasjoner." },
+  { href: NAIS_CONSOLE, title: "NAIS-konsollen", text: "Status, logger og produksjonsendepunkter.", external: true },
 ];
 
-type EnvDetails = {
-  key: Env;
-  navn: string;
-  badgeColor: string;
-  identifikator: string;
-  rinaVersjon: string;
-  rinaUiUrl: string;
-  rinaServer: string;
-  innlogging: string;
-  frontend: string;
-  cpiApp: string;
-  cpiUrl: string;
-  nieApp: string;
-  nieUrl: string;
-  ekstra?: { label: string; href: string }[];
-  notater?: string;
-};
+/* ---------- Byggeklosser ---------- */
 
-const envs: EnvDetails[] = [
-  {
-    key: "q1",
-    navn: "Q1",
-    badgeColor: "#0067c5",
-    identifikator: "NO:NAVAT06",
-    rinaVersjon: "JINA 2025 V2.1",
-    rinaUiUrl: "https://rina-ss4-q.adeo.no",
-    rinaServer: "b27apvw175",
-    innlogging: "AD-brukere",
-    frontend: "https://eux-neessi-q1.intern.dev.nav.no/",
-    cpiApp: "eux-rina-api-q1",
-    cpiUrl: "https://eux-rina-api-q1.intern.dev.nav.no",
-    nieApp: "eux-all-rina-events-q1",
-    nieUrl: "https://eux-all-rina-events-q1.intern.dev.nav.no",
-  },
-  {
-    key: "q2",
-    navn: "Q2",
-    badgeColor: "#634689",
-    identifikator: "NO:NAVAT07",
-    rinaVersjon: "JINA 2025 v2.1",
-    rinaUiUrl: "https://rina-ss1-q.adeo.no",
-    rinaServer: "b27apvw171",
-    innlogging: "AD-brukere",
-    frontend: "https://eux-neessi-q2.intern.dev.nav.no/",
-    cpiApp: "eux-rina-api-q2",
-    cpiUrl: "https://eux-rina-api-q2.intern.dev.nav.no",
-    nieApp: "eux-all-rina-events-q2",
-    nieUrl: "https://eux-all-rina-events-q2.intern.dev.nav.no",
-    ekstra: [
-      { label: "Gosys (test)", href: "https://gosys.dev.intern.nav.no/gosys" },
-    ],
-    notater: "Purge OK.",
-  },
-];
-
-function hostnameOf(url: string): string {
-  try {
-    const u = new URL(url);
-    return u.hostname + (u.pathname && u.pathname !== "/" ? u.pathname : "");
-  } catch {
-    return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  }
+function Section({ id, eyebrow, title, lead, children }: { id: string; eyebrow: string; title: string; lead?: ReactNode; children: ReactNode }) {
+  return (
+    <section id={id} className="arch-section" aria-labelledby={`${id}-title`}>
+      <header className="arch-section__head">
+        <Detail className="arch-eyebrow">{eyebrow}</Detail>
+        <Heading level="2" size="large" id={`${id}-title`}>
+          {title}
+        </Heading>
+        {lead && <BodyLong className="arch-section__lead">{lead}</BodyLong>}
+      </header>
+      {children}
+    </section>
+  );
 }
 
-function UrlLink({ href }: { href: string }) {
+function Ext({ href, children, mono }: { href: string; children: ReactNode; mono?: boolean }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      title={href}
-      style={{
-        fontFamily:
-          '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
-        fontSize: "0.85rem",
-        wordBreak: "break-all",
-      }}
-    >
-      {hostnameOf(href)} ↗
+    <a href={href} target="_blank" rel="noreferrer" className={`env-ext${mono ? " arch-mono" : ""}`}>
+      {children}
+      <ExternalLinkIcon aria-hidden />
     </a>
   );
 }
 
-function MetaRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Copyable({ value, label }: { value: string; label?: string }) {
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "110px 1fr",
-        gap: "0.75rem",
-        alignItems: "baseline",
-        paddingBlock: "0.25rem",
-      }}
-    >
-      <BodyShort size="small" style={subtle}>
+    <span className="env-copy">
+      <code>{label ?? value}</code>
+      <CopyButton copyText={value} size="xsmall" title={`Kopier ${value}`} />
+    </span>
+  );
+}
+
+/** Ring med tolv prikker, samme motiv som på forsiden. */
+function Ring({ cx, cy, r, label, sub, tone }: { cx: number; cy: number; r: number; label: string; sub: string; tone: string }) {
+  return (
+    <g className="env-ring" data-tone={tone}>
+      <circle cx={cx} cy={cy} r={r + 16} className="env-ring__halo" />
+      <g className="env-ring__dots" style={{ transformOrigin: `${cx}px ${cy}px` }}>
+        {Array.from({ length: 12 }, (_, i) => {
+          const a = (i / 12) * Math.PI * 2;
+          return <circle key={i} cx={cx + Math.cos(a) * r} cy={cy + Math.sin(a) * r} r={i % 3 === 0 ? 4.6 : 3.2} />;
+        })}
+      </g>
+      <text x={cx} y={cy + 6} textAnchor="middle" className="env-ring__label">
         {label}
-      </BodyShort>
-      <div style={{ minWidth: 0 }}>{children}</div>
+      </text>
+      <text x={cx} y={cy + r + 30} textAnchor="middle" className="env-ring__sub">
+        {sub}
+      </text>
+    </g>
+  );
+}
+
+function Envelope() {
+  return (
+    <g className="env-envelope">
+      <rect x={-12} y={-8} width={24} height={16} rx={3} />
+      <path d="M -11 -6.5 L 0 1.5 L 11 -6.5" />
+    </g>
+  );
+}
+
+const ARC_OUT = "M 158 196 Q 214 92 268 140";
+const ARC_BACK = "M 276 186 Q 236 268 166 236";
+
+function HeroArt() {
+  const reduced = useReducedMotion();
+  const box = "0 0 420 360";
+  return (
+    <div className="lite-hero__art" aria-hidden>
+      <svg className="lite-layer" style={{ "--depth": 0.1 } as CSSProperties} viewBox={box}>
+        {[64, 96, 128].map((r) => (
+          <g key={r}>
+            <circle cx={118} cy={214} r={r} className="env-orbit" />
+            <circle cx={308} cy={162} r={r} className="env-orbit" />
+          </g>
+        ))}
+      </svg>
+      <svg className="lite-layer" style={{ "--depth": 0.45 } as CSSProperties} viewBox={box}>
+        <path d={ARC_OUT} className="env-arc" />
+        <path d={ARC_BACK} className="env-arc env-arc--back" />
+        <Ring cx={118} cy={214} r={40} label="Q1" sub={ENVS.q1.institution} tone={ENVS.q1.tone} />
+        <Ring cx={308} cy={162} r={40} label="Q2" sub={ENVS.q2.institution} tone={ENVS.q2.tone} />
+        {!reduced &&
+          [ARC_OUT, ARC_BACK].map((d, i) => (
+            <g key={d}>
+              <Envelope />
+              <animateMotion dur="3.6s" begin={`${i * 1.8}s`} repeatCount="indefinite" path={d} keyTimes="0;1" keySplines="0.45 0 0.55 1" calcMode="spline" />
+              <animate attributeName="opacity" dur="3.6s" begin={`${i * 1.8}s`} repeatCount="indefinite" values="0;1;1;0" keyTimes="0;0.15;0.85;1" />
+            </g>
+          ))}
+      </svg>
+      <svg className="lite-layer" style={{ "--depth": 0.9 } as CSSProperties} viewBox={box}>
+        {[
+          { x: 352, y: 278, r: -12, s: 0.9 },
+          { x: 58, y: 92, r: 10, s: 0.75 },
+          { x: 236, y: 316, r: 6, s: 0.6 },
+        ].map((e, i) => (
+          <g key={i} transform={`translate(${e.x} ${e.y}) rotate(${e.r}) scale(${e.s})`}>
+            <g className="lite-float" style={{ "--i": i } as CSSProperties}>
+              <Envelope />
+            </g>
+          </g>
+        ))}
+      </svg>
     </div>
   );
 }
 
-function GroupHeading({ children }: { children: React.ReactNode }) {
+/* ---------- Q1 ⇄ Q2 ---------- */
+
+type Dir = "q1-q2" | "q2-q1";
+
+function Side({ env, role }: { env: EnvInfo; role: "send" | "receive" }) {
+  const e = env.id;
   return (
-    <BodyShort
-      size="small"
-      style={{
-        ...eyebrow,
-        fontSize: "0.7rem",
-        marginTop: "0.5rem",
-        marginBottom: "0.25rem",
-      }}
-    >
-      {children}
-    </BodyShort>
+    <div className="env-side" data-tone={env.tone} data-role={role}>
+      <div className="env-side__head">
+        <span className="env-side__name">{env.name}</span>
+        <span className="env-side__role" key={role}>
+          {role === "send" ? "Sender" : "Mottar"}
+        </span>
+      </div>
+      <code className="env-side__inst">{env.institution}</code>
+      <ol className="env-side__stack">
+        <li>nEESSI</li>
+        <li className="arch-mono">eux-rina-api-{e}</li>
+        <li className="env-side__rina">
+          RINA <span className="arch-mono">{env.rinaHost.split(".")[0]}</span>
+        </li>
+        <li className="arch-mono">eux-all-rina-events-{e}</li>
+      </ol>
+    </div>
   );
 }
 
-function EnvCard({ env }: { env: EnvDetails }) {
+function Exchange() {
+  const reduced = useReducedMotion();
+  const [dir, setDir] = useState<Dir>("q1-q2");
+  const [run, setRun] = useState(0);
+  const a = dir === "q1-q2" ? ENVS.q1 : ENVS.q2;
+  const b = dir === "q1-q2" ? ENVS.q2 : ENVS.q1;
+
+  const steps: ReactNode[] = [
+    <>
+      En saksbehandler sender SED-en fra nEESSI i {a.name}. <code>eux-neessi-{a.id}</code> ber{" "}
+      <code>eux-rina-api-{a.id}</code> om å sende den.
+    </>,
+    <>
+      RINA i {a.name} (<code>{a.institution}</code>) sender til <code>{b.institution}</code>, akkurat som til en
+      institusjon i et annet land.
+    </>,
+    <>
+      RINA i {b.name} tar imot og varsler <code>eux-all-rina-events-{b.id}</code> via NIE.
+    </>,
+    <>
+      Hendelsen havner på Kafka-topics som slutter på <code>-{b.id}</code>, og resten av EUX i {b.name} tar over,
+      for eksempel journalføring.
+    </>,
+  ];
+
   return (
-    <Box
-      borderRadius="12"
-      borderWidth="1"
-      borderColor="neutral-subtle"
-      style={{
-        height: "100%",
-        overflow: "hidden",
-        background: "var(--ax-bg-default, #fff)",
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          padding: "1.25rem 1.5rem",
-          background: `linear-gradient(135deg, ${env.badgeColor}14 0%, ${env.badgeColor}06 100%)`,
-          borderBottom: "1px solid var(--ax-border-subtle, rgba(0,0,0,0.08))",
-          display: "flex",
-          gap: "1rem",
-          alignItems: "center",
-        }}
-      >
-        <div
-          aria-hidden
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: "50%",
-            background: env.badgeColor,
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: 700,
-            fontSize: "1.4rem",
-            flexShrink: 0,
-            boxShadow: `0 4px 10px ${env.badgeColor}33`,
-          }}
-        >
-          {env.navn}
+    <div className="env-xchg" data-dir={dir}>
+      <div className="env-xchg__stage">
+        <Side env={ENVS.q1} role={a.id === "q1" ? "send" : "receive"} />
+        <div className="env-xchg__lane" aria-hidden>
+          <span className="env-xchg__track" />
+          <span className="env-xchg__track env-xchg__track--back" />
+          <span className="env-xchg__label">SED</span>
+          {run > 0 && !reduced && (
+            <span key={`${dir}-${run}`} className="env-xchg__sed">
+              <PaperplaneIcon />
+            </span>
+          )}
         </div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <Heading level="2" size="small" style={{ margin: 0 }}>
-            Testmiljø {env.navn}
+        <Side env={ENVS.q2} role={b.id === "q2" ? "receive" : "send"} />
+      </div>
+
+      <div className="env-xchg__controls">
+        <ToggleGroup size="small" value={dir} onChange={(v) => setDir(v as Dir)} label="Retning">
+          <ToggleGroup.Item value="q1-q2" label="Q1 → Q2" />
+          <ToggleGroup.Item value="q2-q1" label="Q2 → Q1" />
+        </ToggleGroup>
+        <Button size="small" variant="secondary" icon={<PaperplaneIcon aria-hidden />} onClick={() => setRun((r) => r + 1)}>
+          Send en SED
+        </Button>
+      </div>
+
+      <ol className={`env-steps${run > 0 ? " is-running" : ""}`} key={`${dir}-${run}`} aria-live="polite">
+        {steps.map((s, i) => (
+          <li key={i} style={{ "--d": `${[0, 650, 1500, 2100][i]}ms` } as CSSProperties}>
+            <span className="env-steps__n">{i + 1}</span>
+            <BodyShort size="small">{s}</BodyShort>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function Versions() {
+  return (
+    <div className="env-versions" data-same={sameRinaVersion}>
+      {ENV_IDS.map((id, i) => (
+        <span key={id} style={{ display: "contents" }}>
+          {i === 1 && (
+            <span className="env-versions__eq" role="img" aria-label={sameRinaVersion ? "lik" : "ulik"}>
+              {sameRinaVersion ? "=" : "≠"}
+            </span>
+          )}
+          <span className="env-version" data-tone={ENVS[id].tone}>
+            <small>{ENVS[id].name}</small>
+            <code>{ENVS[id].rinaVersion}</code>
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- Miljøkort ---------- */
+
+function EnvCard({ env }: { env: EnvInfo }) {
+  const e = env.id;
+  const rows: { k: string; v: ReactNode }[] = [
+    { k: "Institusjon", v: <Copyable value={env.institution} /> },
+    { k: "RINA", v: <Ext href={rinaUrl(e)} mono>{env.rinaHost}</Ext> },
+    { k: "RINA-versjon", v: <code>{env.rinaVersion}</code> },
+    { k: "RINA-server", v: <Copyable value={env.rinaServer} /> },
+    {
+      k: "nEESSI",
+      v: (
+        <span className="env-variants">
+          {NEESSI_VARIANTS.map((n) => (
+            <a key={n.id} href={neessiUrl(e, n.id)} target="_blank" rel="noreferrer" title={`${n.text} ${neessiUrl(e, n.id)}`} className={n.id ? "portal-chip" : "portal-chip env-variants__main"}>
+              {n.label}
+            </a>
+          ))}
+        </span>
+      ),
+    },
+    {
+      k: "Mot RINA (CPI)",
+      v: (
+        <NextLink href="/applications#eux-rina-api" className="arch-mono">
+          eux-rina-api-{e}
+        </NextLink>
+      ),
+    },
+    {
+      k: "Fra RINA (NIE)",
+      v: (
+        <NextLink href="/applications#eux-all-rina-events" className="arch-mono">
+          eux-all-rina-events-{e}
+        </NextLink>
+      ),
+    },
+    { k: "Kafka", v: <code>eessibasis.sedmottatt-v1-{e}</code> },
+  ];
+
+  return (
+    <article id={`miljo-${e}`} className="env-card" data-tone={env.tone}>
+      <header className="env-card__head">
+        <span className="env-card__badge" aria-hidden>
+          {env.name}
+        </span>
+        <div>
+          <Heading level="3" size="medium">
+            {env.name} <span className="arch-subtle env-card__inst">{env.institutionName}</span>
           </Heading>
-          <HStack gap="space-4" align="center" wrap style={{ marginTop: "0.35rem" }}>
-            <Tag size="xsmall" variant="info">
-              {env.identifikator}
-            </Tag>
-            <Tag size="xsmall" variant="neutral">
-              {env.rinaVersjon}
-            </Tag>
-            <Tag size="xsmall" variant="neutral">
-              dev-gcp
-            </Tag>
-          </HStack>
-        </div>
-      </div>
-
-      {/* Body */}
-      <div style={{ padding: "1rem 1.5rem 1.25rem" }}>
-        <GroupHeading>RINA-instans</GroupHeading>
-        <MetaRow label="RINA-UI">
-          <UrlLink href={env.rinaUiUrl} />
-        </MetaRow>
-        <MetaRow label="Server">
-          <HStack gap="space-4" align="center">
-            <code style={{ fontSize: "0.85rem" }}>{env.rinaServer}</code>
-            <CopyButton
-              copyText={env.rinaServer}
-              size="xsmall"
-              variant="action"
-              title={`Kopier ${env.rinaServer}`}
-            />
-          </HStack>
-        </MetaRow>
-        <MetaRow label="Pålogging">
-          <BodyShort size="small">{env.innlogging}</BodyShort>
-        </MetaRow>
-
-        <GroupHeading>NAV-endepunkter</GroupHeading>
-        <MetaRow label="Frontend">
-          <UrlLink href={env.frontend} />
-        </MetaRow>
-        <MetaRow label="CPI">
-          <VStack gap="space-0">
-            <UrlLink href={env.cpiUrl} />
-            <BodyShort size="small" style={subtle}>
-              app: <code style={{ fontSize: "0.78rem" }}>{env.cpiApp}</code>
-            </BodyShort>
-          </VStack>
-        </MetaRow>
-        <MetaRow label="NIE">
-          <VStack gap="space-0">
-            <UrlLink href={env.nieUrl} />
-            <BodyShort size="small" style={subtle}>
-              app: <code style={{ fontSize: "0.78rem" }}>{env.nieApp}</code>
-            </BodyShort>
-          </VStack>
-        </MetaRow>
-
-        {env.ekstra && env.ekstra.length > 0 && (
-          <>
-            <GroupHeading>Andre lenker</GroupHeading>
-            <HStack gap="space-12" wrap>
-              {env.ekstra.map((l) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ fontSize: "0.9rem" }}
-                >
-                  {l.label} ↗
-                </a>
-              ))}
-            </HStack>
-          </>
-        )}
-
-        {env.notater && (
-          <BodyShort
-            size="small"
-            style={{ ...subtle, marginTop: "0.75rem", fontStyle: "italic" }}
-          >
-            {env.notater}
+          <BodyShort size="small" className="arch-subtle">
+            {env.role}
           </BodyShort>
-        )}
-      </div>
-    </Box>
-  );
-}
-
-function ServiceLink({
-  url,
-  swagger,
-}: {
-  url?: string;
-  swagger?: string;
-}) {
-  if (!url) {
-    return (
-      <BodyShort size="small" style={subtle}>
-        —
-      </BodyShort>
-    );
-  }
-  const baseUrl = url.replace(/\/$/, "");
-  return (
-    <VStack gap="space-4">
-      <BodyShort size="small">
-        <a href={url} target="_blank" rel="noreferrer">
-          {url.replace("https://", "")}
-        </a>
-      </BodyShort>
-      {swagger && (
-        <BodyShort size="small">
-          <a href={`${baseUrl}${swagger}`} target="_blank" rel="noreferrer">
-            Swagger UI ↗
-          </a>
-        </BodyShort>
-      )}
-    </VStack>
-  );
-}
-
-export default function EnvironmentsPage() {
-  return (
-    <VStack gap="space-48">
-      {/* Hero */}
-      <section className="portal-hero">
-        <Box
-          paddingBlock={{ xs: "space-32", md: "space-48" }}
-          paddingInline={{ xs: "space-24", md: "space-48" }}
-        >
-          <VStack gap="space-16" style={{ maxWidth: "52rem" }}>
-            <BodyShort size="small" style={eyebrow}>
-              Miljøer
-            </BodyShort>
-            <Heading level="1" size="xlarge">
-              Test- og utviklingsmiljøer
-            </Heading>
-            <BodyLong size="large">
-              Plattformen kjører i to testmiljøer på NAIS: Q1 og Q2.
-              Hvert miljø har sin egen Norge-instans av RINA (med egen
-              identifikator i EESSI-nettverket), egen frontend for
-              saksbehandlere og sin egen kjede av tjenester.
-            </BodyLong>
-            <HStack gap="space-8" align="center" wrap>
-              <Tag size="small" variant="info">
-                Q1
-              </Tag>
-              <Tag size="small" variant="info">
-                Q2
-              </Tag>
-              <BodyShort size="small" style={subtle}>
-                Produksjon er ikke dokumentert her — sjekk NAIS-konsollen.
-              </BodyShort>
-            </HStack>
-          </VStack>
-        </Box>
-      </section>
-
-      {/* Quick nav */}
-      <Box>
-        <Detail style={{ marginBottom: "0.5rem", ...subtle }}>Hopp til</Detail>
-        <Chips>
-          <Chips.Toggle as="a" href="#q1">
-            Q1
-          </Chips.Toggle>
-          <Chips.Toggle as="a" href="#q2">
-            Q2
-          </Chips.Toggle>
-          <Chips.Toggle as="a" href="#alle-tjenester">
-            Alle tjenester
-          </Chips.Toggle>
-          <Chips.Toggle as="a" href="#hva-er-forskjellen">
-            Hva er forskjellen?
-          </Chips.Toggle>
-        </Chips>
-      </Box>
-
-      {/* Env cards */}
-      <section
-        id="environments"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-          gap: "1.5rem",
-        }}
-      >
-        {envs.map((e) => (
-          <div key={e.key} id={e.key}>
-            <EnvCard env={e} />
+        </div>
+      </header>
+      <dl className="env-card__rows">
+        {rows.map((r) => (
+          <div key={r.k}>
+            <dt>{r.k}</dt>
+            <dd>{r.v}</dd>
           </div>
         ))}
-      </section>
+      </dl>
+      {e === "q2" && Q2_ONLY.length > 0 && (
+        <BodyShort size="small" className="env-card__note">
+          <StarIcon aria-hidden /> Bare i Q2:{" "}
+          {Q2_ONLY.map((s, i) => (
+            <span key={s.id}>
+              {i > 0 && " og "}
+              <NextLink href={`/applications#${s.id}`} className="arch-mono">
+                {s.id}
+              </NextLink>
+            </span>
+          ))}
+          .
+        </BodyShort>
+      )}
+    </article>
+  );
+}
 
-      {/* All services table */}
-      <section id="alle-tjenester" style={{ scrollMarginTop: "2rem" }}>
-        <VStack gap="space-12">
-          <Heading level="2" size="large">
-            Alle tjenester per miljø
+/* ---------- Tjenestetabell ---------- */
+
+function ServiceTable() {
+  const [env, setEnv] = useState<EnvId>("q2");
+  const shown = ENV_SERVICES.filter((s) => s.envs.includes(env)).length;
+
+  return (
+    <>
+      <div className="env-toolbar">
+        <ToggleGroup size="small" value={env} onChange={(v) => setEnv(v as EnvId)} label="Miljø">
+          <ToggleGroup.Item value="q2" label="Q2" />
+          <ToggleGroup.Item value="q1" label="Q1" />
+        </ToggleGroup>
+        <BodyShort size="small" className="arch-subtle" aria-live="polite">
+          {shown} av {ENV_SERVICES.length} tjenester kjører i {ENVS[env].name}
+        </BodyShort>
+      </div>
+      <div className="arch-table env-table" data-env={env} key={env}>
+        <Table size="small">
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell scope="col">Tjeneste</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Adresse</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Swagger</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Helse</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {ENV_SERVICES.map((s, i) => {
+              const here = s.envs.includes(env);
+              const url = hostUrl(s, env);
+              const swaggerElsewhere = !s.swagger.includes(env) && s.swagger.includes(other(env));
+              return (
+                <Table.Row key={s.id} className={here ? undefined : "is-dim"} style={{ "--i": i } as CSSProperties}>
+                  <Table.HeaderCell scope="row">
+                    <NextLink href={`/applications#${s.id}`} className="arch-mono env-table__name">
+                      {s.id}
+                    </NextLink>
+                    {s.note && <span className="env-table__note">{s.note}</span>}
+                  </Table.HeaderCell>
+                  <Table.DataCell>
+                    {!here ? (
+                      <span className="arch-subtle">Ikke i {ENVS[env].name}</span>
+                    ) : !s.health ? (
+                      <code className="arch-subtle">{url.replace("https://", "")}</code>
+                    ) : (
+                      <span className="env-copy">
+                        <Ext href={url} mono>
+                          {url.replace("https://", "")}
+                        </Ext>
+                        <CopyButton copyText={url} size="xsmall" title={`Kopier ${url}`} />
+                      </span>
+                    )}
+                  </Table.DataCell>
+                  <Table.DataCell>
+                    {here && s.swagger.includes(env) ? (
+                      <Ext href={swaggerUrl(s, env)}>Swagger UI</Ext>
+                    ) : here && swaggerElsewhere ? (
+                      <a href={swaggerUrl(s, other(env))} target="_blank" rel="noreferrer" className="env-table__elsewhere">
+                        Bare i {ENVS[other(env)].name}
+                      </a>
+                    ) : (
+                      <span className="arch-subtle" aria-label="Ingen">
+                        –
+                      </span>
+                    )}
+                  </Table.DataCell>
+                  <Table.DataCell>
+                    {here && s.health ? (
+                      <a href={`${url}${s.health}`} target="_blank" rel="noreferrer" className="env-health" title={`${url}${s.health}`}>
+                        <span className="env-health__dot" aria-hidden />
+                        {s.health.split("/").pop()}
+                      </a>
+                    ) : (
+                      <span className="arch-subtle" aria-label="Ingen">
+                        –
+                      </span>
+                    )}
+                  </Table.DataCell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table>
+      </div>
+    </>
+  );
+}
+
+/* ---------- Side ---------- */
+
+export default function EnvironmentsPage() {
+  const active = useScrollSpy(SECTION_IDS);
+
+  return (
+    <div className="portal-page--wide arch-page lite-page env-page">
+      <header className="portal-hero arch-hero lite-hero">
+        <HeroArt />
+        <div className="arch-hero__text">
+          <Detail className="arch-eyebrow">Miljøer</Detail>
+          <Heading level="1" size="xlarge" spacing>
+            Q1 og Q2
           </Heading>
-          <BodyLong className="portal-prose">
-            Klikk på en URL for å åpne tjenesten, eller på{" "}
-            <strong>Swagger UI</strong> der det er API-dokumentasjon. URL-er
-            som mangler betyr at tjenesten ikke er deployet i det miljøet.
+          <BodyLong size="large" className="arch-hero__lead">
+            To testmiljøer i dev-gcp, hvert med sin egen RINA og sin egen institusjon. Vi har to for å kunne sende SED-er
+            fra det ene til det andre. Det meste av testingen skjer i Q2.
           </BodyLong>
-          <Box
-            padding="space-16"
-            borderRadius="12"
-            borderWidth="1"
-            borderColor="neutral-subtle"
-            style={{ overflowX: "auto" }}
-          >
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "720px" }}>
-              <thead>
-                <tr>
-                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>
-                    Tjeneste
-                  </th>
-                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>
-                    Beskrivelse
-                  </th>
-                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>
-                    Q1
-                  </th>
-                  <th align="left" style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-default, #ddd)" }}>
-                    Q2
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {services.map((s) => (
-                  <tr key={s.name}>
-                    <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)", verticalAlign: "top" }}>
-                      <BodyShort weight="semibold">
-                        <a
-                          href={`https://github.com/navikt/${s.repo ?? s.name}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {s.name}
-                        </a>
-                      </BodyShort>
-                    </td>
-                    <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)", verticalAlign: "top" }}>
-                      <BodyShort size="small" style={subtle}>
-                        {s.description}
-                      </BodyShort>
-                    </td>
-                    <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)", verticalAlign: "top" }}>
-                      <ServiceLink url={s.q1} swagger={s.swagger} />
-                    </td>
-                    <td style={{ padding: "0.5rem", borderBottom: "1px solid var(--ax-border-subtle, #eee)", verticalAlign: "top" }}>
-                      <ServiceLink url={s.q2} swagger={s.swagger} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Box>
-        </VStack>
-      </section>
+        </div>
 
-      {/* FAQ */}
-      <section id="hva-er-forskjellen" style={{ scrollMarginTop: "2rem" }}>
-        <VStack gap="space-16">
-          <Heading level="2" size="large">
-            Hva er forskjellen mellom Q1 og Q2?
-          </Heading>
-          <Accordion>
-            <Accordion.Item>
-              <Accordion.Header>
-                Hvorfor har vi to testmiljøer?
-              </Accordion.Header>
-              <Accordion.Content>
-                <BodyLong>
-                  Hver RINA-instans må registreres i EESSI-nettverket med en
-                  unik nasjonal identifikator. Q1 og Q2 har derfor hver sin
-                  egen identifikator (<code>NO:NAVAT06</code> og{" "}
-                  <code>NO:NAVAT07</code>) og kan teste utveksling mot ulike
-                  utenlandske test-institusjoner uavhengig av hverandre. Q1
-                  brukes typisk til parallell verifisering opp mot
-                  produksjon, mens Q2 er det &laquo;åpne&raquo;
-                  utviklingsmiljøet hvor det er lov å rote.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                Hvordan logger jeg inn?
-              </Accordion.Header>
-              <Accordion.Content>
-                <BodyLong>
-                  Frontenden (<code>nEESSI</code> via{" "}
-                  <code>eux-neessi-qN.intern.dev.nav.no</code>) bruker Azure
-                  AD med Wonderwall-sidecar. I testmiljøene logger du inn med
-                  din <code>@trygdeetaten.no</code>-testbruker – ikke din
-                  vanlige NAV-bruker. RINA-UI-ene (
-                  <code>rina-ss4-q.adeo.no</code> og{" "}
-                  <code>rina-ss1-q.adeo.no</code>) bruker de samme{" "}
-                  <code>@trygdeetaten.no</code>-testbrukerne over HTTPS — disse
-                  er kun tilgjengelige fra NAV-nettet.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                Hvor finner jeg API-dokumentasjonen?
-              </Accordion.Header>
-              <Accordion.Content>
-                <BodyLong>
-                  Backendene som bruker springdoc har Swagger UI på{" "}
-                  <code>/swagger-ui/index.html</code> i Q1 og Q2 (slått
-                  av i produksjon). Bruk lenkene i tabellen over —{" "}
-                  &laquo;Swagger UI ↗&raquo; under hver tjeneste. Tilgang
-                  krever NAV-pålogging via Wonderwall.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                Hva betyr CPI og NIE?
-              </Accordion.Header>
-              <Accordion.Content>
-                <BodyLong>
-                  CPI (Case Processing Interface) er REST-API-et RINA
-                  tilbyr <em>inn</em> mot seg — <code>eux-rina-api</code>{" "}
-                  snakker med dette på vegne av alle tjenestene som
-                  trenger å lese eller skrive SED-er. NIE (National
-                  Interface Endpoint) er motsatt vei: hendelseskanalen
-                  RINA pusher hendelser <em>ut</em> på. NAV mottar disse
-                  via <code>eux-all-rina-events</code> og legger dem på
-                  Kafka.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                Hvor er produksjon?
-              </Accordion.Header>
-              <Accordion.Content>
-                <BodyLong>
-                  Produksjonsmiljøet er bevisst <em>ikke</em> dokumentert i
-                  denne portalen — for å redusere sjansen for at noen åpner
-                  feil lenke. Bruk{" "}
-                  <a
-                    href="https://console.nav.cloud.nais.io"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    NAIS-konsollen
-                  </a>{" "}
-                  for å finne produksjonsendepunkter.
-                </BodyLong>
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion>
-        </VStack>
-      </section>
-    </VStack>
+        <dl className="arch-stats">
+          {[
+            { n: 2, label: "testmiljøer", sub: `${ENVS.q1.institution} · ${ENVS.q2.institution}` },
+            { n: IN_BOTH, label: "tjenester i begge", sub: `+${Q2_ONLY.length} bare i Q2` },
+            { n: SWAGGER_COUNT, label: "med Swagger UI", sub: `${SWAGGER_Q1_ONLY.length} bare i Q1` },
+            { n: sameRinaVersion ? "Lik" : "Ulik", label: "RINA-versjon", sub: sameRinaVersion ? ENVS.q1.rinaVersion : "se Q1 og Q2" },
+          ].map((s, i) => (
+            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
+              <dt>{s.label}</dt>
+              <dd>
+                <span className="arch-stat__n">{s.n}</span>
+                <span className="arch-stat__sub">{s.sub}</span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="arch-flows">
+          <a href="#miljo-q2" className="arch-flow-card" data-tone={ENVS.q2.tone}>
+            <span className="arch-flow-card__icon" aria-hidden>
+              <TestFlaskIcon />
+            </span>
+            <span>
+              <strong>Q2 · hovedmiljøet</strong>
+              <span className="arch-flow-card__text">
+                Der det meste testes. {ENVS.q2.institution} på {ENVS.q2.rinaHost.split(".")[0]}.
+              </span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </a>
+          <a href="#miljo-q1" className="arch-flow-card" data-tone={ENVS.q1.tone}>
+            <span className="arch-flow-card__icon" aria-hidden>
+              <PaperplaneIcon />
+            </span>
+            <span>
+              <strong>Q1 · motparten</strong>
+              <span className="arch-flow-card__text">
+                Sender til og mottar fra Q2. {ENVS.q1.institution} på {ENVS.q1.rinaHost.split(".")[0]}.
+              </span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </a>
+          <a href="#samspill" className="arch-flow-card" data-tone="info">
+            <span className="arch-flow-card__icon" aria-hidden>
+              <ArrowsSquarepathIcon />
+            </span>
+            <span>
+              <strong>Q1 ⇄ Q2</strong>
+              <span className="arch-flow-card__text">Slik går en SED fra det ene miljøet til det andre.</span>
+            </span>
+            <ArrowRightIcon aria-hidden className="arch-flow-card__arrow" />
+          </a>
+        </div>
+      </header>
+
+      <nav className="arch-jumpnav" aria-label="Innhold på siden">
+        <ol>
+          {SECTIONS.map((s) => (
+            <li key={s.id}>
+              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
+                {s.label}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <Section
+        id="samspill"
+        eyebrow="Hvorfor to miljøer"
+        title="Q1 og Q2 sender til hverandre"
+        lead="Hvert miljø har sin egen RINA og sin egen institusjon. For RINA er Q1 og Q2 derfor to ulike institusjoner, og vi kan teste både sending og mottak uten å gå via et annet land."
+      >
+        <Exchange />
+
+        <div className="env-why">
+          <article className="env-why__card" data-tone="info">
+            <Heading level="3" size="xsmall">
+              Send fra det ene, motta i det andre
+            </Heading>
+            <BodyShort size="small">
+              En SED sendt fra <code>{ENVS.q1.institution}</code> kommer inn som mottatt i <code>{ENVS.q2.institution}</code>,
+              og omvendt. Da kan vi teste hele løpet på begge sider: sending, mottak, journalføring og oppgaver.
+            </BodyShort>
+            <NextLink href="/kafka/sed-kobling" className="env-why__link">
+              Se par i SED-kobling <ArrowRightIcon aria-hidden />
+            </NextLink>
+          </article>
+          <article className="env-why__card" data-tone={ENVS.q2.tone}>
+            <Heading level="3" size="xsmall">
+              Det meste testes i Q2
+            </Heading>
+            <BodyShort size="small">
+              Q2 er hovedmiljøet. Det har mest trafikk, utveksler også med andre testinstitusjoner, og har tjenester som
+              ikke finnes i Q1. Q1 brukes mest som motpart.
+            </BodyShort>
+            <NextLink href="/kafka/sed-hendelser" className="env-why__link">
+              Se hendelsene live <ArrowRightIcon aria-hidden />
+            </NextLink>
+          </article>
+          <article className="env-why__card" data-tone="accent">
+            <Heading level="3" size="xsmall">
+              Kan kjøre ulike RINA-versjoner
+            </Heading>
+            <BodyShort size="small">
+              Av og til er det ene miljøet oppgradert før det andre. Da kan vi teste ny versjon mot gammel, slik det også
+              blir mot andre land.
+            </BodyShort>
+            <Versions />
+          </article>
+        </div>
+      </Section>
+
+      <Section
+        id="miljoer"
+        eyebrow="Miljøene"
+        title="Adresser og identiteter"
+        lead="Det du trenger for å finne fram i hvert miljø. nEESSI finnes i fire utgaver per miljø, alle mot samme backend."
+      >
+        <div className="env-cards">
+          <EnvCard env={ENVS.q2} />
+          <EnvCard env={ENVS.q1} />
+        </div>
+        <dl className="env-shared">
+          <div>
+            <dt>Innlogging</dt>
+            <dd>
+              Azure AD med <code>@trygdeetaten.no</code>-testbruker, både i nEESSI og RINA.
+            </dd>
+          </div>
+          <div>
+            <dt>Gosys</dt>
+            <dd>
+              Felles for begge: <Ext href={GOSYS_URL}>gosys.dev.intern.nav.no</Ext>
+            </dd>
+          </div>
+          <div>
+            <dt>Produksjon</dt>
+            <dd>
+              Ikke her. Bruk <Ext href={NAIS_CONSOLE}>NAIS-konsollen</Ext>
+            </dd>
+          </div>
+        </dl>
+      </Section>
+
+      <Section
+        id="tjenester"
+        eyebrow="Endepunkter"
+        title="Tjenester i Q1 og Q2"
+        lead={
+          <>
+            Alle har adressen <code>https://&lt;app&gt;-q1|q2.intern.dev.nav.no</code>, med to unntak: nEESSI ligger på{" "}
+            <code>eux-neessi-qN</code> og eux-neessi på <code>eux-neessi-backend-qN</code>. Klikk på navnet for å se hva
+            tjenesten gjør.
+          </>
+        }
+      >
+        <ServiceTable />
+      </Section>
+
+      <Section id="sporsmal" eyebrow="Spørsmål" title="Greit å vite">
+        <Accordion className="env-faq">
+          <Accordion.Item>
+            <Accordion.Header>Hvordan logger jeg inn?</Accordion.Header>
+            <Accordion.Content>
+              <BodyLong size="small">
+                nEESSI og backendene bruker Azure AD via Wonderwall. I testmiljøene logger du inn med en{" "}
+                <code>@trygdeetaten.no</code>-testbruker, ikke din vanlige NAV-bruker. RINA bruker de samme testbrukerne,
+                og er bare tilgjengelig fra NAV-nettet.
+              </BodyLong>
+            </Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item>
+            <Accordion.Header>Hvor finner jeg API-dokumentasjonen?</Accordion.Header>
+            <Accordion.Content>
+              <BodyLong size="small">
+                {SWAGGER_COUNT} tjenester har Swagger UI på <code>/swagger-ui/index.html</code>.{" "}
+                {SWAGGER_Q1_ONLY.map((s) => s.id).join(" og ")} har det bare i Q1. Swagger er slått av i produksjon. Bruk
+                lenkene i <a href="#tjenester">tabellen over</a>.
+              </BodyLong>
+            </Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item>
+            <Accordion.Header>Hvordan ser jeg om en tjeneste kjører?</Accordion.Header>
+            <Accordion.Content>
+              <BodyLong size="small">
+                Helselenken i tabellen svarer uten innlogging. Vil du teste hele veien, kan du{" "}
+                <NextLink href="/tests">sende en ekte SED mellom Q1 og Q2</NextLink>.
+              </BodyLong>
+            </Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item>
+            <Accordion.Header>Hva betyr CPI og NIE?</Accordion.Header>
+            <Accordion.Content>
+              <BodyLong size="small">
+                CPI (Case Processing Interface) er REST-API-et til RINA. Det brukes av {CPI_CALLERS.join(", ")}. NIE
+                (National Interface Endpoint) er motsatt vei: RINA sender hendelser til{" "}
+                <NextLink href="/applications#eux-all-rina-events">eux-all-rina-events</NextLink>, som legger dem på Kafka.
+                Se <NextLink href={archHref("rina")}>RINA i arkitekturkartet</NextLink>.
+              </BodyLong>
+            </Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item>
+            <Accordion.Header>Hvor er produksjon?</Accordion.Header>
+            <Accordion.Content>
+              <BodyLong size="small">
+                Produksjon er bevisst ikke med i portalen, så ingen åpner feil lenke ved et uhell. Bruk{" "}
+                <a href={NAIS_CONSOLE} target="_blank" rel="noreferrer">
+                  NAIS-konsollen
+                </a>
+                .
+              </BodyLong>
+            </Accordion.Content>
+          </Accordion.Item>
+        </Accordion>
+      </Section>
+
+      <Section id="videre" eyebrow="Mer" title="Videre lesing">
+        <div className="arch-further">
+          {FURTHER.map((f) =>
+            f.external ? (
+              <a key={f.href} href={f.href} target="_blank" rel="noreferrer" className="arch-further__card">
+                <strong>
+                  {f.title} <ExternalLinkIcon aria-hidden />
+                </strong>
+                <span>{f.text}</span>
+              </a>
+            ) : (
+              <NextLink key={f.href} href={f.href} className="arch-further__card">
+                <strong>
+                  {f.title} <ArrowRightIcon aria-hidden />
+                </strong>
+                <span>{f.text}</span>
+              </NextLink>
+            ),
+          )}
+        </div>
+      </Section>
+    </div>
   );
 }
