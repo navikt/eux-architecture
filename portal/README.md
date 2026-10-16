@@ -39,6 +39,12 @@ collapses into a compact bar with a menu button.
 
 ### Logged-in user
 
+The portal is open to anyone with the URL. Only the smoke test (`/tests`) and
+the live pages (`/kafka/**`, `/nav-rinasak/**`) and their APIs require login;
+everything else is listed under `autoLoginIgnorePaths` in `.nais/nais.yaml`.
+New public pages must be added there, and links to protected pages get
+`requiresLogin` (sidebar) / `locked` (home) to show a padlock.
+
 Login is handled by the NAIS login proxy (Wonderwall, Entra ID). Once a session
 exists, Wonderwall forwards the user's access token in the `Authorization`
 header on every request — also on paths excluded from autologin.

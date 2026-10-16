@@ -70,21 +70,23 @@ spec:
     sidecar:
       enabled: true
       autoLogin: true
+      # The portal is open to anyone with the URL. Only the smoke test (/tests)
+      # and the live pages (/kafka/**, /nav-rinasak/**) and their APIs require
+      # login, so add every new public page here.
       autoLoginIgnorePaths:
         - /
-        - /architecture
+        - /ny-i-teamet/**
+        - /nytt-i-neessi/**
         - /architecture/**
-        - /applications
         - /applications/**
-        - /environments
         - /environments/**
-        - /prosesser
         - /prosesser/**
         - /api/internal/**
         - /api/me
         - /favicon.ico
         - /icon.*
         - /apple-icon.*
+        - /*.html
         - /_next/**
   accessPolicy:
     outbound:

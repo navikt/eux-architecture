@@ -60,14 +60,14 @@ const NAV_SECTIONS: { heading?: string; items: NavItem[] }[] = [
   {
     heading: "Kafka",
     items: [
-      { href: "/kafka/sed-hendelser", label: "SED-hendelser", Icon: WavesIcon },
-      { href: "/kafka/sed-kobling", label: "SED-kobling", Icon: LinkIcon },
+      { href: "/kafka/sed-hendelser", label: "SED-hendelser", Icon: WavesIcon, requiresLogin: true },
+      { href: "/kafka/sed-kobling", label: "SED-kobling", Icon: LinkIcon, requiresLogin: true },
     ],
   },
   {
     heading: "Nav-rinasak",
     items: [
-      { href: "/nav-rinasak/sed-er", label: "SED-er i nEESSI", Icon: FilesIcon },
+      { href: "/nav-rinasak/sed-er", label: "SED-er i nEESSI", Icon: FilesIcon, requiresLogin: true },
     ],
   },
   {
