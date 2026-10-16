@@ -360,7 +360,7 @@ function HeroArt() {
           <circle r={40} className="adr-pin__ring" />
           <path d="M 0 16 C -7 5 -19 -2 -19 -16 A 19 19 0 1 1 19 -16 C 19 -2 7 5 0 16 Z" className="adr-pin__body" />
           <circle cy={-16} r={7} className="adr-pin__dot" />
-          <text y={42} textAnchor="middle" className="adr-pin__label">
+          <text y={33} dx={-0.6} textAnchor="middle" className="adr-pin__label">
             PDL
           </text>
         </g>
