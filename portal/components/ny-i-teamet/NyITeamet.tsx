@@ -681,12 +681,10 @@ export function NyITeamet() {
         <div className="ny-meetings">
           {MEETINGS.map((m, i) => (
             <article key={m.id} className="ny-meeting ny-reveal" data-tone={m.tone} style={{ "--i": i } as CSSProperties}>
+              {m.time && <MeetingTime time={m.time} />}
               <MeetingClock fill={m.fill} label={m.length} tone={m.tone} time={m.time} />
               <div>
-                <div className="ny-meeting__when">
-                  <Detail className="arch-eyebrow">{m.when}</Detail>
-                  {m.time && <MeetingTime time={m.time} />}
-                </div>
+                <Detail className="arch-eyebrow">{m.when}</Detail>
                 <Heading level="3" size="small" spacing>
                   {m.title}
                   {m.id === "daglig" && (
