@@ -11501,7 +11501,7 @@ svg.ny-layer {
   stroke-linecap: round;
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
-  rotate: -90deg;
+  rotate: calc(-90deg + var(--start, 0) * 360deg);
   transition: stroke-dashoffset 1.6s var(--arch-ease) 200ms;
 }
 
@@ -11509,15 +11509,26 @@ svg.ny-layer {
   stroke-dashoffset: calc(100 - var(--fill, 0) * 100);
 }
 
-.ny-clock__hand {
+.ny-clock__hand,
+.ny-clock__hour {
   stroke: var(--ax-text-default);
   stroke-width: 2.5;
   stroke-linecap: round;
+  rotate: calc(var(--start, 0) * 360deg);
   transition: rotate 1.6s var(--arch-ease) 200ms;
 }
 
 .ny-clock[data-in] .ny-clock__hand {
-  rotate: calc(var(--fill, 0) * 360deg);
+  rotate: calc((var(--start, 0) + var(--fill, 0)) * 360deg);
+}
+
+.ny-clock__hour {
+  stroke-width: 3.5;
+  rotate: calc(var(--h, 0) * 30deg);
+}
+
+.ny-clock[data-in] .ny-clock__hour {
+  rotate: calc((var(--h, 0) + var(--fill, 0)) * 30deg);
 }
 
 .ny-clock__pin {
@@ -12760,4 +12771,348 @@ svg.ny-layer {
 .ny-orbit--c {
   stroke: var(--ax-border-info);
   stroke-dasharray: 4 10;
+}
+
+/* ---------- Møtetid ---------- */
+
+.ny-meeting__when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.ny-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.55rem 0.1rem 0.4rem;
+  border-radius: 999px;
+  font: 700 0.8rem var(--arch-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--tone-text);
+  background: var(--tone-soft);
+  border: 1px solid color-mix(in srgb, var(--tone-line) 35%, transparent);
+}
+
+.ny-time svg {
+  font-size: 1rem;
+  animation: ny-tick 4s steps(4) infinite;
+}
+
+.ny-time__sep {
+  animation: ny-blink 2s steps(2, jump-none) infinite;
+}
+
+@keyframes ny-tick {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* ---------- RINA → ERINA ---------- */
+
+.ny-handover {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  align-items: center;
+  gap: 1.5rem 2.5rem;
+  margin-top: 1rem;
+  padding: 1.5rem 1.75rem;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background:
+    radial-gradient(circle at 100% 50%, rgba(200, 16, 46, 0.1), transparent 45%),
+    linear-gradient(110deg, color-mix(in srgb, var(--ax-bg-meta-purple-soft) 70%, transparent), transparent 45%),
+    var(--ax-bg-default);
+}
+
+.ny-handover__text p {
+  max-width: 46ch;
+}
+
+.ny-handover__track {
+  display: grid;
+  grid-template-columns: auto minmax(90px, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ny-handover__stop {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  min-width: 132px;
+  padding: 1rem 1.1rem 0.85rem;
+  border-radius: 16px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
+  text-align: center;
+  transition:
+    opacity 600ms ease 300ms,
+    filter 600ms ease 300ms,
+    box-shadow 600ms ease 1.3s,
+    border-color 600ms ease 1.3s;
+}
+
+.ny-handover__stop strong {
+  display: inline-flex;
+  font: 800 1.6rem/1 var(--arch-mono);
+  letter-spacing: 0.02em;
+}
+
+.ny-handover__stop > span {
+  font-size: 0.75rem;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.ny-handover__stop--now strong {
+  color: var(--ax-text-meta-purple);
+}
+
+.ny-handover[data-in] .ny-handover__stop--now {
+  opacity: 0.7;
+  filter: saturate(0.6);
+}
+
+.ny-handover__stop--next strong {
+  color: #c8102e;
+}
+
+.dark .ny-handover__stop--next strong {
+  color: #ff6b81;
+}
+
+.ny-handover[data-in] .ny-handover__stop--next {
+  border-color: rgba(200, 16, 46, 0.45);
+  box-shadow:
+    0 0 0 4px rgba(200, 16, 46, 0.08),
+    0 18px 36px -22px rgba(200, 16, 46, 0.7);
+}
+
+.ny-handover__stop--next strong span {
+  display: inline-block;
+  opacity: 0;
+  translate: 0 -0.5em;
+  rotate: -12deg;
+  transition:
+    opacity 300ms ease,
+    translate 500ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    rotate 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: calc(1.2s + var(--i, 0) * 80ms);
+}
+
+.ny-handover[data-in] .ny-handover__stop--next strong span {
+  opacity: 1;
+  translate: 0 0;
+  rotate: 0deg;
+}
+
+.ny-handflag {
+  width: 38px;
+  height: 27px;
+  border-radius: 3px;
+  box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.45);
+  transform-origin: 0 50%;
+  animation: ny-flutter 3.6s ease-in-out infinite;
+}
+
+.ny-handover__stop--next .ny-handflag {
+  animation-delay: -1.8s;
+}
+
+@keyframes ny-flutter {
+  0%,
+  100% {
+    transform: perspective(120px) rotateY(0deg) skewY(0deg);
+  }
+  50% {
+    transform: perspective(120px) rotateY(-14deg) skewY(-2deg);
+  }
+}
+
+.ny-handover__shift {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  min-height: 3rem;
+}
+
+.ny-handover__line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--ax-border-neutral) 0 6px, transparent 6px 12px);
+  transform-origin: 0 50%;
+  scale: 0 1;
+  transition: scale 1s var(--arch-ease) 200ms;
+}
+
+.ny-handover__line::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--ax-border-neutral);
+  border-right: 2px solid var(--ax-border-neutral);
+  translate: 0 -50%;
+  rotate: 45deg;
+}
+
+.ny-handover[data-in] .ny-handover__line {
+  scale: 1 1;
+}
+
+.ny-handover__dot {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, var(--ax-bg-meta-purple-strong), #c8102e);
+  box-shadow: 0 0 10px rgba(200, 16, 46, 0.5);
+  opacity: 0;
+}
+
+.ny-handover[data-in] .ny-handover__dot {
+  animation: ny-handover-dot 3.2s ease-in-out 1.4s infinite;
+}
+
+@keyframes ny-handover-dot {
+  0% {
+    left: 0%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+.ny-handover__year {
+  position: relative;
+  z-index: 1;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font: 800 0.95rem var(--arch-mono);
+  color: #fff;
+  background: linear-gradient(100deg, var(--ax-bg-meta-purple-strong), #c8102e);
+  box-shadow: 0 8px 18px -10px rgba(200, 16, 46, 0.8);
+  opacity: 0;
+  scale: 0.5;
+  transition:
+    opacity 300ms ease 700ms,
+    scale 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 700ms;
+}
+
+.ny-handover[data-in] .ny-handover__year {
+  opacity: 1;
+  scale: 1;
+}
+
+.dark .ny-handover {
+  background:
+    radial-gradient(circle at 100% 50%, rgba(200, 16, 46, 0.14), transparent 45%),
+    linear-gradient(110deg, color-mix(in srgb, var(--ax-bg-meta-purple-soft) 55%, transparent), transparent 45%),
+    var(--ax-bg-raised);
+}
+
+.dark .ny-handover__stop {
+  background: var(--ax-bg-default);
+}
+
+@media (max-width: 1000px) {
+  .ny-handover {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .ny-handover__track {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+
+  .ny-handover__stop {
+    width: 100%;
+  }
+
+  .ny-handover__shift {
+    min-height: 4.5rem;
+    width: 100%;
+  }
+
+  .ny-handover__line {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    right: auto;
+    width: 2px;
+    height: auto;
+    background: repeating-linear-gradient(180deg, var(--ax-border-neutral) 0 6px, transparent 6px 12px);
+    transform-origin: 50% 0;
+    scale: 1 0;
+  }
+
+  .ny-handover[data-in] .ny-handover__line {
+    scale: 1 1;
+  }
+
+  .ny-handover__line::after {
+    top: auto;
+    right: auto;
+    bottom: -2px;
+    left: 50%;
+    translate: -50% 0;
+    rotate: 135deg;
+  }
+
+  .ny-handover__dot {
+    left: 50%;
+    top: 0;
+  }
+
+  .ny-handover[data-in] .ny-handover__dot {
+    animation-name: ny-handover-dot-v;
+  }
+}
+
+@keyframes ny-handover-dot-v {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  12%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ny-handover__dot {
+    display: none;
+  }
 }

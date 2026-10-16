@@ -6,6 +6,7 @@ import { BodyLong, BodyShort, Detail, Heading } from "@navikt/ds-react";
 import {
   ArrowRightIcon,
   BellIcon,
+  ClockIcon,
   CloudIcon,
   CoffeeIcon,
   DatabaseIcon,
@@ -23,13 +24,14 @@ import {
 import { useScrollSpy } from "@/components/architecture/hooks";
 import { NODE_BY_ID, NODES, SERVICE_COUNT, incoming, outgoing } from "@/components/architecture/data";
 import { archHref } from "@/components/avslutning/tones";
-import { useCurrentUser } from "@/components/UserMenu";
 import {
   CONFLUENCE,
   EESSI_COUNTRIES,
   EESSI_URL,
   FURTHER,
   MEETINGS,
+  RINA_NEXT,
+  RINA_NOW,
   NAIS_CONSOLE,
   NAIS_DOCS,
   REPO,
@@ -135,11 +137,6 @@ function untilt(e: PointerEvent<HTMLElement>) {
   el.style.removeProperty("--ry");
 }
 
-function firstName(name: string): string {
-  const [last, first] = name.split(",").map((s) => s.trim());
-  return (first || last).split(/\s+/)[0];
-}
-
 /* ---------- Deler ---------- */
 
 function ToolIcon({ id }: { id: string }) {
@@ -148,11 +145,9 @@ function ToolIcon({ id }: { id: string }) {
 }
 
 function Greeting() {
-  const user = useCurrentUser();
-  const name = user.status === "authenticated" ? firstName(user.user.name) : null;
   return (
     <Detail className="arch-eyebrow ny-greeting">
-      {name ? `Hei, ${name}` : "Hei"} <span className="ny-wave" aria-hidden>👋</span>
+      Hei <span className="ny-wave" aria-hidden>👋</span>
       <span className="ny-greeting__sep" aria-hidden>
         ·
       </span>
@@ -222,7 +217,7 @@ function SedTrip() {
 
 function RinaName() {
   return (
-    <span className="ny-rinaname" role="img" aria-label="RINA, som i dag heter JINA">
+    <span className="ny-rinaname" role="img" aria-label={`RINA, som i dag heter ${RINA_NOW.name}`}>
       <span className="ny-rinaname__flip" aria-hidden>
         <span>R</span>
         <span>J</span>
@@ -232,20 +227,117 @@ function RinaName() {
   );
 }
 
-function MeetingClock({ fill, label, tone }: { fill: number; label: string; tone: string }) {
+/** "09:30" → timer (9.5) og minuttviserens startposisjon som andel av en runde (0.5). */
+function clockStart(time?: string): { hour: number; minute: number } | null {
+  if (!time) return null;
+  const [h, m] = time.split(":").map(Number);
+  return { hour: (h % 12) + m / 60, minute: m / 60 };
+}
+
+function MeetingClock({ fill, label, tone, time }: { fill: number; label: string; tone: string; time?: string }) {
   const [ref, inView] = useInView<HTMLDivElement>(0.5);
+  const start = clockStart(time);
   return (
-    <div ref={ref} className="ny-clock" data-tone={tone} data-in={inView || undefined} style={{ "--fill": fill } as CSSProperties}>
+    <div
+      ref={ref}
+      className="ny-clock"
+      data-tone={tone}
+      data-in={inView || undefined}
+      style={{ "--fill": fill, "--start": start?.minute ?? 0, "--h": start?.hour ?? 0 } as CSSProperties}
+    >
       <svg viewBox="-50 -50 100 100" aria-hidden>
         {Array.from({ length: 12 }, (_, i) => (
           <line key={i} y1={-41} y2={i % 3 === 0 ? -36 : -38.5} transform={`rotate(${i * 30})`} className="ny-clock__tick" />
         ))}
         <circle r={30} className="ny-clock__track" pathLength={100} />
         <circle r={30} className="ny-clock__arc" pathLength={100} />
+        {start && <line y2={-15} className="ny-clock__hour" />}
         <line y2={-24} className="ny-clock__hand" />
         <circle r={2.6} className="ny-clock__pin" />
       </svg>
       <span className="ny-clock__label">{label}</span>
+    </div>
+  );
+}
+
+function MeetingTime({ time }: { time: string }) {
+  const [h, m] = time.split(":");
+  return (
+    <time className="ny-time" dateTime={time}>
+      <ClockIcon aria-hidden />
+      <span>
+        kl. {Number(h)}
+        <span className="ny-time__sep">.</span>
+        {m}
+      </span>
+    </time>
+  );
+}
+
+function FlagIt() {
+  return (
+    <svg viewBox="0 0 3 2" className="ny-handflag" aria-hidden>
+      <rect width="1" height="2" fill="#009246" />
+      <rect x="1" width="1" height="2" fill="#fff" />
+      <rect x="2" width="1" height="2" fill="#ce2b37" />
+    </svg>
+  );
+}
+
+function FlagDk() {
+  return (
+    <svg viewBox="0 0 37 28" className="ny-handflag" aria-hidden>
+      <rect width="37" height="28" fill="#c8102e" />
+      <rect x="12" width="4" height="28" fill="#fff" />
+      <rect y="12" width="37" height="4" fill="#fff" />
+    </svg>
+  );
+}
+
+/** Overgangen fra dagens RINA (Italia) til ERINA (Danmark). */
+function RinaHandover() {
+  const [ref, inView] = useInView<HTMLDivElement>(0.35);
+  return (
+    <div ref={ref} className="ny-handover" data-in={inView || undefined}>
+      <div className="ny-handover__text">
+        <Detail className="arch-eyebrow">Neste kapittel · {RINA_NEXT.year}</Detail>
+        <Heading level="3" size="medium" spacing>
+          Fra {RINA_NOW.country} til {RINA_NEXT.country}
+        </Heading>
+        <BodyShort>
+          I {RINA_NEXT.year} går vi over til en ny versjon av RINA. Den forvaltes av {RINA_NEXT.country} og heter{" "}
+          <strong>{RINA_NEXT.name}</strong>.
+        </BodyShort>
+      </div>
+      <ol className="ny-handover__track">
+        <li className="ny-handover__stop ny-handover__stop--now">
+          <FlagIt />
+          <strong>{RINA_NOW.name}</strong>
+          <span>I dag · {RINA_NOW.country}</span>
+        </li>
+        <li className="ny-handover__shift">
+          <span className="ny-handover__line" aria-hidden>
+            <span className="ny-handover__dot" />
+          </span>
+          <span className="ny-handover__year">
+            <span className="aksel-sr-only">Bytte i </span>
+            {RINA_NEXT.year}
+          </span>
+        </li>
+        <li className="ny-handover__stop ny-handover__stop--next">
+          <FlagDk />
+          <strong aria-label={RINA_NEXT.name}>
+            {RINA_NEXT.name.split("").map((c, i) => (
+              <span key={i} aria-hidden style={{ "--i": i } as CSSProperties}>
+                {c}
+              </span>
+            ))}
+          </strong>
+          <span>
+            Fra {RINA_NEXT.year} · {RINA_NEXT.country}
+          </span>
+        </li>
+      </ol>
     </div>
   );
 }
@@ -459,7 +551,7 @@ export function NyITeamet() {
         id="rina"
         eyebrow="Systemet i midten"
         title="RINA"
-        lead="RINA er der EESSI-sakene og SED-ene ligger. Vi har ikke laget den, men vi har ansvaret for å drifte den."
+        lead={`RINA er der EESSI-sakene og SED-ene ligger. Vi har ikke laget den, men vi har ansvaret for å drifte den. I ${RINA_NEXT.year} bytter vi til ${RINA_NEXT.name}.`}
       >
         <div className="ny-rina">
           <article className="ny-rina__card ny-rina__card--it ny-reveal" style={{ "--i": 0 } as CSSProperties}>
@@ -468,10 +560,11 @@ export function NyITeamet() {
               <i />
               <i />
             </span>
-            <Detail className="arch-eyebrow">Levert fra Italia</Detail>
+            <Detail className="arch-eyebrow">Levert fra {RINA_NOW.country}</Detail>
             <RinaName />
             <BodyShort>
-              RINA er ikke utviklet av teamet. Den leveres fra Italia, og den nåværende utgaven heter <strong>JINA</strong>.
+              RINA er ikke utviklet av teamet. I dag leveres den fra {RINA_NOW.country}, og den nåværende utgaven heter{" "}
+              <strong>{RINA_NOW.name}</strong>.
             </BodyShort>
             <BodyShort size="small" className="arch-subtle">
               RINA står for Reference Implementation of a National Application.
@@ -518,6 +611,7 @@ export function NyITeamet() {
             </dl>
           </article>
         </div>
+        <RinaHandover />
       </Section>
 
       <Section
@@ -587,9 +681,12 @@ export function NyITeamet() {
         <div className="ny-meetings">
           {MEETINGS.map((m, i) => (
             <article key={m.id} className="ny-meeting ny-reveal" data-tone={m.tone} style={{ "--i": i } as CSSProperties}>
-              <MeetingClock fill={m.fill} label={m.length} tone={m.tone} />
+              <MeetingClock fill={m.fill} label={m.length} tone={m.tone} time={m.time} />
               <div>
-                <Detail className="arch-eyebrow">{m.when}</Detail>
+                <div className="ny-meeting__when">
+                  <Detail className="arch-eyebrow">{m.when}</Detail>
+                  {m.time && <MeetingTime time={m.time} />}
+                </div>
                 <Heading level="3" size="small" spacing>
                   {m.title}
                   {m.id === "daglig" && (

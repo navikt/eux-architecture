@@ -110,11 +110,25 @@ export const SLACK_CHANNELS: { name: string; short: string; text: string; use: s
 
 /* ---------- Møter ---------- */
 
-export const MEETINGS: { id: string; title: string; when: string; length: string; fill: number; text: string; tone: Tone }[] = [
+/**
+ * `time` er klokkeslettet møtet starter (HH:MM). Med `time` viser klokka både
+ * time- og minuttviser, og buen tegnes fra starttidspunktet.
+ */
+export const MEETINGS: {
+  id: string;
+  title: string;
+  when: string;
+  time?: string;
+  length: string;
+  fill: number;
+  text: string;
+  tone: Tone;
+}[] = [
   {
     id: "daglig",
     title: "Daglig møte",
     when: "Hver dag",
+    time: "09:30",
     length: "30 min",
     fill: 0.5,
     text: "En halvtime der vi snakker om stort og smått – hva vi jobber med, og hva som står fast.",
@@ -130,6 +144,12 @@ export const MEETINGS: { id: string; title: string; when: string; length: string
     tone: "meta-purple",
   },
 ];
+
+/* ---------- RINA ---------- */
+
+/** RINA-utgaven vi bruker i dag, og den vi går over til. */
+export const RINA_NOW = { name: "JINA", country: "Italia" };
+export const RINA_NEXT = { name: "ERINA", country: "Danmark", year: 2027 };
 
 /* ---------- Verktøy ---------- */
 
