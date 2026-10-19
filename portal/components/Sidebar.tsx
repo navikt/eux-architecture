@@ -24,6 +24,7 @@ import {
   XMarkIcon,
 } from "@navikt/aksel-icons";
 import { UserMenu, useCurrentUser } from "./UserMenu";
+import { CommandMenu } from "./CommandMenu";
 
 type NavItem = {
   href: string;
@@ -141,6 +142,8 @@ export function Sidebar() {
           {open ? <XMarkIcon aria-hidden /> : <MenuHamburgerIcon aria-hidden />}
         </button>
       </div>
+
+      <CommandMenu onNavigate={close} />
 
       <div id="portal-sidebar-panel" className="portal-sidebar__panel">
         <nav aria-label="Hovedmeny" className="portal-sidebar__nav">

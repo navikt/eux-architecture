@@ -7,10 +7,15 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "search:index": "node scripts/search-index.mjs",
+    "predev": "pnpm search:index",
     "dev": "next dev",
+    "prebuild": "pnpm search:index",
     "build": "next build",
     "start": "next start",
+    "pretypecheck": "pnpm search:index",
     "typecheck": "tsc --noEmit",
+    "test:search": "pnpm search:index && node --experimental-strip-types --test scripts/search.test.mjs",
     "lint": "eslint ."
   },
   "dependencies": {

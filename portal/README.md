@@ -37,6 +37,26 @@ The left sidebar (`components/Sidebar.tsx`) holds the brand, the navigation and,
 at the bottom, the profile area (`components/UserMenu.tsx`). On small screens it
 collapses into a compact bar with a menu button.
 
+### Command search
+
+Open **Søk i portalen** in the sidebar, or press **Cmd+K** (macOS) /
+**Ctrl+K**. Search page content, documentation sections and services, with
+typo tolerance and Norwegian/ASCII equivalents (`journalføring` /
+`journalforing`). Use the arrow keys and Enter to navigate; Escape or a click
+outside closes the menu. Category filters, contextual previews and direct
+section links help narrow down results. The menu supports small screens,
+both themes and reduced-motion preferences.
+
+Search runs entirely in the browser; queries are not sent to a server or saved.
+`scripts/search-index.mjs` generates `lib/search-index.json` before dev, build
+and typecheck from the sidebar's internal routes, page text and allowlisted
+documentation components. Service entries reuse the architecture model.
+Hidden pages and live/user data are not indexed; protected pages are listed
+only by their navigation labels and marked as requiring login.
+When adding a documentation component directory, add it to `componentFolders`
+in the generator. Restart dev (or run `pnpm search:index`) to refresh the
+index after editing documentation.
+
 ### Logged-in user
 
 The portal is open to anyone with the URL. Only the smoke test (`/tests`) and
@@ -109,6 +129,7 @@ pnpm install
 | `pnpm start` | Run the production build |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
+| `pnpm test:search` | Search ranking, typo tolerance, content indexing and privacy checks |
 
 ## Deployment
 
