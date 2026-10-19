@@ -148,7 +148,6 @@ export function CommandMenu({ onNavigate }: { onNavigate: () => void }) {
         <div className={styles.atmosphere} aria-hidden="true">
           <div className={styles.aurora} />
           <div className={styles.grid} />
-          <div className={styles.orbit} />
           {Array.from({ length: 18 }, (_, i) => (
             <span
               className={styles.star}
