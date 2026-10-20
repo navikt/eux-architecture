@@ -12,7 +12,6 @@ import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import tools.jackson.databind.ObjectMapper
-import java.time.Instant
 
 /**
  * One-shot startup job: seeds [SedHendelseStore] with the most recent
@@ -56,7 +55,7 @@ class SedHendelseBackfill(
             val collected = records.mapNotNull { rec ->
                 runCatching {
                     val hendelse = objectMapper.readValue(rec.value(), SedHendelse::class.java)
-                    SedHendelseRecord.of(hendelse, rec, receivedAt = Instant.ofEpochMilli(rec.timestamp()))
+                    SedHendelseRecord.of(hendelse, rec)
                 }.onFailure {
                     log.warn(it) { "Backfill: kunne ikke parse melding topic=${rec.topic()} offset=${rec.offset()}" }
                 }.getOrNull()

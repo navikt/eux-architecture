@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 import tools.jackson.databind.ObjectMapper
-import java.time.Instant
 
 @Service
 @ConditionalOnProperty(name = ["portal.kafka.enabled"], havingValue = "true")
@@ -38,7 +37,7 @@ class SedHendelseConsumer(
     fun onSedHendelse(record: ConsumerRecord<String, String>) {
         try {
             val hendelse = objectMapper.readValue(record.value(), SedHendelse::class.java)
-            val sedRecord = SedHendelseRecord.of(hendelse, record, receivedAt = Instant.now())
+            val sedRecord = SedHendelseRecord.of(hendelse, record)
             if (!store.add(sedRecord)) return
             sseRegistry.broadcast("sed-hendelse", sedRecord)
             if (sedRecord.direction == TopicMetadata.DIRECTION_SENDT) {

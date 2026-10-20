@@ -82,12 +82,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 
 ## portal-core
 
-### [ ] 07 · Use one source for `receivedAt`
+### [x] 07 · Use one source for `receivedAt`
 - **Area:** portal-core · **Effort:** S
 - **Where:** `kafka/consumer/SedHendelseConsumer.kt`, `kafka/consumer/SedHendelseBackfill.kt`, `kafka/model/SedHendelseRecord.kt` (`SedHendelseRecord.of`)
 - **Problem:** the listener sets `receivedAt` to `Instant.now()`, while the backfill uses the Kafka record timestamp. Rows on the live page sort and fade differently depending on how they arrived.
 - **Fix:** derive `receivedAt` from `record.timestamp()` in `SedHendelseRecord.of` for both paths, and drop the parameter. Add a unit test.
 - **Done when:** both paths produce the same `receivedAt` for the same record and `mvn -q verify` is green.
+- **Fixed:** 2026-10-20: `SedHendelseRecord.of` now takes `receivedAt` from the Kafka record timestamp (falling back to now only for `NO_TIMESTAMP`) and no longer has the parameter, so `SedHendelseConsumer` and `SedHendelseBackfill` agree. Added `SedHendelseRecordTest`.
 
 ### [ ] 08 · Detect dead SSE clients sooner
 - **Area:** portal-core · **Effort:** S

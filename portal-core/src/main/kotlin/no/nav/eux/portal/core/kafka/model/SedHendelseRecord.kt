@@ -14,17 +14,27 @@ data class SedHendelseRecord(
     val partition: Int,
 ) {
     companion object {
-        fun of(hendelse: SedHendelse, record: ConsumerRecord<*, *>, receivedAt: Instant): SedHendelseRecord {
+        /**
+         * [receivedAt] is the Kafka record timestamp, so the live listener and
+         * the startup backfill give the same value for the same message.
+         */
+        fun of(hendelse: SedHendelse, record: ConsumerRecord<*, *>): SedHendelseRecord {
             val (environment, direction) = TopicMetadata.parse(record.topic())
             return SedHendelseRecord(
                 hendelse = hendelse,
                 topic = record.topic(),
                 environment = environment,
                 direction = direction,
-                receivedAt = receivedAt,
+                receivedAt = timestampOf(record),
                 offset = record.offset(),
                 partition = record.partition(),
             )
         }
+
+        private fun timestampOf(record: ConsumerRecord<*, *>): Instant =
+            record.timestamp()
+                .takeUnless { it == ConsumerRecord.NO_TIMESTAMP }
+                ?.let(Instant::ofEpochMilli)
+                ?: Instant.now()
     }
 }
