@@ -5,7 +5,7 @@ import { BodyLong, BodyShort, Detail, ToggleGroup } from "@navikt/ds-react";
 import { ArrowRightIcon } from "@navikt/aksel-icons";
 import { ENVS, JOBS, differsFromProd, klokke, schedLabel, type Env, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
-import { TONE } from "./tones";
+import { TONE } from "@/lib/tones";
 
 const S = 360;
 const C = S / 2;

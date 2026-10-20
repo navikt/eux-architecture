@@ -5,7 +5,7 @@ import { useReducedMotion } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
 import { JOB_BY_ID, STATUSES, STATUS_BY_ID, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
-import { TONE } from "./tones";
+import { TONE } from "@/lib/tones";
 
 const W = 1190;
 const H = 366;

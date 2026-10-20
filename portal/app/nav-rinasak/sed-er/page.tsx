@@ -5,7 +5,7 @@ import NextLink from "next/link";
 import { Table, ToggleGroup } from "@navikt/ds-react";
 import { formatDateTime, formatTime, isToday, safeDate } from "@/lib/datetime";
 import { neessiSakUrl } from "@/lib/neessi";
-import { archHref } from "@/components/avslutning/tones";
+import { archHref } from "@/lib/links";
 import { NeessiArt } from "@/components/live/art";
 import {
   fadeAlpha,

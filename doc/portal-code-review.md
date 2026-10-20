@@ -100,19 +100,21 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 
 ## portal: shared UI structure
 
-### [ ] 09 · Move shared link and tone helpers out of `avslutning/`
+### [x] 09 · Move shared link and tone helpers out of `avslutning/`
 - **Area:** portal · **Effort:** S
 - **Where:** `components/avslutning/tones.ts` (`archHref`, `ghHref`, tone maps), `components/architecture/ArchitectureMap.tsx`, `components/architecture/RequestFlow.tsx`
 - **Problem:** many pages unrelated to avslutning use helpers that live in that feature folder. Three tone-to-colour maps overlap.
 - **Fix:** move the helpers to `lib/` or `components/shared/`, keep a single tone map, and update the imports.
 - **Done when:** no non-avslutning file imports from `components/avslutning/tones`, one tone map remains, and the build is green.
+- **Fixed:** 2026-10-20: moved `archHref`/`ghHref` to `lib/links.ts` and replaced the three tone maps with one generated `TONE` map and a shared `Tone` type in `lib/tones.ts` (with a `strokeSubtle` border for `ArchitectureMap`, whose tones were renamed to Aksel names). `components/avslutning/tones.ts` is gone, and every feature `data.ts` takes `Tone` from `lib/tones`. The prerendered HTML of all 15 pages is identical to before, apart from build hashes.
 
-### [ ] 10 · Define `LAYERS` once
+### [x] 10 · Define `LAYERS` once
 - **Area:** portal · **Effort:** S
 - **Where:** `components/architecture/Catalogue.tsx` (`LAYERS`), `app/applications/page.tsx` (`LAYERS`)
 - **Problem:** the same zone grouping exists twice with different types.
 - **Fix:** export one typed `LAYERS` from `components/architecture/data.ts` and use it in both places.
 - **Done when:** there is a single definition, both pages render the same as before, and the build is green.
+- **Fixed:** 2026-10-20: `LAYERS` (`id`, `title`, `zones`, `tone`) and `LayerId` now live in `components/architecture/data.ts` and are used by `Catalogue.tsx` and `app/applications/page.tsx`. The applications page keeps only its own `short`/`lead` copy in a `Record<LayerId, …>`, so a missing layer fails typecheck. Both pages render identical HTML. The six layer titles are no longer in the `/applications` search content (they are still indexed under `/architecture`).
 
 ### [ ] 11 · Extract a shared `Section` component
 - **Area:** portal · **Effort:** M

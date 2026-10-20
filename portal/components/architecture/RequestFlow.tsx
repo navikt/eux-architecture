@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BodyLong, Button, Heading, HStack } from "@navikt/ds-react";
 import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "@navikt/aksel-icons";
+import { TONE, type Tone } from "@/lib/tones";
 import { useReducedMotion } from "./hooks";
 import { onActivate, rounded } from "./svg";
 
@@ -16,15 +17,6 @@ const LOW_Y = 180;
 const LOW_H = 200;
 
 type TopBox = { id: string; x: number; title: string; sub: string; tone: Tone };
-type Tone = "neutral" | "accent" | "info" | "success" | "warning";
-
-const TONES: Record<Tone, { fill: string; stroke: string }> = {
-  neutral: { fill: "var(--ax-bg-neutral-soft)", stroke: "var(--ax-border-neutral)" },
-  accent: { fill: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent)" },
-  info: { fill: "var(--ax-bg-info-soft)", stroke: "var(--ax-border-info)" },
-  success: { fill: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success)" },
-  warning: { fill: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning)" },
-};
 
 const TOP: TopBox[] = [
   { id: "saksbehandler", x: 0, title: "Saksbehandler", sub: "Nettleser", tone: "neutral" },
@@ -237,7 +229,7 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
           ))}
 
           {TOP.map((b) => {
-            const t = TONES[b.tone];
+            const t = TONE[b.tone];
             return (
               <g
                 key={b.id}
@@ -260,7 +252,7 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
           })}
 
           {LOW.map((b) => {
-            const t = TONES[b.tone];
+            const t = TONE[b.tone];
             const colW = (b.w - 24) / b.cols;
             const rows = Math.ceil(b.items.length / b.cols);
             return (

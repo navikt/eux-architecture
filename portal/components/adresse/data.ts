@@ -8,7 +8,7 @@
  * eux-all-rina-events (.nais/topics).
  */
 
-import type { Tone } from "@/components/avslutning/data";
+import type { Tone } from "@/lib/tones";
 
 export type { Tone };
 

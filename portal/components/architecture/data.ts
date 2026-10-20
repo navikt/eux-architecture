@@ -5,6 +5,8 @@
  * Keep in sync with README.md.
  */
 
+import type { Tone } from "@/lib/tones";
+
 export type Zone =
   | "bruker"
   | "frontend"
@@ -559,6 +561,20 @@ export const ZONE_LABEL: Record<Zone, string> = {
   nav: "NAV-system",
   andre: "Annet team",
 };
+
+export type LayerId = "frontend" | "domene" | "rina" | "hendelser" | "bakgrunn" | "jobber";
+
+export type Layer = { id: LayerId; title: string; zones: Zone[]; tone: Tone };
+
+/** Service zones grouped into layers, for /applications and the catalogue on /architecture. */
+export const LAYERS: Layer[] = [
+  { id: "frontend", title: "Frontend og orkestrering", zones: ["frontend", "orkestrering"], tone: "accent" },
+  { id: "domene", title: "Domenetjenester", zones: ["domene"], tone: "success" },
+  { id: "rina", title: "RINA-integrasjon", zones: ["rina-integrasjon"], tone: "info" },
+  { id: "hendelser", title: "Hendelsesinfrastruktur", zones: ["hendelser"], tone: "meta-purple" },
+  { id: "bakgrunn", title: "Bakgrunnstjenester", zones: ["bakgrunn"], tone: "meta-lime" },
+  { id: "jobber", title: "NAIS-jobber", zones: ["jobber"], tone: "warning" },
+];
 
 /** Sort order for neighbour lists: services first, then topics, people/teams and external systems. */
 export const KIND_RANK: Record<NodeKind, number> = { app: 0, job: 0, topic: 1, team: 2, person: 2, external: 3 };

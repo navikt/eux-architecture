@@ -3,7 +3,9 @@
  * kanaler, møter, verktøy og lenker – ligger her, så siden er lett å justere.
  */
 
-export type Tone = "accent" | "success" | "info" | "warning" | "meta-purple" | "meta-lime" | "neutral";
+import type { Tone } from "@/lib/tones";
+
+export type { Tone };
 
 /* ---------- Teamet ---------- */
 

@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Table, ToggleGroup } from "@navikt/ds-react";
 import { formatDateTime, formatTime } from "@/lib/datetime";
-import { archHref } from "@/components/avslutning/tones";
+import { archHref } from "@/lib/links";
 import { ENVS, type EnvId } from "@/components/miljoer/data";
 import { KoblingArt } from "@/components/live/art";
 import {

@@ -5,7 +5,7 @@ import NextLink from "next/link";
 import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
 import { ArrowRightIcon, BucketMopIcon, ExternalLinkIcon, PaperplaneIcon, TasklistIcon } from "@navikt/aksel-icons";
 import { useScrollSpy } from "@/components/architecture/hooks";
-import { archHref, ghHref } from "@/components/avslutning/tones";
+import { archHref, ghHref } from "@/lib/links";
 import { CONSUMER_GROUP, ENVS, ORD_FOR_POSTBOKS, ORD_FOR_UKJENT, SEKTORER, TEST_RINASAK, type Tone } from "@/components/adresse/data";
 import { Journey } from "@/components/adresse/Journey";
 import { SystemFlow } from "@/components/adresse/SystemFlow";

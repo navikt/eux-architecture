@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type KeyboardEvent } from "react";
 import { BodyShort, Button, ToggleGroup } from "@navikt/ds-react";
+import { TONE, type Tone } from "@/lib/tones";
 import { EDGES, KIND_COLOR, NODE_BY_ID, type ArchEdge, type EdgeKind, type Zone } from "./data";
 import { NodeExplorer } from "./NodeExplorer";
 
@@ -12,7 +13,6 @@ export type MapView = "alle" | EdgeKind;
 /* ------------------------------------------------------------------ */
 
 type Rect = { x: number; y: number; w: number; h: number };
-type Tone = "accent" | "success" | "info" | "purple" | "magenta" | "lime" | "warning" | "neutral" | "beige" | "eu";
 
 const W = 1280;
 const H = 880;
@@ -23,19 +23,6 @@ const right = (r: Rect) => r.x + r.w;
 const bottom = (r: Rect) => r.y + r.h;
 const cx = (r: Rect) => r.x + r.w / 2;
 const cy = (r: Rect) => r.y + r.h / 2;
-
-const TONE: Record<Tone, { fill: string; stroke: string; text: string }> = {
-  accent: { fill: "var(--ax-bg-accent-soft)", stroke: "var(--ax-border-accent-subtle)", text: "var(--ax-text-accent)" },
-  success: { fill: "var(--ax-bg-success-soft)", stroke: "var(--ax-border-success-subtle)", text: "var(--ax-text-success)" },
-  info: { fill: "var(--ax-bg-info-soft)", stroke: "var(--ax-border-info-subtle)", text: "var(--ax-text-info)" },
-  purple: { fill: "var(--ax-bg-meta-purple-soft)", stroke: "var(--ax-border-meta-purple-subtle)", text: "var(--ax-text-meta-purple)" },
-  magenta: { fill: "var(--ax-bg-brand-magenta-soft)", stroke: "var(--ax-border-brand-magenta-subtle)", text: "var(--ax-text-brand-magenta)" },
-  lime: { fill: "var(--ax-bg-meta-lime-soft)", stroke: "var(--ax-border-meta-lime-subtle)", text: "var(--ax-text-meta-lime)" },
-  warning: { fill: "var(--ax-bg-warning-soft)", stroke: "var(--ax-border-warning-subtle)", text: "var(--ax-text-warning)" },
-  neutral: { fill: "var(--ax-bg-neutral-soft)", stroke: "var(--ax-border-neutral-subtle)", text: "var(--ax-text-neutral-subtle)" },
-  beige: { fill: "var(--ax-bg-brand-beige-soft)", stroke: "var(--ax-border-brand-beige-subtle)", text: "var(--ax-text-neutral-subtle)" },
-  eu: { fill: "var(--ax-bg-brand-blue-soft)", stroke: "var(--ax-border-brand-blue-subtle)", text: "var(--ax-text-neutral)" },
-};
 
 type ZoneDef = {
   zone: Zone;
@@ -77,7 +64,7 @@ const ZONES: ZoneDef[] = [
     zone: "bakgrunn",
     title: "Bakgrunnstjenester",
     sub: "Kafka-konsumenter og nattlige prosesser",
-    tone: "lime",
+    tone: "meta-lime",
     rect: { x: 264, y: 430, w: 416, h: 214 },
     cols: 2,
     members: [
@@ -94,7 +81,7 @@ const ZONES: ZoneDef[] = [
     zone: "kafka",
     title: "Kafka",
     sub: "Topics (uten eux-prefiks)",
-    tone: "purple",
+    tone: "meta-purple",
     rect: { x: 720, y: 430, w: 200, h: 254 },
     members: [
       "eux-rina-case-events-v1",
@@ -108,7 +95,7 @@ const ZONES: ZoneDef[] = [
     zone: "hendelser",
     title: "Hendelsesinfrastruktur",
     sub: "Fra RINA til Kafka",
-    tone: "magenta",
+    tone: "brand-magenta",
     rect: { x: 960, y: 430, w: 176, h: 140 },
     members: ["eux-all-rina-events", "eux-legacy-rina-events"],
   },
@@ -139,7 +126,7 @@ const ZONES: ZoneDef[] = [
     zone: "andre",
     title: "Andre team",
     sub: "Bruker EUX direkte",
-    tone: "beige",
+    tone: "brand-beige",
     rect: { x: 720, y: 724, w: 200, h: 132 },
     members: ["eessi-pensjon", "melosys-eessi"],
   },
@@ -430,7 +417,7 @@ export function ArchitectureMap({
     const textX = r.x + (icon ? 28 : 10);
     return (
       <g key={id} {...nodeProps(id)}>
-        <rect className="arch-pulse" x={r.x} y={r.y} width={r.w} height={r.h} rx={8} fill="none" stroke={tone.stroke} />
+        <rect className="arch-pulse" x={r.x} y={r.y} width={r.w} height={r.h} rx={8} fill="none" stroke={tone.strokeSubtle} />
         <rect
           className="arch-box"
           x={r.x}
@@ -439,7 +426,7 @@ export function ArchitectureMap({
           height={r.h}
           rx={8}
           fill="var(--ax-bg-default)"
-          stroke={tone.stroke}
+          stroke={tone.strokeSubtle}
           strokeWidth={1.2}
         />
         {icon === "clock" && (
@@ -475,8 +462,8 @@ export function ArchitectureMap({
     const t = TONE[tone];
     return (
       <g key={id} {...nodeProps(id)}>
-        <rect className="arch-pulse" x={r.x} y={r.y} width={r.w} height={r.h} rx={16} fill="none" stroke={t.stroke} />
-        <rect className="arch-box" x={r.x} y={r.y} width={r.w} height={r.h} rx={16} fill={t.fill} stroke={t.stroke} strokeWidth={1.4} />
+        <rect className="arch-pulse" x={r.x} y={r.y} width={r.w} height={r.h} rx={16} fill="none" stroke={t.strokeSubtle} />
+        <rect className="arch-box" x={r.x} y={r.y} width={r.w} height={r.h} rx={16} fill={t.fill} stroke={t.strokeSubtle} strokeWidth={1.4} />
         {id === "saksbehandler" ? (
           <g aria-hidden transform={`translate(${cx(r) - 9} ${r.y + 16})`} fill="none" stroke={t.text} strokeWidth={1.6}>
             <circle cx={9} cy={6} r={5} />
@@ -569,7 +556,7 @@ export function ArchitectureMap({
             const r = z.rect;
             return (
               <g key={z.zone} className="arch-zone" style={{ ["--arch-delay" as string]: `${80 + i * 60}ms` }}>
-                <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={14} fill={t.fill} stroke={t.stroke} strokeWidth={1.2} />
+                <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={14} fill={t.fill} stroke={t.strokeSubtle} strokeWidth={1.2} />
                 <text x={r.x + 14} y={r.y + 22} fontSize={13} fontWeight={700} fill="var(--ax-text-neutral)">
                   {z.title}
                 </text>
@@ -623,8 +610,8 @@ export function ArchitectureMap({
               width={rina.w}
               height={rina.h}
               rx={16}
-              fill={TONE.eu.fill}
-              stroke={TONE.eu.stroke}
+              fill={TONE["brand-blue"].fill}
+              stroke={TONE["brand-blue"].strokeSubtle}
               strokeWidth={1.4}
             />
             <g aria-hidden transform={`translate(${cx(rina)} ${rina.y + 36})`}>
@@ -647,7 +634,7 @@ export function ArchitectureMap({
               { y: cy(leg), text: "CPI" },
             ].map((p) => (
               <g key={`${p.text}-${p.y}`}>
-                <rect x={rina.x + 8} y={p.y - 10} width={36} height={20} rx={6} fill="var(--ax-bg-default)" stroke={TONE.eu.stroke} />
+                <rect x={rina.x + 8} y={p.y - 10} width={36} height={20} rx={6} fill="var(--ax-bg-default)" stroke={TONE["brand-blue"].strokeSubtle} />
                 <text x={rina.x + 26} y={p.y + 4} textAnchor="middle" fontSize={10.5} fontWeight={600} fill="var(--ax-text-neutral)" fontFamily="var(--arch-mono)">
                   {p.text}
                 </text>

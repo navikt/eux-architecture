@@ -5,7 +5,7 @@ import { BodyShort, Button, Chips, Detail, HStack, ToggleGroup } from "@navikt/d
 import { ArrowRightIcon, PauseIcon, PlayIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { BUCS, BUC_BY_NAME, FAMILIES, STATUS_BY_ID, scopeFor, type Role, type StatusId } from "./data";
-import { TONE } from "./tones";
+import { TONE } from "@/lib/tones";
 
 const W = 1140;
 const H = 262;

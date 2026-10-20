@@ -5,11 +5,14 @@
  * eux-avslutt-rinasaker-naisjob and the RINA actions in eux-rina-terminator-api.
  */
 
+import type { Tone } from "@/lib/tones";
+
+export type { Tone };
+
 export type Scope = "LOKALT" | "GLOBALT";
 export type Role = "sakseier" | "motpart";
 export type Family = "FB" | "H" | "UB" | "S";
 export type Env = "prod" | "q1" | "q2";
-export type Tone = "accent" | "warning" | "info" | "success" | "neutral" | "danger" | "meta-purple";
 
 export type StatusId =
   | "NY_SAK"

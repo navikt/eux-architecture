@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BodyShort, Button, Chips } from "@navikt/ds-react";
 import { ArrowRightIcon, PauseIcon, PlayIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
-import { TONE } from "@/components/avslutning/tones";
+import { TONE } from "@/lib/tones";
 import { STATUS_BY_ID, klokke, type StatusId } from "./data";
 
 /*

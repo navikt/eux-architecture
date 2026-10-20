@@ -5,7 +5,7 @@ import { BodyLong, BodyShort, Button, HStack, Switch, ToggleGroup } from "@navik
 import { ArrowsCirclepathIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { onActivate } from "@/components/architecture/svg";
-import { TONE } from "@/components/avslutning/tones";
+import { TONE } from "@/lib/tones";
 import type { StatusId, Tone } from "./data";
 import { StatusChips } from "./StatusChips";
 

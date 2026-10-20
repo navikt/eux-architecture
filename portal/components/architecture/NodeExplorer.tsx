@@ -2,7 +2,7 @@
 
 import { BodyLong, BodyShort, Button, Detail, Heading, HStack, Link as DsLink, Tag } from "@navikt/ds-react";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { ghHref } from "@/components/avslutning/tones";
+import { ghHref } from "@/lib/links";
 import {
   KIND_COLOR,
   KIND_RANK,

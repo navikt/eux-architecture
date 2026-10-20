@@ -23,7 +23,7 @@ import {
 } from "@navikt/aksel-icons";
 import { useScrollSpy } from "@/components/architecture/hooks";
 import { NODE_BY_ID, NODES, SERVICE_COUNT, incoming, outgoing } from "@/components/architecture/data";
-import { archHref } from "@/components/avslutning/tones";
+import { archHref } from "@/lib/links";
 import {
   CONFLUENCE,
   EESSI_COUNTRIES,

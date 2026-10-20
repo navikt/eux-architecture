@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { BodyLong, BodyShort, ToggleGroup } from "@navikt/ds-react";
 import { ArrowRightIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
-import { TONE } from "@/components/avslutning/tones";
+import { TONE } from "@/lib/tones";
 import { ENVS, JOBS, cronjobName, type Env, type Job, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
 

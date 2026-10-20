@@ -5,7 +5,7 @@ import NextLink from "next/link";
 import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
 import { ArrowRightIcon, ExternalLinkIcon, HourglassIcon, MoonIcon, TestFlaskIcon } from "@navikt/aksel-icons";
 import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
-import { archHref, ghHref } from "@/components/avslutning/tones";
+import { archHref, ghHref } from "@/lib/links";
 import {
   BEHANDLES,
   BEHANDLINGSTEMA_ROWS,

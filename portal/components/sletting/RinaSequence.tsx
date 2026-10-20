@@ -5,7 +5,7 @@ import { BodyLong, Button, Chips, HStack, Label, ToggleGroup } from "@navikt/ds-
 import { ArrowsCirclepathIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { onActivate } from "@/components/architecture/svg";
-import { TONE } from "@/components/avslutning/tones";
+import { TONE } from "@/lib/tones";
 import { STATUS_BY_ID, type StatusId, type Tone } from "./data";
 
 const W = 1040;

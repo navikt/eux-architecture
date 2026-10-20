@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState, type CSSProperties } from "react";
 import { Table, ToggleGroup } from "@navikt/ds-react";
 import { formatDateTime, formatTime, isToday } from "@/lib/datetime";
 import { neessiSakUrl } from "@/lib/neessi";
-import { archHref } from "@/components/avslutning/tones";
+import { archHref } from "@/lib/links";
 import { HendelserArt } from "@/components/live/art";
 import {
   fadeAlpha,

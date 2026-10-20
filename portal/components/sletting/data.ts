@@ -6,7 +6,7 @@
  * eux-rina-terminator-api.
  */
 
-import type { Tone } from "@/components/avslutning/data";
+import type { Tone } from "@/lib/tones";
 
 export type { Tone };
 export type Env = "prod" | "q1" | "q2";

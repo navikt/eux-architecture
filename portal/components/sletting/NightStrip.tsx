@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { BodyLong, BodyShort } from "@navikt/ds-react";
 import { ArrowRightIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
-import { TONE } from "@/components/avslutning/tones";
+import { TONE } from "@/lib/tones";
 import { JOBS, JOB_BY_ID, klokke, schedLabel, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
 

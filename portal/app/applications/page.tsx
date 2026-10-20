@@ -8,6 +8,7 @@ import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks"
 import {
   JOB_COUNT,
   KIND_RANK,
+  LAYERS,
   NODES,
   NODE_BY_ID,
   SERVICE_COUNT,
@@ -18,65 +19,43 @@ import {
   type ArchEdge,
   type ArchNode,
   type Lang,
-  type Zone,
+  type LayerId,
 } from "@/components/architecture/data";
-import { archHref, ghHref } from "@/components/avslutning/tones";
 import { ENV_IDS, ENVS, ENV_SERVICE_BY_ID, hostUrl, swaggerUrl } from "@/components/miljoer/data";
+import { archHref, ghHref } from "@/lib/links";
+import type { Tone } from "@/lib/tones";
 
 /* ---------- Innhold ---------- */
 
-type Tone = "accent" | "success" | "info" | "meta-purple" | "meta-lime" | "warning";
-
-const LAYERS: { id: string; short: string; title: string; zones: Zone[]; tone: Tone; lead: string }[] = [
-  {
-    id: "frontend",
+/** Kortnavn og ingress per lag. Selve lagene står i `LAYERS` i architecture/data. */
+const LAYER_COPY: Record<LayerId, { short: string; lead: string }> = {
+  frontend: {
     short: "Frontend",
-    title: "Frontend og orkestrering",
-    zones: ["frontend", "orkestrering"],
-    tone: "accent",
     lead: "nEESSI er det saksbehandlerne ser. eux-neessi står bak og setter sammen data fra resten av EUX og NAV.",
   },
-  {
-    id: "domene",
+  domene: {
     short: "Domene",
-    title: "Domenetjenester",
-    zones: ["domene"],
-    tone: "success",
     lead: "Små tjenester som eier hver sin del av domenet, alle med egen PostgreSQL-database.",
   },
-  {
-    id: "rina",
+  rina: {
     short: "RINA",
-    title: "RINA-integrasjon",
-    zones: ["rina-integrasjon"],
-    tone: "info",
     lead: "Tjenestene som er bygget rundt RINA: mellomvaren mot CPI, avslutning og sletting, søk og PDF.",
   },
-  {
-    id: "hendelser",
+  hendelser: {
     short: "Hendelser",
-    title: "Hendelsesinfrastruktur",
-    zones: ["hendelser"],
-    tone: "meta-purple",
     lead: "Tar imot hendelser fra RINA og legger dem på Kafka, i nytt og gammelt format.",
   },
-  {
-    id: "bakgrunn",
+  bakgrunn: {
     short: "Bakgrunn",
-    title: "Bakgrunnstjenester",
-    zones: ["bakgrunn"],
-    tone: "meta-lime",
     lead: "Tjenester uten brukerflate. De lytter på Kafka eller kjøres på tidsplan.",
   },
-  {
-    id: "jobber",
+  jobber: {
     short: "Jobber",
-    title: "NAIS-jobber",
-    zones: ["jobber"],
-    tone: "warning",
     lead: "Cron-utløsere uten forretningslogikk. De kaller et endepunkt i tjenesten de hører til.",
   },
-];
+};
+
+const PAGE_LAYERS = LAYERS.map((l) => ({ ...l, ...LAYER_COPY[l.id] }));
 
 const LIBRARIES = [
   { repo: "eux-parent-pom", tech: "Maven-parent", text: "Felles avhengighetsversjoner for Spring Boot, Kotlin, Java, token-validering og PostgreSQL." },
@@ -93,7 +72,7 @@ const FURTHER: { href: string; title: string; text: string }[] = [
   { href: "/nytt-i-neessi", title: "Nytt i nEESSI", text: "Siste endringer i nEESSI." },
 ];
 
-const SECTIONS = [...LAYERS.map((l) => ({ id: l.id, label: l.short })), { id: "biblioteker", label: "Biblioteker" }, { id: "videre", label: "Videre" }];
+const SECTIONS = [...PAGE_LAYERS.map((l) => ({ id: l.id, label: l.short })), { id: "biblioteker", label: "Biblioteker" }, { id: "videre", label: "Videre" }];
 const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 const APPS = NODES.filter((n) => n.kind === "app" || n.kind === "job");
@@ -176,7 +155,7 @@ function HeroArt() {
   const box = "0 0 420 380";
   return (
     <div className="lite-hero__art" aria-hidden>
-      {LAYERS.map((l, li) => {
+      {PAGE_LAYERS.map((l, li) => {
         const cy = 78 + li * 46;
         const nodes = APPS.filter((n) => l.zones.includes(n.zone));
         const cols = Math.min(nodes.length, 4);
@@ -547,7 +526,7 @@ export default function ApplicationsPage() {
         </span>
       </div>
 
-      {LAYERS.map((l, li) => {
+      {PAGE_LAYERS.map((l, li) => {
         const nodes = APPS.filter((n) => l.zones.includes(n.zone));
         const shown = nodes.filter((n) => visible.has(n.id));
         return (

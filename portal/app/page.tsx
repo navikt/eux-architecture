@@ -29,15 +29,15 @@ import { BUCS, JOBS as AVSLUTNING_JOBS } from "@/components/avslutning/data";
 import { GRENSE_DAGER, JOBS as SLETTING_JOBS } from "@/components/sletting/data";
 import { JOBS as JOURNAL_JOBS } from "@/components/journalfoering/data";
 import { PRESETS as ADRESSE_PRESETS } from "@/components/adresse/data";
+import type { Tone } from "@/lib/tones";
 
 const REPO = "https://github.com/navikt/eux-architecture";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
-type Tone = "accent" | "warning" | "success" | "meta-purple" | "meta-lime" | "info";
 
 /* ---------- Innhold ---------- */
 
-const CHAIN: { title: string; sub: string; tone: Tone | "neutral"; ring?: boolean }[] = [
+const CHAIN: { title: string; sub: string; tone: Tone; ring?: boolean }[] = [
   { title: "Saksbehandler", sub: "i NAV", tone: "neutral" },
   { title: "nEESSI", sub: "eux-web-app i nettleseren", tone: "accent" },
   { title: "EUX", sub: "tjenestene bak, på NAIS", tone: "accent" },

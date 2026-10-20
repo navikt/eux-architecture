@@ -3,17 +3,8 @@
 import { useMemo, useState } from "react";
 import { BodyShort, Button, Heading, HStack, Link as DsLink, Search, Tag } from "@navikt/ds-react";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { ghHref } from "@/components/avslutning/tones";
-import { NODES, incoming, outgoing, type ArchNode, type Zone } from "./data";
-
-const LAYERS: { title: string; zones: Zone[]; tone: string }[] = [
-  { title: "Frontend og orkestrering", zones: ["frontend", "orkestrering"], tone: "accent" },
-  { title: "Domenetjenester", zones: ["domene"], tone: "success" },
-  { title: "RINA-integrasjon", zones: ["rina-integrasjon"], tone: "info" },
-  { title: "Hendelsesinfrastruktur", zones: ["hendelser"], tone: "meta-purple" },
-  { title: "Bakgrunnstjenester", zones: ["bakgrunn"], tone: "meta-lime" },
-  { title: "NAIS-jobber", zones: ["jobber"], tone: "warning" },
-];
+import { ghHref } from "@/lib/links";
+import { LAYERS, NODES, incoming, outgoing, type ArchNode } from "./data";
 
 const matches = (n: ArchNode, q: string) => {
   if (!q) return true;
@@ -60,7 +51,7 @@ export function Catalogue({ onFocusNode }: { onFocusNode: (id: string) => void }
       {groups
         .filter((g) => g.nodes.length > 0)
         .map((g) => (
-          <section key={g.title} className="arch-catalogue__group" aria-label={g.title}>
+          <section key={g.id} className="arch-catalogue__group" aria-label={g.title}>
             <Heading level="3" size="xsmall" className="arch-catalogue__title" data-tone={g.tone}>
               {g.title}
               <span className="arch-subtle"> · {g.nodes.length}</span>

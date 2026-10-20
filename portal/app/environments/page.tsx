@@ -6,7 +6,7 @@ import { Accordion, BodyLong, BodyShort, Button, CopyButton, Detail, Heading, Ta
 import { ArrowRightIcon, ArrowsSquarepathIcon, ExternalLinkIcon, PaperplaneIcon, StarIcon, TestFlaskIcon } from "@navikt/aksel-icons";
 import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
 import { NODE_BY_ID, incoming } from "@/components/architecture/data";
-import { archHref } from "@/components/avslutning/tones";
+import { archHref } from "@/lib/links";
 import {
   ENV_IDS,
   ENV_SERVICES,

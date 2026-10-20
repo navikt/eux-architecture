@@ -5,7 +5,7 @@ import { BodyLong, BodyShort, Button, Detail, Heading, ToggleGroup } from "@navi
 import { XMarkIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
-import { TONE } from "@/components/avslutning/tones";
+import { TONE } from "@/lib/tones";
 import { JOB_BY_ID, STATUS_BY_ID, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
 

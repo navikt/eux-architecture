@@ -6,7 +6,7 @@ import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } fr
 import { ArrowRightIcon, ExternalLinkIcon, LightningIcon, MoonIcon, PadlockLockedIcon } from "@navikt/aksel-icons";
 import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
 import { BUCS, ENVS, JOBS, STATUSES, differsFromProd, schedLabel, type Role, type StatusId } from "@/components/avslutning/data";
-import { archHref, ghHref } from "@/components/avslutning/tones";
+import { archHref, ghHref } from "@/lib/links";
 import { CaseJourney } from "@/components/avslutning/CaseJourney";
 import { SystemFlow } from "@/components/avslutning/SystemFlow";
 import { NightPipeline } from "@/components/avslutning/NightPipeline";

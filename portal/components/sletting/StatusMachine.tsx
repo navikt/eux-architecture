@@ -3,7 +3,7 @@
 import { BodyLong, BodyShort, Detail, Heading, HStack } from "@navikt/ds-react";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
-import { TONE } from "@/components/avslutning/tones";
+import { TONE } from "@/lib/tones";
 import { JOB_BY_ID, STATUSES, STATUS_BY_ID, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
 

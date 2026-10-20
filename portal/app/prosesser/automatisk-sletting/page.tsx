@@ -5,7 +5,7 @@ import NextLink from "next/link";
 import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
 import { ArrowRightIcon, ExternalLinkIcon, LightningIcon, MoonIcon, TrashIcon } from "@navikt/aksel-icons";
 import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
-import { archHref, ghHref } from "@/components/avslutning/tones";
+import { archHref, ghHref } from "@/lib/links";
 import { ENVS, GRENSE_DAGER, JOBS, STATUSES, differsFromProd, schedLabel, type StatusId } from "@/components/sletting/data";
 import { CaseJourney } from "@/components/sletting/CaseJourney";
 import { SystemFlow } from "@/components/sletting/SystemFlow";

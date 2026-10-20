@@ -6,7 +6,8 @@ import { BodyLong, BodyShort, Button, Detail, Heading, HStack, Link as DsLink, T
 import { ArrowRightIcon, ExternalLinkIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
-import { TONE, archHref, ghHref } from "@/components/avslutning/tones";
+import { archHref, ghHref } from "@/lib/links";
+import { TONE } from "@/lib/tones";
 import type { Tone } from "./data";
 
 const W = 1240;
