@@ -5517,7 +5517,7 @@ button.jfr-result__status:hover {
 
 /* ---------- Section head with an optional link on the right ---------- */
 
-.home-section__head {
+.arch-section__head--aside {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -5526,7 +5526,7 @@ button.jfr-result__status:hover {
   max-width: none;
 }
 
-.home-section__head > div {
+.arch-section__head--aside > div {
   max-width: 80ch;
 }
 

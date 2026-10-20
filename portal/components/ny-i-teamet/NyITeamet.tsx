@@ -49,6 +49,7 @@ import { Checklist } from "./Checklist";
 import { WordCards } from "./WordCards";
 import { NaisCluster } from "./NaisCluster";
 import { ring, starPath, useInView, usePointerParallax } from "./hooks";
+import { Section } from "@/components/page/Section";
 
 const SECTIONS = [
   { id: "teamet", label: "Teamet" },
@@ -86,21 +87,6 @@ const POINT_ICONS = { people: PersonGroupIcon, stars: StarsEuIcon, handshake: Ha
 const TOOL_ICONS: Record<string, typeof BookIcon> = { jira: TasklistIcon, teams: VideoIcon, confluence: BookIcon, github: CodeIcon };
 
 /* ---------- Byggeklosser ---------- */
-
-function Section({ id, eyebrow, title, lead, children }: { id: string; eyebrow: string; title: string; lead?: ReactNode; children: ReactNode }) {
-  return (
-    <section id={id} className="arch-section ny-section" aria-labelledby={`${id}-title`}>
-      <header className="arch-section__head">
-        <Detail className="arch-eyebrow">{eyebrow}</Detail>
-        <Heading level="2" size="large" id={`${id}-title`}>
-          {title}
-        </Heading>
-        {lead && <BodyLong className="arch-section__lead">{lead}</BodyLong>}
-      </header>
-      {children}
-    </section>
-  );
-}
 
 /** Tall som teller opp fra null. Skjermlesere får tallet direkte. */
 function Count({ n }: { n: number }) {

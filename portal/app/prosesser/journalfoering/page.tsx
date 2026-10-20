@@ -33,6 +33,7 @@ import { CaseStory } from "@/components/journalfoering/CaseStory";
 import { StatusMachine } from "@/components/journalfoering/StatusMachine";
 import { NightJobs } from "@/components/journalfoering/NightJobs";
 import { ManualFlows } from "@/components/journalfoering/ManualFlows";
+import { Section } from "@/components/page/Section";
 
 const SECTIONS = [
   { id: "system", label: "Systemet" },
@@ -309,21 +310,6 @@ const FURTHER: { href: string; title: string; text: string; external?: boolean }
 ];
 
 /* ---------- Byggeklosser ---------- */
-
-function Section({ id, eyebrow, title, lead, children }: { id: string; eyebrow: string; title: string; lead?: ReactNode; children: ReactNode }) {
-  return (
-    <section id={id} className="arch-section" aria-labelledby={`${id}-title`}>
-      <header className="arch-section__head">
-        <Detail className="arch-eyebrow">{eyebrow}</Detail>
-        <Heading level="2" size="large" id={`${id}-title`}>
-          {title}
-        </Heading>
-        {lead && <BodyLong className="arch-section__lead">{lead}</BodyLong>}
-      </header>
-      {children}
-    </section>
-  );
-}
 
 function Snippet({ children }: { children: string }) {
   return (

@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode, SVGProps } from "react";
+import type { ComponentType, SVGProps } from "react";
 import NextLink from "next/link";
 import { BodyLong, Detail, Heading } from "@navikt/ds-react";
 import {
@@ -30,6 +30,7 @@ import { GRENSE_DAGER, JOBS as SLETTING_JOBS } from "@/components/sletting/data"
 import { JOBS as JOURNAL_JOBS } from "@/components/journalfoering/data";
 import { PRESETS as ADRESSE_PRESETS } from "@/components/adresse/data";
 import type { Tone } from "@/lib/tones";
+import { Section } from "@/components/page/Section";
 
 const REPO = "https://github.com/navikt/eux-architecture";
 
@@ -231,24 +232,6 @@ function Ring() {
         return <circle key={i} cx={(10 + Math.cos(a) * 7).toFixed(2)} cy={(10 + Math.sin(a) * 7).toFixed(2)} r="1.3" />;
       })}
     </svg>
-  );
-}
-
-function Section({ id, eyebrow, title, lead, aside, children }: { id: string; eyebrow: string; title: string; lead?: ReactNode; aside?: ReactNode; children: ReactNode }) {
-  return (
-    <section className="arch-section" aria-labelledby={`${id}-title`}>
-      <header className="arch-section__head home-section__head">
-        <div>
-          <Detail className="arch-eyebrow">{eyebrow}</Detail>
-          <Heading level="2" size="large" id={`${id}-title`}>
-            {title}
-          </Heading>
-          {lead && <BodyLong className="arch-section__lead">{lead}</BodyLong>}
-        </div>
-        {aside}
-      </header>
-      {children}
-    </section>
   );
 }
 

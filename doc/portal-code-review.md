@@ -116,12 +116,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** there is a single definition, both pages render the same as before, and the build is green.
 - **Fixed:** 2026-10-20: `LAYERS` (`id`, `title`, `zones`, `tone`) and `LayerId` now live in `components/architecture/data.ts` and are used by `Catalogue.tsx` and `app/applications/page.tsx`. The applications page keeps only its own `short`/`lead` copy in a `Record<LayerId, …>`, so a missing layer fails typecheck. Both pages render identical HTML. The six layer titles are no longer in the `/applications` search content (they are still indexed under `/architecture`).
 
-### [ ] 11 · Extract a shared `Section` component
+### [x] 11 · Extract a shared `Section` component
 - **Area:** portal · **Effort:** M
 - **Where:** local `Section` in `app/page.tsx`, `app/architecture/page.tsx`, `app/applications/page.tsx`, `app/environments/page.tsx`, `components/ny-i-teamet/NyITeamet.tsx`, `components/nytt-i-neessi/NyttINeessi.tsx` and the 4 `app/prosesser/*/page.tsx` pages
 - **Problem:** the component is copied about 10 times with small prop differences.
 - **Fix:** create `components/page/Section.tsx` with optional `aside` and `className` props. **Keep the JSX tag name `Section`:** `scripts/search-index.mjs` finds sections by it.
 - **Done when:** there is one `Section`, `pnpm test:search` passes, and the search index has the same number of sections as before (it is printed during `pnpm typecheck`).
+- **Fixed:** 2026-10-20: the 10 copies are replaced by `components/page/Section.tsx` (optional `aside` and `className`), and the home page's `home-section__head` is now the `arch-section__head--aside` modifier. The search index is byte-identical (84 entries). Home sections now get their `id`, so the existing `/#flyter`, `/#finn-fram` and `/#begreper` search links work, and the unstyled `ny-section` class is gone. Measured in headless Chrome: headings sit at the same place and size as before.
 
 ### [ ] 12 · Extract the shared page scaffolding
 - **Area:** portal · **Effort:** M · **Depends on:** 11

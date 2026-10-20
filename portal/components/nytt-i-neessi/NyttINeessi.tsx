@@ -42,6 +42,7 @@ import {
   type ScreenIcon,
   type SedFamily,
 } from "./data";
+import { Section } from "@/components/page/Section";
 
 const PAGE_URL = "https://eux-docs.intern.dev.nav.no/nytt-i-neessi";
 
@@ -116,21 +117,6 @@ const HIGHLIGHTS: { tone: string; title: string; text: ReactNode; href: string }
 ];
 
 /* ---------- Byggeklosser ---------- */
-
-function Section({ id, eyebrow, title, lead, children, className }: { id: string; eyebrow: string; title: string; lead?: ReactNode; children: ReactNode; className?: string }) {
-  return (
-    <section id={id} className={`arch-section${className ? ` ${className}` : ""}`} aria-labelledby={`${id}-title`}>
-      <header className="arch-section__head">
-        <Detail className="arch-eyebrow">{eyebrow}</Detail>
-        <Heading level="2" size="large" id={`${id}-title`}>
-          {title}
-        </Heading>
-        {lead && <BodyLong className="arch-section__lead">{lead}</BodyLong>}
-      </header>
-      {children}
-    </section>
-  );
-}
 
 function JiraLinks({ keys }: { keys?: string[] }) {
   if (!keys?.length) return null;

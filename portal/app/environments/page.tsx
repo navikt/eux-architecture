@@ -24,6 +24,7 @@ import {
   type EnvId,
   type EnvInfo,
 } from "@/components/miljoer/data";
+import { Section } from "@/components/page/Section";
 
 const SECTIONS = [
   { id: "samspill", label: "Q1 og Q2" },
@@ -54,21 +55,6 @@ const FURTHER: { href: string; title: string; text: string; external?: boolean }
 ];
 
 /* ---------- Byggeklosser ---------- */
-
-function Section({ id, eyebrow, title, lead, children }: { id: string; eyebrow: string; title: string; lead?: ReactNode; children: ReactNode }) {
-  return (
-    <section id={id} className="arch-section" aria-labelledby={`${id}-title`}>
-      <header className="arch-section__head">
-        <Detail className="arch-eyebrow">{eyebrow}</Detail>
-        <Heading level="2" size="large" id={`${id}-title`}>
-          {title}
-        </Heading>
-        {lead && <BodyLong className="arch-section__lead">{lead}</BodyLong>}
-      </header>
-      {children}
-    </section>
-  );
-}
 
 function Ext({ href, children, mono }: { href: string; children: ReactNode; mono?: boolean }) {
   return (

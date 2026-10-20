@@ -63,7 +63,9 @@ documentation components. Service entries reuse the architecture model.
 Hidden pages and live/user data are not indexed; protected pages are listed
 only by their navigation labels and marked as requiring login.
 When adding a documentation component directory, add it to `componentFolders`
-in the generator. Restart dev (or run `pnpm search:index`) to refresh the
+in the generator. Page sections use the shared `Section` from
+`components/page/Section.tsx`; each `<Section>` with literal `id` and `title`
+props becomes its own search hit linking to `#id`. Restart dev (or run `pnpm search:index`) to refresh the
 index after editing documentation.
 
 ### Logged-in user

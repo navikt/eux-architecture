@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties, type MouseEvent } from "react";
 import NextLink from "next/link";
 import { BodyLong, BodyShort, Button, Chips, Detail, Heading, Search, Tag } from "@navikt/ds-react";
 import { ArrowRightIcon, BranchingIcon, ChevronDownIcon, ExternalLinkIcon, GlobeIcon, LightningIcon } from "@navikt/aksel-icons";
@@ -24,6 +24,7 @@ import {
 import { ENV_IDS, ENVS, ENV_SERVICE_BY_ID, hostUrl, swaggerUrl } from "@/components/miljoer/data";
 import { archHref, ghHref } from "@/lib/links";
 import type { Tone } from "@/lib/tones";
+import { Section } from "@/components/page/Section";
 
 /* ---------- Innhold ---------- */
 
@@ -131,21 +132,6 @@ function relations(id: string) {
 }
 
 /* ---------- Byggeklosser ---------- */
-
-function Section({ id, eyebrow, title, lead, children }: { id: string; eyebrow: string; title: string; lead?: ReactNode; children: ReactNode }) {
-  return (
-    <section id={id} className="arch-section" aria-labelledby={`${id}-title`}>
-      <header className="arch-section__head">
-        <Detail className="arch-eyebrow">{eyebrow}</Detail>
-        <Heading level="2" size="large" id={`${id}-title`}>
-          {title}
-        </Heading>
-        {lead && <BodyLong className="arch-section__lead">{lead}</BodyLong>}
-      </header>
-      {children}
-    </section>
-  );
-}
 
 /** Lagene i plattformen som en stabel. Ved rulling glir lagene fra hverandre. */
 function HeroArt() {
