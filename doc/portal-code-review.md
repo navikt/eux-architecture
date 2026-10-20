@@ -28,7 +28,7 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 
 ## Security and data exposure
 
-### [ ] 01 · Close the unauthenticated portal-core ingress
+### [x] 01 · Close the unauthenticated portal-core ingress
 - **Area:** portal-core · **Effort:** S–M · **Decision needed:** remove the ingress (recommended) or add Azure AD token validation
 - **Where:** `portal-core/.nais/nais.yaml` (`ingresses`, `azure`, `accessPolicy`), `portal-core/.nais/dev.yaml` (`ingress`), `portal-core/src/main/kotlin/no/nav/eux/portal/core/api/*Controller.kt`, `.github/workflows/portal-core-build-deploy.yaml`
 - **Problem:** `https://eux-portal-core.intern.dev.nav.no` serves `/api/kafka/**` and `/api/nav-rinasak/**`, including `navBruker`/fnr, to anyone on naisdevice. `azure.application.enabled` is set, but no tokens are validated. `accessPolicy.inbound` only restricts traffic inside the cluster, not the ingress.
@@ -36,6 +36,7 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
   - **Option A:** remove the ingress. The portal calls portal-core inside the cluster through `EUX_PORTAL_CORE_BASE_URL` (check `portal/.nais/nais.yaml`).
   - **Option B:** add a Spring Security OAuth2 resource server that validates Azure AD tokens, and have the portal send an on-behalf-of or client-credentials token.
 - **Done when:** the portal-core API can't be reached without auth from outside the cluster, the portal live pages still work, and the build is green.
+- **Fixed:** 2026-10-20: chose option A and removed the ingress from `portal-core/.nais/nais.yaml` and `dev.yaml`. The `azure` block stays for client-credentials calls to eux-nav-rinasak. Noted in `portal/README.md`.
 
 ### [ ] 02 · Stop leaking Azure/RINA error text to the browser
 - **Area:** portal · **Effort:** S

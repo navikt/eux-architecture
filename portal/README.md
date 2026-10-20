@@ -17,7 +17,8 @@ Ingress (dev): https://eux-docs.intern.dev.nav.no
 
 Besides the static architecture docs, the portal hosts a few live monitors backed by
 **portal-core** (Kotlin/Spring Boot). The frontend proxies to portal-core via
-`EUX_PORTAL_CORE_BASE_URL` and streams updates over SSE.
+`EUX_PORTAL_CORE_BASE_URL` and streams updates over SSE. portal-core has no
+ingress; it is reachable only from the portal inside the cluster.
 
 | Page | Route | Source | Purpose |
 |---|---|---|---|

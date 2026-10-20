@@ -8,8 +8,8 @@ metadata:
 spec:
   image: {{ image }}
   port: 8080
-  ingresses:
-    - {{ ingress }}
+  # No ingress on purpose: the API has no token validation and serves person
+  # data. Only eux-architecture-portal may call it, inside the cluster.
   liveness:
     path: /actuator/health
     port: 8080

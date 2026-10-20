@@ -1,5 +1,4 @@
 name: eux-portal-core
-ingress: https://eux-portal-core.intern.dev.nav.no
 
 kafka:
   pool: nav-dev
