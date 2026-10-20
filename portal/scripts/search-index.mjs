@@ -8,6 +8,8 @@ const parse = (path) => ts.createSourceFile(path, readFileSync(path, "utf8"), ts
 const clean = (text) => text.replace(/\s+/g, " ").trim();
 const property = (node, name) => node.properties.find((p) => ts.isPropertyAssignment(p) && p.name.getText() === name)?.initializer;
 const literal = (node) => node && ts.isStringLiteral(node) ? node.text : "";
+// Filled from lib/navigation.ts below; `page: "/href"` references index as the page's label.
+const navLabels = new Map();
 const textKeys = new Set(["title", "label", "text", "description", "summary", "lead", "what", "how", "note", "body", "name", "term", "meaning", "sub", "detail", "facts", "explanation"]);
 
 function textOf(node, constants = new Map()) {
@@ -21,7 +23,9 @@ function textOf(node, constants = new Map()) {
     }
     if (ts.isStringLiteral(child)) {
       const parent = child.parent;
-      if (
+      if (ts.isPropertyAssignment(parent) && parent.name.getText() === "page" && navLabels.has(child.text)) {
+        parts.push(navLabels.get(child.text));
+      } else if (
         (ts.isPropertyAssignment(parent) && textKeys.has(parent.name.getText())) ||
         ts.isArrayLiteralExpression(parent) ||
         (ts.isCallExpression(parent) && ["app", "ext", "topic"].includes(parent.expression.getText())) ||
@@ -81,14 +85,19 @@ const componentFolders = {
   "/prosesser/adresseoppdatering": ["adresse"],
 };
 
-const sidebar = parse(join(root, "components/Sidebar.tsx"));
+// lib/navigation.ts is the single page list; index every internal route in it.
+const navigation = parse(join(root, "lib/navigation.ts"));
 let sections;
 function findNavigation(node) {
-  if (ts.isVariableDeclaration(node) && node.name.getText() === "NAV_SECTIONS") sections = node.initializer;
+  if (ts.isVariableDeclaration(node) && node.name.getText() === "NAVIGATION") sections = node.initializer;
   ts.forEachChild(node, findNavigation);
 }
-findNavigation(sidebar);
-if (!sections || !ts.isArrayLiteralExpression(sections)) throw new Error("Cannot find portal navigation");
+findNavigation(navigation);
+while (sections && (ts.isSatisfiesExpression(sections) || ts.isAsExpression(sections))) sections = sections.expression;
+if (!sections || !ts.isArrayLiteralExpression(sections)) throw new Error("Cannot find NAVIGATION in lib/navigation.ts");
+for (const section of sections.elements) {
+  for (const item of property(section, "items").elements) navLabels.set(literal(property(item, "href")), literal(property(item, "label")));
+}
 
 const documents = [];
 for (const section of sections.elements) {

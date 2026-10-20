@@ -11,6 +11,7 @@ import {
 } from "@navikt/aksel-icons";
 import { SEARCH_DOCUMENTS, SEARCH_INDEX } from "@/lib/search-catalogue";
 import { normalize, searchDocuments, type SearchDocument, type SearchResult } from "@/lib/search";
+import { START_PAGES } from "@/lib/navigation";
 import styles from "./CommandMenu.module.css";
 
 const FILTERS = [
@@ -22,7 +23,6 @@ const FILTERS = [
 type Filter = typeof FILTERS[number]["id"];
 const ICONS = { docs: FileTextIcon, apps: ComponentIcon, live: WavesIcon };
 const SUGGESTIONS = ["journalføring", "RINA", "Kafka", "PDL"];
-const START_PAGES = ["/ny-i-teamet", "/architecture", "/applications", "/environments", "/prosesser/journalfoering"];
 const START_RESULTS: SearchResult[] = START_PAGES.flatMap((href) => {
   const doc = SEARCH_DOCUMENTS.find((doc) => doc.href === href);
   return doc ? [{ ...doc, score: 0, excerpt: doc.description }] : [];

@@ -2,24 +2,15 @@ import type { ComponentType, SVGProps } from "react";
 import NextLink from "next/link";
 import { BodyLong, Detail, Heading } from "@navikt/ds-react";
 import {
-  ArchiveIcon,
   ArrowRightIcon,
   ArrowsSquarepathIcon,
   ClockIcon,
-  CloudIcon,
   CodeIcon,
-  ComponentIcon,
   ExternalLinkIcon,
   FileTextIcon,
-  FilesIcon,
-  FolderFileIcon,
   LayersIcon,
   LightningIcon,
-  LinkIcon,
-  LocationPinIcon,
   PadlockLockedIcon,
-  TestFlaskIcon,
-  TrashIcon,
   WavesIcon,
   WrenchIcon,
 } from "@navikt/aksel-icons";
@@ -31,6 +22,7 @@ import { JOBS as JOURNAL_JOBS } from "@/components/journalfoering/data";
 import { PRESETS as ADRESSE_PRESETS } from "@/components/adresse/data";
 import type { Tone } from "@/lib/tones";
 import { Section } from "@/components/page/Section";
+import { navPage, type PageHref } from "@/lib/navigation";
 
 const REPO = "https://github.com/navikt/eux-architecture";
 
@@ -79,17 +71,10 @@ const FLOWS: { n: number; kind: string; title: string; path: string[]; text: str
   },
 ];
 
-type NavLink = {
-  href: string;
-  title: string;
-  text: string;
-  Icon: Icon;
-  meta?: string;
-  external?: boolean;
-  locked?: boolean;
-};
+/** A home-page card: a portal page from the navigation, or an external link. */
+type HomeLink = { text: string; meta?: string } & ({ page: PageHref } | { href: string; title: string; Icon: Icon });
 
-const AREAS: { id: string; title: string; lead: string; tone: Tone; Icon: Icon; live?: boolean; links: NavLink[] }[] = [
+const AREAS: { id: string; title: string; lead: string; tone: Tone; Icon: Icon; live?: boolean; links: HomeLink[] }[] = [
   {
     id: "plattform",
     title: "Plattform",
@@ -98,22 +83,16 @@ const AREAS: { id: string; title: string; lead: string; tone: Tone; Icon: Icon; 
     Icon: LayersIcon,
     links: [
       {
-        href: "/architecture",
-        title: "Arkitektur",
+        page: "/architecture",
         text: "Interaktivt kart over tjenestene, de tre flytene, mønstre og fallgruver.",
-        Icon: LayersIcon,
       },
       {
-        href: "/applications",
-        title: "Applikasjoner",
+        page: "/applications",
         text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon.",
-        Icon: ComponentIcon,
       },
       {
-        href: "/environments",
-        title: "Miljøer",
+        page: "/environments",
         text: "Q1 og Q2 – RINA-instanser, nEESSI, CPI- og NIE-endepunkter og Swagger.",
-        Icon: CloudIcon,
       },
     ],
   },
@@ -125,32 +104,24 @@ const AREAS: { id: string; title: string; lead: string; tone: Tone; Icon: Icon; 
     Icon: ClockIcon,
     links: [
       {
-        href: "/prosesser/automatisk-avslutning",
-        title: "Automatisk avslutning",
+        page: "/prosesser/automatisk-avslutning",
         text: "Inaktive RINA-saker lukkes og arkiveres, med egne regler per BUC.",
         meta: `${BUCS.length} BUC-typer · ${AVSLUTNING_JOBS.length} NAIS-jobber`,
-        Icon: ArchiveIcon,
       },
       {
-        href: "/prosesser/automatisk-sletting",
-        title: "Automatisk sletting",
+        page: "/prosesser/automatisk-sletting",
         text: `Saker der ingen SED er sendt eller mottatt, slettes etter ${GRENSE_DAGER} dager.`,
         meta: `${GRENSE_DAGER} dager · ${SLETTING_JOBS.length} NAIS-jobber`,
-        Icon: TrashIcon,
       },
       {
-        href: "/prosesser/journalfoering",
-        title: "Journalføring",
+        page: "/prosesser/journalfoering",
         text: "SED-er arkiveres i Dokarkiv – med tema, enhet og oppgave.",
         meta: `Kafka · ${JOURNAL_JOBS.length} NAIS-jobber`,
-        Icon: FolderFileIcon,
       },
       {
-        href: "/prosesser/adresseoppdatering",
-        title: "Adresseoppdatering",
+        page: "/prosesser/adresseoppdatering",
         text: "Utenlandske adresser fra innkommende SED-er vaskes og sendes til PDL.",
         meta: `Kafka · PDL-Mottak · ${ADRESSE_PRESETS.length} eksempler`,
-        Icon: LocationPinIcon,
       },
     ],
   },
@@ -163,25 +134,16 @@ const AREAS: { id: string; title: string; lead: string; tone: Tone; Icon: Icon; 
     live: true,
     links: [
       {
-        href: "/kafka/sed-hendelser",
-        title: "SED-hendelser",
+        page: "/kafka/sed-hendelser",
         text: "Meldingene på sedmottatt og sedsendt i Q1 og Q2.",
-        Icon: WavesIcon,
-        locked: true,
       },
       {
-        href: "/kafka/sed-kobling",
-        title: "SED-kobling",
+        page: "/kafka/sed-kobling",
         text: "Kobler samme SED mellom Q1 og Q2 og viser transporttiden.",
-        Icon: LinkIcon,
-        locked: true,
       },
       {
-        href: "/nav-rinasak/sed-er",
-        title: "SED-er i nEESSI",
+        page: "/nav-rinasak/sed-er",
         text: "Saker og SED-er som opprettes i nEESSI og registreres i eux-nav-rinasak.",
-        Icon: FilesIcon,
-        locked: true,
       },
     ],
   },
@@ -193,25 +155,20 @@ const AREAS: { id: string; title: string; lead: string; tone: Tone; Icon: Icon; 
     Icon: WrenchIcon,
     links: [
       {
-        href: "/tests",
-        title: "Smoke-test",
+        page: "/tests",
         text: "Ende-til-ende-test mot eux-rina-api i Q1 eller Q2.",
-        Icon: TestFlaskIcon,
-        locked: true,
       },
       {
         href: `${REPO}#readme`,
         title: "README.md",
         text: "Arkitekturbeskrivelsen som tekst, på engelsk.",
         Icon: FileTextIcon,
-        external: true,
       },
       {
         href: "https://github.com/orgs/navikt/repositories?q=eux-",
         title: "EUX-repoene",
         text: "Alle eux-repoene i navikt på GitHub.",
         Icon: CodeIcon,
-        external: true,
       },
     ],
   },
@@ -235,33 +192,37 @@ function Ring() {
   );
 }
 
-function AreaLink({ link }: { link: NavLink }) {
+function AreaLink({ link }: { link: HomeLink }) {
+  const external = !("page" in link);
+  const { href, label, Icon, requiresLogin } = external
+    ? { href: link.href, label: link.title, Icon: link.Icon, requiresLogin: false }
+    : navPage(link.page);
   const body = (
     <>
       <span className="home-link__icon" aria-hidden>
-        <link.Icon />
+        <Icon />
       </span>
       <span className="home-link__body">
         <span className="home-link__title">
-          {link.title}
-          {link.locked && <PadlockLockedIcon title="Krever innlogging" className="home-link__lock" />}
+          {label}
+          {requiresLogin && <PadlockLockedIcon title="Krever innlogging" className="home-link__lock" />}
         </span>
         <span className="home-link__text">{link.text}</span>
         {link.meta && <span className="home-link__meta">{link.meta}</span>}
       </span>
-      {link.external ? (
+      {external ? (
         <ExternalLinkIcon title="åpnes i ny fane" className="home-link__arrow" />
       ) : (
         <ArrowRightIcon aria-hidden className="home-link__arrow" />
       )}
     </>
   );
-  return link.external ? (
-    <a href={link.href} className="home-link" target="_blank" rel="noreferrer">
+  return external ? (
+    <a href={href} className="home-link" target="_blank" rel="noreferrer">
       {body}
     </a>
   ) : (
-    <NextLink href={link.href} className="home-link">
+    <NextLink href={href} className="home-link">
       {body}
     </NextLink>
   );
@@ -400,7 +361,7 @@ export default function Home() {
               </header>
               <ul className="home-area__links">
                 {a.links.map((l) => (
-                  <li key={l.href}>
+                  <li key={"page" in l ? l.page : l.href}>
                     <AreaLink link={l} />
                   </li>
                 ))}

@@ -4,86 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  ArchiveIcon,
-  CloudIcon,
-  CodeIcon,
-  ComponentIcon,
   ExternalLinkIcon,
-  FilesIcon,
-  FolderFileIcon,
-  HandShakeHeartIcon,
-  HouseIcon,
-  LayersIcon,
-  LinkIcon,
-  LocationPinIcon,
   MenuHamburgerIcon,
   PadlockLockedIcon,
-  TestFlaskIcon,
-  TrashIcon,
-  WavesIcon,
   XMarkIcon,
 } from "@navikt/aksel-icons";
+import { NAV_SECTIONS, type NavItem } from "@/lib/navigation";
 import { UserMenu, useCurrentUser } from "./UserMenu";
 import { CommandMenu } from "./CommandMenu";
-
-type NavItem = {
-  href: string;
-  label: string;
-  Icon: typeof HouseIcon;
-  external?: boolean;
-  requiresLogin?: boolean;
-};
-
-const NAV_SECTIONS: { heading?: string; items: NavItem[] }[] = [
-  {
-    items: [
-      { href: "/", label: "Oversikt", Icon: HouseIcon },
-      { href: "/ny-i-teamet", label: "Ny i teamet", Icon: HandShakeHeartIcon },
-    ],
-  },
-  {
-    heading: "Plattform",
-    items: [
-      { href: "/architecture", label: "Arkitektur", Icon: LayersIcon },
-      { href: "/applications", label: "Applikasjoner", Icon: ComponentIcon },
-      { href: "/environments", label: "Miljøer", Icon: CloudIcon },
-    ],
-  },
-  {
-    heading: "Prosesser",
-    items: [
-      { href: "/prosesser/automatisk-avslutning", label: "Automatisk avslutning", Icon: ArchiveIcon },
-      { href: "/prosesser/automatisk-sletting", label: "Automatisk sletting", Icon: TrashIcon },
-      { href: "/prosesser/journalfoering", label: "Journalføring", Icon: FolderFileIcon },
-      { href: "/prosesser/adresseoppdatering", label: "Adresseoppdatering", Icon: LocationPinIcon },
-    ],
-  },
-  {
-    heading: "Kafka",
-    items: [
-      { href: "/kafka/sed-hendelser", label: "SED-hendelser", Icon: WavesIcon, requiresLogin: true },
-      { href: "/kafka/sed-kobling", label: "SED-kobling", Icon: LinkIcon, requiresLogin: true },
-    ],
-  },
-  {
-    heading: "Nav-rinasak",
-    items: [
-      { href: "/nav-rinasak/sed-er", label: "SED-er i nEESSI", Icon: FilesIcon, requiresLogin: true },
-    ],
-  },
-  {
-    heading: "Verktøy",
-    items: [
-      { href: "/tests", label: "Smoke-test", Icon: TestFlaskIcon, requiresLogin: true },
-    ],
-  },
-  {
-    heading: "Ressurser",
-    items: [
-      { href: "https://github.com/navikt/eux-architecture", label: "GitHub", Icon: CodeIcon, external: true },
-    ],
-  },
-];
 
 /** Twelve dots in a ring — a quiet nod to the EU flag. */
 function BrandMark() {

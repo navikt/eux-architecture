@@ -46,6 +46,13 @@ The left sidebar (`components/Sidebar.tsx`) holds the brand, the navigation and,
 at the bottom, the profile area (`components/UserMenu.tsx`). On small screens it
 collapses into a compact bar with a menu button.
 
+`lib/navigation.ts` is the single list of pages (`NAVIGATION`). The sidebar
+renders it, the search index is generated from it, and `start: true` puts a
+page in the command menu's start list. The home page cards refer to pages by
+`page: PageHref`, so a typo or a removed page fails typecheck. To add a page,
+add it to `NAVIGATION` and, if it should appear on the home page, to `AREAS`
+in `app/page.tsx`.
+
 ### Command search
 
 Open **Søk i portalen** in the sidebar, or press **Cmd+K** (macOS) /
@@ -58,7 +65,7 @@ both themes and reduced-motion preferences.
 
 Search runs entirely in the browser; queries are not sent to a server or saved.
 `scripts/search-index.mjs` generates `lib/search-index.json` before dev, build
-and typecheck from the sidebar's internal routes, page text and allowlisted
+and typecheck from the internal routes in `lib/navigation.ts`, page text and allowlisted
 documentation components. Service entries reuse the architecture model.
 Hidden pages and live/user data are not indexed; protected pages are listed
 only by their navigation labels and marked as requiring login.
@@ -81,8 +88,9 @@ in a new tab).
 The portal is open to anyone with the URL. Only the smoke test (`/tests`) and
 the live pages (`/kafka/**`, `/nav-rinasak/**`) and their APIs require login;
 everything else is listed under `autoLoginIgnorePaths` in `.nais/nais.yaml`.
-New public pages must be added there, and links to protected pages get
-`requiresLogin` (sidebar) / `locked` (home) to show a padlock.
+New public pages must be added there, and protected pages get
+`requiresLogin: true` in `lib/navigation.ts`, which shows a padlock in the
+sidebar and on the home page.
 
 `public/missoc.html` is a hidden, standalone static page. It makes no
 third-party requests: its fonts (Inter and Fraunces from Fontsource, SIL OFL)

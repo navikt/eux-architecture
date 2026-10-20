@@ -132,12 +132,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** the pages use the shared components and look the same as before.
 - **Fixed:** 2026-10-20: added `JumpNav` (which now owns `useScrollSpy`, so pages lost `SECTION_IDS`/`active`), `HeroStats`, `FurtherReading` with a `FurtherLink` type, and `ExtLink` in `components/page/`. They are used by all 9 pages and by `LiveFurther` in `components/live/ui.tsx`. Adresseoppdatering keeps its own stats because they show item lists instead of a sub-line. The environments links now announce "åpnes i ny fane" instead of hiding the icon. Measured in headless Chrome on five pages: every stat, jump-nav link, card and external link has the same position and size as before, and the scroll spy still highlights the current section. The search index only lost the stray "åpnes i ny fane" text that came from the old local `Ext`.
 
-### [ ] 13 · Keep the page list in one place
+### [x] 13 · Keep the page list in one place
 - **Area:** portal · **Effort:** M
 - **Where:** `components/Sidebar.tsx` (`NAV_SECTIONS`), `app/page.tsx` (`AREAS`), `components/CommandMenu.tsx` (`START_PAGES`), `scripts/search-index.mjs`
 - **Problem:** adding a page means editing four lists.
 - **Fix:** move the list to `lib/navigation.ts`, and update the `NAV_SECTIONS` parser in `scripts/search-index.mjs` in the same change.
 - **Done when:** there is one page list, `pnpm test:search` passes, and the search index has the same pages.
+- **Fixed:** 2026-10-20: `lib/navigation.ts` now holds the only page list (`NAVIGATION`, exported as `NAV_SECTIONS`) with a typed `PageHref`, `navPage()` and a `start` flag that replaces the command menu's `START_PAGES`. The sidebar renders it, and the home page cards refer to pages by `page: PageHref` and keep only their own blurb and meta, so a typo or removed page fails typecheck. `scripts/search-index.mjs` parses the new file and resolves `page:` references to their labels. The search index is byte-identical (84 entries), and the visible prerendered HTML of all 15 pages is identical.
 
 ### [ ] 14 · Use unique SVG ids
 - **Area:** portal · **Effort:** S
