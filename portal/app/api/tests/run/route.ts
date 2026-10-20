@@ -560,20 +560,51 @@ function isDirection(value: unknown): value is Direction {
   return value === "q1-to-q2" || value === "q2-to-q1";
 }
 
+function isJson(req: Request): boolean {
+  const mediaType = req.headers.get("content-type")?.split(";")[0];
+  return mediaType?.trim().toLowerCase() === "application/json";
+}
+
+/** Tom eller ugyldig JSON gir tom body, dvs. standardvalgene i runSmokeTest. */
+async function readBody(req: Request): Promise<RunBody> {
+  try {
+    const text = await req.text();
+    const parsed: unknown = text.trim() ? JSON.parse(text) : null;
+    return parsed && typeof parsed === "object" ? (parsed as RunBody) : {};
+  } catch {
+    return {};
+  }
+}
+
+// Hver kjøring oppretter en ekte RINA-sak, så vi tillater bare én om gangen.
+// Låsen gjelder per pod; portalen kjører med få replicas.
+let runInProgress = false;
+
 export async function POST(req: Request) {
+  if (!isJson(req)) {
+    return NextResponse.json(
+      { ok: false, error: "Content-Type må være application/json." },
+      { status: 415 },
+    );
+  }
+  if (runInProgress) {
+    return NextResponse.json(
+      { ok: false, error: "En smoke-test kjører allerede. Prøv igjen når den er ferdig." },
+      { status: 409 },
+    );
+  }
+
+  runInProgress = true;
+  try {
+    return await runSmokeTest(await readBody(req));
+  } finally {
+    runInProgress = false;
+  }
+}
+
+async function runSmokeTest(body: RunBody): Promise<NextResponse> {
   const startedAt = new Date().toISOString();
   const t0 = Date.now();
-
-  let body: RunBody = {};
-  try {
-    const contentLength = req.headers.get("content-length");
-    if (contentLength && Number(contentLength) > 0) {
-      const parsed: unknown = await req.json();
-      if (parsed && typeof parsed === "object") body = parsed as RunBody;
-    }
-  } catch {
-    // Ugyldig JSON behandles som tom body, dvs. standardvalgene under.
-  }
 
   const direction: Direction = isDirection(body.direction)
     ? body.direction

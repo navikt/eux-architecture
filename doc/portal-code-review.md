@@ -46,12 +46,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** no upstream error body or exception message reaches the response, the server logs still have the details, and the build is green.
 - **Fixed:** 2026-10-20: `runStep` now logs non-2xx bodies and exceptions with pino and returns `responseBody: null` plus a generic message. The token failure returns a generic 502 text. `Step.error` was removed from `smokeTest.ts` and `TestsClient.tsx`. Checked against a fake upstream: no error text in the response, full details in the logs.
 
-### [ ] 03 · Guard the smoke-test POST
+### [x] 03 · Guard the smoke-test POST
 - **Area:** portal · **Effort:** S
 - **Where:** `portal/app/api/tests/run/route.ts`
 - **Problem:** there is no Content-Type check and no limit on concurrent runs. One user can start many RINA case creations in parallel.
 - **Fix:** require `application/json` (otherwise return 415). Allow one run at a time with an in-memory lock, and return 409 while a run is in progress.
 - **Done when:** a second parallel POST gets 409, a wrong Content-Type gets 415, and a normal run is unchanged.
+- **Fixed:** 2026-10-20: `POST` in `app/api/tests/run/route.ts` is now a thin guard (415 unless `application/json`, a per-pod `runInProgress` lock that returns 409 and is released in `finally`) around the unchanged `runSmokeTest`. The body is read with `req.text()`, so chunked requests work too. Noted in `portal/README.md`. Checked against a fake upstream: 415, 409, and the lock is released after each run.
 
 ### [ ] 04 · Remove third-party requests from `missoc.html`
 - **Area:** portal · **Effort:** S–M · **Decision needed:** delete the page (nothing links to it) or self-host its assets

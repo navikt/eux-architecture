@@ -32,6 +32,14 @@ client-credentials). This requires the outbound access policy + `NAVRINASAK_*`
 env vars in `portal-core/.nais/nais.yaml` and a matching inbound rule on
 eux-nav-rinasak.
 
+## Smoke test
+
+`/tests` runs a round trip against eux-rina-api through
+`POST /api/tests/run` (`app/api/tests/run/route.ts`). Each run creates a real
+RINA case, so the route requires `Content-Type: application/json` (otherwise
+415) and allows one run at a time per pod (otherwise 409). Upstream error
+details are logged on the server and never returned to the browser.
+
 ## Portal frame
 
 The left sidebar (`components/Sidebar.tsx`) holds the brand, the navigation and,
