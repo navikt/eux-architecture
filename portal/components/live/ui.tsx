@@ -2,8 +2,8 @@
 
 import { Fragment, useRef, type CSSProperties, type ReactNode } from "react";
 import NextLink from "next/link";
-import { BodyLong, BodyShort, Button, CopyButton, Detail, Heading, Search, Skeleton, Table } from "@navikt/ds-react";
-import { ArrowRightIcon, ExternalLinkIcon, FilesIcon, LinkIcon, WavesIcon } from "@navikt/aksel-icons";
+import { BodyLong, BodyShort, Button, CopyButton, Detail, Heading, Search, ToggleGroup } from "@navikt/ds-react";
+import { ArrowRightIcon, ExternalLinkIcon, FilesIcon, FunnelIcon, LinkIcon, WavesIcon } from "@navikt/aksel-icons";
 import { ENVS, type EnvId } from "@/components/miljoer/data";
 import { neessiSakUrl } from "@/lib/neessi";
 import { formatTime } from "@/lib/datetime";
@@ -107,6 +107,7 @@ export function LiveHero({
   lastEventAt,
   art,
   stats,
+  filtered,
 }: {
   page: LivePageId;
   title: string;
@@ -114,7 +115,10 @@ export function LiveHero({
   status: ConnectionStatus;
   lastEventAt: number | null;
   art: ReactNode;
+  /** Computed from the rows that match the current search and filters. */
   stats: LiveStat[];
+  /** True while a search or filter is active, so the stats are a subset. */
+  filtered: boolean;
 }) {
   return (
     <header className="portal-hero arch-hero lite-hero live-hero">
@@ -128,6 +132,12 @@ export function LiveHero({
           <LiveStatus status={status} lastEventAt={lastEventAt} />
         </div>
         <BodyLong className="arch-hero__lead">{lead}</BodyLong>
+        {filtered && (
+          <BodyShort size="small" className="live-hero__scope">
+            <FunnelIcon aria-hidden />
+            Tallene under gjelder bare det som passer søket og filtrene.
+          </BodyShort>
+        )}
       </div>
       <dl className="live-stats">
         {stats.map((s, i) => (
@@ -208,57 +218,14 @@ export function LiveToolbar({
   );
 }
 
-/* ---------- Tabell ---------- */
-
-export function LiveTable({ children, className }: { children: ReactNode; className?: string }) {
+/** The Q1/Q2 filter shared by the live pages; the value is "alle", "q1" or "q2". */
+export function EnvToggle({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
-    <div className={`arch-table live-table${className ? ` ${className}` : ""}`}>
-      <Table size="small">{children}</Table>
-    </div>
-  );
-}
-
-export function DayRow({ heading, count, unit, colSpan }: { heading: string; count: number; unit: string; colSpan: number }) {
-  const [rel, ...rest] = heading.split(" · ");
-  return (
-    <Table.Row className="live-day">
-      <Table.DataCell colSpan={colSpan}>
-        <span className="live-day__inner">
-          <strong>{rel}</strong>
-          {rest.length > 0 && <span className="arch-subtle">{rest.join(" · ")}</span>}
-          <span className="live-day__count">
-            {count} {unit}
-          </span>
-        </span>
-      </Table.DataCell>
-    </Table.Row>
-  );
-}
-
-/** Stagger index for row entry animations, capped so long tables do not lag. */
-export const rowStyle = (i: number, extra?: CSSProperties): CSSProperties =>
-  ({ "--i": Math.min(i, 24), ...extra }) as CSSProperties;
-
-export function TableSkeleton({ cols, rows = 8 }: { cols: number; rows?: number }) {
-  return (
-    <div className="arch-table live-table live-table--loading" aria-busy="true" aria-label="Laster">
-      {Array.from({ length: rows }, (_, r) => (
-        <div key={r} className="live-skel" style={{ "--i": r } as CSSProperties}>
-          {Array.from({ length: cols }, (_, c) => (
-            <Skeleton key={c} variant="text" width={c === 0 ? "60%" : `${50 + ((r * 7 + c * 13) % 40)}%`} />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export function LiveMessage({ tone = "neutral", title, children }: { tone?: string; title: string; children?: ReactNode }) {
-  return (
-    <div className="live-msg" data-tone={tone} role={tone === "danger" ? "alert" : undefined}>
-      <strong>{title}</strong>
-      {children && <BodyShort size="small">{children}</BodyShort>}
-    </div>
+    <ToggleGroup size="small" value={value} onChange={onChange} aria-label="Miljø">
+      <ToggleGroup.Item value="alle">Alle miljøer</ToggleGroup.Item>
+      <ToggleGroup.Item value="q1">Q1</ToggleGroup.Item>
+      <ToggleGroup.Item value="q2">Q2</ToggleGroup.Item>
+    </ToggleGroup>
   );
 }
 

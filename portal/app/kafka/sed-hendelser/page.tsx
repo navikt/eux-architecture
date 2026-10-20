@@ -1,23 +1,22 @@
 "use client";
 
 import { useCallback, useMemo, useState, type CSSProperties } from "react";
-import { Table, ToggleGroup } from "@navikt/ds-react";
+import { ToggleGroup } from "@navikt/ds-react";
 import { formatDateTime, formatTime, isToday } from "@/lib/datetime";
 import { neessiSakUrl } from "@/lib/neessi";
 import { archHref } from "@/lib/links";
 import { HendelserArt } from "@/components/live/art";
 import {
   fadeAlpha,
-  groupByDay,
   matchesAll,
   ms,
   rememberFirstSeen,
   tokens,
-  useLiveStream,
+  useLiveFeed,
   useNow,
-  useSnapshot,
   useUrlState,
 } from "@/components/live/hooks";
+import { LiveTable, type LiveColumn, type LiveRowProps } from "@/components/live/LiveTable";
 import {
   SED_HENDELSE_MAX_ROWS as MAX_ROWS,
   SED_HENDELSE_SNAPSHOT_URL,
@@ -26,11 +25,11 @@ import {
   type SedHendelseRecord,
 } from "@/components/live/sedHendelse";
 import {
-  DayRow,
   DetailCard,
   DetailLinks,
   Direction,
   EnvPill,
+  EnvToggle,
   ExtLink,
   Field,
   Hl,
@@ -38,19 +37,12 @@ import {
   LiveAbout,
   LiveFurther,
   LiveHero,
-  LiveMessage,
-  LiveTable,
   LiveToolbar,
   PortalLink,
   RinaSak,
   SedType,
   ShortId,
-  TableSkeleton,
-  rowStyle,
 } from "@/components/live/ui";
-
-/** Data columns, not counting the expand toggle. */
-const COLS = 9;
 
 /* ---------- Parfarger ---------- */
 
@@ -183,6 +175,61 @@ function HendelseDetails({ r }: { r: SedHendelseRecord }) {
 
 /* ---------- Side ---------- */
 
+const matchesQuery = (r: SedHendelseRecord, toks: string[]) => {
+  const h = r.hendelse;
+  return matchesAll(
+    [
+      h.sedType,
+      h.bucType,
+      h.rinaSakId,
+      h.rinaDokumentId,
+      h.sedId,
+      h.id,
+      h.navBruker,
+      h.avsenderNavn,
+      h.avsenderId,
+      h.avsenderLand,
+      h.mottakerNavn,
+      h.mottakerId,
+      h.mottakerLand,
+      h.sektorKode,
+    ],
+    toks,
+  );
+};
+
+function columns(toks: string[]): LiveColumn<SedHendelseRecord>[] {
+  return [
+    { header: "Tid", className: "live-time", cell: (r) => formatTime(r.receivedAt) },
+    {
+      header: "Miljø",
+      cell: (r) => (
+        <span className="live-envdir">
+          <EnvPill env={r.environment} />
+          <Direction direction={r.direction} />
+        </span>
+      ),
+    },
+    { header: "SED", cell: (r) => <SedType type={r.hendelse.sedType} toks={toks} /> },
+    { header: "BUC", cell: (r) => <Hl text={r.hendelse.bucType} toks={toks} /> },
+    { header: "RINA-sak", cell: (r) => <RinaSak env={r.environment} id={r.hendelse.rinaSakId} toks={toks} /> },
+    {
+      header: "Avsender",
+      cell: ({ hendelse: h }) => (
+        <Institution id={h.avsenderId} name={h.avsenderNavn} land={h.avsenderLand} toks={toks} />
+      ),
+    },
+    {
+      header: "Mottaker",
+      cell: ({ hendelse: h }) => (
+        <Institution id={h.mottakerId} name={h.mottakerNavn} land={h.mottakerLand} toks={toks} />
+      ),
+    },
+    { header: "Bruker", className: "arch-mono live-small", cell: (r) => <Hl text={r.hendelse.navBruker} toks={toks} /> },
+    { header: "SED-ID", cell: (r) => <ShortId id={r.hendelse.sedId} toks={toks} /> },
+  ];
+}
+
 export default function SedHendelserPage() {
   const [records, setRecords] = useState<SedHendelseRecord[]>([]);
   const [firstSeenAt, setFirstSeenAt] = useState<Map<string, number>>(() => new Map());
@@ -198,53 +245,38 @@ export default function SedHendelserPage() {
     setRecords((prev) => [record, ...prev.filter((r) => recordKey(r) !== k)].slice(0, MAX_ROWS));
   }, []);
 
-  const { status, lastEventAt, reconnects } = useLiveStream(SED_HENDELSE_STREAM_URL, { "sed-hendelse": onRecord });
-
-  const { loading, error } = useSnapshot<SedHendelseRecord[]>(
-    SED_HENDELSE_SNAPSHOT_URL,
-    (data) => {
+  const feed = useLiveFeed<SedHendelseRecord[]>({
+    streamUrl: SED_HENDELSE_STREAM_URL,
+    snapshotUrl: SED_HENDELSE_SNAPSHOT_URL,
+    events: { "sed-hendelse": onRecord },
+    onSnapshot: (data) => {
       setFirstSeenAt((prev) => rememberFirstSeen(prev, data.map((r) => [recordKey(r), ms(r.receivedAt)] as const)));
       setRecords(data.slice(0, MAX_ROWS));
     },
-    reconnects,
-  );
+  });
 
   const tints = computePairTints(records, firstSeenAt, now);
   const toks = tokens(q);
 
   const sorted = useMemo(() => [...records].sort((a, b) => ms(b.receivedAt) - ms(a.receivedAt)), [records]);
-  const filtered = sorted.filter((r) => {
-    if (env !== "alle" && r.environment !== env) return false;
-    if (dir !== "alle" && r.direction !== dir) return false;
-    const h = r.hendelse;
-    return matchesAll(
-      [
-        h.sedType,
-        h.bucType,
-        h.rinaSakId,
-        h.rinaDokumentId,
-        h.sedId,
-        h.id,
-        h.navBruker,
-        h.avsenderNavn,
-        h.avsenderId,
-        h.avsenderLand,
-        h.mottakerNavn,
-        h.mottakerId,
-        h.mottakerLand,
-        h.sektorKode,
-      ],
-      toks,
-    );
-  });
-  const groups = groupByDay(filtered, (r) => r.receivedAt);
+  const filtered = sorted.filter(
+    (r) =>
+      (env === "alle" || r.environment === env) && (dir === "alle" || r.direction === dir) && matchesQuery(r, toks),
+  );
 
-  const today = records.filter((r) => isToday(r.receivedAt));
+  const today = filtered.filter((r) => isToday(r.receivedAt));
   const sent = today.filter((r) => r.direction === "sendt").length;
-  const latest = sorted[0];
+  const latest = filtered[0];
   const filtering = q !== "" || env !== "alle" || dir !== "alle";
 
-  let index = 0;
+  const rowProps = (r: SedHendelseRecord): LiveRowProps => {
+    const tint = tints.get(recordKey(r));
+    if (!tint) return {};
+    return {
+      className: tint.flash ? "live-row--tint live-row--new" : "live-row--tint",
+      style: { "--row-tint": tint.color, "--row-tint-alpha": tint.alpha } as CSSProperties,
+    };
+  };
 
   return (
     <div className="portal-page--wide arch-page lite-page live-page">
@@ -257,11 +289,12 @@ export default function SedHendelserPage() {
             dokument-ID for å finne din. Sendt og mottatt for samme dokument får samme farge i ett minutt.
           </>
         }
-        status={status}
-        lastEventAt={lastEventAt}
+        status={feed.status}
+        lastEventAt={feed.lastEventAt}
         art={<HendelserArt />}
+        filtered={filtering}
         stats={[
-          { label: "I dag", value: today.length, sub: `av ${records.length} i minnet` },
+          { label: "I dag", value: today.length, sub: `av ${filtered.length} ${filtering ? "i utvalget" : "i minnet"}` },
           { label: "Sendt i dag", value: sent, sub: `${today.length - sent} mottatt`, tone: "info" },
           {
             label: "Siste",
@@ -280,11 +313,7 @@ export default function SedHendelserPage() {
         unit="hendelser"
         onReset={filtering ? () => (setQ(""), setEnv("alle"), setDir("alle")) : undefined}
       >
-        <ToggleGroup size="small" value={env} onChange={setEnv} aria-label="Miljø">
-          <ToggleGroup.Item value="alle">Alle miljøer</ToggleGroup.Item>
-          <ToggleGroup.Item value="q1">Q1</ToggleGroup.Item>
-          <ToggleGroup.Item value="q2">Q2</ToggleGroup.Item>
-        </ToggleGroup>
+        <EnvToggle value={env} onChange={setEnv} />
         <ToggleGroup size="small" value={dir} onChange={setDir} aria-label="Retning">
           <ToggleGroup.Item value="alle">Begge retninger</ToggleGroup.Item>
           <ToggleGroup.Item value="sendt">↑ Sendt</ToggleGroup.Item>
@@ -292,86 +321,19 @@ export default function SedHendelserPage() {
         </ToggleGroup>
       </LiveToolbar>
 
-      {loading ? (
-        <TableSkeleton cols={7} />
-      ) : error && records.length === 0 ? (
-        <LiveMessage tone="danger" title="Fikk ikke kontakt med eux-portal-core">
-          {error}. Siden prøver å koble til strømmen igjen av seg selv.
-        </LiveMessage>
-      ) : records.length === 0 ? (
-        <LiveMessage title="Ingen SED-hendelser ennå">Nye meldinger dukker opp her med en gang de kommer.</LiveMessage>
-      ) : filtered.length === 0 ? (
-        <LiveMessage title="Ingen treff">Prøv et annet søk, eller nullstill filtrene.</LiveMessage>
-      ) : (
-        <LiveTable className="live-table--hendelser">
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell />
-              <Table.HeaderCell>Tid</Table.HeaderCell>
-              <Table.HeaderCell>Miljø</Table.HeaderCell>
-              <Table.HeaderCell>SED</Table.HeaderCell>
-              <Table.HeaderCell>BUC</Table.HeaderCell>
-              <Table.HeaderCell>RINA-sak</Table.HeaderCell>
-              <Table.HeaderCell>Avsender</Table.HeaderCell>
-              <Table.HeaderCell>Mottaker</Table.HeaderCell>
-              <Table.HeaderCell>Bruker</Table.HeaderCell>
-              <Table.HeaderCell>SED-ID</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {groups.flatMap((g) => [
-              <DayRow key={`day-${g.key}`} heading={g.heading} count={g.rows.length} unit={g.rows.length === 1 ? "hendelse" : "hendelser"} colSpan={COLS + 1} />,
-              ...g.rows.map((r) => {
-                const tint = tints.get(recordKey(r));
-                const h = r.hendelse;
-                const style = rowStyle(
-                  index++,
-                  tint ? ({ "--row-tint": tint.color, "--row-tint-alpha": tint.alpha } as CSSProperties) : undefined,
-                );
-                return (
-                  <Table.ExpandableRow
-                    key={recordKey(r)}
-                    expandOnRowClick
-                    togglePlacement="left"
-                    content={<HendelseDetails r={r} />}
-                    className={`live-row${tint ? " live-row--tint" : ""}${tint?.flash ? " live-row--new" : ""}`}
-                    style={style}
-                  >
-                    <Table.DataCell className="live-time">{formatTime(r.receivedAt)}</Table.DataCell>
-                    <Table.DataCell>
-                      <span className="live-envdir">
-                        <EnvPill env={r.environment} />
-                        <Direction direction={r.direction} />
-                      </span>
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <SedType type={h.sedType} toks={toks} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <Hl text={h.bucType} toks={toks} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <RinaSak env={r.environment} id={h.rinaSakId} toks={toks} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <Institution id={h.avsenderId} name={h.avsenderNavn} land={h.avsenderLand} toks={toks} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <Institution id={h.mottakerId} name={h.mottakerNavn} land={h.mottakerLand} toks={toks} />
-                    </Table.DataCell>
-                    <Table.DataCell className="arch-mono live-small">
-                      <Hl text={h.navBruker} toks={toks} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <ShortId id={h.sedId} toks={toks} />
-                    </Table.DataCell>
-                  </Table.ExpandableRow>
-                );
-              }),
-            ])}
-          </Table.Body>
-        </LiveTable>
-      )}
+      <LiveTable
+        className="live-table--hendelser"
+        feed={feed}
+        rows={filtered}
+        total={records.length}
+        rowKey={recordKey}
+        time={(r) => r.receivedAt}
+        columns={columns(toks)}
+        details={(r) => <HendelseDetails r={r} />}
+        rowProps={rowProps}
+        unit={["hendelse", "hendelser"]}
+        empty={{ title: "Ingen SED-hendelser ennå", text: "Nye meldinger dukker opp her med en gang de kommer." }}
+      />
 
       <LiveAbout
         title="Hvor hendelsene kommer fra"

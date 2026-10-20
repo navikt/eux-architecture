@@ -1,22 +1,13 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { Table, ToggleGroup } from "@navikt/ds-react";
+import { ToggleGroup } from "@navikt/ds-react";
 import { formatDateTime, formatTime } from "@/lib/datetime";
 import { archHref } from "@/lib/links";
 import { ENVS, type EnvId } from "@/components/miljoer/data";
 import { KoblingArt } from "@/components/live/art";
-import {
-  groupByDay,
-  matchesAll,
-  ms,
-  rememberFirstSeen,
-  tokens,
-  useLiveStream,
-  useNow,
-  useSnapshot,
-  useUrlState,
-} from "@/components/live/hooks";
+import { matchesAll, ms, rememberFirstSeen, tokens, useLiveFeed, useNow, useUrlState } from "@/components/live/hooks";
+import { LiveTable, type LiveColumn, type LiveRowProps } from "@/components/live/LiveTable";
 import {
   SED_HENDELSE_MAX_ROWS as MAX_ROWS,
   SED_HENDELSE_SNAPSHOT_URL,
@@ -25,7 +16,6 @@ import {
   type SedHendelseRecord,
 } from "@/components/live/sedHendelse";
 import {
-  DayRow,
   DetailCard,
   DetailLinks,
   EnvPill,
@@ -35,14 +25,10 @@ import {
   LiveAbout,
   LiveFurther,
   LiveHero,
-  LiveMessage,
-  LiveTable,
   LiveToolbar,
   PortalLink,
   RinaSak,
   SedType,
-  TableSkeleton,
-  rowStyle,
 } from "@/components/live/ui";
 
 type Flow = "q1-to-q2" | "q2-to-q1";
@@ -64,8 +50,6 @@ interface SedPair {
   newestAt: string;
 }
 
-/** Data columns, not counting the expand toggle. */
-const COLS = 7;
 const FLASH_MS = 1600;
 
 /* ---------- Kobling ---------- */
@@ -287,6 +271,49 @@ function PairDetails({ p }: { p: SedPair }) {
 
 /* ---------- Side ---------- */
 
+const matchesQuery = (p: SedPair, toks: string[]) => {
+  const s = p.source?.hendelse;
+  const d = p.destination?.hendelse;
+  return matchesAll(
+    [
+      p.sedType,
+      p.bucType,
+      p.rinaDokumentId,
+      s?.rinaSakId,
+      d?.rinaSakId,
+      s?.sedId,
+      d?.sedId,
+      s?.navBruker,
+      d?.navBruker,
+      `${p.from}→${p.to}`,
+    ],
+    toks,
+  );
+};
+
+const matchesFlow = (p: SedPair, flow: string) =>
+  flow === "q1-to-q2" || flow === "q2-to-q1" ? p.flow === flow : flow !== "venter" || p.status !== "complete";
+
+function columns(toks: string[]): LiveColumn<SedPair>[] {
+  return [
+    { header: "SED", cell: (p) => <SedType type={p.sedType} toks={toks} /> },
+    { header: "BUC", cell: (p) => <Hl text={p.bucType} toks={toks} /> },
+    { header: "Retning", cell: (p) => <FlowPills from={p.from} to={p.to} /> },
+    {
+      header: "Sendt · RINA-sak",
+      cell: (p) =>
+        p.source ? <Side r={p.source} env={p.from} toks={toks} /> : <span className="arch-subtle">Ikke i minnet</span>,
+    },
+    {
+      header: "Mottatt · RINA-sak",
+      cell: (p) =>
+        p.destination ? <Side r={p.destination} env={p.to} toks={toks} /> : <span className="live-waiting">Venter</span>,
+    },
+    { header: "Transporttid", cell: (p) => <Transit d={p.transitMs} /> },
+    { header: "Status", cell: (p) => <StatusTag status={p.status} /> },
+  ];
+}
+
 export default function SedKoblingPage() {
   const [records, setRecords] = useState<SedHendelseRecord[]>([]);
   const [liveSeen, setLiveSeen] = useState<Map<string, number>>(() => new Map());
@@ -301,48 +328,24 @@ export default function SedKoblingPage() {
     setRecords((prev) => (prev.some((r) => recordKey(r) === k) ? prev : [record, ...prev].slice(0, MAX_ROWS)));
   }, []);
 
-  const { status, lastEventAt, reconnects } = useLiveStream(SED_HENDELSE_STREAM_URL, { "sed-hendelse": onRecord });
-
-  const { loading, error } = useSnapshot<SedHendelseRecord[]>(
-    SED_HENDELSE_SNAPSHOT_URL,
-    (data) => {
+  const feed = useLiveFeed<SedHendelseRecord[]>({
+    streamUrl: SED_HENDELSE_STREAM_URL,
+    snapshotUrl: SED_HENDELSE_SNAPSHOT_URL,
+    events: { "sed-hendelse": onRecord },
+    onSnapshot: (data) => {
       const unique = new Map(data.map((r) => [recordKey(r), r] as const));
       setRecords([...unique.values()].slice(0, MAX_ROWS));
     },
-    reconnects,
-  );
+  });
 
   const pairs = useMemo(() => buildPairs(records), [records]);
   const toks = tokens(q);
+  const filtered = pairs.filter((p) => matchesFlow(p, flow) && matchesQuery(p, toks));
 
-  const filtered = pairs.filter((p) => {
-    if (flow === "q1-to-q2" || flow === "q2-to-q1") {
-      if (p.flow !== flow) return false;
-    } else if (flow === "venter" && p.status === "complete") return false;
-    const s = p.source?.hendelse;
-    const d = p.destination?.hendelse;
-    return matchesAll(
-      [
-        p.sedType,
-        p.bucType,
-        p.rinaDokumentId,
-        s?.rinaSakId,
-        d?.rinaSakId,
-        s?.sedId,
-        d?.sedId,
-        s?.navBruker,
-        d?.navBruker,
-        `${p.from}→${p.to}`,
-      ],
-      toks,
-    );
-  });
-  const groups = groupByDay(filtered, (p) => p.newestAt);
-
-  const timesFor = (f: Flow) => pairs.filter((p) => p.flow === f && p.transitMs !== null).map((p) => p.transitMs!);
+  const timesFor = (f: Flow) => filtered.filter((p) => p.flow === f && p.transitMs !== null).map((p) => p.transitMs!);
   const q1q2 = timesFor("q1-to-q2");
   const q2q1 = timesFor("q2-to-q1");
-  const waiting = pairs.filter((p) => p.status !== "complete").length;
+  const waiting = filtered.filter((p) => p.status !== "complete").length;
   const avg = (v: number[]) => v.reduce((a, b) => a + b, 0) / v.length;
   const speedStat = (label: string, v: number[], tone: string) => {
     const m = median(v);
@@ -358,8 +361,13 @@ export default function SedKoblingPage() {
     const t = r ? liveSeen.get(recordKey(r)) : undefined;
     return t !== undefined && now - t < FLASH_MS;
   };
+  const rowProps = (p: SedPair): LiveRowProps => {
+    const state = `live-row--${p.status}`;
+    if (flash(p.destination) && p.status === "complete") return { className: `${state} live-row--done` };
+    if (flash(p.source)) return { className: `${state} live-row--new` };
+    return { className: state };
+  };
   const filtering = q !== "" || flow !== "alle";
-  let index = 0;
 
   return (
     <div className="portal-page--wide arch-page lite-page live-page">
@@ -372,11 +380,12 @@ export default function SedKoblingPage() {
             sendingen og mottaket sammen, og du ser hvor lang tid det tok.
           </>
         }
-        status={status}
-        lastEventAt={lastEventAt}
+        status={feed.status}
+        lastEventAt={feed.lastEventAt}
         art={<KoblingArt />}
+        filtered={filtering}
         stats={[
-          { label: "Par", value: pairs.length, sub: `${pairs.length - waiting} koblet` },
+          { label: "Par", value: filtered.length, sub: `${filtered.length - waiting} koblet` },
           speedStat("Median Q1 → Q2", q1q2, ENVS.q1.tone),
           speedStat("Median Q2 → Q1", q2q1, ENVS.q2.tone),
           { label: "Venter", value: waiting, sub: waiting ? "uten partner" : "alt er koblet", tone: waiting ? "warning" : "success" },
@@ -400,80 +409,19 @@ export default function SedKoblingPage() {
         </ToggleGroup>
       </LiveToolbar>
 
-      {loading ? (
-        <TableSkeleton cols={6} />
-      ) : error && records.length === 0 ? (
-        <LiveMessage tone="danger" title="Fikk ikke kontakt med eux-portal-core">
-          {error}. Siden prøver å koble til strømmen igjen av seg selv.
-        </LiveMessage>
-      ) : pairs.length === 0 ? (
-        <LiveMessage title="Ingen par ennå">
-          Send en SED mellom Q1 og Q2, så dukker den opp her med en gang.
-        </LiveMessage>
-      ) : filtered.length === 0 ? (
-        <LiveMessage title="Ingen treff">Prøv et annet søk, eller nullstill filtrene.</LiveMessage>
-      ) : (
-        <LiveTable className="live-table--kobling">
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell />
-              <Table.HeaderCell>SED</Table.HeaderCell>
-              <Table.HeaderCell>BUC</Table.HeaderCell>
-              <Table.HeaderCell>Retning</Table.HeaderCell>
-              <Table.HeaderCell>Sendt · RINA-sak</Table.HeaderCell>
-              <Table.HeaderCell>Mottatt · RINA-sak</Table.HeaderCell>
-              <Table.HeaderCell>Transporttid</Table.HeaderCell>
-              <Table.HeaderCell>Status</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {groups.flatMap((g) => [
-              <DayRow key={`day-${g.key}`} heading={g.heading} count={g.rows.length} unit="par" colSpan={COLS + 1} />,
-              ...g.rows.map((p) => {
-                const cls = ["live-row", `live-row--${p.status}`];
-                if (flash(p.destination) && p.status === "complete") cls.push("live-row--done");
-                else if (flash(p.source)) cls.push("live-row--new");
-                return (
-                  <Table.ExpandableRow
-                    key={p.key}
-                    expandOnRowClick
-                    togglePlacement="left"
-                    content={<PairDetails p={p} />}
-                    className={cls.join(" ")}
-                    style={rowStyle(index++)}
-                  >
-                    <Table.DataCell>
-                      <SedType type={p.sedType} toks={toks} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <Hl text={p.bucType} toks={toks} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <FlowPills from={p.from} to={p.to} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      {p.source ? <Side r={p.source} env={p.from} toks={toks} /> : <span className="arch-subtle">Ikke i minnet</span>}
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      {p.destination ? (
-                        <Side r={p.destination} env={p.to} toks={toks} />
-                      ) : (
-                        <span className="live-waiting">Venter</span>
-                      )}
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <Transit d={p.transitMs} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <StatusTag status={p.status} />
-                    </Table.DataCell>
-                  </Table.ExpandableRow>
-                );
-              }),
-            ])}
-          </Table.Body>
-        </LiveTable>
-      )}
+      <LiveTable
+        className="live-table--kobling"
+        feed={feed}
+        rows={filtered}
+        total={pairs.length}
+        rowKey={(p) => p.key}
+        time={(p) => p.newestAt}
+        columns={columns(toks)}
+        details={(p) => <PairDetails p={p} />}
+        rowProps={rowProps}
+        unit={["par", "par"]}
+        empty={{ title: "Ingen par ennå", text: "Send en SED mellom Q1 og Q2, så dukker den opp her med en gang." }}
+      />
 
       <LiveAbout
         title="Slik kobles SED-ene"

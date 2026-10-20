@@ -26,6 +26,15 @@ ingress; it is reachable only from the portal inside the cluster.
 | SED-kobling | `/kafka/sed-kobling` | Kafka (same topics) | Pairs the Q1→Q2 round-trip of a SED. |
 | SED-er i nEESSI | `/nav-rinasak/sed-er` | Polls **eux-nav-rinasak** (Q1/Q2) | SEDs *created* in nEESSI, highlighting those **not yet sent**. Sent-status is correlated (best-effort) against the `sedsendt` Kafka events. |
 
+Each live page gets its data from `useLiveFeed` (`components/live/hooks.ts`):
+the snapshot plus the SSE stream, with the snapshot refetched after every
+reconnect. Stream events that arrive while a snapshot is loading are replayed
+after it, so the event handlers must be idempotent. The table, with its
+loading, error, empty and no-hits states and day grouping, is the generic
+`LiveTable` in `components/live/LiveTable.tsx`, driven by a column list. The
+hero stats count only the rows that match the current search and filters, and
+say so while a filter is active.
+
 The **SED-er i nEESSI** page relies on portal-core polling
 `eux-nav-rinasak`'s `GET /api/v1/rinasaker/nyeste` per environment (Azure AD
 client-credentials). This requires the outbound access policy + `NAVRINASAK_*`

@@ -148,12 +148,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** no hardcoded SVG `id="..."` remains in those folders.
 - **Fixed:** 2026-10-20: added `useSvgIds()` (`id`, `url`, `href` helpers on top of `useId()`) to `components/architecture/hooks.ts` and used it in all 18 inline SVGs with defs: the four process folders plus `ArchitectureMap`, `EventMetro`, `RequestFlow`, `NightTimeline` and the `ny-i-teamet` `HeroArt` motion paths. The feature prefixes (`avs-sm-`, `sl-seq-`, …) are gone from the def names. Documented in `portal/README.md`. The prerendered HTML of all 15 pages is identical apart from the ids, and in headless Chrome every `url(#…)`/`mpath` reference resolves after hydration with no duplicate ids or console errors.
 
-### [ ] 15 · Build one generic `LiveTable` for the live pages
+### [x] 15 · Build one generic `LiveTable` for the live pages
 - **Area:** portal · **Effort:** M
 - **Where:** `app/kafka/sed-hendelser/page.tsx`, `app/kafka/sed-kobling/page.tsx`, `app/nav-rinasak/sed-er/page.tsx`, `components/live/*`
 - **Problem:** the table, empty and error states, and filters are copied three times. On first load, an SSE event can arrive before the snapshot and get overwritten by it.
 - **Fix:** create a generic `LiveTable` component, and in `useSnapshot` merge stream events that arrive while the snapshot is loading.
 - **Done when:** all three pages use it, there is no race on first load, and the build is green.
+- **Fixed:** 2026-10-20: added a column-driven `LiveTable<T>` in `components/live/LiveTable.tsx` (skeleton, error, empty and no-hits states, day rows, expandable rows, per-row `rowProps`) and a shared `EnvToggle` in `ui.tsx`. `useLiveStream` and `useSnapshot` are merged into `useLiveFeed`, which buffers stream events while a snapshot is in flight and replays them after it. Against a fake portal-core with a slow snapshot, the old build lost an early event, a status update, a new case and a removal; the new build keeps all four. The kobling page's error state now keys on pairs instead of raw records, and its skeleton has the same seven columns as the others.
 
 ### [ ] 16 · Make live-region announcements less noisy
 - **Area:** portal · **Effort:** S
@@ -176,12 +177,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Fix:** write a `step(name, fn)` helper, and compare timestamps with `Date.parse`.
 - **Done when:** the route is noticeably shorter, its behaviour and response shape are unchanged, and the build is green.
 
-### [ ] 19 · Use the same stats scope on every live page
+### [x] 19 · Use the same stats scope on every live page
 - **Area:** portal · **Effort:** S
 - **Where:** stats or summary blocks in the three live pages
 - **Problem:** some pages count every row, others only the filtered rows.
 - **Fix:** pick one rule (counting filtered rows is suggested), apply it on every page, and label it clearly.
 - **Done when:** the pages are consistent.
+- **Fixed:** 2026-10-20: done together with 15. All three heroes now count the filtered rows (search and toggles), and `LiveHero` takes a `filtered` flag that shows "Tallene under gjelder bare det som passer søket og filtrene." while a filter is active. The "av N" sub-line says "i utvalget" instead of "i minnet" when filtered. Checked in headless Chrome with `?miljo=q1` and `?status=sendt`.
 
 ### [ ] 20 · Deduplicate the process pages
 - **Area:** portal · **Effort:** L

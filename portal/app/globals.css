@@ -8862,6 +8862,21 @@ button.jfr-result__status:hover {
   gap: 0.5rem 0.9rem;
 }
 
+/* Shown while a search or filter narrows the hero stats */
+.live-hero__scope {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  color: var(--ax-text-neutral-subtle);
+  animation: arch-fade 250ms ease;
+}
+
+.live-hero__scope svg {
+  flex: none;
+  font-size: 1rem;
+}
+
 .live-switch {
   display: flex;
   flex-wrap: wrap;
@@ -10065,6 +10080,7 @@ a.live-chain__stop:focus-visible {
   .live-status__ping,
   .live-count,
   .live-stat,
+  .live-hero__scope,
   .live-toolbar,
   .live-table,
   .live-row,

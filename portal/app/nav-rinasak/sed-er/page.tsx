@@ -2,44 +2,39 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import NextLink from "next/link";
-import { Table, ToggleGroup } from "@navikt/ds-react";
+import { ToggleGroup } from "@navikt/ds-react";
 import { formatDateTime, formatTime, isToday, safeDate } from "@/lib/datetime";
 import { neessiSakUrl } from "@/lib/neessi";
 import { archHref } from "@/lib/links";
 import { NeessiArt } from "@/components/live/art";
 import {
   fadeAlpha,
-  groupByDay,
   matchesAll,
   ms,
   rememberFirstSeen,
   tokens,
-  useLiveStream,
+  useLiveFeed,
   useNow,
-  useSnapshot,
   useUrlState,
 } from "@/components/live/hooks";
+import { LiveTable, type LiveColumn, type LiveRowProps } from "@/components/live/LiveTable";
 import {
-  DayRow,
   DetailCard,
   DetailLinks,
   EmptyValue,
   EnvPill,
+  EnvToggle,
   ExtLink,
   Field,
   Hl,
   LiveAbout,
   LiveFurther,
   LiveHero,
-  LiveMessage,
-  LiveTable,
   LiveToolbar,
   PortalLink,
   RinaSak,
   SedType,
   ShortId,
-  TableSkeleton,
-  rowStyle,
 } from "@/components/live/ui";
 
 interface FagsakInfo {
@@ -90,8 +85,6 @@ interface NavRinasakSedRecord {
 
 /** Same cap as NavRinasakSedStore in eux-portal-core. */
 const MAX_ROWS = 1000;
-/** Data columns, not counting the expand toggle. */
-const COLS = 9;
 const HIGHLIGHT_WINDOW_MS = 60_000;
 const FLASH_MS = 1100;
 const SENT_FLASH_MS = 1600;
@@ -198,6 +191,62 @@ function SedDetails({ r }: { r: NavRinasakSedRecord }) {
 
 /* ---------- Side ---------- */
 
+const matchesQuery = ({ sed: s }: NavRinasakSedRecord, toks: string[]) =>
+  matchesAll(
+    [
+      s.rinasakId,
+      s.sedType,
+      s.bucType,
+      s.sedId,
+      s.dokumentInfoId,
+      s.opprettetBruker,
+      s.navRinasakOpprettetBruker,
+      s.overstyrtEnhetsnummer,
+      s.fagsak?.tema,
+      s.fagsak?.nr,
+      s.fagsak?.fnr,
+      s.initiellFagsak?.tema,
+      s.initiellFagsak?.nr,
+      s.initiellFagsak?.fnr,
+    ],
+    toks,
+  );
+
+const matchesStatus = (r: NavRinasakSedRecord, status: string) =>
+  status === "sendt" ? r.sentStatus === "SENDT" : status !== "ikke-sendt" || r.sentStatus !== "SENDT";
+
+/** Shows the value highlighted, or a dash when it is missing. */
+const orEmpty = (text: string | number | null | undefined, toks: string[]) =>
+  text ? <Hl text={text} toks={toks} /> : <EmptyValue />;
+
+function columns(toks: string[]): LiveColumn<NavRinasakSedRecord>[] {
+  return [
+    { header: "Tid", className: "live-time", cell: (r) => formatTime(sedTime(r)) },
+    { header: "Miljø", cell: (r) => <EnvPill env={r.environment} /> },
+    { header: "SED", cell: (r) => <SedType type={r.sed.sedType} toks={toks} /> },
+    { header: "BUC", cell: (r) => orEmpty(r.sed.bucType, toks) },
+    { header: "RINA-sak", cell: (r) => <RinaSak env={r.environment} id={r.sed.rinasakId} toks={toks} /> },
+    { header: "Tema", cell: ({ sed: s }) => orEmpty(s.fagsak?.tema ?? s.initiellFagsak?.tema, toks) },
+    {
+      header: "Opprettet av",
+      className: "live-small",
+      cell: ({ sed: s }) => orEmpty(s.opprettetBruker ?? s.navRinasakOpprettetBruker, toks),
+    },
+    { header: "Status", cell: (r) => <SentTag status={r.sentStatus} /> },
+    {
+      header: "SED-ID",
+      cell: (r) =>
+        isPlaceholder(r) ? (
+          <span className="live-pending" title="SED-ID kommer når SED-en registreres i eux-nav-rinasak">
+            avventer
+          </span>
+        ) : (
+          <ShortId id={r.sed.sedId} toks={toks} />
+        ),
+    },
+  ];
+}
+
 export default function NavRinasakSedPage() {
   const [records, setRecords] = useState<NavRinasakSedRecord[]>([]);
   const [firstSeenAt, setFirstSeenAt] = useState<Map<string, number>>(() => new Map());
@@ -253,57 +302,48 @@ export default function NavRinasakSedPage() {
     );
   }, []);
 
-  const live = useLiveStream("/api/nav-rinasak/sed-er/stream", {
-    "nav-rinasak-sed": onCreated,
-    "nav-rinasak-sed-status": onStatus,
-    "nav-rinasak-sed-removed": onRemoved,
-  });
-
-  const { loading, error } = useSnapshot<NavRinasakSedRecord[]>(
-    "/api/nav-rinasak/sed-er",
-    (data) => {
+  const feed = useLiveFeed<NavRinasakSedRecord[]>({
+    streamUrl: "/api/nav-rinasak/sed-er/stream",
+    snapshotUrl: "/api/nav-rinasak/sed-er",
+    events: {
+      "nav-rinasak-sed": onCreated,
+      "nav-rinasak-sed-status": onStatus,
+      "nav-rinasak-sed-removed": onRemoved,
+    },
+    onSnapshot: (data) => {
       const capped = [...data].sort((a, b) => ms(sedTime(b)) - ms(sedTime(a))).slice(0, MAX_ROWS);
       setFirstSeenAt((prev) => rememberFirstSeen(prev, capped.map((r) => [recordKey(r), ms(sedTime(r))] as const)));
       setRecords(capped);
     },
-    live.reconnects,
-  );
+  });
 
   const toks = tokens(q);
   const sorted = useMemo(() => [...records].sort((a, b) => ms(sedTime(b)) - ms(sedTime(a))), [records]);
-  const filtered = sorted.filter((r) => {
-    if (env !== "alle" && r.environment !== env) return false;
-    if (status === "ikke-sendt" && r.sentStatus === "SENDT") return false;
-    if (status === "sendt" && r.sentStatus !== "SENDT") return false;
-    const s = r.sed;
-    return matchesAll(
-      [
-        s.rinasakId,
-        s.sedType,
-        s.bucType,
-        s.sedId,
-        s.dokumentInfoId,
-        s.opprettetBruker,
-        s.navRinasakOpprettetBruker,
-        s.overstyrtEnhetsnummer,
-        s.fagsak?.tema,
-        s.fagsak?.nr,
-        s.fagsak?.fnr,
-        s.initiellFagsak?.tema,
-        s.initiellFagsak?.nr,
-        s.initiellFagsak?.fnr,
-      ],
-      toks,
-    );
-  });
-  const groups = groupByDay(filtered, sedTime);
+  const filtered = sorted.filter(
+    (r) => (env === "alle" || r.environment === env) && matchesStatus(r, status) && matchesQuery(r, toks),
+  );
 
-  const scoped = records.filter((r) => env === "alle" || r.environment === env);
-  const today = scoped.filter((r) => isToday(sedTime(r)));
-  const notSent = scoped.filter((r) => r.sentStatus !== "SENDT").length;
-  const placeholders = scoped.filter(isPlaceholder).length;
+  const today = filtered.filter((r) => isToday(sedTime(r)));
+  const notSent = filtered.filter((r) => r.sentStatus !== "SENDT").length;
+  const placeholders = filtered.filter(isPlaceholder).length;
   const filtering = q !== "" || env !== "alle" || status !== "alle";
-  let index = 0;
+
+  const rowProps = (r: NavRinasakSedRecord): LiveRowProps => {
+    const k = recordKey(r);
+    const seen = firstSeenAt.get(k);
+    const age = seen !== undefined ? now - seen : Infinity;
+    const alpha = fadeAlpha(age, HIGHLIGHT_WINDOW_MS);
+    const cls: string[] = [];
+    if (alpha > 0) cls.push("live-row--tint");
+    if (age < FLASH_MS) cls.push("live-row--new");
+    if (r.sentStatus === "IKKE_SENDT") cls.push("live-row--unsent");
+    if (sentFlash.has(k)) cls.push("live-row--sent");
+    if (isPlaceholder(r)) cls.push("live-row--placeholder");
+    return {
+      className: cls.join(" "),
+      style: alpha > 0 ? ({ "--row-tint": CREATED_TINT, "--row-tint-alpha": alpha } as CSSProperties) : undefined,
+    };
+  };
 
   return (
     <div className="portal-page--wide arch-page lite-page live-page">
@@ -316,11 +356,17 @@ export default function NavRinasakSedPage() {
             gang, og SED-type og SED-ID fylles inn når SED-en er registrert.
           </>
         }
-        status={live.status}
-        lastEventAt={live.lastEventAt}
+        status={feed.status}
+        lastEventAt={feed.lastEventAt}
         art={<NeessiArt />}
+        filtered={filtering}
         stats={[
-          { label: "Opprettet i dag", value: today.length, sub: `av ${scoped.length} i minnet`, tone: "success" },
+          {
+            label: "Opprettet i dag",
+            value: today.length,
+            sub: `av ${filtered.length} ${filtering ? "i utvalget" : "i minnet"}`,
+            tone: "success",
+          },
           { label: "Ikke sendt", value: notSent, sub: "opprettet, men ikke sendt" },
           { label: "Uten SED", value: placeholders, sub: "sak opprettet, SED kommer" },
         ]}
@@ -335,11 +381,7 @@ export default function NavRinasakSedPage() {
         unit="SED-er"
         onReset={filtering ? () => (setQ(""), setEnv("alle"), setStatus("alle")) : undefined}
       >
-        <ToggleGroup size="small" value={env} onChange={setEnv} aria-label="Miljø">
-          <ToggleGroup.Item value="alle">Alle miljøer</ToggleGroup.Item>
-          <ToggleGroup.Item value="q1">Q1</ToggleGroup.Item>
-          <ToggleGroup.Item value="q2">Q2</ToggleGroup.Item>
-        </ToggleGroup>
+        <EnvToggle value={env} onChange={setEnv} />
         <ToggleGroup size="small" value={status} onChange={setStatus} aria-label="Status">
           <ToggleGroup.Item value="alle">Alle</ToggleGroup.Item>
           <ToggleGroup.Item value="ikke-sendt">Ikke sendt</ToggleGroup.Item>
@@ -347,105 +389,19 @@ export default function NavRinasakSedPage() {
         </ToggleGroup>
       </LiveToolbar>
 
-      {loading ? (
-        <TableSkeleton cols={7} />
-      ) : error && records.length === 0 ? (
-        <LiveMessage tone="danger" title="Fikk ikke kontakt med eux-portal-core">
-          {error}. Siden prøver å koble til strømmen igjen av seg selv.
-        </LiveMessage>
-      ) : records.length === 0 ? (
-        <LiveMessage title="Ingen SED-er ennå">Opprett en sak i nEESSI, så dukker den opp her.</LiveMessage>
-      ) : filtered.length === 0 ? (
-        <LiveMessage title="Ingen treff">Prøv et annet søk, eller nullstill filtrene.</LiveMessage>
-      ) : (
-        <LiveTable className="live-table--neessi">
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell />
-              <Table.HeaderCell>Tid</Table.HeaderCell>
-              <Table.HeaderCell>Miljø</Table.HeaderCell>
-              <Table.HeaderCell>SED</Table.HeaderCell>
-              <Table.HeaderCell>BUC</Table.HeaderCell>
-              <Table.HeaderCell>RINA-sak</Table.HeaderCell>
-              <Table.HeaderCell>Tema</Table.HeaderCell>
-              <Table.HeaderCell>Opprettet av</Table.HeaderCell>
-              <Table.HeaderCell>Status</Table.HeaderCell>
-              <Table.HeaderCell>SED-ID</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {groups.flatMap((g) => [
-              <DayRow key={`day-${g.key}`} heading={g.heading} count={g.rows.length} unit={g.rows.length === 1 ? "SED" : "SED-er"} colSpan={COLS + 1} />,
-              ...g.rows.map((r) => {
-                const k = recordKey(r);
-                const seen = firstSeenAt.get(k);
-                const age = seen !== undefined ? now - seen : Infinity;
-                const alpha = fadeAlpha(age, HIGHLIGHT_WINDOW_MS);
-                const cls = ["live-row"];
-                if (alpha > 0) cls.push("live-row--tint");
-                if (age < FLASH_MS) cls.push("live-row--new");
-                if (r.sentStatus === "IKKE_SENDT") cls.push("live-row--unsent");
-                if (sentFlash.has(k)) cls.push("live-row--sent");
-                if (isPlaceholder(r)) cls.push("live-row--placeholder");
-                const s = r.sed;
-                return (
-                  <Table.ExpandableRow
-                    key={k}
-                    expandOnRowClick
-                    togglePlacement="left"
-                    content={<SedDetails r={r} />}
-                    className={cls.join(" ")}
-                    style={rowStyle(
-                      index++,
-                      alpha > 0 ? ({ "--row-tint": CREATED_TINT, "--row-tint-alpha": alpha } as CSSProperties) : undefined,
-                    )}
-                  >
-                    <Table.DataCell className="live-time">{formatTime(sedTime(r))}</Table.DataCell>
-                    <Table.DataCell>
-                      <EnvPill env={r.environment} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <SedType type={s.sedType} toks={toks} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      {s.bucType ? <Hl text={s.bucType} toks={toks} /> : <EmptyValue />}
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <RinaSak env={r.environment} id={s.rinasakId} toks={toks} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      {s.fagsak?.tema ?? s.initiellFagsak?.tema ? (
-                        <Hl text={s.fagsak?.tema ?? s.initiellFagsak?.tema} toks={toks} />
-                      ) : (
-                        <EmptyValue />
-                      )}
-                    </Table.DataCell>
-                    <Table.DataCell className="live-small">
-                      {s.opprettetBruker ?? s.navRinasakOpprettetBruker ? (
-                        <Hl text={s.opprettetBruker ?? s.navRinasakOpprettetBruker} toks={toks} />
-                      ) : (
-                        <EmptyValue />
-                      )}
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      <SentTag status={r.sentStatus} />
-                    </Table.DataCell>
-                    <Table.DataCell>
-                      {isPlaceholder(r) ? (
-                        <span className="live-pending" title="SED-ID kommer når SED-en registreres i eux-nav-rinasak">
-                          avventer
-                        </span>
-                      ) : (
-                        <ShortId id={s.sedId} toks={toks} />
-                      )}
-                    </Table.DataCell>
-                  </Table.ExpandableRow>
-                );
-              }),
-            ])}
-          </Table.Body>
-        </LiveTable>
-      )}
+      <LiveTable
+        className="live-table--neessi"
+        feed={feed}
+        rows={filtered}
+        total={records.length}
+        rowKey={recordKey}
+        time={sedTime}
+        columns={columns(toks)}
+        details={(r) => <SedDetails r={r} />}
+        rowProps={rowProps}
+        unit={["SED", "SED-er"]}
+        empty={{ title: "Ingen SED-er ennå", text: "Opprett en sak i nEESSI, så dukker den opp her." }}
+      />
 
       <LiveAbout
         title="Hvor SED-ene kommer fra"

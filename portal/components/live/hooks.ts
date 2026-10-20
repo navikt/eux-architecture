@@ -8,25 +8,57 @@ export type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
 export const RECONNECT_MS = 5000;
 
+export interface LiveFeed {
+  status: ConnectionStatus;
+  /** When the last stream event arrived, in epoch ms. */
+  lastEventAt: number | null;
+  /** True until the first snapshot has loaded or failed. */
+  loading: boolean;
+  error: string | null;
+}
+
+interface StreamEvent {
+  name: string;
+  data: unknown;
+}
+
 /**
- * Connects to a portal SSE endpoint and dispatches each named event to its
- * handler. Reconnects after [RECONNECT_MS] on error. The handler map may change
- * between renders; the event names are read when the connection opens.
+ * A live page's data source: the snapshot from `snapshotUrl` plus the named
+ * events from the SSE stream at `streamUrl`.
  *
- * `reconnects` counts successful re-opens after the first one. The stream does
- * not replay missed events, so pass it to [useSnapshot] to refetch after a gap.
+ * Each event in `events` is dispatched to its handler. The handlers may change
+ * between renders; the event names are read when the connection opens. On
+ * error the stream reconnects after [RECONNECT_MS]. It does not replay missed
+ * events, so the snapshot is fetched on mount and again after every reconnect.
+ *
+ * `onSnapshot` replaces the page state. Stream events that arrive while a
+ * snapshot is in flight are replayed through their handlers once it has been
+ * applied, so none are lost. The handlers must therefore be idempotent.
  */
-export function useLiveStream(
-  url: string,
-  handlers: Record<string, (data: unknown) => void>,
-): { status: ConnectionStatus; lastEventAt: number | null; reconnects: number } {
+export function useLiveFeed<T>({
+  streamUrl,
+  snapshotUrl,
+  events,
+  onSnapshot,
+}: {
+  streamUrl: string;
+  snapshotUrl: string;
+  events: Record<string, (data: unknown) => void>;
+  onSnapshot: (data: T) => void;
+}): LiveFeed {
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [lastEventAt, setLastEventAt] = useState<number | null>(null);
   const [reconnects, setReconnects] = useState(0);
-  const handlersRef = useRef(handlers);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const eventsRef = useRef(events);
+  const onSnapshotRef = useRef(onSnapshot);
+  /** Events seen while a snapshot is in flight; null when none is. */
+  const pending = useRef<StreamEvent[] | null>(null);
 
   useEffect(() => {
-    handlersRef.current = handlers;
+    eventsRef.current = events;
+    onSnapshotRef.current = onSnapshot;
   });
 
   useEffect(() => {
@@ -38,9 +70,9 @@ export function useLiveStream(
     function connect() {
       if (closed) return;
       setStatus("connecting");
-      source = new EventSource(url);
+      source = new EventSource(streamUrl);
 
-      for (const name of Object.keys(handlersRef.current)) {
+      for (const name of Object.keys(eventsRef.current)) {
         source.addEventListener(name, (e) => {
           let data: unknown;
           try {
@@ -48,7 +80,8 @@ export function useLiveStream(
           } catch {
             return;
           }
-          handlersRef.current[name]?.(data);
+          pending.current?.push({ name, data });
+          eventsRef.current[name]?.(data);
           setLastEventAt(Date.now());
         });
       }
@@ -71,48 +104,38 @@ export function useLiveStream(
       if (timer) clearTimeout(timer);
       source?.close();
     };
-  }, [url]);
-
-  return { status, lastEventAt, reconnects };
-}
-
-/**
- * Fetches the snapshot for a live page, and again whenever `reloadKey`
- * changes. `loading` is only true for the first fetch.
- */
-export function useSnapshot<T>(url: string, onData: (data: T) => void, reloadKey = 0) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const onDataRef = useRef(onData);
-
-  useEffect(() => {
-    onDataRef.current = onData;
-  });
+  }, [streamUrl]);
 
   useEffect(() => {
     let cancelled = false;
-    fetch(url)
+    pending.current = [];
+    fetch(snapshotUrl)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json() as Promise<T>;
       })
       .then((data) => {
         if (cancelled) return;
-        onDataRef.current(data);
+        const replay = pending.current ?? [];
+        pending.current = null;
+        onSnapshotRef.current(data);
+        for (const e of replay) eventsRef.current[e.name]?.(e.data);
         setError(null);
         setLoading(false);
       })
       .catch((err: Error) => {
         if (cancelled) return;
+        pending.current = null;
         setError(err.message || "Ukjent feil");
         setLoading(false);
       });
     return () => {
       cancelled = true;
+      pending.current = null;
     };
-  }, [url, reloadKey]);
+  }, [snapshotUrl, reconnects]);
 
-  return { loading, error };
+  return { status, lastEventAt, loading, error };
 }
 
 /** A clock that ticks every `ms` milliseconds, for fading highlights. */
