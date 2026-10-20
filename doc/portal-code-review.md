@@ -54,12 +54,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** a second parallel POST gets 409, a wrong Content-Type gets 415, and a normal run is unchanged.
 - **Fixed:** 2026-10-20: `POST` in `app/api/tests/run/route.ts` is now a thin guard (415 unless `application/json`, a per-pod `runInProgress` lock that returns 409 and is released in `finally`) around the unchanged `runSmokeTest`. The body is read with `req.text()`, so chunked requests work too. Noted in `portal/README.md`. Checked against a fake upstream: 415, 409, and the lock is released after each run.
 
-### [ ] 04 · Remove third-party requests from `missoc.html`
+### [x] 04 · Remove third-party requests from `missoc.html`
 - **Area:** portal · **Effort:** S–M · **Decision needed:** delete the page (nothing links to it) or self-host its assets
 - **Where:** `portal/public/missoc.html` (Google Fonts `<link>` tags, flagcdn.com image URLs)
 - **Problem:** the page loads Google Fonts and flagcdn.com images, which leaks visitor IPs and may conflict with a CSP.
 - **Fix:** delete the file, or self-host the fonts and flags (or swap the fonts for system fonts).
 - **Done when:** the page makes no requests to third-party hosts, or the page is gone.
+- **Fixed:** 2026-10-20: kept the page (it is intentionally hidden) and self-hosted its assets in `portal/public/missoc/`: Inter and Fraunces variable woff2 from Fontsource (SIL OFL) with a local `fonts.css`, and 4:3 SVG flags from `flag-icons` (MIT), with licence files. Added `/missoc/**` to `autoLoginIgnorePaths` in `portal/.nais/nais.yaml`, made buttons inherit the page font, and noted it in `portal/README.md`. Checked in headless Chrome: no third-party requests, both fonts and all flags load.
 
 ## Build and deploy
 

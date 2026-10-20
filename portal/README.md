@@ -74,6 +74,13 @@ everything else is listed under `autoLoginIgnorePaths` in `.nais/nais.yaml`.
 New public pages must be added there, and links to protected pages get
 `requiresLogin` (sidebar) / `locked` (home) to show a padlock.
 
+`public/missoc.html` is a hidden, standalone static page. It makes no
+third-party requests: its fonts (Inter and Fraunces from Fontsource, SIL OFL)
+and flags (4:3 SVGs from `flag-icons`, MIT) are self-hosted in
+`public/missoc/` with their licence files. To add a country, copy its
+`flags/4x3/<iso>.svg` from the `flag-icons` npm package into
+`public/missoc/flags/`.
+
 Login is handled by the NAIS login proxy (Wonderwall, Entra ID). Once a session
 exists, Wonderwall forwards the user's access token in the `Authorization`
 header on every request — also on paths excluded from autologin.
