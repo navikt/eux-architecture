@@ -14,7 +14,7 @@ import {
   WavesIcon,
   WrenchIcon,
 } from "@navikt/aksel-icons";
-import { JOB_COUNT, SERVICE_COUNT, TOPIC_COUNT } from "@/components/architecture/data";
+import { JOB_COUNT, PLATFORM_INTRO, SERVICE_COUNT, TOPIC_COUNT } from "@/components/architecture/data";
 import { GLOSSARY_BY_TERM } from "@/components/architecture/glossary";
 import { BUCS, JOBS as AVSLUTNING_JOBS } from "@/components/avslutning/data";
 import { GRENSE_DAGER, JOBS as SLETTING_JOBS } from "@/components/sletting/data";
@@ -240,9 +240,7 @@ export default function Home() {
             EUX-plattformen, forklart
           </Heading>
           <BodyLong size="large" className="arch-hero__lead">
-            EUX er NAVs plattform for EESSI – den elektroniske utvekslingen av trygdeinformasjon med andre land i EU/EØS
-            og Sveits. Saksbehandlerne jobber i nEESSI, mens sakene og SED-ene ligger i RINA. EUX binder dette sammen med
-            resten av NAV.
+            {PLATFORM_INTRO}
           </BodyLong>
           <BodyLong className="home-hero__sub">
             Her finner du hvordan tjenestene henger sammen, hva som skjer automatisk med sakene, og hva som skjer i

@@ -597,6 +597,10 @@ export const edgeLabel = (e: ArchEdge): string => {
 export const incoming = (id: string) => EDGES.filter((e) => e.to === id);
 export const outgoing = (id: string) => EDGES.filter((e) => e.from === id);
 
+/** The one-paragraph platform introduction, shared by the home and architecture heroes. */
+export const PLATFORM_INTRO =
+  "EUX er NAVs plattform for EESSI – den elektroniske utvekslingen av trygdeinformasjon med andre land i EU/EØS og Sveits. Saksbehandlerne jobber i nEESSI, mens sakene og SED-ene ligger i RINA. EUX binder dette sammen med resten av NAV.";
+
 export const SERVICE_COUNT = NODES.filter((n) => n.kind === "app").length;
 export const JOB_COUNT = NODES.filter((n) => n.kind === "job").length;
 export const TOPIC_COUNT = NODES.filter((n) => n.kind === "topic").length;

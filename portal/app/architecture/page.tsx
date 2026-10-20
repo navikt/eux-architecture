@@ -11,7 +11,7 @@ import { NightTimeline } from "@/components/architecture/NightTimeline";
 import { Catalogue } from "@/components/architecture/Catalogue";
 import { PatternMatrix } from "@/components/architecture/PatternMatrix";
 import { useReducedMotion } from "@/components/architecture/hooks";
-import { JOB_COUNT, NODES, NODE_BY_ID, SERVICE_COUNT, TOPIC_COUNT, incoming } from "@/components/architecture/data";
+import { JOB_COUNT, NODES, NODE_BY_ID, PLATFORM_INTRO, SERVICE_COUNT, TOPIC_COUNT, incoming } from "@/components/architecture/data";
 import { GLOSSARY } from "@/components/architecture/glossary";
 import { Section } from "@/components/page/Section";
 import { HeroStats } from "@/components/page/HeroStats";
@@ -306,9 +306,7 @@ export default function ArchitecturePage() {
             Slik henger EUX sammen
           </Heading>
           <BodyLong size="large" className="arch-hero__lead">
-            EUX er NAVs plattform for EESSI – den elektroniske utvekslingen av trygdeinformasjon med andre land i EU/EØS og
-            Sveits. Saksbehandlerne jobber i nEESSI, mens sakene og SED-ene ligger i RINA. EUX binder dette sammen med resten
-            av NAV.
+            {PLATFORM_INTRO}
           </BodyLong>
         </div>
 

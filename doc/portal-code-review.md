@@ -224,12 +224,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Fix:** add an `after?: jobId` field to each job and use it.
 - **Done when:** the hardcoded index range is gone and the timeline looks the same as before.
 
-### [ ] 25 · Keep the hero text in one place
+### [x] 25 · Keep the hero text in one place
 - **Area:** portal · **Effort:** S
 - **Where:** the hero paragraphs in `app/page.tsx` and `app/architecture/page.tsx`
 - **Problem:** the same text is maintained twice.
 - **Fix:** move it into a shared constant.
 - **Done when:** the text has a single source.
+- **Fixed:** 2026-10-20: both heroes render `PLATFORM_INTRO` from `components/architecture/data.ts`. `scripts/search-index.mjs` now resolves exported string constants imported with `@/…`, so the search index stays byte-identical and the visible prerendered HTML is unchanged.
 
 ### [ ] 26 · Stop hardcoding the copy-link URL
 - **Area:** portal · **Effort:** S

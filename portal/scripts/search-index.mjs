@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
@@ -39,6 +39,37 @@ function textOf(node, constants = new Map()) {
   }
   visit(node);
   return clean(parts.join(" "));
+}
+
+// Exported string constants per module, so shared copy imported with `@/…` is indexed where it is rendered.
+const stringExports = new Map();
+function importedStrings(source) {
+  const found = new Map();
+  for (const statement of source.statements) {
+    if (!ts.isImportDeclaration(statement) || !statement.moduleSpecifier.text.startsWith("@/")) continue;
+    const names = statement.importClause?.namedBindings;
+    if (!names || !ts.isNamedImports(names)) continue;
+    const base = join(root, statement.moduleSpecifier.text.slice(2));
+    const path = [".ts", ".tsx"].map((ext) => base + ext).find((candidate) => existsSync(candidate));
+    if (!path) continue;
+    if (!stringExports.has(path)) {
+      const strings = new Map();
+      for (const node of parse(path).statements) {
+        if (!ts.isVariableStatement(node) || !node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)) continue;
+        for (const declaration of node.declarationList.declarations) {
+          if (ts.isIdentifier(declaration.name) && declaration.initializer && ts.isStringLiteral(declaration.initializer)) {
+            strings.set(declaration.name.text, declaration.initializer.text);
+          }
+        }
+      }
+      stringExports.set(path, strings);
+    }
+    for (const element of names.elements) {
+      const value = stringExports.get(path).get((element.propertyName ?? element.name).text);
+      if (value !== undefined) found.set(element.name.text, value);
+    }
+  }
+  return found;
 }
 
 function filesIn(directory) {
@@ -115,6 +146,7 @@ for (const section of sections.elements) {
     const declarations = new Map();
     const constants = new Map();
     for (const source of sources) {
+      for (const [name, value] of importedStrings(source)) constants.set(name, value);
       for (const statement of source.statements) {
         if (ts.isVariableStatement(statement)) {
           for (const node of statement.declarationList.declarations) {

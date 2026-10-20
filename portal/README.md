@@ -72,7 +72,9 @@ only by their navigation labels and marked as requiring login.
 When adding a documentation component directory, add it to `componentFolders`
 in the generator. Page sections use the shared `Section` from
 `components/page/Section.tsx`; each `<Section>` with literal `id` and `title`
-props becomes its own search hit linking to `#id`. Restart dev (or run
+props becomes its own search hit linking to `#id`. Exported string constants
+imported with `@/…` (such as `PLATFORM_INTRO`) are indexed where they are
+rendered as `{CONSTANT}`. Restart dev (or run
 `pnpm search:index`) to refresh the index after editing documentation.
 
 ### Page building blocks
