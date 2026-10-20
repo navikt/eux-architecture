@@ -24,18 +24,5 @@ class NavRinasakSedController(
     ): List<NavRinasakSedRecord> = store.getFiltered(environment, onlyNotSent)
 
     @GetMapping("/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    fun stream(): SseEmitter {
-        val emitter = SseEmitter(3_600_000L)
-        sseRegistry.subscribe(emitter)
-        emitter.onCompletion { sseRegistry.unsubscribe(emitter) }
-        emitter.onTimeout {
-            sseRegistry.unsubscribe(emitter)
-            emitter.complete()
-        }
-        emitter.onError {
-            sseRegistry.unsubscribe(emitter)
-            emitter.complete()
-        }
-        return emitter
-    }
+    fun stream(): SseEmitter = sseRegistry.open()
 }

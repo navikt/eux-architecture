@@ -9,7 +9,8 @@ import { BUCS, ENVS, JOBS, STATUSES, differsFromProd, schedLabel, type Role, typ
 import { archHref, ghHref } from "@/components/avslutning/tones";
 import { CaseJourney } from "@/components/avslutning/CaseJourney";
 import { SystemFlow } from "@/components/avslutning/SystemFlow";
-import { NightPipeline, StatusChips } from "@/components/avslutning/NightPipeline";
+import { NightPipeline } from "@/components/avslutning/NightPipeline";
+import { StatusChips } from "@/components/avslutning/StatusChips";
 import { StatusMachine } from "@/components/avslutning/StatusMachine";
 import { DecisionSimulator } from "@/components/avslutning/DecisionSimulator";
 import { BucTable } from "@/components/avslutning/BucTable";

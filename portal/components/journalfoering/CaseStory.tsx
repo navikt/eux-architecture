@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { BodyLong, BodyShort, Button, Detail, Heading, ToggleGroup } from "@navikt/ds-react";
 import { ChevronLeftIcon, ChevronRightIcon, CogIcon, EnvelopeClosedIcon, MoonIcon, PauseIcon, PersonIcon, PlayIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
-import { STATUS_BY_ID, type StatusId } from "./data";
+import { STATUS_BY_ID, type StatusId, type Tone } from "./data";
 
 type Variant = "neessi" | "gosys";
 type Actor = "fagmodul" | "natt" | "saksbehandler";
@@ -149,11 +149,13 @@ const ACTOR_ICON = {
   saksbehandler: <PersonIcon aria-hidden />,
 } as const;
 
-const ACTOR_TONE: Record<Actor, string> = { fagmodul: "accent", natt: "warning", saksbehandler: "meta-purple" };
+const ACTOR_TONE: Record<Actor, Tone> = { fagmodul: "accent", natt: "warning", saksbehandler: "meta-purple" };
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 const STEP_MS = 4200;
+/** s1–s3 er like i begge variantene; bytte av variant etter dem hopper til første variantsteg. */
+const SHARED_STEPS = 3;
 
 export function CaseStory({ onFocusStatus }: { onFocusStatus: (s: StatusId) => void }) {
   const reduced = useReducedMotion();
@@ -181,7 +183,7 @@ export function CaseStory({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
   const changeVariant = (v: Variant) => {
     setVariant(v);
     setPlaying(false);
-    if (index > 2) setIndex(3);
+    if (index >= SHARED_STEPS) setIndex(SHARED_STEPS);
   };
   const play = () => {
     if (playing) return setPlaying(false);

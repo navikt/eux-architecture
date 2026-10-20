@@ -1,6 +1,11 @@
 spring:
   main:
     banner-mode: "off"
+  task:
+    scheduling:
+      pool:
+        # Keeps SSE heartbeats running while the nav-rinasak poller waits on HTTP.
+        size: 2
 
 portal:
   kafka:

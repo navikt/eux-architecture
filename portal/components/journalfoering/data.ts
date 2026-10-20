@@ -149,9 +149,9 @@ export const bucLabel = (b: string) => (b.endsWith(`_${ANNEN}`) ? "Annen BUC" : 
 export const sedLabel = (s: string) => (s === ANNEN ? "Annen SED" : s);
 
 /** BUC-er der fagmodulen alltid ber Dokarkiv om å ferdigstille inngående SED-er. */
-export const ALLTID_FERDIGSTILL = ["UB_BUC_01", "FB_BUC_01", "FB_BUC_04"];
+const ALLTID_FERDIGSTILL = ["UB_BUC_01", "FB_BUC_01", "FB_BUC_04"];
 /** SED-er som gir ny NEESSI-fagsak i UB uten nav-rinasak. */
-export const UB_NY_FAGSAK = ["U001", "U001CB", "U003", "U005"];
+const UB_NY_FAGSAK = ["U001", "U001CB", "U003", "U005"];
 
 export const TEMAER = ["BAR", "KON", "ENF", "DAG", "GEN", "SYK", "PEN", "AAP", "SYM", "GRA", "GRU", "YRK"];
 
@@ -160,7 +160,7 @@ export const TEMAER = ["BAR", "KON", "ENF", "DAG", "GEN", "SYK", "PEN", "AAP", "
 /* ------------------------------------------------------------------ */
 
 /** Tema fra sektor, SED og fagsakens tema. Tom streng og null behandles likt. */
-export function finnGyldigTema(sektor: SektorId, sed: string | null, tema: string | null): string {
+function finnGyldigTema(sektor: SektorId, sed: string | null, tema: string | null): string {
   const t = tema || null;
   switch (sektor) {
     case "FB":
@@ -201,7 +201,7 @@ export const TEMA_ROWS: { sektor: SektorId; medFagsak: string; utenFagsak: strin
 /* Behandlingstema og behandlingstype                                  */
 /* ------------------------------------------------------------------ */
 
-export function finnBehandlingstema(tema: string, buc: string, sed: string | null, enhet: string | null, sakseier: boolean): string {
+function finnBehandlingstema(tema: string, buc: string, sed: string | null, enhet: string | null, sakseier: boolean): string {
   if (tema === "DAG") {
     if (buc === "UB_BUC_01") return sakseier ? "ab0308" : "ab0309";
     if (buc === "UB_BUC_02") return sakseier ? "ab0307" : "ab0002";
@@ -213,7 +213,7 @@ export function finnBehandlingstema(tema: string, buc: string, sed: string | nul
   return "";
 }
 
-export function velgBehandlingstype(tema: string, buc: string): string {
+function velgBehandlingstype(tema: string, buc: string): string {
   if (buc === "UB_BUC_04") return "ae0106";
   if (["DAG", "SYM", "AAP", "GRA"].includes(tema)) return "ae0106";
   if (tema === "KON") return "ae0120";
@@ -235,22 +235,7 @@ export const BEHANDLINGSTYPE_ROWS: { when: string; value: string }[] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* Behandlende enhet (BestemEnhetService) – bare inngående             */
-/* ------------------------------------------------------------------ */
-
-export type EnhetRuleId = "beskyttet" | "ub" | "s055" | "h070" | "s005" | "sh" | "norg2" | "fallback";
-
-export interface EnhetRule {
-  id: EnhetRuleId;
-  when: string;
-  enhet: string;
-  name?: string;
-  text: string;
-  preset: Partial<SimInput>;
-}
-
-/* ------------------------------------------------------------------ */
-/* Simulator                                                           */
+/* Simulatorens input                                                  */
 /* ------------------------------------------------------------------ */
 
 export type Retning = "inn" | "ut";
@@ -280,6 +265,21 @@ export const OVERSTYRT = [
   { value: "4847", label: "4847 (utgått)" },
 ] as const;
 export type Overstyrt = (typeof OVERSTYRT)[number]["value"];
+
+/* ------------------------------------------------------------------ */
+/* Behandlende enhet (BestemEnhetService) – bare inngående             */
+/* ------------------------------------------------------------------ */
+
+export type EnhetRuleId = "beskyttet" | "ub" | "s055" | "h070" | "s005" | "sh" | "norg2" | "fallback";
+
+export interface EnhetRule {
+  id: EnhetRuleId;
+  when: string;
+  enhet: string;
+  name?: string;
+  text: string;
+  preset: Partial<SimInput>;
+}
 
 export const ENHET_RULES: EnhetRule[] = [
   {
@@ -325,7 +325,7 @@ export const ENHET_RULES: EnhetRule[] = [
   },
 ];
 
-export const ENHET_RULE_BY_ID = Object.fromEntries(ENHET_RULES.map((r) => [r.id, r])) as Record<EnhetRuleId, EnhetRule>;
+const ENHET_RULE_BY_ID = Object.fromEntries(ENHET_RULES.map((r) => [r.id, r])) as Record<EnhetRuleId, EnhetRule>;
 
 function brukOppdatertEnhet(enhet: string, sektor: SektorId): string {
   if (enhet === "4847") return "4817";

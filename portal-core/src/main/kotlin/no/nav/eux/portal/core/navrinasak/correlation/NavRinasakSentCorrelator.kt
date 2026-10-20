@@ -29,9 +29,8 @@ class NavRinasakSentCorrelator(
     /** Candidate sedIds from the Kafka event that may match nav-rinasak's dokument.sedId. */
     private fun SedHendelse.candidateSedIds() = listOf(sedId, rinaDokumentId)
 
-    fun onSedSendt(environment: String, hendelse: SedHendelse, broadcast: Boolean = true) {
+    fun onSedSendt(environment: String, hendelse: SedHendelse) {
         sentSedIndex.markSent(environment, hendelse.rinaSakId, hendelse.candidateSedIds(), hendelse.sedType)
-        if (!broadcast) return
         val flipped = store.getAll().filter { record ->
             record.environment == environment &&
                 record.sentStatus != SentStatus.SENDT &&

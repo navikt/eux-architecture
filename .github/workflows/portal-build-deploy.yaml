@@ -8,7 +8,7 @@ permissions:
 
 on:
   push:
-    branches: [ main, 2-portal, portal-sed-er-i-neessi ]
+    branches: [ main, portal-sed-er-i-neessi ]
     paths:
       - 'portal/**'
       - '.github/workflows/portal-build-deploy.yaml'
@@ -41,40 +41,16 @@ jobs:
         with:
           version: 10
 
-      - name: Check for lockfile
-        id: lockfile
-        working-directory: portal
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Set up Node 22 (with pnpm cache)
-        if: steps.lockfile.outputs.exists == 'true'
         uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: 'pnpm'
           cache-dependency-path: portal/pnpm-lock.yaml
 
-      - name: Set up Node 22 (bootstrap, no cache)
-        if: steps.lockfile.outputs.exists == 'false'
-        uses: actions/setup-node@v5
-        with:
-          node-version: 22
-
       - name: Install dependencies
         working-directory: portal
-        env:
-          READER_TOKEN: ${{ secrets.READER_TOKEN }}
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile
-          else
-            pnpm install --no-frozen-lockfile
-          fi
+        run: pnpm install --frozen-lockfile
 
       - name: Typecheck
         working-directory: portal

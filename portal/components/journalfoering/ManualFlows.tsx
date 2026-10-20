@@ -201,7 +201,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
         <svg
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: "100%", minWidth: 900, height: "auto", display: "block" }}
-          role="img"
+          role="group"
           aria-label={`Sekvens: ${steps.map((s, i) => `${i + 1}. ${s.kind === "msg" ? `${LANE_INFO[s.from].title} til ${LANE_INFO[s.to].title}: ${s.label}` : s.label}`).join(". ")}.`}
         >
           <defs>

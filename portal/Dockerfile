@@ -11,10 +11,9 @@ RUN npm install -g pnpm@10
 
 WORKDIR /app
 
-COPY package.json .npmrc ./
-COPY pnpm-lock.yaml* ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 RUN --mount=type=secret,id=READER_TOKEN,env=READER_TOKEN \
-    pnpm install --no-frozen-lockfile
+    pnpm install --frozen-lockfile
 
 COPY . .
 RUN pnpm build

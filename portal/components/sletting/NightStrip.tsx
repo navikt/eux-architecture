@@ -5,7 +5,7 @@ import { BodyLong, BodyShort } from "@navikt/ds-react";
 import { ArrowRightIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { TONE } from "@/components/avslutning/tones";
-import { JOBS, klokke, schedLabel, type JobId, type StatusId } from "./data";
+import { JOBS, JOB_BY_ID, klokke, schedLabel, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
 
 const W = 1100;
@@ -53,8 +53,7 @@ const MONTHS = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "au
 
 /** Minutter til neste kjøring, regnet i Oslo-tid. */
 function nextRun(job: JobId, now: Oslo): { mins: number; label: string } {
-  const j = JOBS.find((x) => x.id === job)!;
-  const s = j.sched.prod;
+  const s = JOB_BY_ID[job].sched.prod;
   if (s.freq === "daily") {
     const nowMin = now.h * 60 + now.m;
     const t = s.h * 60 + s.m;
@@ -176,7 +175,7 @@ export function NightStrip({ onFocusStatus }: { onFocusStatus: (s: StatusId) => 
           </g>
 
           {/* Jobber */}
-          {MARKERS.map((mk, i) => {
+          {MARKERS.map((mk) => {
             const x = xh(mk.h);
             const on = focus === mk.job;
             const dim = focus !== null && !on;
@@ -184,7 +183,7 @@ export function NightStrip({ onFocusStatus }: { onFocusStatus: (s: StatusId) => 
             const tx = mk.side === "end" ? x + 4 : x - 4;
             return (
               <g
-                key={i}
+                key={`${mk.job}-${mk.h}`}
                 className="sl-night__job"
                 opacity={dim ? 0.35 : 1}
                 style={{ transition: "opacity 200ms ease" }}

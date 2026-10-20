@@ -1,6 +1,7 @@
 package no.nav.eux.portal.core.navrinasak.store
 
 import no.nav.eux.portal.core.navrinasak.model.NavRinasakSedRecord
+import no.nav.eux.portal.core.navrinasak.model.SentStatus
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
@@ -92,6 +93,6 @@ class NavRinasakSedStore {
     fun getFiltered(environment: String?, onlyNotSent: Boolean): List<NavRinasakSedRecord> =
         getAll().filter { record ->
             (environment == null || record.environment == environment) &&
-                (!onlyNotSent || record.sentStatus != no.nav.eux.portal.core.navrinasak.model.SentStatus.SENDT)
+                (!onlyNotSent || record.sentStatus != SentStatus.SENDT)
         }
 }

@@ -1,13 +1,24 @@
 "use client";
 
-import { useCallback, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import NextLink from "next/link";
 import { Table, ToggleGroup } from "@navikt/ds-react";
 import { formatDateTime, formatTime, isToday, safeDate } from "@/lib/datetime";
 import { neessiSakUrl } from "@/lib/neessi";
 import { archHref } from "@/components/avslutning/tones";
 import { NeessiArt } from "@/components/live/art";
-import { groupByDay, matchesAll, ms, tokens, useLiveStream, useNow, useSnapshot, useUrlState } from "@/components/live/hooks";
+import {
+  fadeAlpha,
+  groupByDay,
+  matchesAll,
+  ms,
+  rememberFirstSeen,
+  tokens,
+  useLiveStream,
+  useNow,
+  useSnapshot,
+  useUrlState,
+} from "@/components/live/hooks";
 import {
   DayRow,
   DetailCard,
@@ -79,12 +90,12 @@ interface NavRinasakSedRecord {
 
 /** Same cap as NavRinasakSedStore in eux-portal-core. */
 const MAX_ROWS = 1000;
+/** Data columns, not counting the expand toggle. */
 const COLS = 9;
 const HIGHLIGHT_WINDOW_MS = 60_000;
 const FLASH_MS = 1100;
 const SENT_FLASH_MS = 1600;
 const TICK_MS = 3000;
-const FIRST_SEEN_CAP = 2000;
 const CREATED_TINT = "#a7f3d0";
 
 /** When the SED was created in nEESSI, falling back through the known timestamps. */
@@ -100,12 +111,6 @@ const recordKey = (r: NavRinasakSedRecord) =>
 
 /** A case created in nEESSI whose SED is not registered in eux-nav-rinasak yet. */
 const isPlaceholder = (r: NavRinasakSedRecord) => r.sed.sedId == null;
-
-function tintAlpha(ageMs: number): number {
-  if (ageMs <= 0) return 1;
-  if (ageMs >= HIGHLIGHT_WINDOW_MS) return 0;
-  return Math.pow(1 - ageMs / HIGHLIGHT_WINDOW_MS, 0.7);
-}
 
 const fmtDate = (iso?: string | null) => (safeDate(iso) ? formatDateTime(iso) : undefined);
 
@@ -202,28 +207,17 @@ export default function NavRinasakSedPage() {
   const [status, setStatus] = useUrlState("status", "alle");
   const now = useNow(TICK_MS);
 
-  const { loading, error } = useSnapshot<NavRinasakSedRecord[]>("/api/nav-rinasak/sed-er", (data) => {
-    const capped = [...data].sort((a, b) => ms(sedTime(b)) - ms(sedTime(a))).slice(0, MAX_ROWS);
-    setFirstSeenAt((prev) => {
-      const next = new Map(prev);
-      for (const r of capped) if (!next.has(recordKey(r))) next.set(recordKey(r), ms(sedTime(r)));
-      return next;
-    });
-    setRecords(capped);
-  });
+  const flashTimers = useRef(new Set<ReturnType<typeof setTimeout>>());
+
+  useEffect(() => {
+    const timers = flashTimers.current;
+    return () => timers.forEach(clearTimeout);
+  }, []);
 
   const onCreated = useCallback((data: unknown) => {
     const record = data as NavRinasakSedRecord;
     const k = recordKey(record);
-    setFirstSeenAt((prev) => {
-      if (prev.has(k)) return prev;
-      const next = new Map(prev).set(k, Date.now());
-      for (const old of next.keys()) {
-        if (next.size <= FIRST_SEEN_CAP) break;
-        next.delete(old);
-      }
-      return next;
-    });
+    setFirstSeenAt((prev) => rememberFirstSeen(prev, [[k, Date.now()]]));
     setRecords((prev) => {
       const idx = prev.findIndex((r) => recordKey(r) === k);
       if (idx < 0) return [record, ...prev].slice(0, MAX_ROWS);
@@ -240,13 +234,15 @@ export default function NavRinasakSedPage() {
     setRecords((prev) => prev.map((r) => (recordKey(r) === k ? { ...r, sentStatus: record.sentStatus } : r)));
     if (record.sentStatus === "SENDT") {
       setSentFlash((prev) => new Set(prev).add(k));
-      setTimeout(() => {
+      const timer = setTimeout(() => {
+        flashTimers.current.delete(timer);
         setSentFlash((prev) => {
           const next = new Set(prev);
           next.delete(k);
           return next;
         });
       }, SENT_FLASH_MS);
+      flashTimers.current.add(timer);
     }
   }, []);
 
@@ -262,6 +258,16 @@ export default function NavRinasakSedPage() {
     "nav-rinasak-sed-status": onStatus,
     "nav-rinasak-sed-removed": onRemoved,
   });
+
+  const { loading, error } = useSnapshot<NavRinasakSedRecord[]>(
+    "/api/nav-rinasak/sed-er",
+    (data) => {
+      const capped = [...data].sort((a, b) => ms(sedTime(b)) - ms(sedTime(a))).slice(0, MAX_ROWS);
+      setFirstSeenAt((prev) => rememberFirstSeen(prev, capped.map((r) => [recordKey(r), ms(sedTime(r))] as const)));
+      setRecords(capped);
+    },
+    live.reconnects,
+  );
 
   const toks = tokens(q);
   const sorted = useMemo(() => [...records].sort((a, b) => ms(sedTime(b)) - ms(sedTime(a))), [records]);
@@ -343,7 +349,7 @@ export default function NavRinasakSedPage() {
 
       {loading ? (
         <TableSkeleton cols={7} />
-      ) : error ? (
+      ) : error && records.length === 0 ? (
         <LiveMessage tone="danger" title="Fikk ikke kontakt med eux-portal-core">
           {error}. Siden prøver å koble til strømmen igjen av seg selv.
         </LiveMessage>
@@ -374,7 +380,7 @@ export default function NavRinasakSedPage() {
                 const k = recordKey(r);
                 const seen = firstSeenAt.get(k);
                 const age = seen !== undefined ? now - seen : Infinity;
-                const alpha = tintAlpha(age);
+                const alpha = fadeAlpha(age, HIGHLIGHT_WINDOW_MS);
                 const cls = ["live-row"];
                 if (alpha > 0) cls.push("live-row--tint");
                 if (age < FLASH_MS) cls.push("live-row--new");

@@ -8,7 +8,7 @@ Ingress (dev): https://eux-docs.intern.dev.nav.no
 
 - Next.js 16 (App Router, standalone output)
 - React 19
-- TypeScript 5.7
+- TypeScript
 - [@navikt/ds-react](https://aksel.nav.no/) 8 (Aksel)
 - pino + @navikt/next-logger
 - prom-client (Prometheus metrics on `/api/internal/metrics`)
@@ -95,8 +95,8 @@ icon button next to the user in the bottom of the sidebar
 - **Diagrams/figures are theme-aware.** Every SVG fill, stroke and text colour is
   driven from Aksel `--ax-*` tokens (e.g. `var(--ax-bg-accent-soft)`,
   `var(--ax-border-accent)`, `var(--ax-text-default)`), so figures re-theme
-  themselves in dark mode. `components/DiagramSurface.tsx` is just a neutral,
-  theme-aware card that frames them. Arrow labels use a `var(--ax-bg-raised)`
+  themselves in dark mode. Diagrams are framed by the shared `portal-diagram`
+  CSS class. Arrow labels use a `var(--ax-bg-raised)`
   halo and arrowheads use `fill="context-stroke"` to match their line colour.
 - Prefer Aksel `--ax-*` tokens over hardcoded colours so UI adapts automatically.
   Verify token names against `@navikt/ds-css/dist/global/tokens.css` first — a

@@ -352,45 +352,45 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
 
       <div className="arch-metro__panel">
         <div className="arch-metro__info" aria-live="polite">
-        {station ? (
-          <>
-            <Detail className="arch-eyebrow">{station.team ? "Annet team" : station.ghost ? "Kun dev" : "Konsument"}</Detail>
-            <BodyShort weight="semibold" spacing>
-              {station.id}
-            </BodyShort>
-            <BodyShort size="small" spacing>
-              {station.text}
-            </BodyShort>
-            <HStack gap="space-6" wrap>
-              {station.lines.map((l) => (
-                <span key={l} className="portal-chip" style={{ borderColor: LINES[l].color }}>
-                  {LINES[l].name}
-                </span>
-              ))}
-            </HStack>
-            {(station.focus || station.href) && (
-              <div style={{ marginTop: "0.75rem" }}>
-                {station.focus ? (
-                  <Button size="small" variant="secondary" onClick={() => onFocusNode(station.focus!)}>
-                    Vis detaljer
-                  </Button>
-                ) : (
-                  <Button as="a" size="small" variant="secondary" href={station.href}>
-                    Se hendelsene live
-                  </Button>
-                )}
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            <Detail className="arch-eyebrow">Linjekart</Detail>
-            <BodyShort size="small" spacing>
-              Hver linje er et Kafka-topic, og hver stasjon er en konsument. Hold over en stasjon eller en linje for å se
-              sammenhengen, eller klikk for å feste valget.
-            </BodyShort>
-          </>
-        )}
+          {station ? (
+            <>
+              <Detail className="arch-eyebrow">{station.team ? "Annet team" : station.ghost ? "Kun dev" : "Konsument"}</Detail>
+              <BodyShort weight="semibold" spacing>
+                {station.id}
+              </BodyShort>
+              <BodyShort size="small" spacing>
+                {station.text}
+              </BodyShort>
+              <HStack gap="space-6" wrap>
+                {station.lines.map((l) => (
+                  <span key={l} className="portal-chip" style={{ borderColor: LINES[l].color }}>
+                    {LINES[l].name}
+                  </span>
+                ))}
+              </HStack>
+              {(station.focus || station.href) && (
+                <div style={{ marginTop: "0.75rem" }}>
+                  {station.focus ? (
+                    <Button size="small" variant="secondary" onClick={() => station.focus && onFocusNode(station.focus)}>
+                      Vis detaljer
+                    </Button>
+                  ) : (
+                    <Button as="a" size="small" variant="secondary" href={station.href}>
+                      Se hendelsene live
+                    </Button>
+                  )}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <Detail className="arch-eyebrow">Linjekart</Detail>
+              <BodyShort size="small" spacing>
+                Hver linje er et Kafka-topic, og hver stasjon er en konsument. Hold over en stasjon eller en linje for å se
+                sammenhengen, eller klikk for å feste valget.
+              </BodyShort>
+            </>
+          )}
         </div>
         <ul className="arch-metro__legend" aria-label="Kafka-topics">
           {LINE_ORDER.map((l) => (

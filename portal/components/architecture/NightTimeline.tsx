@@ -86,19 +86,20 @@ const ROWS: Row[] = (() => {
 
 const H = ROWS[ROWS.length - 1].y + ROW_H + 10;
 
-function osloNow(): { h: number; m: number; day: number } {
+type ClockTime = { h: number; m: number };
+
+function osloNow(): ClockTime {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/Oslo",
     hour: "2-digit",
     minute: "2-digit",
-    day: "numeric",
     hourCycle: "h23",
   }).formatToParts(new Date());
   const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
-  return { h: get("hour"), m: get("minute"), day: get("day") };
+  return { h: get("hour"), m: get("minute") };
 }
 
-function nextJob(now: { h: number; m: number; day: number }) {
+function nextJob(now: ClockTime) {
   const nowMin = now.h * 60 + now.m;
   const all = GROUPS.flatMap((g) => g.jobs.filter((j) => !j.monthly).map((j) => ({ g, j, t: j.h * 60 + j.m })));
   all.sort((a, b) => a.t - b.t);
@@ -106,7 +107,7 @@ function nextJob(now: { h: number; m: number; day: number }) {
 }
 
 export function NightTimeline({ onFocusNode }: { onFocusNode: (id: string) => void }) {
-  const [now, setNow] = useState<{ h: number; m: number; day: number } | null>(null);
+  const [now, setNow] = useState<ClockTime | null>(null);
   const [hover, setHover] = useState<string | null>(null);
 
   useEffect(() => {

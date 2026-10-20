@@ -11,6 +11,7 @@ import {
   BEHANDLINGSTEMA_ROWS,
   BEHANDLINGSTYPE_ROWS,
   DEFAULT_INPUT,
+  ENVS,
   JOBS,
   OPPGAVETYPER,
   OPPGAVE_ROWS,
@@ -670,53 +671,53 @@ export default function JournalfoeringPage() {
             </SubHead>
             <figure className="avs-slack jfr-slack">
               <div className="jfr-slack__feed">
-              {[
-                {
-                  time: "09.12",
-                  body: (
-                    <>
-                      <C>[prod]</C> Journalpost ble ikke opprettet, selv etter gjentatte forsøk. sedType=S005, eksternReferanseId=…
-                    </>
-                  ),
-                },
-                {
-                  time: "09.14",
-                  body: (
-                    <>
-                      <C>[prod]</C> Behandling av inngående SED mislyktes. rinasakId=1234567 sedId=… rinaDokumentId=… rinaDokumentVersjon=1
-                      sedType=U001 bucType=UB_BUC_01
-                    </>
-                  ),
-                },
-                {
-                  time: "10.03",
-                  body: (
-                    <>
-                      🔥<C>[prod]</C>
-                      <br />
-                      <em>&lt;svaret fra Oppgave&gt;</em>
-                      <br />
-                      tema=GEN, oppgavetype=JFR
-                      <br />
-                      H_BUC_01, H001, RINA=7654321_…
-                    </>
-                  ),
-                },
-              ].map((m, i) => (
-                <div key={m.time} className="avs-slack__msg" style={{ "--jfr-i": i } as CSSProperties}>
-                  <span className="avs-slack__avatar" aria-hidden>
-                    EUX
-                  </span>
-                  <div className="avs-slack__body">
-                    <div className="avs-slack__meta">
-                      <strong>eux-fagmodul-journalfoering</strong>
-                      <span className="avs-slack__app">APP</span>
-                      <span className="arch-subtle">{m.time}</span>
+                {[
+                  {
+                    time: "09.12",
+                    body: (
+                      <>
+                        <C>[prod]</C> Journalpost ble ikke opprettet, selv etter gjentatte forsøk. sedType=S005, eksternReferanseId=…
+                      </>
+                    ),
+                  },
+                  {
+                    time: "09.14",
+                    body: (
+                      <>
+                        <C>[prod]</C> Behandling av inngående SED mislyktes. rinasakId=1234567 sedId=… rinaDokumentId=… rinaDokumentVersjon=1
+                        sedType=U001 bucType=UB_BUC_01
+                      </>
+                    ),
+                  },
+                  {
+                    time: "10.03",
+                    body: (
+                      <>
+                        🔥<C>[prod]</C>
+                        <br />
+                        <em>&lt;svaret fra Oppgave&gt;</em>
+                        <br />
+                        tema=GEN, oppgavetype=JFR
+                        <br />
+                        H_BUC_01, H001, RINA=7654321_…
+                      </>
+                    ),
+                  },
+                ].map((m, i) => (
+                  <div key={m.time} className="avs-slack__msg" style={{ "--jfr-i": i } as CSSProperties}>
+                    <span className="avs-slack__avatar" aria-hidden>
+                      EUX
+                    </span>
+                    <div className="avs-slack__body">
+                      <div className="avs-slack__meta">
+                        <strong>eux-fagmodul-journalfoering</strong>
+                        <span className="avs-slack__app">APP</span>
+                        <span className="arch-subtle">{m.time}</span>
+                      </div>
+                      <p>{m.body}</p>
                     </div>
-                    <p>{m.body}</p>
                   </div>
-                </div>
-              ))}
+                ))}
               </div>
               <figcaption>Eksempler. Saks- og dokument-ID-ene er oppdiktet.</figcaption>
             </figure>
@@ -810,7 +811,7 @@ export default function JournalfoeringPage() {
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
-                    {(["prod", "q1", "q2"] as const).map((e) => (
+                    {ENVS.map((e) => (
                       <Table.Row key={e}>
                         <Table.HeaderCell scope="row">{e}</Table.HeaderCell>
                         <Table.DataCell className="arch-mono jfr-topics">

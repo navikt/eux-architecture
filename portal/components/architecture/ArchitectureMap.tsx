@@ -208,7 +208,7 @@ type Trunk = {
   kind: EdgeKind;
   d: string;
   double?: boolean;
-  label?: { text: string; x: number; y: number; anchor?: "start" | "middle" | "end" };
+  label?: { text: string; x: number; y: number };
 };
 
 const TRUNKS: Trunk[] = (() => {
@@ -598,7 +598,7 @@ export function ArchitectureMap({
                 <text
                   x={t.label.x}
                   y={t.label.y}
-                  textAnchor={t.label.anchor ?? "middle"}
+                  textAnchor="middle"
                   fontSize={11}
                   fill="var(--ax-text-neutral-subtle)"
                   className="arch-halo"

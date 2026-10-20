@@ -4,7 +4,7 @@ import { BodyLong, BodyShort, Detail, Heading, HStack } from "@navikt/ds-react";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
 import { JOB_BY_ID, STATUSES, STATUS_BY_ID, type JobId, type StatusId } from "./data";
-import { StatusChips } from "./NightPipeline";
+import { StatusChips } from "./StatusChips";
 import { TONE } from "./tones";
 
 const W = 1190;
@@ -50,6 +50,7 @@ const EDGES: Edge[] = [
   { id: "errArk", from: ["TIL_ARKIVERING"], to: ERRORS, d: rounded([[907, 200], [907, 280]]), kind: "error" },
   { id: "errSlett", from: ["SLETT_DOKUMENTUTKAST"], to: ERRORS, d: rounded([[388, 318], [436, 318]]), kind: "error" },
 ];
+const EDGE_BY_ID = Object.fromEntries(EDGES.map((e) => [e.id, e])) as Record<string, Edge>;
 
 const BADGES: { no: number; x: number; y: number }[] = [
   { no: 1, x: 214, y: 176 },
@@ -154,12 +155,12 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
           ))}
 
           {/* Kantetiketter */}
-          <g className={`arch-rf__edge ${edgeCls(EDGES[1])}`}>
+          <g className={`arch-rf__edge ${edgeCls(EDGE_BY_ID.back)}`}>
             <text x={197} y={97} textAnchor="middle" fontSize={10.5} fontWeight={700} className="arch-halo" fill="var(--ax-text-warning)">
               ny SED (Kafka)
             </text>
           </g>
-          <g className={`arch-rf__edge ${edgeCls(EDGES[2])}`}>
+          <g className={`arch-rf__edge ${edgeCls(EDGE_BY_ID.loop)}`}>
             <text x={363} y={256} textAnchor="middle" fontSize={10.5} fontWeight={700} className="arch-halo" fill="var(--ax-text-warning)">
               ingen treff
             </text>
@@ -167,7 +168,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
               ny vurdering neste natt
             </text>
           </g>
-          <g className={`arch-rf__edge ${edgeCls(EDGES[12])}`}>
+          <g className={`arch-rf__edge ${edgeCls(EDGE_BY_ID.manual)}`}>
             <circle cx={54} cy={318} r={4} fill="var(--ax-border-neutral-strong)" />
             <text x={146} y={309} textAnchor="middle" fontSize={10} fontStyle="italic" className="arch-halo" fill="var(--ax-text-neutral-subtle)">
               settes utenfor appen

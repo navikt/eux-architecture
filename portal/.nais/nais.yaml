@@ -20,10 +20,6 @@ spec:
       value: http://eux-rina-api-q2
     - name: EUX_RINA_API_Q2_SCOPE
       value: api://dev-gcp.eessibasis.eux-rina-api-q2/.default
-    - name: EUX_NEESSI_Q1_BASE_URL
-      value: https://eux-neessi-q1.intern.dev.nav.no
-    - name: EUX_NEESSI_Q2_BASE_URL
-      value: https://eux-neessi-q2.intern.dev.nav.no
     - name: NEXT_PUBLIC_ENV
       value: {{ env.label }}
     - name: NODE_ENV

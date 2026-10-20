@@ -7,15 +7,24 @@ import { neessiSakUrl } from "@/lib/neessi";
 import { archHref } from "@/components/avslutning/tones";
 import { HendelserArt } from "@/components/live/art";
 import {
+  fadeAlpha,
   groupByDay,
   matchesAll,
   ms,
+  rememberFirstSeen,
   tokens,
   useLiveStream,
   useNow,
   useSnapshot,
   useUrlState,
 } from "@/components/live/hooks";
+import {
+  SED_HENDELSE_MAX_ROWS as MAX_ROWS,
+  SED_HENDELSE_SNAPSHOT_URL,
+  SED_HENDELSE_STREAM_URL,
+  recordKey,
+  type SedHendelseRecord,
+} from "@/components/live/sedHendelse";
 import {
   DayRow,
   DetailCard,
@@ -40,37 +49,8 @@ import {
   rowStyle,
 } from "@/components/live/ui";
 
-interface SedHendelse {
-  id?: string;
-  sedId?: string;
-  sektorKode?: string;
-  bucType?: string;
-  rinaSakId?: string;
-  avsenderId?: string;
-  avsenderNavn?: string;
-  avsenderLand?: string;
-  mottakerId?: string;
-  mottakerNavn?: string;
-  mottakerLand?: string;
-  rinaDokumentId?: string;
-  rinaDokumentVersjon?: string;
-  sedType?: string;
-  navBruker?: string;
-}
-
-interface SedHendelseRecord {
-  hendelse: SedHendelse;
-  topic: string;
-  environment: string;
-  direction: string;
-  receivedAt: string;
-  offset: number;
-  partition: number;
-}
-
-/** Same cap as SedHendelseStore in eux-portal-core. */
-const MAX_ROWS = 500;
-const COLS = 10;
+/** Data columns, not counting the expand toggle. */
+const COLS = 9;
 
 /* ---------- Parfarger ---------- */
 
@@ -104,18 +84,9 @@ function hashString(s: string): number {
   return h >>> 0;
 }
 
-const recordKey = (r: SedHendelseRecord) => `${r.topic}|${r.partition}|${r.offset}`;
-
 function pairKey(r: SedHendelseRecord): string {
   const { rinaDokumentId: id, rinaDokumentVersjon: v } = r.hendelse;
   return id && v ? `doc:${id}|${v}` : `rec:${recordKey(r)}`;
-}
-
-/** Starts vivid and fades out over a minute. */
-function tintAlpha(ageMs: number): number {
-  if (ageMs <= 0) return 1;
-  if (ageMs >= HIGHLIGHT_WINDOW_MS) return 0;
-  return Math.pow(1 - ageMs / HIGHLIGHT_WINDOW_MS, 0.7);
 }
 
 interface RowTint {
@@ -138,7 +109,7 @@ function computePairTints(records: SedHendelseRecord[], firstSeenAt: Map<string,
   const out = new Map<string, RowTint>();
   for (const r of records) {
     const k = pairKey(r);
-    const alpha = tintAlpha(now - (newest.get(k) ?? 0));
+    const alpha = fadeAlpha(now - (newest.get(k) ?? 0), HIGHLIGHT_WINDOW_MS);
     if (alpha <= 0) continue;
     const seen = firstSeenAt.get(recordKey(r));
     out.set(recordKey(r), {
@@ -220,23 +191,23 @@ export default function SedHendelserPage() {
   const [dir, setDir] = useUrlState("retning", "alle");
   const now = useNow(TICK_MS);
 
-  const { loading, error } = useSnapshot<SedHendelseRecord[]>("/api/kafka/sed-hendelser", (data) => {
-    setFirstSeenAt((prev) => {
-      const next = new Map(prev);
-      for (const r of data) if (!next.has(recordKey(r))) next.set(recordKey(r), ms(r.receivedAt));
-      return next;
-    });
-    setRecords(data.slice(0, MAX_ROWS));
-  });
-
   const onRecord = useCallback((data: unknown) => {
     const record = data as SedHendelseRecord;
     const k = recordKey(record);
-    setFirstSeenAt((prev) => (prev.has(k) ? prev : new Map(prev).set(k, Date.now())));
+    setFirstSeenAt((prev) => rememberFirstSeen(prev, [[k, Date.now()]]));
     setRecords((prev) => [record, ...prev.filter((r) => recordKey(r) !== k)].slice(0, MAX_ROWS));
   }, []);
 
-  const { status, lastEventAt } = useLiveStream("/api/kafka/sed-hendelser/stream", { "sed-hendelse": onRecord });
+  const { status, lastEventAt, reconnects } = useLiveStream(SED_HENDELSE_STREAM_URL, { "sed-hendelse": onRecord });
+
+  const { loading, error } = useSnapshot<SedHendelseRecord[]>(
+    SED_HENDELSE_SNAPSHOT_URL,
+    (data) => {
+      setFirstSeenAt((prev) => rememberFirstSeen(prev, data.map((r) => [recordKey(r), ms(r.receivedAt)] as const)));
+      setRecords(data.slice(0, MAX_ROWS));
+    },
+    reconnects,
+  );
 
   const tints = computePairTints(records, firstSeenAt, now);
   const toks = tokens(q);
@@ -323,7 +294,7 @@ export default function SedHendelserPage() {
 
       {loading ? (
         <TableSkeleton cols={7} />
-      ) : error ? (
+      ) : error && records.length === 0 ? (
         <LiveMessage tone="danger" title="Fikk ikke kontakt med eux-portal-core">
           {error}. Siden prøver å koble til strømmen igjen av seg selv.
         </LiveMessage>
@@ -410,7 +381,7 @@ export default function SedHendelserPage() {
           { label: "eux-all-rina-events", sub: "tar imot via NIE", href: "/applications#eux-all-rina-events", tone: "info" },
           { label: "eux-legacy-rina-events", sub: "beriker fra RINA CPI", href: "/applications#eux-legacy-rina-events", tone: "info" },
           { label: "sedsendt-v1 · sedmottatt-v1", sub: "Kafka", href: archHref("sedsendt-v1"), tone: "meta-lime", mono: true },
-          { label: "eux-portal-core", sub: "holder de 500 nyeste", href: "https://github.com/navikt/eux-architecture/tree/main/portal-core" },
+          { label: "eux-portal-core", sub: `holder de ${MAX_ROWS} nyeste`, href: "https://github.com/navikt/eux-architecture/tree/main/portal-core" },
           { label: "Denne siden", sub: "SSE, live" },
         ]}
         facts={[

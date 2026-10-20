@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { BodyLong, Detail, Heading } from "@navikt/ds-react";
 import { CheckmarkIcon, XMarkIcon } from "@navikt/aksel-icons";
-import type { Tone } from "./data";
+import { SEKTORER, UNNTAK_SED, type Tone } from "./data";
 
 type StationId = "rina" | "kafka" | "app" | "rinaapi" | "pdl";
 
@@ -47,10 +47,7 @@ function SceneMessage() {
 
 function SceneFilter() {
   const sektorer: [string, boolean][] = [
-    ["H", true],
-    ["UB", true],
-    ["FB", true],
-    ["S", true],
+    ...SEKTORER.map((s): [string, boolean] => [s.id, true]),
     ["P", false],
     ["LA", false],
     ["AW", false],
@@ -76,7 +73,7 @@ function SceneFilter() {
       </div>
       <div className="adr-gate" style={{ "--i": 2 } as CSSProperties}>
         <span className="adr-gate__q">Unntak</span>
-        {["UB_BUC_04", "H020", "U020", "U020_Master"].map((s) => (
+        {["UB_BUC_04", ...UNNTAK_SED.map((u) => u.sed)].map((s) => (
           <span key={s} className="adr-pill" data-tone="neutral">
             {s} <No />
           </span>

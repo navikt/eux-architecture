@@ -6,13 +6,32 @@ import { formatDateTime, formatTime } from "@/lib/datetime";
 import { archHref } from "@/components/avslutning/tones";
 import { ENVS, type EnvId } from "@/components/miljoer/data";
 import { KoblingArt } from "@/components/live/art";
-import { groupByDay, matchesAll, ms, tokens, useLiveStream, useNow, useSnapshot, useUrlState } from "@/components/live/hooks";
+import {
+  groupByDay,
+  matchesAll,
+  ms,
+  rememberFirstSeen,
+  tokens,
+  useLiveStream,
+  useNow,
+  useSnapshot,
+  useUrlState,
+} from "@/components/live/hooks";
+import {
+  SED_HENDELSE_MAX_ROWS as MAX_ROWS,
+  SED_HENDELSE_SNAPSHOT_URL,
+  SED_HENDELSE_STREAM_URL,
+  recordKey,
+  type SedHendelseRecord,
+} from "@/components/live/sedHendelse";
 import {
   DayRow,
+  DetailCard,
   DetailLinks,
   EnvPill,
   Field,
   Hl,
+  Institution,
   LiveAbout,
   LiveFurther,
   LiveHero,
@@ -24,37 +43,7 @@ import {
   SedType,
   TableSkeleton,
   rowStyle,
-  DetailCard,
-  Institution,
 } from "@/components/live/ui";
-
-interface SedHendelse {
-  id?: string;
-  sedId?: string;
-  sektorKode?: string;
-  bucType?: string;
-  rinaSakId?: string;
-  avsenderId?: string;
-  avsenderNavn?: string;
-  avsenderLand?: string;
-  mottakerId?: string;
-  mottakerNavn?: string;
-  mottakerLand?: string;
-  rinaDokumentId?: string;
-  rinaDokumentVersjon?: string;
-  sedType?: string;
-  navBruker?: string;
-}
-
-interface SedHendelseRecord {
-  hendelse: SedHendelse;
-  topic: string;
-  environment: string;
-  direction: string;
-  receivedAt: string;
-  offset: number;
-  partition: number;
-}
 
 type Flow = "q1-to-q2" | "q2-to-q1";
 type PairStatus = "complete" | "waiting" | "source-missing";
@@ -75,12 +64,9 @@ interface SedPair {
   newestAt: string;
 }
 
-/** Same cap as SedHendelseStore in eux-portal-core. */
-const MAX_ROWS = 500;
+/** Data columns, not counting the expand toggle. */
 const COLS = 7;
 const FLASH_MS = 1600;
-
-const recordKey = (r: SedHendelseRecord) => `${r.topic}|${r.partition}|${r.offset}`;
 
 /* ---------- Kobling ---------- */
 
@@ -154,7 +140,8 @@ function buildPairs(records: SedHendelseRecord[]): SedPair[] {
 function formatDuration(d: number): string {
   if (d < 1000) return `${Math.round(d)} ms`;
   if (d < 60_000) return `${(d / 1000).toFixed(1).replace(".", ",")} s`;
-  return `${Math.floor(d / 60_000)} min ${Math.round((d % 60_000) / 1000)} s`;
+  const s = Math.round(d / 1000);
+  return `${Math.floor(s / 60)} min ${s % 60} s`;
 }
 
 function speedTone(d: number): string {
@@ -232,7 +219,7 @@ function SideCard({ r, env, role }: { r: SedHendelseRecord | null; env: EnvId; r
         <p className="live-card__note">
           {role === "mottatt"
             ? "Ikke mottatt ennå. Raden oppdateres med en gang hendelsen kommer."
-            : "Sendingen er ikke i minnet. Den kan være eldre enn de 500 nyeste hendelsene."}
+            : `Sendingen er ikke i minnet. Den kan være eldre enn de ${MAX_ROWS} nyeste hendelsene.`}
         </p>
       </section>
     );
@@ -307,19 +294,23 @@ export default function SedKoblingPage() {
   const [flow, setFlow] = useUrlState("flyt", "alle");
   const now = useNow(1000);
 
-  const { loading, error } = useSnapshot<SedHendelseRecord[]>("/api/kafka/sed-hendelser", (data) => {
-    const seen = new Set<string>();
-    setRecords(data.filter((r) => !seen.has(recordKey(r)) && seen.add(recordKey(r))).slice(0, MAX_ROWS));
-  });
-
   const onRecord = useCallback((data: unknown) => {
     const record = data as SedHendelseRecord;
     const k = recordKey(record);
-    setLiveSeen((prev) => (prev.has(k) ? prev : new Map(prev).set(k, Date.now())));
+    setLiveSeen((prev) => rememberFirstSeen(prev, [[k, Date.now()]]));
     setRecords((prev) => (prev.some((r) => recordKey(r) === k) ? prev : [record, ...prev].slice(0, MAX_ROWS)));
   }, []);
 
-  const { status, lastEventAt } = useLiveStream("/api/kafka/sed-hendelser/stream", { "sed-hendelse": onRecord });
+  const { status, lastEventAt, reconnects } = useLiveStream(SED_HENDELSE_STREAM_URL, { "sed-hendelse": onRecord });
+
+  const { loading, error } = useSnapshot<SedHendelseRecord[]>(
+    SED_HENDELSE_SNAPSHOT_URL,
+    (data) => {
+      const unique = new Map(data.map((r) => [recordKey(r), r] as const));
+      setRecords([...unique.values()].slice(0, MAX_ROWS));
+    },
+    reconnects,
+  );
 
   const pairs = useMemo(() => buildPairs(records), [records]);
   const toks = tokens(q);
@@ -411,7 +402,7 @@ export default function SedKoblingPage() {
 
       {loading ? (
         <TableSkeleton cols={6} />
-      ) : error ? (
+      ) : error && records.length === 0 ? (
         <LiveMessage tone="danger" title="Fikk ikke kontakt med eux-portal-core">
           {error}. Siden prøver å koble til strømmen igjen av seg selv.
         </LiveMessage>
@@ -488,9 +479,9 @@ export default function SedKoblingPage() {
         title="Slik kobles SED-ene"
         lead="Siden bruker de samme hendelsene som SED-hendelser, og ser etter samme dokument på begge sider."
         chain={[
-          { label: "Sendt fra Q1 eller Q2", sub: "sedsendt-v1", href: archHref("sedsendt-v1"), tone: "info", mono: false },
+          { label: "Sendt fra Q1 eller Q2", sub: "sedsendt-v1", href: archHref("sedsendt-v1"), tone: "info" },
           { label: "Mottatt i det andre", sub: "sedmottatt-v1", href: archHref("sedmottatt-v1"), tone: "info" },
-          { label: "eux-portal-core", sub: "holder de 500 nyeste", href: "https://github.com/navikt/eux-architecture/tree/main/portal-core" },
+          { label: "eux-portal-core", sub: `holder de ${MAX_ROWS} nyeste`, href: "https://github.com/navikt/eux-architecture/tree/main/portal-core" },
           { label: "Denne siden", sub: "kobler i nettleseren" },
         ]}
         facts={[

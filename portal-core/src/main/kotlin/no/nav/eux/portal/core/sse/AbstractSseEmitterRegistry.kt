@@ -6,8 +6,9 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Shared machinery for the portal's Server-Sent-Events fan-out: a thread-safe
- * set of [SseEmitter]s with subscribe/unsubscribe, a [broadcast] that prunes
- * emitters which fail to receive, and a subscriber count.
+ * set of [SseEmitter]s that [open] registers and unregisters on completion,
+ * timeout or error, a [broadcast] that prunes emitters which fail to receive,
+ * and a subscriber count.
  *
  * A concrete registry exists per feature stream (the Kafka pages'
  * [SseEmitterRegistry] vs. the nav-rinasak monitor's
@@ -19,14 +20,34 @@ abstract class AbstractSseEmitterRegistry(private val label: String) {
     private val log = logger {}
     private val emitters = ConcurrentHashMap.newKeySet<SseEmitter>()
 
-    fun subscribe(emitter: SseEmitter) {
+    /** Creates an emitter for a new client and keeps it registered while it is open. */
+    fun open(timeoutMs: Long = DEFAULT_TIMEOUT_MS): SseEmitter {
+        val emitter = SseEmitter(timeoutMs)
+        subscribe(emitter)
+        emitter.onCompletion { unsubscribe(emitter) }
+        emitter.onTimeout {
+            unsubscribe(emitter)
+            emitter.complete()
+        }
+        emitter.onError {
+            unsubscribe(emitter)
+            emitter.complete()
+        }
+        // Spring only commits the response on the first send; without this the
+        // client's EventSource stays "connecting" until the first heartbeat.
+        emitter.send(SseEmitter.event().comment("connected"))
+        return emitter
+    }
+
+    private fun subscribe(emitter: SseEmitter) {
         emitters.add(emitter)
         log.info { "$label subscriber tilkoblet, totalt=${emitters.size}" }
     }
 
-    fun unsubscribe(emitter: SseEmitter) {
-        emitters.remove(emitter)
-        log.info { "$label subscriber frakoblet, gjenstående=${emitters.size}" }
+    private fun unsubscribe(emitter: SseEmitter) {
+        if (emitters.remove(emitter)) {
+            log.info { "$label subscriber frakoblet, gjenstående=${emitters.size}" }
+        }
     }
 
     fun broadcast(eventName: String, data: Any) {
@@ -49,4 +70,8 @@ abstract class AbstractSseEmitterRegistry(private val label: String) {
     }
 
     fun subscriberCount(): Int = emitters.size
+
+    private companion object {
+        const val DEFAULT_TIMEOUT_MS = 3_600_000L
+    }
 }

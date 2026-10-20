@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { BodyLong, BodyShort, Detail, ToggleGroup } from "@navikt/ds-react";
 import { ArrowRightIcon } from "@navikt/aksel-icons";
-import { ENVS, JOBS, STATUS_BY_ID, differsFromProd, klokke, schedLabel, type Env, type JobId, type StatusId } from "./data";
+import { ENVS, JOBS, differsFromProd, klokke, schedLabel, type Env, type JobId, type StatusId } from "./data";
+import { StatusChips } from "./StatusChips";
 import { TONE } from "./tones";
 
 const S = 360;
@@ -66,13 +67,12 @@ export function NightPipeline({ onFocusStatus }: { onFocusStatus: (s: StatusId) 
     const s = j.sched[env];
     return s && s.freq === "daily" ? [{ j, s, t: s.h * 60 + s.m }] : [];
   });
-  const rare = JOBS.filter((j) => j.sched[env] === null || j.sched[env]!.freq !== "daily");
+  const rare = JOBS.filter((j) => j.sched[env]?.freq !== "daily");
   const nowMin = now ? now.h * 60 + now.m : null;
-  const next =
-    nowMin === null
-      ? null
-      : [...daily].sort((a, b) => ((a.t - nowMin + 1440) % 1440 || 1440) - ((b.t - nowMin + 1440) % 1440 || 1440))[0];
-  const nextIn = next && nowMin !== null ? (next.t - nowMin + 1440) % 1440 || 1440 : null;
+  /** Minutes until the next run at t; a job due right now counts as tomorrow's run. */
+  const minsUntil = (t: number) => (nowMin === null ? 0 : (t - nowMin + 1440) % 1440 || 1440);
+  const next = nowMin === null ? null : [...daily].sort((a, b) => minsUntil(a.t) - minsUntil(b.t))[0];
+  const nextIn = next ? minsUntil(next.t) : null;
 
   const night = daily.filter((d) => d.s.h < 6).sort((a, b) => a.t - b.t);
   const chainFrom = night[0]?.t ?? 60;
@@ -272,21 +272,3 @@ export function NightPipeline({ onFocusStatus }: { onFocusStatus: (s: StatusId) 
   );
 }
 
-export function StatusChips({ ids, onFocusStatus }: { ids: StatusId[]; onFocusStatus: (s: StatusId) => void }) {
-  return (
-    <span className="arch-chips">
-      {ids.map((id) => (
-        <button
-          key={id}
-          type="button"
-          className="avs-chip arch-mono"
-          data-tone={STATUS_BY_ID[id].tone}
-          onClick={() => onFocusStatus(id)}
-          title={`${STATUS_BY_ID[id].label} – vis i statusdiagrammet`}
-        >
-          {id}
-        </button>
-      ))}
-    </span>
-  );
-}

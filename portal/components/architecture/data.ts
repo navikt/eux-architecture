@@ -560,11 +560,8 @@ export const ZONE_LABEL: Record<Zone, string> = {
   andre: "Annet team",
 };
 
-export const KIND_LABEL: Record<EdgeKind, string> = {
-  rest: "REST",
-  event: "Hendelse",
-  cron: "Cron",
-};
+/** Sort order for neighbour lists: services first, then topics, people/teams and external systems. */
+export const KIND_RANK: Record<NodeKind, number> = { app: 0, job: 0, topic: 1, team: 2, person: 2, external: 3 };
 
 export const KIND_COLOR: Record<EdgeKind, string> = {
   rest: "var(--ax-border-accent)",

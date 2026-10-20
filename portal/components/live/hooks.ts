@@ -6,19 +6,23 @@ import { dayKey, formatDayHeading, safeDate } from "@/lib/datetime";
 /** Live-connection state shared by the SSE-backed monitor pages. */
 export type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
-const RECONNECT_MS = 5000;
+export const RECONNECT_MS = 5000;
 
 /**
  * Connects to a portal SSE endpoint and dispatches each named event to its
- * handler. Reconnects after 5 s on error. The handler map may change between
- * renders; the event names are read when the connection opens.
+ * handler. Reconnects after [RECONNECT_MS] on error. The handler map may change
+ * between renders; the event names are read when the connection opens.
+ *
+ * `reconnects` counts successful re-opens after the first one. The stream does
+ * not replay missed events, so pass it to [useSnapshot] to refetch after a gap.
  */
 export function useLiveStream(
   url: string,
   handlers: Record<string, (data: unknown) => void>,
-): { status: ConnectionStatus; lastEventAt: number | null } {
+): { status: ConnectionStatus; lastEventAt: number | null; reconnects: number } {
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [lastEventAt, setLastEventAt] = useState<number | null>(null);
+  const [reconnects, setReconnects] = useState(0);
   const handlersRef = useRef(handlers);
 
   useEffect(() => {
@@ -29,6 +33,7 @@ export function useLiveStream(
     let source: EventSource | null = null;
     let closed = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    let opened = false;
 
     function connect() {
       if (closed) return;
@@ -48,7 +53,11 @@ export function useLiveStream(
         });
       }
       source.addEventListener("heartbeat", () => setStatus("connected"));
-      source.onopen = () => setStatus("connected");
+      source.onopen = () => {
+        setStatus("connected");
+        if (opened) setReconnects((n) => n + 1);
+        opened = true;
+      };
       source.onerror = () => {
         setStatus("disconnected");
         source?.close();
@@ -64,11 +73,14 @@ export function useLiveStream(
     };
   }, [url]);
 
-  return { status, lastEventAt };
+  return { status, lastEventAt, reconnects };
 }
 
-/** Fetches the initial snapshot for a live page. */
-export function useSnapshot<T>(url: string, onData: (data: T) => void) {
+/**
+ * Fetches the snapshot for a live page, and again whenever `reloadKey`
+ * changes. `loading` is only true for the first fetch.
+ */
+export function useSnapshot<T>(url: string, onData: (data: T) => void, reloadKey = 0) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const onDataRef = useRef(onData);
@@ -87,6 +99,7 @@ export function useSnapshot<T>(url: string, onData: (data: T) => void) {
       .then((data) => {
         if (cancelled) return;
         onDataRef.current(data);
+        setError(null);
         setLoading(false);
       })
       .catch((err: Error) => {
@@ -97,7 +110,7 @@ export function useSnapshot<T>(url: string, onData: (data: T) => void) {
     return () => {
       cancelled = true;
     };
-  }, [url]);
+  }, [url, reloadKey]);
 
   return { loading, error };
 }
@@ -166,6 +179,39 @@ export function groupByDay<T>(rows: T[], iso: (r: T) => string | null | undefine
     else groups.push({ key, heading: formatDayHeading(iso(r)), rows: [r] });
   }
   return groups;
+}
+
+/** Highlight strength for something `ageMs` old: 1 when new, fading to 0 over `windowMs`. */
+export function fadeAlpha(ageMs: number, windowMs: number): number {
+  if (ageMs <= 0) return 1;
+  if (ageMs >= windowMs) return 0;
+  return Math.pow(1 - ageMs / windowMs, 0.7);
+}
+
+/** Upper bound for first-seen maps, so a page left open for days does not grow without limit. */
+const FIRST_SEEN_CAP = 2000;
+
+/**
+ * Records when each key was first seen, keeping existing entries and evicting
+ * the oldest beyond `cap`. Returns `prev` unchanged when every key is known.
+ */
+export function rememberFirstSeen(
+  prev: Map<string, number>,
+  entries: Iterable<readonly [key: string, at: number]>,
+  cap = FIRST_SEEN_CAP,
+): Map<string, number> {
+  let next: Map<string, number> | null = null;
+  for (const [key, at] of entries) {
+    if ((next ?? prev).has(key)) continue;
+    next ??= new Map(prev);
+    next.set(key, at);
+  }
+  if (!next) return prev;
+  for (const old of next.keys()) {
+    if (next.size <= cap) break;
+    next.delete(old);
+  }
+  return next;
 }
 
 /** Milliseconds since epoch, or 0 for missing/unparseable timestamps. */

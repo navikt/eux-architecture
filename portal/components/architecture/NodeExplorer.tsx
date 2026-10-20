@@ -2,8 +2,10 @@
 
 import { BodyLong, BodyShort, Button, Detail, Heading, HStack, Link as DsLink, Tag } from "@navikt/ds-react";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { ghHref } from "@/components/avslutning/tones";
 import {
   KIND_COLOR,
+  KIND_RANK,
   NODE_BY_ID,
   ZONE_LABEL,
   edgeLabel,
@@ -12,6 +14,7 @@ import {
   type ArchEdge,
   type EdgeKind,
 } from "./data";
+import { onActivate } from "./svg";
 
 const QUICK_PICKS = ["eux-rina-api", "eux-neessi", "eux-legacy-rina-events", "eux-avslutt-rinasaker", "sedmottatt-v1", "pdl"];
 
@@ -22,7 +25,6 @@ const COUNT_LABEL: Record<EdgeKind, (n: number) => string> = {
   event: (n) => (n === 1 ? "hendelsesstrøm" : "hendelsesstrømmer"),
   cron: (n) => (n === 1 ? "planlagt kjøring" : "planlagte kjøringer"),
 };
-const KIND_RANK: Record<string, number> = { app: 0, job: 0, topic: 1, team: 2, person: 2, external: 3 };
 
 const sortEdges = (edges: ArchEdge[], side: "from" | "to") =>
   [...edges].sort((a, b) => {
@@ -102,12 +104,7 @@ function EgoGraph({ id, onSelect }: { id: string; onSelect: (id: string) => void
             tabIndex={0}
             aria-label={`${side === "in" ? "Fra" : "Til"} ${other.name} (${label}). Vis ${other.name}.`}
             onClick={() => onSelect(otherId)}
-            onKeyDown={(ev) => {
-              if (ev.key === "Enter" || ev.key === " ") {
-                ev.preventDefault();
-                onSelect(otherId);
-              }
-            }}
+            onKeyDown={onActivate(() => onSelect(otherId))}
           >
             <rect
               className="arch-box"
@@ -270,7 +267,7 @@ export function NodeExplorer({ id, onSelect }: { id: string | null; onSelect: (i
         </dl>
         <HStack gap="space-16" wrap style={{ marginTop: "0.75rem" }}>
           {n.repo && (
-            <DsLink href={`https://github.com/navikt/${n.repo}`} target="_blank" rel="noreferrer">
+            <DsLink href={ghHref(n.repo)} target="_blank" rel="noreferrer">
               GitHub <ExternalLinkIcon aria-hidden />
             </DsLink>
           )}

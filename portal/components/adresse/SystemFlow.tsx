@@ -51,15 +51,16 @@ const EDGES: { id: string; d: string; mode: Mode | "begge"; dashed?: boolean }[]
   { id: "retry-in", d: P_RETRY_IN, mode: "feil" },
   { id: "dlt", d: P_DLT, mode: "feil" },
 ];
+const EDGE_BY_ID = Object.fromEntries(EDGES.map((e) => [e.id, e]));
 
 const EDGE_LABELS: { edge: string; x: number; y: number; text: string; mono?: boolean }[] = [
   { edge: "cpi", x: 470, y: 11, text: "CPI-kall via eux-rina-api" },
   { edge: "nie", x: 140, y: 144, text: "NIE" },
-  { edge: `to-rinaapi`, x: (APP_X + APP_W + D_X) / 2, y: cyOf("rinaapi") - 7, text: "GET sed · GET oversikt", mono: true },
-  { edge: `to-pdlapi`, x: (APP_X + APP_W + D_X) / 2, y: cyOf("pdlapi") - 7, text: "hentPerson", mono: true },
-  { edge: `to-pdlmottak`, x: (APP_X + APP_W + D_X) / 2, y: cyOf("pdlmottak") - 7, text: "POST · GET status", mono: true },
-  { edge: "retry-out", x: 238, y: RETRY_CY - 15, text: "feil", mono: false },
-  { edge: "retry-in", x: 238, y: RETRY_CY + 25, text: "etter 15 s", mono: false },
+  { edge: "to-rinaapi", x: (APP_X + APP_W + D_X) / 2, y: cyOf("rinaapi") - 7, text: "GET sed · GET oversikt", mono: true },
+  { edge: "to-pdlapi", x: (APP_X + APP_W + D_X) / 2, y: cyOf("pdlapi") - 7, text: "hentPerson", mono: true },
+  { edge: "to-pdlmottak", x: (APP_X + APP_W + D_X) / 2, y: cyOf("pdlmottak") - 7, text: "POST · GET status", mono: true },
+  { edge: "retry-out", x: 238, y: RETRY_CY - 15, text: "feil" },
+  { edge: "retry-in", x: 238, y: RETRY_CY + 25, text: "etter 15 s" },
   { edge: "dlt", x: 140, y: (RETRY_CY + DLT_CY) / 2 + 4, text: "etter 3 forsøk" },
 ];
 
@@ -377,11 +378,11 @@ export function SystemFlow() {
                 .map((l, i) => (
                   <path
                     key={i}
-                    d={EDGES.find((x) => x.id === l.edge)!.d}
+                    d={EDGE_BY_ID[l.edge!].d}
                     stroke={GLOW[l.edge!] ?? "var(--ax-border-accent)"}
                     strokeWidth={2.4}
                     strokeLinecap="round"
-                    strokeDasharray={EDGES.find((x) => x.id === l.edge)!.dashed ? "5 4" : undefined}
+                    strokeDasharray={EDGE_BY_ID[l.edge!].dashed ? "5 4" : undefined}
                     fill="none"
                     opacity={0}
                   >
@@ -391,7 +392,7 @@ export function SystemFlow() {
             </g>
           )}
           {EDGE_LABELS.map((l) => {
-            const e = EDGES.find((x) => x.id === l.edge)!;
+            const e = EDGE_BY_ID[l.edge];
             return (
               <text
                 key={l.edge}
@@ -428,7 +429,7 @@ export function SystemFlow() {
                         begin={`${t0}s`}
                         repeatCount="indefinite"
                         calcMode="linear"
-                        path={EDGES.find((x) => x.id === l.edge)!.d}
+                        path={EDGE_BY_ID[l.edge!].d}
                         {...motion}
                       />
                       <animate attributeName="opacity" dur={`${plan.total}s`} begin={`${t0}s`} repeatCount="indefinite" {...fade(l.s, l.e, plan.total, 0.12, 0.12)} />

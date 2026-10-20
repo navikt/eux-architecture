@@ -4,7 +4,7 @@ import { BodyLong, BodyShort, Detail, Heading } from "@navikt/ds-react";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { rounded } from "@/components/architecture/svg";
 import { BUCS, type Scope, type StatusId } from "./data";
-import { StatusChips } from "./NightPipeline";
+import { StatusChips } from "./StatusChips";
 import { TONE } from "./tones";
 
 const W = 440;

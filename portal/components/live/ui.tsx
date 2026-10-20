@@ -7,7 +7,7 @@ import { ArrowRightIcon, ExternalLinkIcon, FilesIcon, LinkIcon, WavesIcon } from
 import { ENVS, type EnvId } from "@/components/miljoer/data";
 import { neessiSakUrl } from "@/lib/neessi";
 import { formatTime } from "@/lib/datetime";
-import { useSlashFocus, type ConnectionStatus } from "./hooks";
+import { RECONNECT_MS, useSlashFocus, type ConnectionStatus } from "./hooks";
 
 /* ---------- De tre sanntidssidene ---------- */
 
@@ -67,7 +67,7 @@ const STATUS_LABEL: Record<ConnectionStatus, string> = {
 export function LiveStatus({ status, lastEventAt }: { status: ConnectionStatus; lastEventAt: number | null }) {
   const title =
     status === "disconnected"
-      ? "Mistet forbindelsen til portal-core. Prøver igjen om 5 sekunder."
+      ? `Mistet forbindelsen til portal-core. Prøver igjen om ${RECONNECT_MS / 1000} sekunder.`
       : lastEventAt
         ? `Siste melding kom ${formatTime(new Date(lastEventAt).toISOString())}`
         : "Venter på nye meldinger";

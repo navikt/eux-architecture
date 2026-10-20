@@ -7,7 +7,6 @@ import no.nav.eux.portal.core.navrinasak.model.InitiellFagsakInfo
 import no.nav.eux.portal.core.navrinasak.model.NavRinasakSed
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestClient
 
 /**
  * REST client for eux-nav-rinasak's `GET /api/v1/rinasaker/nyeste`. Returns the
@@ -20,7 +19,7 @@ class NavRinasakClient(
 ) {
 
     private val log = logger {}
-    private val restClient = RestClient.create()
+    private val restClient = restClientWithTimeouts()
 
     fun fetchNyeste(environment: String, config: EnvConfig, antall: Int): List<NavRinasakSed> {
         val token = tokenClient.getToken(config.scope)

@@ -377,7 +377,7 @@ export function SystemFlow() {
   const info = selected ? INFO[selected] : null;
   const kafkaOn = flow === "alle" || flow === "inn" || flow === "ut";
   const fRowOn = (no: number) => edgeOn(fFlows(no));
-  const aRowOn = () => edgeOn(["natten"]);
+  const aRowOn = edgeOn(["natten"]);
 
   return (
     <div className="avs-sys">
@@ -583,7 +583,7 @@ export function SystemFlow() {
                 y={r.cy + 3.6}
                 fontSize={10.2}
                 fill="var(--ax-text-neutral)"
-                opacity={aRowOn() ? 1 : 0.32}
+                opacity={aRowOn ? 1 : 0.32}
                 style={{ transition: "opacity 220ms ease" }}
               >
                 {r.a}

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { BodyShort, Button, Heading, HStack, Link as DsLink, Search, Tag } from "@navikt/ds-react";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { ghHref } from "@/components/avslutning/tones";
 import { NODES, incoming, outgoing, type ArchNode, type Zone } from "./data";
 
 const LAYERS: { title: string; zones: Zone[]; tone: string }[] = [
@@ -96,7 +97,7 @@ export function Catalogue({ onFocusNode }: { onFocusNode: (id: string) => void }
                       </span>
                       <HStack gap="space-8" align="center">
                         {n.repo && (
-                          <DsLink href={`https://github.com/navikt/${n.repo}`} target="_blank" rel="noreferrer" className="arch-card__gh">
+                          <DsLink href={ghHref(n.repo)} target="_blank" rel="noreferrer" className="arch-card__gh">
                             GitHub <ExternalLinkIcon aria-hidden />
                           </DsLink>
                         )}

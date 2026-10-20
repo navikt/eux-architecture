@@ -5,30 +5,28 @@ import { getClientCredentialsToken, AzureTokenError } from "@/lib/azureToken";
 import { log } from "@/lib/log";
 import H001_NAV from "@/lib/seds/H001-NAV.json";
 import H001_NAV_UPDATE from "@/lib/seds/H001-NAV-update.json";
+import {
+  DEFAULT_FNR,
+  FNR_REGEX,
+  MOTTAKER,
+  SENDER,
+  type Direction,
+  type Links,
+  type RunResponse,
+  type Step,
+  type Verification,
+} from "@/app/tests/smokeTest";
 
 export const dynamic = "force-dynamic";
-
-type Direction = "q1-to-q2" | "q2-to-q1";
 
 const BUC_TYPE = "H_BUC_01";
 const SED_TYPE = "H001";
 // Fnr som ligger i SED-malene under lib/seds/ — byttes ut med brukerens fnr
 // før vi sender SED-en til eux-rina-api.
 const TEMPLATE_FNR = "23478743041";
-// Default-fnr i skjemaet (NAV sin standard testidentitet i Q-miljøene).
-const DEFAULT_FNR = "21458837225";
-const FNR_REGEX = /^[0-9]{11}$/;
-
-// Q1 service-user identifies as NO:NAVAT06, Q2 as NO:NAVAT07
-// (see eux-rina-gateway-api-test ApiTestProperties for background).
-const SENDER: Record<Direction, "q1" | "q2"> = {
-  "q1-to-q2": "q1",
-  "q2-to-q1": "q2",
-};
-const MOTTAKER: Record<Direction, string> = {
-  "q1-to-q2": "NO:NAVAT07",
-  "q2-to-q1": "NO:NAVAT06",
-};
+// Per kall mot eux-rina-api. Send-steget venter på at RINA fullfører
+// handlingen, så grensen er romslig; den hindrer bare at kjøringen henger.
+const STEP_TIMEOUT_MS = 60_000;
 
 const EXPECTED_ADDR_CREATE = [
   {
@@ -64,59 +62,9 @@ const EXPECTED_ADDR_UPDATE = [
   },
 ] as const;
 
-type StepStatus = "ok" | "fail" | "skipped";
-
-type Step = {
-  id: string;
-  index: number;
-  title: string;
-  description: string;
-  method: string;
-  url: string;
-  requestBody: unknown;
-  status: StepStatus;
-  httpStatus: number | null;
-  responseBody: unknown;
-  durationMs: number;
-  message: string;
-  error?: string;
-};
-
-type Verification = {
-  group: string;
-  label: string;
-  expected: string | null;
-  actual: string | null;
-  ok: boolean;
-};
-
 type RunBody = {
-  direction?: string;
-  fnr?: string;
-};
-
-type Links = {
-  rina: string | null;
-};
-
-type RunResponse = {
-  startedAt: string;
-  finishedAt: string;
-  durationMs: number;
-  ok: boolean;
-  direction: Direction;
-  sender: "q1" | "q2";
-  receiver: "q1" | "q2";
-  caseId: string | null;
-  documentId: string | null;
-  fnr: string;
-  bucType: string;
-  sedType: string;
-  mottakerId: string;
-  verifications: Verification[];
-  verificationOk: boolean;
-  links: Links;
-  steps: Step[];
+  direction?: unknown;
+  fnr?: unknown;
 };
 
 type ApiConfig = {
@@ -178,6 +126,7 @@ async function runStep(
       cache: "no-store",
       headers,
       body,
+      signal: AbortSignal.timeout(STEP_TIMEOUT_MS),
     });
     const text = await res.text();
     const ct = res.headers.get("content-type") ?? "";
@@ -214,7 +163,10 @@ async function runStep(
       httpStatus: null,
       responseBody: null,
       durationMs: Date.now() - started,
-      message: "Nettverks- eller transportfeil før eux-rina-api rakk å svare",
+      message:
+        err instanceof DOMException && err.name === "TimeoutError"
+          ? `eux-rina-api svarte ikke innen ${STEP_TIMEOUT_MS / 1000} s`
+          : "Nettverks- eller transportfeil før eux-rina-api rakk å svare",
       error: (err as Error).message,
     };
   }
@@ -313,6 +265,15 @@ function eq(
     actual: fmt(actual),
     ok: fmt(expected) === fmt(actual),
   };
+}
+
+/** Step message for a response that came back but failed some field checks. */
+function failedChecksMessage(what: string, failed: Verification[], total: number): string {
+  return (
+    `${what} kom tilbake, men ${failed.length} av ${total} ` +
+    `feltsjekk(er) feilet: ${failed.map((f) => f.label).slice(0, 5).join(", ")}` +
+    (failed.length > 5 ? ` (+${failed.length - 5} til)` : "")
+  );
 }
 
 function check(
@@ -595,10 +556,11 @@ export async function POST(req: Request) {
   try {
     const contentLength = req.headers.get("content-length");
     if (contentLength && Number(contentLength) > 0) {
-      body = (await req.json()) as RunBody;
+      const parsed: unknown = await req.json();
+      if (parsed && typeof parsed === "object") body = parsed as RunBody;
     }
   } catch {
-    // ignore — tom body
+    // Ugyldig JSON behandles som tom body, dvs. standardvalgene under.
   }
 
   const direction: Direction = isDirection(body.direction)
@@ -608,7 +570,7 @@ export async function POST(req: Request) {
   const receiver = sender === "q1" ? "q2" : "q1";
   const mottakerId = MOTTAKER[direction];
 
-  const fnrInput = (body.fnr ?? "").trim();
+  const fnrInput = typeof body.fnr === "string" ? body.fnr.trim() : "";
   if (fnrInput && !FNR_REGEX.test(fnrInput)) {
     return NextResponse.json(
       { ok: false, error: "Ugyldig fnr — må være 11 sifre." },
@@ -725,10 +687,7 @@ export async function POST(req: Request) {
       const failed = oversiktChecks.filter((v) => !v.ok);
       if (failed.length > 0) {
         verifyAfterCreate.status = "fail";
-        verifyAfterCreate.message =
-          `Oversikt kom tilbake, men ${failed.length} av ${oversiktChecks.length} ` +
-          `feltsjekk(er) feilet: ${failed.map((f) => f.label).slice(0, 5).join(", ")}` +
-          (failed.length > 5 ? ` (+${failed.length - 5} til)` : "");
+        verifyAfterCreate.message = failedChecksMessage("Oversikt", failed, oversiktChecks.length);
       } else {
         verifyAfterCreate.message = `Oversikt matcher alle ${oversiktChecks.length} forventede felter`;
       }
@@ -769,10 +728,7 @@ export async function POST(req: Request) {
       const failed = sedChecks.filter((v) => !v.ok);
       if (failed.length > 0) {
         readNavSedAfterCreate.status = "fail";
-        readNavSedAfterCreate.message =
-          `NAV-SED-en kom tilbake, men ${failed.length} av ${sedChecks.length} ` +
-          `feltsjekk(er) feilet: ${failed.map((f) => f.label).slice(0, 5).join(", ")}` +
-          (failed.length > 5 ? ` (+${failed.length - 5} til)` : "");
+        readNavSedAfterCreate.message = failedChecksMessage("NAV-SED-en", failed, sedChecks.length);
       } else {
         readNavSedAfterCreate.message = `NAV-SED gjenspeiler alle ${sedChecks.length} forventede felter (inkl. begge adressene)`;
       }
@@ -907,10 +863,7 @@ export async function POST(req: Request) {
       const failed = sedChecks.filter((v) => !v.ok);
       if (failed.length > 0) {
         readNavSedAfterUpdate.status = "fail";
-        readNavSedAfterUpdate.message =
-          `NAV-SED-en kom tilbake, men ${failed.length} av ${sedChecks.length} ` +
-          `feltsjekk(er) feilet: ${failed.map((f) => f.label).slice(0, 5).join(", ")}` +
-          (failed.length > 5 ? ` (+${failed.length - 5} til)` : "");
+        readNavSedAfterUpdate.message = failedChecksMessage("NAV-SED-en", failed, sedChecks.length);
       } else {
         readNavSedAfterUpdate.message = `NAV-SED gjenspeiler de oppdaterte adressene (${sedChecks.length} sjekker)`;
       }

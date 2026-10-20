@@ -106,6 +106,13 @@ const SET_BY_ACTOR: Record<string, Actor> = {
 
 type Filter = "alle" | "F" | "1" | "2";
 
+const FILTER_TEXT: Record<Filter, string> = {
+  alle: "Alle overganger. Velg hvem som flytter SED-en for å se bare deres piler.",
+  F: "Fagmodulen setter UKJENT før journalposten lages, og JOURNALFOERT hvis den ble ferdigstilt med en gang.",
+  "1": "ferdigstill leser UKJENT, FEILET_FERDIGSTILL og FEILREGISTRERT hver natt kl. 01.00.",
+  "2": "feilregistrer leser FEILET_FEILREGISTRER og UKJENT eldre enn 30 dager hver natt kl. 02.00.",
+};
+
 function Badge({ by, x, y, dim }: { by: Actor; x: number; y: number; dim: boolean }) {
   const fagmodul = by === "F";
   return (
@@ -159,13 +166,6 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
   const packetFill = (e: Edge) =>
     e.kind === "error" ? "var(--ax-bg-danger-strong)" : e.kind === "entry" ? "var(--ax-bg-meta-purple-strong)" : "var(--ax-bg-accent-strong)";
 
-  const filterText: Record<Filter, string> = {
-    alle: "Alle overganger. Velg hvem som flytter SED-en for å se bare deres piler.",
-    F: "Fagmodulen setter UKJENT før journalposten lages, og JOURNALFOERT hvis den ble ferdigstilt med en gang.",
-    "1": "ferdigstill leser UKJENT, FEILET_FERDIGSTILL og FEILREGISTRERT hver natt kl. 01.00.",
-    "2": "feilregistrer leser FEILET_FEILREGISTRER og UKJENT eldre enn 30 dager hver natt kl. 02.00.",
-  };
-
   return (
     <div className="avs-sm jfr-sm">
       <div className="avs-toolbar">
@@ -176,7 +176,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
           <ToggleGroup.Item value="2">feilregistrer</ToggleGroup.Item>
         </ToggleGroup>
         <BodyShort size="small" className="avs-toolbar__text" aria-live="polite">
-          {filterText[filter]}
+          {FILTER_TEXT[filter]}
         </BodyShort>
       </div>
       <div className="portal-diagram avs-surface">
@@ -239,8 +239,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
           {/* Startpunkter */}
           {(["in-u", "in-mel"] as const).map((id) => {
             const e = EDGE_BY_ID[id];
-            const y = id === "in-u" ? 250 : 452;
-            return <circle key={id} cx={16} cy={y} r={4.5} fill={stroke(e)} className={`arch-rf__edge ${edgeCls(e)}`} />;
+            return <circle key={id} cx={16} cy={POS[e.to[0]].cy} r={4.5} fill={stroke(e)} className={`arch-rf__edge ${edgeCls(e)}`} />;
           })}
 
           {/* Kantetiketter */}

@@ -199,7 +199,7 @@ export function vask(input: Adresse): { adresse: Adresse; steg: Vaskesteg[] } {
 /* Norsk vegadresse (PdlVegadresse.kt)                                  */
 /* ------------------------------------------------------------------ */
 
-export function toAdressenavn(s: string | null): string | null {
+function toAdressenavn(s: string | null): string | null {
   if (isBlank(s)) return null;
   const out: string[] = [];
   for (const t of tokens(s)) {
@@ -209,7 +209,7 @@ export function toAdressenavn(s: string | null): string | null {
   return out.join(" ");
 }
 
-export function toHusnummer(s: string | null): string | null {
+function toHusnummer(s: string | null): string | null {
   if (isBlank(s)) return null;
   const lastTwo = tokens(s).slice(-2);
   const last = lastTwo[lastTwo.length - 1];
@@ -220,7 +220,7 @@ export function toHusnummer(s: string | null): string | null {
   return null;
 }
 
-export function toHusbokstav(s: string | null): string | null {
+function toHusbokstav(s: string | null): string | null {
   if (isBlank(s)) return null;
   const lastTwo = tokens(s).slice(-2);
   if (lastTwo.length < 2) return null;
@@ -230,7 +230,7 @@ export function toHusbokstav(s: string | null): string | null {
   return null;
 }
 
-export function toTilleggsnavn(s: string | null): string | null {
+function toTilleggsnavn(s: string | null): string | null {
   if (isBlank(s)) return null;
   return chars(s.trim().replace(/\s+/g, " ")).filter(isLetter).join("") || null;
 }
@@ -257,7 +257,7 @@ export const LANDKODER: { kode: string; land: string }[] = [
   { kode: "ESP", land: "Spania" },
   { kode: "NOR", land: "Norge" },
 ];
-export const landnavn = (kode: string | null) => LANDKODER.find((l) => l.kode === kode)?.land;
+const landnavn = (kode: string | null) => LANDKODER.find((l) => l.kode === kode)?.land;
 
 export interface SimInput {
   adresse: SedAdresse;
@@ -589,7 +589,8 @@ export const PRESETS: { id: string; label: string; input: SimInput }[] = [
 
 export const DEFAULT_INPUT = PRESETS[0].input;
 
-export const sameInput = (a: SimInput, b: SimInput) => JSON.stringify(a) === JSON.stringify(b);
+/** Strukturell likhet for enkle inputobjekter (samme nøkkelrekkefølge). */
+export const sameInput = <T>(a: T, b: T) => JSON.stringify(a) === JSON.stringify(b);
 
 /* ------------------------------------------------------------------ */
 /* Samme person? (FinnIdent.kt)                                         */
@@ -598,7 +599,7 @@ export const sameInput = (a: SimInput, b: SimInput) => JSON.stringify(a) === JSO
 export type EditOp = { op: "match" | "sub" | "ins" | "del"; a?: string; b?: string };
 
 /** Levenshtein-avstand, med én billigste vei for å vise endringene. */
-export function levenshtein(a: string, b: string): { distance: number; ops: EditOp[] } {
+function levenshtein(a: string, b: string): { distance: number; ops: EditOp[] } {
   const A = chars(a);
   const B = chars(b);
   const d: number[][] = Array.from({ length: A.length + 1 }, (_, i) =>

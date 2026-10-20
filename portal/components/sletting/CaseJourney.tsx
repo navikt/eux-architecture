@@ -165,6 +165,7 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
   }, [playing]);
 
   const status = statusAt(sc, shown);
+  const finalTone = sc.final === undefined ? null : TONE[STATUS_BY_ID[statusAt(sc, sc.final)].tone];
   const info = STATUS_BY_ID[status];
   const segs = useMemo(
     () => sc.segs.map((s, i) => ({ ...s, to: sc.segs[i + 1]?.from ?? END_T, open: i === sc.segs.length - 1 })),
@@ -354,10 +355,10 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
           })}
 
           {/* Endelig status */}
-          {sc.final !== undefined && (
+          {sc.final !== undefined && finalTone && (
             <g className="avs-journey__seg" style={{ animationDelay: "500ms" }} opacity={shown >= sc.final ? 1 : 0.4}>
-              <circle cx={xAt(sc.final)} cy={TRACK_Y} r={9} fill="var(--ax-bg-default)" stroke={TONE[STATUS_BY_ID[statusAt(sc, sc.final)].tone].stroke} strokeWidth={2} />
-              <circle cx={xAt(sc.final)} cy={TRACK_Y} r={4.5} fill={TONE[STATUS_BY_ID[statusAt(sc, sc.final)].tone].strong} />
+              <circle cx={xAt(sc.final)} cy={TRACK_Y} r={9} fill="var(--ax-bg-default)" stroke={finalTone.stroke} strokeWidth={2} />
+              <circle cx={xAt(sc.final)} cy={TRACK_Y} r={4.5} fill={finalTone.strong} />
             </g>
           )}
 

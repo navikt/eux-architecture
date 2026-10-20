@@ -45,7 +45,7 @@ const EDGES: { id: string; d: string; flows: FlowId[] }[] = [
   { id: "slack", d: rounded([[900, 270], [900, 345], [990, 345]], 12), flows: ["rapport"] },
 ];
 
-const EDGE_LABELS: { edge: string; x: number; y: number; text: string; mono?: boolean }[] = [
+const EDGE_LABELS: { edge: string; x: number; y: number; text: string }[] = [
   { edge: "nie", x: 175, y: 121, text: "HTTP" },
   { edge: "case-in", x: 718, y: 91, text: "sak" },
   { edge: "doc-in", x: 718, y: 151, text: "SED" },

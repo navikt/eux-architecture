@@ -1,6 +1,5 @@
 package no.nav.eux.portal.core.kafka.consumer
 
-import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import no.nav.eux.portal.core.kafka.TopicMetadata
 import no.nav.eux.portal.core.kafka.model.SedHendelse
@@ -12,6 +11,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 
 @Service
@@ -23,7 +23,7 @@ class SedHendelseConsumer(
     private val navRinasakSentCorrelator: NavRinasakSentCorrelator,
 ) {
 
-    val log = logger {}
+    private val log = logger {}
 
     @KafkaListener(
         id = "eux-portal-core-sed-hendelser",
@@ -38,20 +38,11 @@ class SedHendelseConsumer(
     fun onSedHendelse(record: ConsumerRecord<String, String>) {
         try {
             val hendelse = objectMapper.readValue(record.value(), SedHendelse::class.java)
-            val (environment, direction) = TopicMetadata.parse(record.topic())
-            val sedRecord = SedHendelseRecord(
-                hendelse = hendelse,
-                topic = record.topic(),
-                environment = environment,
-                direction = direction,
-                receivedAt = Instant.now(),
-                offset = record.offset(),
-                partition = record.partition(),
-            )
-            store.add(sedRecord)
+            val sedRecord = SedHendelseRecord.of(hendelse, record, receivedAt = Instant.now())
+            if (!store.add(sedRecord)) return
             sseRegistry.broadcast("sed-hendelse", sedRecord)
-            if (direction == TopicMetadata.DIRECTION_SENDT) {
-                navRinasakSentCorrelator.onSedSendt(environment, hendelse)
+            if (sedRecord.direction == TopicMetadata.DIRECTION_SENDT) {
+                navRinasakSentCorrelator.onSedSendt(sedRecord.environment, hendelse)
             }
             log.debug { "SED-hendelse fra ${record.topic()}: ${hendelse.sedType} rinaSakId=${hendelse.rinaSakId}" }
         } catch (e: Exception) {

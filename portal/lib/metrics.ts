@@ -1,6 +1,6 @@
 import "server-only";
 
-import { collectDefaultMetrics, Registry, type Metric } from "prom-client";
+import { collectDefaultMetrics, Registry } from "prom-client";
 
 declare global {
   var __PORTAL_METRICS_REGISTRY__: Registry | undefined;
@@ -19,7 +19,3 @@ function createRegistry(): Registry {
 export const registry: Registry =
   globalThis.__PORTAL_METRICS_REGISTRY__ ??
   (globalThis.__PORTAL_METRICS_REGISTRY__ = createRegistry());
-
-export function register(metric: Metric): void {
-  registry.registerMetric(metric);
-}

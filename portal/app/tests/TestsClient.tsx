@@ -14,61 +14,17 @@ import {
   ToggleGroup,
   VStack,
 } from "@navikt/ds-react";
-
-type StepStatus = "ok" | "fail" | "skipped";
-
-type Step = {
-  id: string;
-  index: number;
-  title: string;
-  description: string;
-  method: string;
-  url: string;
-  requestBody: unknown;
-  status: StepStatus;
-  httpStatus: number | null;
-  responseBody: unknown;
-  durationMs: number;
-  message: string;
-  error?: string;
-};
-
-type Verification = {
-  group: string;
-  label: string;
-  expected: string | null;
-  actual: string | null;
-  ok: boolean;
-};
-
-type Links = {
-  rina: string | null;
-};
-
-type Direction = "q1-to-q2" | "q2-to-q1";
-
-type RunResponse = {
-  startedAt: string;
-  finishedAt: string;
-  durationMs: number;
-  ok: boolean;
-  direction: Direction;
-  sender: "q1" | "q2";
-  receiver: "q1" | "q2";
-  caseId: string | null;
-  documentId: string | null;
-  fnr: string;
-  bucType: string;
-  sedType: string;
-  mottakerId: string;
-  verifications: Verification[];
-  verificationOk: boolean;
-  links: Links;
-  steps: Step[];
-};
-
-const DEFAULT_FNR = "21458837225";
-const FNR_REGEX = /^[0-9]{11}$/;
+import {
+  DEFAULT_FNR,
+  FNR_REGEX,
+  MOTTAKER,
+  SENDER,
+  type Direction,
+  type RunResponse,
+  type Step,
+  type StepStatus,
+  type Verification,
+} from "./smokeTest";
 
 const STATUS_VARIANT: Record<StepStatus, "success" | "error" | "neutral"> = {
   ok: "success",
@@ -135,10 +91,13 @@ export default function TestsClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ direction, fnr }),
       });
-      const json = (await res.json()) as RunResponse | { error?: string };
-      if (res.status >= 400 && res.status !== 207) {
-        const e = (json as { error?: string }).error ?? `HTTP ${res.status}`;
-        setError(e);
+      // A gateway timeout or proxy error may answer with HTML instead of JSON.
+      const json = (await res.json().catch(() => null)) as
+        | RunResponse
+        | { error?: string }
+        | null;
+      if (!res.ok || !json) {
+        setError((json as { error?: string } | null)?.error ?? `HTTP ${res.status}`);
       } else {
         setResult(json as RunResponse);
       }
@@ -183,10 +142,9 @@ export default function TestsClient() {
                 <ToggleGroup.Item value="q2-to-q1" label="Q2 → Q1" />
               </ToggleGroup>
               <BodyShort size="small" className="portal-subtle">
-                Avsender: <code>eux-rina-api-{direction === "q1-to-q2" ? "q1" : "q2"}</code>
+                Avsender: <code>eux-rina-api-{SENDER[direction]}</code>
                 {" · "}
-                Mottaker:{" "}
-                <code>{direction === "q1-to-q2" ? "NO:NAVAT07" : "NO:NAVAT06"}</code>
+                Mottaker: <code>{MOTTAKER[direction]}</code>
               </BodyShort>
             </VStack>
 
@@ -225,7 +183,7 @@ export default function TestsClient() {
             <HStack gap="space-12" align="center">
               <Loader size="small" />
               <BodyShort>
-                Snakker med eux-rina-api-{direction === "q1-to-q2" ? "q1" : "q2"}{" "}
+                Snakker med eux-rina-api-{SENDER[direction]}{" "}
                 — dette tar vanligvis noen sekunder…
               </BodyShort>
             </HStack>

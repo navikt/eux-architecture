@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BodyLong, BodyShort, Detail, Heading, Switch, TextField } from "@navikt/ds-react";
 import { CheckmarkCircleIcon, ExclamationmarkTriangleIcon, MinusCircleIcon, XMarkOctagonIcon } from "@navikt/aksel-icons";
-import { MATCH_PRESETS, samePerson, type EditOp, type MatchCheck, type MatchCheckId, type MatchInput, type Person, type StepState, type Tone } from "./data";
+import { MATCH_PRESETS, sameInput, samePerson, type EditOp, type MatchCheck, type MatchCheckId, type MatchInput, type Person, type StepState, type Tone } from "./data";
 
 const STATE_ICON: Record<StepState, React.ReactNode> = {
   done: <CheckmarkCircleIcon aria-hidden />,
@@ -30,8 +30,6 @@ const FIELDS: { key: keyof Person; label: string }[] = [
   { key: "etternavn", label: "Etternavn" },
   { key: "foedselsdato", label: "Fødselsdato" },
 ];
-
-const sameMatch = (a: MatchInput, b: MatchInput) => JSON.stringify(a) === JSON.stringify(b);
 
 function stateOf(c: MatchCheck): StepState {
   if (c.ok === null) return "skip";
@@ -75,7 +73,7 @@ export function NameMatch() {
       <div className="jfr-presets" role="group" aria-label="Eksempler">
         <Detail className="arch-eyebrow">Prøv</Detail>
         {MATCH_PRESETS.map((p) => (
-          <button key={p.id} type="button" className="jfr-preset" aria-pressed={sameMatch(p.input, input)} onClick={() => setInput(p.input)}>
+          <button key={p.id} type="button" className="jfr-preset" aria-pressed={sameInput(p.input, input)} onClick={() => setInput(p.input)}>
             {p.label}
           </button>
         ))}

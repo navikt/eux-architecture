@@ -382,9 +382,10 @@ function HeroArt() {
 
 /* ---------- Side ---------- */
 
+const PROD = ENVS.find((e) => e.env === "prod")!;
+
 export default function AdresseoppdateringPage() {
   const active = useScrollSpy(SECTION_IDS);
-  const prod = ENVS.find((e) => e.env === "prod")!;
 
   return (
     <div className="portal-page--wide arch-page avs-page adr-page">
@@ -705,7 +706,7 @@ export default function AdresseoppdateringPage() {
               </Heading>
               <ul className="arch-facts">
                 <li>
-                  {prod.cluster}, namespace <code>eessibasis</code>. 2–3 replikaer med 512 Mi minne.
+                  {PROD.cluster}, namespace <code>eessibasis</code>. 2–3 replikaer med 512 Mi minne.
                 </li>
                 <li>
                   Prometheus på <code>/actuator/prometheus</code> og automatisk OpenTelemetry-instrumentering.

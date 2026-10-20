@@ -6,7 +6,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.web.client.RestClient
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
@@ -30,7 +29,7 @@ class AzureAdTokenClient(
 ) {
 
     private val log = logger {}
-    private val restClient = RestClient.create()
+    private val restClient = restClientWithTimeouts()
     private val cache = ConcurrentHashMap<String, CachedToken>()
 
     fun getToken(scope: String): String {

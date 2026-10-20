@@ -140,7 +140,9 @@ function buildJourney(bucName: string, role: Role, scenario: Scenario): Journey 
 
 function statusAt(j: Journey, day: number): StatusId {
   if (day >= j.end && !j.open) return "ARKIVERT";
-  for (const s of j.segs) if (day < s.to || s.open) if (day >= s.from) return s.status;
+  for (const s of j.segs) {
+    if (day >= s.from && (day < s.to || s.open)) return s.status;
+  }
   return j.segs[j.segs.length - 1].status;
 }
 

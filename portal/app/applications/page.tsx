@@ -7,6 +7,7 @@ import { ArrowRightIcon, BranchingIcon, ChevronDownIcon, ExternalLinkIcon, Globe
 import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
 import {
   JOB_COUNT,
+  KIND_RANK,
   NODES,
   NODE_BY_ID,
   SERVICE_COUNT,
@@ -125,8 +126,6 @@ const matches = (n: ArchNode, f: Filter) =>
     .split(/\s+/)
     .filter(Boolean)
     .every((t) => HAYSTACK[n.id].includes(t));
-
-const KIND_RANK: Record<string, number> = { app: 0, job: 0, topic: 1, team: 2, person: 2, external: 3 };
 
 function group(title: string, edges: ArchEdge[], side: "from" | "to") {
   const items = edges

@@ -233,12 +233,12 @@ footer small{display:block;color:#7c87b8;margin-top:8px;max-width:640px;font-siz
   <div class="toolbar__in">
     <div class="brandmark"><span class="dot">M</span> MISSOC&nbsp;Norge</div>
     <div class="seg" id="seg">
-      <button data-view="land" class="active">Etter land</button>
-      <button data-view="tema">Etter tema</button>
+      <button type="button" data-view="land" class="active" aria-pressed="true">Etter land</button>
+      <button type="button" data-view="tema" aria-pressed="false">Etter tema</button>
     </div>
     <label class="search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="q" type="search" placeholder="Søk i innhold, land eller tema…">
+      <input id="q" type="search" aria-label="Søk i innhold, land eller tema" placeholder="Søk i innhold, land eller tema…">
     </label>
   </div>
 </div>
@@ -338,8 +338,6 @@ DATA.countries.forEach(c=>{
   d.onclick=()=>selectCountry(c.en,d);
   grid.appendChild(d);
 });
-grid.className='countrygrid'; // ensure
-document.getElementById('countrygrid').classList.add('countrygrid');
 
 function nodeHTML(n,depth,country){
   const hasChildren=n.children&&n.children.length;
@@ -357,21 +355,16 @@ function nodeHTML(n,depth,country){
   }
   const cls=depth===0?'node sec0':'node';
   const headCls=depth===0?'node-h':('node-h depth'+Math.min(depth,3));
-  // section-0 and grouping nodes are collapsible; leaves with content but no children are open inline
-  const collapsible = hasChildren || isLeaf;
-  const openByDefault = depth>=1 && depth<=1 ? false : false;
   return `<div class="${cls}">
-    <button class="node-h ${depth>0?'depth'+Math.min(depth,3):''}" data-collapsible="${collapsible}">
-      <span>${n.label_no}</span>
+    <button type="button" class="${headCls}" aria-expanded="false">
+      <span>${esc(n.label_no)}</span>
       <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
     </button>
     <div class="node-body">${inner}</div>
   </div>`;
 }
 
-let activeCountry=null;
 function selectCountry(en,el,scroll=true){
-  activeCountry=en;
   document.querySelectorAll('.ccard').forEach(x=>x.classList.toggle('active',x===el));
   const iso=isoOf(en);
   const panel=document.getElementById('countryPanel');
@@ -392,6 +385,7 @@ function toggleNode(h,force){
   const body=h.nextElementSibling;
   const open = force!==undefined?force:!h.classList.contains('open');
   h.classList.toggle('open',open);
+  h.setAttribute('aria-expanded',String(open));
   body.classList.toggle('open',open);
 }
 function bindAccordions(scope){
@@ -442,15 +436,20 @@ function selectTopic(i,el){
     `<div class="breadcrumb">${crumbs}</div>
      <h3 style="font-size:1.7rem;margin:6px 0 0">${lf.label}</h3>
      <div class="clist">${cards}</div>`;
+  applyFilter();
 }
 
 /* ================= VIEW SWITCH ================= */
 function setView(v){
   document.getElementById('view-land').classList.toggle('hide',v!=='land');
   document.getElementById('view-tema').classList.toggle('hide',v!=='tema');
-  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  document.querySelectorAll('#seg button').forEach(b=>{
+    b.classList.toggle('active',b.dataset.view===v);
+    b.setAttribute('aria-pressed',String(b.dataset.view===v));
+  });
   if(v==='tema' && !document.querySelector('#topicPanel').innerHTML.trim())
     selectTopic(0,document.querySelector('#topicnav .chip'));
+  applyFilter();
 }
 document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>setView(b.dataset.view));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{
@@ -460,7 +459,8 @@ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{
 
 /* ================= SEARCH ================= */
 const q=document.getElementById('q');
-q.addEventListener('input',()=>{
+/* Also re-run when the view or topic changes, so the current query keeps applying. */
+function applyFilter(){
   const t=q.value.trim().toLowerCase();
   const landVisible=!document.getElementById('view-land').classList.contains('hide');
   if(landVisible){
@@ -476,7 +476,8 @@ q.addEventListener('input',()=>{
       c.style.display = c.textContent.toLowerCase().includes(t)?'':'none';
     });
   }
-});
+}
+q.addEventListener('input',applyFilter);
 
 /* ================= PARALLAX + UI ================= */
 const layers=[...document.querySelectorAll('.hero__layer')];

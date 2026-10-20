@@ -11,7 +11,7 @@ class SseHeartbeatScheduler(
     private val navRinasakSseRegistry: NavRinasakSseRegistry,
 ) {
 
-    val log = logger {}
+    private val log = logger {}
 
     @Scheduled(fixedDelay = 30_000)
     fun sendHeartbeats() {
