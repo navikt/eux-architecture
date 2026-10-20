@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BodyShort, Detail } from "@navikt/ds-react";
 import { onActivate } from "./svg";
+import { useSvgIds } from "./hooks";
 
 type Job = { name: string; h: number; m: number; monthly?: boolean; note?: string };
 type Group = { id: string; title: string; target: string; kind: "naisjob" | "scheduled"; jobs: Job[]; chain?: boolean };
@@ -107,6 +108,7 @@ function nextJob(now: ClockTime) {
 }
 
 export function NightTimeline({ onFocusNode }: { onFocusNode: (id: string) => void }) {
+  const svg = useSvgIds();
   const [now, setNow] = useState<ClockTime | null>(null);
   const [hover, setHover] = useState<string | null>(null);
 
@@ -133,14 +135,14 @@ export function NightTimeline({ onFocusNode }: { onFocusNode: (id: string) => vo
           aria-label="Planlagte jobber gjennom døgnet (norsk tid)"
         >
           <defs>
-            <linearGradient id="night-shade" x1="0" x2="1" y1="0" y2="0">
+            <linearGradient id={svg.id("shade")} x1="0" x2="1" y1="0" y2="0">
               <stop offset="0%" stopColor="var(--ax-bg-accent-moderate)" stopOpacity={0.55} />
               <stop offset="100%" stopColor="var(--ax-bg-accent-moderate)" stopOpacity={0.15} />
             </linearGradient>
           </defs>
 
           {/* Natt: 22–24 og 00–06 */}
-          <rect x={xAt(0)} y={AXIS_H - 6} width={xAt(6) - xAt(0)} height={H - AXIS_H} fill="url(#night-shade)" rx={6} />
+          <rect x={xAt(0)} y={AXIS_H - 6} width={xAt(6) - xAt(0)} height={H - AXIS_H} fill={svg.url("shade")} rx={6} />
           <rect x={xAt(22)} y={AXIS_H - 6} width={xAt(24) - xAt(22)} height={H - AXIS_H} fill="var(--ax-bg-accent-moderate)" fillOpacity={0.4} rx={6} />
           <text x={xAt(0) + 8} y={AXIS_H + 8} fontSize={10.5} fill="var(--ax-text-accent-subtle, var(--ax-text-neutral-subtle))" className="arch-eyebrow-svg">
             NATT

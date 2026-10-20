@@ -140,12 +140,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** there is one page list, `pnpm test:search` passes, and the search index has the same pages.
 - **Fixed:** 2026-10-20: `lib/navigation.ts` now holds the only page list (`NAVIGATION`, exported as `NAV_SECTIONS`) with a typed `PageHref`, `navPage()` and a `start` flag that replaces the command menu's `START_PAGES`. The sidebar renders it, and the home page cards refer to pages by `page: PageHref` and keep only their own blurb and meta, so a typo or removed page fails typecheck. `scripts/search-index.mjs` parses the new file and resolves `page:` references to their labels. The search index is byte-identical (84 entries), and the visible prerendered HTML of all 15 pages is identical.
 
-### [ ] 14 · Use unique SVG ids
+### [x] 14 · Use unique SVG ids
 - **Area:** portal · **Effort:** S
 - **Where:** `<marker>`, `<linearGradient>` and `<filter>` ids in `components/{avslutning,sletting,journalfoering,adresse}/*`
 - **Problem:** fixed ids collide when two diagrams are on the same page.
 - **Fix:** generate the ids with React `useId()`.
 - **Done when:** no hardcoded SVG `id="..."` remains in those folders.
+- **Fixed:** 2026-10-20: added `useSvgIds()` (`id`, `url`, `href` helpers on top of `useId()`) to `components/architecture/hooks.ts` and used it in all 18 inline SVGs with defs: the four process folders plus `ArchitectureMap`, `EventMetro`, `RequestFlow`, `NightTimeline` and the `ny-i-teamet` `HeroArt` motion paths. The feature prefixes (`avs-sm-`, `sl-seq-`, …) are gone from the def names. Documented in `portal/README.md`. The prerendered HTML of all 15 pages is identical apart from the ids, and in headless Chrome every `url(#…)`/`mpath` reference resolves after hydration with no duplicate ids or console errors.
 
 ### [ ] 15 · Build one generic `LiveTable` for the live pages
 - **Area:** portal · **Effort:** M

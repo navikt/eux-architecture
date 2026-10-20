@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BodyLong, BodyShort, Button, HStack, Switch, ToggleGroup } from "@navikt/ds-react";
 import { ArrowsCirclepathIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate } from "@/components/architecture/svg";
 import { TONE } from "@/lib/tones";
 import type { StatusId, Tone } from "./data";
@@ -144,6 +144,7 @@ const OUTRO: Record<Flow, { text: string; status: StatusId[] }> = {
 
 export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) => void }) {
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
   const [flow, setFlow] = useState<Flow>("journalfoer");
   const [oppgave, setOppgave] = useState(true);
   const [run, setRun] = useState(0);
@@ -207,12 +208,12 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
           <defs>
             {(
               [
-                ["jfr-seq-arrow", "var(--ax-border-neutral-strong)"],
-                ["jfr-seq-arrow-success", "var(--ax-border-success)"],
-                ["jfr-seq-arrow-danger", "var(--ax-border-danger)"],
+                ["arrow", "var(--ax-border-neutral-strong)"],
+                ["arrow-success", "var(--ax-border-success)"],
+                ["arrow-danger", "var(--ax-border-danger)"],
               ] as const
-            ).map(([id, fill]) => (
-              <marker key={id} id={id} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            ).map(([name, fill]) => (
+              <marker key={name} id={svg.id(name)} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M0,0 L10,5 L0,10 z" fill={fill} />
               </marker>
             ))}
@@ -292,7 +293,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
             const x1 = fx + dir * 6;
             const x2 = tx - dir * 7;
             const stroke = s.tone === "danger" ? "var(--ax-border-danger)" : s.tone === "success" ? "var(--ax-border-success)" : "var(--ax-border-neutral-strong)";
-            const marker = s.tone ? `jfr-seq-arrow-${s.tone}` : "jfr-seq-arrow";
+            const marker = s.tone ? `arrow-${s.tone}` : "arrow";
             return (
               <g key={`${key}-${i}`} className="sl-seq__step" style={{ animationDelay: `${delay(i)}ms` }} {...handlers}>
                 {num}
@@ -303,7 +304,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
                   strokeWidth={on ? 2.4 : 1.6}
                   strokeDasharray={s.reply ? "6 4" : undefined}
                   fill="none"
-                  markerEnd={`url(#${marker})`}
+                  markerEnd={svg.url(marker)}
                 />
                 {!reduced && (
                   <circle

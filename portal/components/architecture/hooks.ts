@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useState, useSyncExternalStore } from "react";
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
@@ -48,4 +48,23 @@ export function useScrollSpy(ids: string[]): string | null {
   }, [key]);
 
   return active;
+}
+
+export type SvgIds = {
+  /** The id to put on a `<marker>`, gradient or clip path. */
+  id: (name: string) => string;
+  /** `url(#…)` for `markerEnd`, `fill`, `clipPath` and similar attributes. */
+  url: (name: string) => string;
+  /** `#…` for `href` on `<use>` and `<mpath>`. */
+  href: (name: string) => string;
+};
+
+/**
+ * Ids for the defs of one inline SVG, unique per component instance, so two
+ * diagrams on the same page never resolve each other's markers or gradients.
+ */
+export function useSvgIds(): SvgIds {
+  const base = useId();
+  const id = (name: string) => `${base}${name}`;
+  return { id, url: (name) => `url(#${id(name)})`, href: (name) => `#${id(name)}` };
 }

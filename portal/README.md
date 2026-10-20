@@ -134,6 +134,11 @@ icon button next to the user in the bottom of the sidebar
   themselves in dark mode. Diagrams are framed by the shared `portal-diagram`
   CSS class. Arrow labels use a `var(--ax-bg-raised)`
   halo and arrowheads use `fill="context-stroke"` to match their line colour.
+- **SVG ids are scoped per diagram.** Markers, gradients, clip paths and motion
+  paths get their ids from `useSvgIds()` in `components/architecture/hooks.ts`
+  (`svg.id("arrow")`, `svg.url("arrow")`, `svg.href("route-1")`), which builds
+  on React `useId()`. Never hardcode `id="…"`/`url(#…)` in an inline SVG: two
+  diagrams on one page would resolve each other's defs.
 - Prefer Aksel `--ax-*` tokens over hardcoded colours so UI adapts automatically.
   Verify token names against `@navikt/ds-css/dist/global/tokens.css` first — a
   non-existent token (e.g. `--ax-bg-subtle`) silently falls back to its light

@@ -1,7 +1,7 @@
 "use client";
 
 import { BodyLong, BodyShort, Detail, Heading, HStack } from "@navikt/ds-react";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
 import { TONE } from "@/lib/tones";
 import { JOB_BY_ID, STATUSES, STATUS_BY_ID, type JobId, type StatusId } from "./data";
@@ -81,6 +81,7 @@ const EVENT_TEXT: Record<string, string> = {
 
 export function StatusMachine({ selected, onSelect }: { selected: StatusId | null; onSelect: (s: StatusId | null) => void }) {
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
   const lit = (e: Edge) => !!selected && (e.from.includes(selected) || e.to.includes(selected));
   const near = new Set<StatusId>();
   if (selected) {
@@ -97,7 +98,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
 
   const stroke = (e: Edge) =>
     e.kind === "error" ? "var(--ax-border-danger)" : e.kind === "kafka" ? "var(--ax-border-meta-purple)" : "var(--ax-border-neutral-strong)";
-  const marker = (e: Edge) => (e.kind === "error" ? "sl-sm-arrow-error" : e.kind === "kafka" ? "sl-sm-arrow-kafka" : "sl-sm-arrow");
+  const marker = (e: Edge) => (e.kind === "error" ? "arrow-error" : e.kind === "kafka" ? "arrow-kafka" : "arrow");
   const flowStroke = (e: Edge) =>
     e.kind === "error" ? "var(--ax-border-danger)" : e.kind === "kafka" ? "var(--ax-border-meta-purple)" : "var(--ax-border-accent)";
 
@@ -108,12 +109,12 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
           <defs>
             {(
               [
-                ["sl-sm-arrow", "var(--ax-border-neutral-strong)"],
-                ["sl-sm-arrow-kafka", "var(--ax-border-meta-purple)"],
-                ["sl-sm-arrow-error", "var(--ax-border-danger)"],
+                ["arrow", "var(--ax-border-neutral-strong)"],
+                ["arrow-kafka", "var(--ax-border-meta-purple)"],
+                ["arrow-error", "var(--ax-border-danger)"],
               ] as const
-            ).map(([id, fill]) => (
-              <marker key={id} id={id} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            ).map(([name, fill]) => (
+              <marker key={name} id={svg.id(name)} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M0,0 L10,5 L0,10 z" fill={fill} />
               </marker>
             ))}
@@ -142,7 +143,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
                 stroke={stroke(e)}
                 strokeWidth={1.8}
                 strokeDasharray={e.kind === "kafka" ? "5 4" : undefined}
-                markerEnd={e.arrow === false ? undefined : `url(#${marker(e)})`}
+                markerEnd={e.arrow === false ? undefined : svg.url(marker(e))}
               />
               {(e.main || lit(e)) && (
                 <path d={e.d} fill="none" stroke={flowStroke(e)} strokeWidth={2.6} className="arch-flow arch-flow--slow" opacity={selected ? 1 : 0.55} />

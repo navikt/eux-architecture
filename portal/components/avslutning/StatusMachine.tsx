@@ -1,7 +1,7 @@
 "use client";
 
 import { BodyLong, BodyShort, Detail, Heading, HStack } from "@navikt/ds-react";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
 import { JOB_BY_ID, STATUSES, STATUS_BY_ID, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
@@ -72,6 +72,7 @@ const LANES = [
 
 export function StatusMachine({ selected, onSelect }: { selected: StatusId | null; onSelect: (s: StatusId | null) => void }) {
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
   const lit = (e: Edge) => !!selected && (e.from.includes(selected) || e.to.includes(selected));
   const near = new Set<StatusId>();
   if (selected) {
@@ -93,12 +94,12 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
           <defs>
             {(
               [
-                ["avs-sm-arrow", "var(--ax-border-neutral-strong)"],
-                ["avs-sm-arrow-back", "var(--ax-border-warning)"],
-                ["avs-sm-arrow-error", "var(--ax-border-danger)"],
+                ["arrow", "var(--ax-border-neutral-strong)"],
+                ["arrow-back", "var(--ax-border-warning)"],
+                ["arrow-error", "var(--ax-border-danger)"],
               ] as const
-            ).map(([id, fill]) => (
-              <marker key={id} id={id} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            ).map(([name, fill]) => (
+              <marker key={name} id={svg.id(name)} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M0,0 L10,5 L0,10 z" fill={fill} />
               </marker>
             ))}
@@ -141,7 +142,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
                 stroke={stroke(e)}
                 strokeWidth={e.kind === "manual" ? 1.4 : 1.8}
                 strokeDasharray={e.kind === "manual" ? "4 4" : undefined}
-                markerEnd={`url(#${e.kind === "error" ? "avs-sm-arrow-error" : e.kind === "back" ? "avs-sm-arrow-back" : "avs-sm-arrow"})`}
+                markerEnd={svg.url(e.kind === "error" ? "arrow-error" : e.kind === "back" ? "arrow-back" : "arrow")}
               />
               {(e.main || lit(e)) && e.kind !== "manual" && (
                 <path d={e.d} fill="none" stroke={e.kind === "error" ? "var(--ax-border-danger)" : "var(--ax-border-accent)"} strokeWidth={2.6} className="arch-flow arch-flow--slow" opacity={selected ? 1 : 0.55} />

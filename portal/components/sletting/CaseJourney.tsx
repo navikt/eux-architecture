@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BodyShort, Button, Chips } from "@navikt/ds-react";
 import { ArrowRightIcon, PauseIcon, PlayIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { TONE } from "@/lib/tones";
 import { STATUS_BY_ID, klokke, type StatusId } from "./data";
 
@@ -132,6 +132,7 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
   const [id, setId] = useState<ScenarioId>("slettes");
   const sc = SCENARIO_BY_ID[id];
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
 
   const [t, setT] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -210,10 +211,10 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
           aria-label={`Livsløpet til en sak uten SED – ${sc.label}. ${when}: ${status}.`}
         >
           <defs>
-            <clipPath id="sl-journey-progress">
+            <clipPath id={svg.id("progress")}>
               <rect x={0} y={0} width={xAt(shown)} height={H} />
             </clipPath>
-            <linearGradient id="sl-zoom-fade" x1="0" x2="1" y1="0" y2="0">
+            <linearGradient id={svg.id("zoom-fade")} x1="0" x2="1" y1="0" y2="0">
               <stop offset="0" stopColor="var(--ax-bg-accent-soft)" stopOpacity={0} />
               <stop offset="0.06" stopColor="var(--ax-bg-accent-soft)" stopOpacity={0.55} />
               <stop offset="1" stopColor="var(--ax-bg-accent-soft)" stopOpacity={0.55} />
@@ -221,7 +222,7 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
           </defs>
 
           {/* Forstørret område og netter */}
-          <rect x={XB} y={26} width={X1 - XB + 30} height={H - 34} rx={12} fill="url(#sl-zoom-fade)" />
+          <rect x={XB} y={26} width={X1 - XB + 30} height={H - 34} rx={12} fill={svg.url("zoom-fade")} />
           <text x={X0} y={18} fontSize={10} fontWeight={700} className="arch-eyebrow-svg" fill="var(--ax-text-neutral-subtle)">
             DAG 0–15 · KOMPRIMERT
           </text>
@@ -270,7 +271,7 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
             return (
               <g key={`${id}-${i}`} className="avs-journey__seg" style={{ animationDelay: `${i * 120}ms` }}>
                 <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill={tone.stroke} opacity={0.3} />
-                <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill={tone.stroke} opacity={s.open ? 0.75 : 0.95} clipPath="url(#sl-journey-progress)" />
+                <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill={tone.stroke} opacity={s.open ? 0.75 : 0.95} clipPath={svg.url("progress")} />
                 {s.open && <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill="none" stroke={tone.stroke} strokeDasharray="4 5" opacity={0.7} />}
                 {w > s.status.length * 6.4 + 16 && (
                   <text x={r2(x + w / 2)} y={TRACK_Y - 13} textAnchor="middle" fontSize={10} fontWeight={700} className="arch-mono arch-halo" fill={tone.text}>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BodyLong, Button, Chips, HStack, Label, ToggleGroup } from "@navikt/ds-react";
 import { ArrowsCirclepathIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate } from "@/components/architecture/svg";
 import { TONE } from "@/lib/tones";
 import { STATUS_BY_ID, type StatusId, type Tone } from "./data";
@@ -119,6 +119,7 @@ function build(call: Call, rina: Rina, attempt: Attempt): { steps: Step[]; resul
 
 export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) => void }) {
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
   const [call, setCall] = useState<Call>("slett");
   const [rina, setRina] = useState<Rina>("tilbys");
   const [attempt, setAttempt] = useState<Attempt>("forste");
@@ -176,12 +177,12 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
           <defs>
             {(
               [
-                ["sl-seq-arrow", "var(--ax-border-neutral-strong)"],
-                ["sl-seq-arrow-danger", "var(--ax-border-danger)"],
-                ["sl-seq-arrow-success", "var(--ax-border-success)"],
+                ["arrow", "var(--ax-border-neutral-strong)"],
+                ["arrow-danger", "var(--ax-border-danger)"],
+                ["arrow-success", "var(--ax-border-success)"],
               ] as const
-            ).map(([id, fill]) => (
-              <marker key={id} id={id} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            ).map(([name, fill]) => (
+              <marker key={name} id={svg.id(name)} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M0,0 L10,5 L0,10 z" fill={fill} />
               </marker>
             ))}
@@ -241,10 +242,10 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
             const x1 = fx + dir * 6;
             const x2 = tx - dir * 7;
             const stroke = s.tone === "danger" ? "var(--ax-border-danger)" : s.tone === "success" ? "var(--ax-border-success)" : "var(--ax-border-neutral-strong)";
-            const marker = s.tone ? `sl-seq-arrow-${s.tone}` : "sl-seq-arrow";
+            const marker = s.tone ? `arrow-${s.tone}` : "arrow";
             return (
               <g key={`${key}-${i}`} className="sl-seq__step" style={{ animationDelay: `${delay(i)}ms` }}>
-                <path d={`M ${x1} ${y} L ${x2} ${y}`} stroke={stroke} strokeWidth={1.6} strokeDasharray={s.reply ? "6 4" : undefined} fill="none" markerEnd={`url(#${marker})`} />
+                <path d={`M ${x1} ${y} L ${x2} ${y}`} stroke={stroke} strokeWidth={1.6} strokeDasharray={s.reply ? "6 4" : undefined} fill="none" markerEnd={svg.url(marker)} />
                 {!reduced && (
                   <circle
                     cx={x1}

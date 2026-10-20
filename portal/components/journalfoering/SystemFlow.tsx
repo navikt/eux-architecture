@@ -4,7 +4,7 @@ import { useState } from "react";
 import NextLink from "next/link";
 import { BodyLong, BodyShort, Button, Detail, Heading, HStack, Link as DsLink, ToggleGroup } from "@navikt/ds-react";
 import { ArrowRightIcon, ExternalLinkIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
 import { archHref, ghHref } from "@/lib/links";
 import { TONE } from "@/lib/tones";
@@ -352,6 +352,7 @@ export function SystemFlow() {
   const [flow, setFlow] = useState<FlowId>("alle");
   const [selected, setSelected] = useState<NodeId | null>(null);
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
 
   const litNodes = FLOW_NODES[flow];
   const nodeState = (id: NodeId) => {
@@ -401,7 +402,7 @@ export function SystemFlow() {
           aria-label="Systemene rundt automatisk journalføring"
         >
           <defs>
-            <marker id="jfr-sys-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <marker id={svg.id("arrow")} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" fill="var(--ax-border-neutral-strong)" />
             </marker>
           </defs>
@@ -424,7 +425,7 @@ export function SystemFlow() {
                 strokeWidth={1.6}
                 strokeDasharray={e.dashed ? "5 4" : undefined}
                 fill="none"
-                markerEnd="url(#jfr-sys-arrow)"
+                markerEnd={svg.url("arrow")}
               />
               <path d={e.d} stroke="var(--ax-border-accent)" strokeWidth={2.6} fill="none" className="arch-flow arch-flow--slow" />
             </g>

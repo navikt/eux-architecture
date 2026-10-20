@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BodyShort, Button, Chips, Detail, HStack, ToggleGroup } from "@navikt/ds-react";
 import { ArrowRightIcon, PauseIcon, PlayIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { BUCS, BUC_BY_NAME, FAMILIES, STATUS_BY_ID, scopeFor, type Role, type StatusId } from "./data";
 import { TONE } from "@/lib/tones";
 
@@ -167,6 +167,7 @@ export function CaseJourney({
   const effective: Scenario = scope === null ? "treff" : scenario;
   const journey = useMemo(() => buildJourney(buc, role, effective), [buc, role, effective]);
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
 
   const [day, setDay] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -257,11 +258,11 @@ export function CaseJourney({
           aria-label={`Livsløpet til en ${buc}-sak der NAV er ${role}. Dag ${shown}: ${status}.`}
         >
           <defs>
-            <linearGradient id="avs-open-fade" x1="0" x2="1" y1="0" y2="0">
+            <linearGradient id={svg.id("open-fade")} x1="0" x2="1" y1="0" y2="0">
               <stop offset="0" stopColor="var(--ax-border-warning)" stopOpacity={1} />
               <stop offset="1" stopColor="var(--ax-border-warning)" stopOpacity={0} />
             </linearGradient>
-            <clipPath id="avs-journey-progress">
+            <clipPath id={svg.id("progress")}>
               <rect x={0} y={0} width={xAt(shown)} height={H} />
             </clipPath>
           </defs>
@@ -287,11 +288,11 @@ export function CaseJourney({
             const t = TONE[STATUS_BY_ID[s.status].tone];
             const x = xAt(s.from);
             const w = Math.max(4, xAt(s.to) - x);
-            const fill = s.open ? "url(#avs-open-fade)" : t.stroke;
+            const fill = s.open ? svg.url("open-fade") : t.stroke;
             return (
               <g key={`${key}-${i}`} className="avs-journey__seg" style={{ animationDelay: `${i * 120}ms` }}>
                 <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill={fill} opacity={0.3} />
-                <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill={fill} opacity={s.open ? 0.6 : 0.95} clipPath="url(#avs-journey-progress)" />
+                <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill={fill} opacity={s.open ? 0.6 : 0.95} clipPath={svg.url("progress")} />
                 {s.open && <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill="none" stroke={t.stroke} strokeDasharray="4 5" opacity={0.7} />}
                 {w > s.status.length * 6.4 + 16 && (
                   <text x={x + w / 2} y={TRACK_Y - 13} textAnchor="middle" fontSize={10} fontWeight={700} className="arch-mono arch-halo" fill={t.text}>

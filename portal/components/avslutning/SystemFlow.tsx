@@ -4,7 +4,7 @@ import { useState } from "react";
 import NextLink from "next/link";
 import { BodyLong, BodyShort, Button, Detail, Heading, HStack, Link as DsLink, ToggleGroup } from "@navikt/ds-react";
 import { ArrowRightIcon, ExternalLinkIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
 import { archHref, ghHref } from "@/lib/links";
 import { TONE } from "@/lib/tones";
@@ -218,6 +218,7 @@ export function SystemFlow() {
   const [flow, setFlow] = useState<FlowId>("alle");
   const [selected, setSelected] = useState<NodeId | null>(null);
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
 
   const litNodes = FLOW_NODES[flow];
   const nodeState = (id: NodeId) => {
@@ -264,7 +265,7 @@ export function SystemFlow() {
           aria-label="Systemene rundt automatisk avslutning"
         >
           <defs>
-            <marker id="avs-sys-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <marker id={svg.id("arrow")} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" fill="var(--ax-border-neutral-strong)" />
             </marker>
           </defs>
@@ -280,7 +281,7 @@ export function SystemFlow() {
           {/* Kanter */}
           {EDGES.map((e) => (
             <g key={e.id} className={`arch-rf__edge ${edgeState(e.flows)}`}>
-              <path d={e.d} stroke="var(--ax-border-neutral-strong)" strokeOpacity={0.75} strokeWidth={1.6} fill="none" markerEnd="url(#avs-sys-arrow)" />
+              <path d={e.d} stroke="var(--ax-border-neutral-strong)" strokeOpacity={0.75} strokeWidth={1.6} fill="none" markerEnd={svg.url("arrow")} />
               <path d={e.d} stroke="var(--ax-border-accent)" strokeWidth={2.6} fill="none" className="arch-flow arch-flow--slow" />
             </g>
           ))}
@@ -362,7 +363,7 @@ export function SystemFlow() {
             <text x={819} y={132} textAnchor="middle" fontSize={9.5} fill="var(--ax-text-neutral-subtle)">
               Kafka-lyttere
             </text>
-            <path d="M 819 172 L 819 192" stroke={TONE.accent.stroke} strokeWidth={1.3} strokeDasharray="3 3" markerEnd="url(#avs-sys-arrow)" />
+            <path d="M 819 172 L 819 192" stroke={TONE.accent.stroke} strokeWidth={1.3} strokeDasharray="3 3" markerEnd={svg.url("arrow")} />
             {/* Database */}
             <path d="M 762 202 L 762 250 A 58 8 0 0 0 878 250 L 878 202" fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeWidth={1.3} />
             <ellipse cx={820} cy={202} rx={58} ry={8} fill="var(--ax-bg-accent-moderate)" stroke={TONE.accent.stroke} strokeWidth={1.3} />
@@ -377,7 +378,7 @@ export function SystemFlow() {
             <text x={913} y={170} textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={700} letterSpacing="0.12em" fill="var(--ax-text-accent)" transform="rotate(-90 913 170)">
               REST-API
             </text>
-            <path d="M 898 226 L 880 226" stroke={TONE.accent.stroke} strokeWidth={1.3} strokeDasharray="3 3" markerEnd="url(#avs-sys-arrow)" />
+            <path d="M 898 226 L 880 226" stroke={TONE.accent.stroke} strokeWidth={1.3} strokeDasharray="3 3" markerEnd={svg.url("arrow")} />
           </g>
 
           {/* NAIS-jobber */}

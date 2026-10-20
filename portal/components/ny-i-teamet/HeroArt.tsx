@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { CloudIcon, CheckmarkIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { ring, starPath } from "./hooks";
 
 const C = { x: 220, y: 200 };
@@ -24,6 +24,7 @@ const depth = (d: number) => ({ "--depth": d }) as CSSProperties;
  */
 export function HeroArt() {
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
 
   return (
     <div className="ny-hero__art" aria-hidden>
@@ -45,7 +46,7 @@ export function HeroArt() {
 
       <svg className="ny-layer" style={depth(0.6)} viewBox="0 0 440 400">
         {ROUTES.map((r) => (
-          <path key={r.i} id={`ny-route-${r.i}`} d={r.d} className="ny-route" style={{ "--i": r.i } as CSSProperties} />
+          <path key={r.i} id={svg.id(`route-${r.i}`)} d={r.d} className="ny-route" style={{ "--i": r.i } as CSSProperties} />
         ))}
         {!reduced &&
           ROUTES.map((r) => (
@@ -60,7 +61,7 @@ export function HeroArt() {
                 keyTimes="0;1"
                 calcMode="linear"
               >
-                <mpath href={`#ny-route-${r.i}`} />
+                <mpath href={svg.href(`route-${r.i}`)} />
               </animateMotion>
             </g>
           ))}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BodyShort, Button, Detail, HStack } from "@navikt/ds-react";
 import { onActivate, rounded } from "./svg";
+import { useSvgIds } from "./hooks";
 
 type LineId = "doc" | "case" | "notif" | "mottatt" | "sendt";
 
@@ -192,6 +193,7 @@ function stationSpan(s: Station) {
 }
 
 export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void }) {
+  const svg = useSvgIds();
   const [hoverStation, setHoverStation] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const [hoverLine, setHoverLine] = useState<LineId | null>(null);
@@ -223,7 +225,7 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
           }}
         >
           <defs>
-            <marker id="metro-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <marker id={svg.id("arrow")} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
               <path d="M0,0 L10,5 L0,10 z" fill="var(--ax-border-meta-purple)" />
             </marker>
           </defs>
@@ -237,7 +239,7 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
             <text x={48} y={182} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
               EU
             </text>
-            <path d="M 96 170 L 144 170" stroke="var(--ax-border-meta-purple)" strokeWidth={2} markerEnd="url(#metro-arrow)" />
+            <path d="M 96 170 L 144 170" stroke="var(--ax-border-meta-purple)" strokeWidth={2} markerEnd={svg.url("arrow")} />
             <text x={120} y={162} textAnchor="middle" fontSize={10} fontWeight={700} className="arch-mono" fill="var(--ax-text-neutral)">
               NIE
             </text>

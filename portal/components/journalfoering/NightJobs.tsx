@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { BodyLong, BodyShort, ToggleGroup } from "@navikt/ds-react";
 import { ArrowRightIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { TONE } from "@/lib/tones";
 import { ENVS, JOBS, cronjobName, type Env, type Job, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
@@ -71,6 +71,7 @@ const APP: Record<Env, string> = { prod: "eux-journalarkivar", q1: "eux-journala
 
 export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => void }) {
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
   const [now, setNow] = useState<Oslo | null>(null);
   const [env, setEnv] = useState<Env>("prod");
   const [focus, setFocus] = useState<JobId | null>(null);
@@ -114,7 +115,7 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
           aria-label={`Døgnet i ${env}: fagmodulen journalfører SED-er hele døgnet. ${nightly.map((j) => `${j.title} kjører kl. ${klokke(j.sched[env].h!)}`).join(". ")}.`}
         >
           <defs>
-            <marker id="jfr-night-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <marker id={svg.id("arrow")} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" fill="var(--ax-border-warning)" />
             </marker>
           </defs>
@@ -160,7 +161,7 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
           {/* Buen fra 01 til 02 */}
           {both && (
             <g className={`jfr-night__arc ${focus ? "is-on" : ""}`}>
-              <path d={ARC} fill="none" stroke="var(--ax-border-warning)" strokeWidth={1.8} markerEnd="url(#jfr-night-arrow)" />
+              <path d={ARC} fill="none" stroke="var(--ax-border-warning)" strokeWidth={1.8} markerEnd={svg.url("arrow")} />
               <path d={ARC} fill="none" stroke="var(--ax-border-warning)" strokeWidth={2.6} className="arch-flow arch-flow--slow" />
               {!reduced && (
                 <circle r={4.5} fill={TONE.warning.strong} className="arch-packet">

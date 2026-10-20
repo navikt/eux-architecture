@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BodyLong, BodyShort, Button, Detail, Heading, ToggleGroup } from "@navikt/ds-react";
 import { XMarkIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
 import { TONE } from "@/lib/tones";
 import { JOB_BY_ID, STATUS_BY_ID, type JobId, type StatusId } from "./data";
@@ -135,6 +135,7 @@ function Badge({ by, x, y, dim }: { by: Actor; x: number; y: number; dim: boolea
 
 export function StatusMachine({ selected, onSelect }: { selected: StatusId | null; onSelect: (s: StatusId | null) => void }) {
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
   const [filter, setFilter] = useState<Filter>("alle");
 
   const byActor = (e: Edge) => filter === "alle" || e.by.includes(filter);
@@ -160,7 +161,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
   const ordered = [...EDGES].sort((a, b) => Number(lit(a)) - Number(lit(b)));
   const stroke = (e: Edge) =>
     e.kind === "error" ? "var(--ax-border-danger)" : e.kind === "entry" ? "var(--ax-border-meta-purple)" : "var(--ax-border-neutral-strong)";
-  const marker = (e: Edge) => (e.kind === "error" ? "jfr-sm-arrow-error" : e.kind === "entry" ? "jfr-sm-arrow-entry" : "jfr-sm-arrow");
+  const marker = (e: Edge) => (e.kind === "error" ? "arrow-error" : e.kind === "entry" ? "arrow-entry" : "arrow");
   const flowStroke = (e: Edge) =>
     e.kind === "error" ? "var(--ax-border-danger)" : e.kind === "entry" ? "var(--ax-border-meta-purple)" : "var(--ax-border-accent)";
   const packetFill = (e: Edge) =>
@@ -189,12 +190,12 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
           <defs>
             {(
               [
-                ["jfr-sm-arrow", "var(--ax-border-neutral-strong)"],
-                ["jfr-sm-arrow-entry", "var(--ax-border-meta-purple)"],
-                ["jfr-sm-arrow-error", "var(--ax-border-danger)"],
+                ["arrow", "var(--ax-border-neutral-strong)"],
+                ["arrow-entry", "var(--ax-border-meta-purple)"],
+                ["arrow-error", "var(--ax-border-danger)"],
               ] as const
-            ).map(([id, fill]) => (
-              <marker key={id} id={id} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            ).map(([name, fill]) => (
+              <marker key={name} id={svg.id(name)} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M0,0 L10,5 L0,10 z" fill={fill} />
               </marker>
             ))}
@@ -223,7 +224,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
                 stroke={stroke(e)}
                 strokeWidth={1.8}
                 strokeDasharray={e.kind === "entry" ? "5 4" : e.kind === "error" ? "6 4" : undefined}
-                markerEnd={`url(#${marker(e)})`}
+                markerEnd={svg.url(marker(e))}
               />
               {(lit(e) || (!focusing && e.main)) && (
                 <path d={e.d} fill="none" stroke={flowStroke(e)} strokeWidth={2.6} className="arch-flow arch-flow--slow" opacity={focusing ? 1 : 0.55} />

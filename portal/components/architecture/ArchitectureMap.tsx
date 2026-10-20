@@ -4,6 +4,7 @@ import { useMemo, useState, type KeyboardEvent } from "react";
 import { BodyShort, Button, ToggleGroup } from "@navikt/ds-react";
 import { TONE, type Tone } from "@/lib/tones";
 import { EDGES, KIND_COLOR, NODE_BY_ID, type ArchEdge, type EdgeKind, type Zone } from "./data";
+import { useSvgIds } from "./hooks";
 import { NodeExplorer } from "./NodeExplorer";
 
 export type MapView = "alle" | EdgeKind;
@@ -335,6 +336,7 @@ export function ArchitectureMap({
   selected: string | null;
   onSelect: (id: string | null) => void;
 }) {
+  const svg = useSvgIds();
   const [view, setView] = useState<MapView>("alle");
   const [hovered, setHovered] = useState<string | null>(null);
   const active = hovered ?? selected;
@@ -537,7 +539,7 @@ export function ArchitectureMap({
             {(["rest", "event", "cron"] as EdgeKind[]).map((k) => (
               <marker
                 key={k}
-                id={`arch-arrow-${k}`}
+                id={svg.id(`arrow-${k}`)}
                 viewBox="0 0 10 10"
                 refX={9}
                 refY={5}
@@ -577,8 +579,8 @@ export function ArchitectureMap({
                 stroke={KIND_COLOR[t.kind]}
                 strokeWidth={1.8}
                 strokeLinejoin="round"
-                markerEnd={`url(#arch-arrow-${t.kind})`}
-                markerStart={t.double ? `url(#arch-arrow-${t.kind})` : undefined}
+                markerEnd={svg.url(`arrow-${t.kind}`)}
+                markerStart={t.double ? svg.url(`arrow-${t.kind}`) : undefined}
               />
               <path className="arch-flow" d={t.d} fill="none" stroke={KIND_COLOR[t.kind]} strokeWidth={3.2} />
               {t.label && (
@@ -659,7 +661,7 @@ export function ArchitectureMap({
               ] as [EdgeKind, string][]
             ).map(([k, label], i) => (
               <g key={k} transform={`translate(16 ${44 + i * 20})`}>
-                <line x1={0} y1={0} x2={28} y2={0} stroke={KIND_COLOR[k]} strokeWidth={2} markerEnd={`url(#arch-arrow-${k})`} />
+                <line x1={0} y1={0} x2={28} y2={0} stroke={KIND_COLOR[k]} strokeWidth={2} markerEnd={svg.url(`arrow-${k}`)} />
                 <text x={40} y={4} fontSize={11} fill="var(--ax-text-neutral-subtle)">
                   {label}
                 </text>

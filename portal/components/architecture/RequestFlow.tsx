@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { BodyLong, Button, Heading, HStack } from "@navikt/ds-react";
 import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "@navikt/aksel-icons";
 import { TONE, type Tone } from "@/lib/tones";
-import { useReducedMotion } from "./hooks";
+import { useReducedMotion, useSvgIds } from "./hooks";
 import { onActivate, rounded } from "./svg";
 
 const W = 1140;
@@ -157,6 +157,7 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
   const reduced = useReducedMotion();
+  const svg = useSvgIds();
   const last = STEPS.length - 1;
   const running = playing && step < last;
 
@@ -197,7 +198,7 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
           aria-label={`Synkron forespørsel, steg ${step + 1} av ${STEPS.length}: ${current.title}`}
         >
           <defs>
-            <marker id="rf-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <marker id={svg.id("arrow")} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" fill="var(--ax-border-accent)" />
             </marker>
           </defs>
@@ -210,7 +211,7 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
 
           {HOPS.map((h) => (
             <g key={h.id} className={`arch-rf__edge ${edgeState(h.id)}`}>
-              <path d={h.d} stroke="var(--ax-border-accent)" strokeWidth={2} fill="none" markerEnd="url(#rf-arrow)" />
+              <path d={h.d} stroke="var(--ax-border-accent)" strokeWidth={2} fill="none" markerEnd={svg.url("arrow")} />
               <path d={h.d} stroke="var(--ax-border-accent)" strokeWidth={3} fill="none" className="arch-flow" />
               <text x={(h.x1 + h.x2) / 2} y={MID - 9} textAnchor="middle" fontSize={10.5} fontWeight={600} fill="var(--ax-text-neutral)">
                 {h.labels[0]}
@@ -223,7 +224,7 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
 
           {BRANCHES.map((b) => (
             <g key={b.id} className={`arch-rf__edge ${edgeState(b.id)}`}>
-              <path d={b.d} stroke="var(--ax-border-accent)" strokeWidth={2} fill="none" markerEnd="url(#rf-arrow)" />
+              <path d={b.d} stroke="var(--ax-border-accent)" strokeWidth={2} fill="none" markerEnd={svg.url("arrow")} />
               <path d={b.d} stroke="var(--ax-border-accent)" strokeWidth={3} fill="none" className="arch-flow" />
             </g>
           ))}
