@@ -76,6 +76,7 @@ jobs:
         working-directory: portal
         run: pnpm build
 
+      # Runtime-only image: copies the standalone output from the Build step above.
       - name: Push docker image to GAR
         if: github.event_name != 'pull_request'
         uses: nais/docker-build-push@v0
@@ -87,8 +88,6 @@ jobs:
           dockerfile: portal/Dockerfile
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          build_secrets: |
-            READER_TOKEN=${{ secrets.READER_TOKEN }}
 
   deploy-dev:
     name: 'Deploy to NAIS - dev-gcp'

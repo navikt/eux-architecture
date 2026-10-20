@@ -156,3 +156,5 @@ Single deployment in `dev-gcp` (no q1/q2/prod) — this is a documentation porta
 - Env overrides: `portal/.nais/dev.yaml`
 
 The build pushes a container image to GAR and deploys it to NAIS on every push to `main` that touches `portal/**`.
+
+CI runs `pnpm build` once. `portal/Dockerfile` is runtime-only: it copies `.next/standalone`, `.next/static` and `public` from that build (`.dockerignore` excludes everything else), so run `pnpm build` before `docker build` locally.

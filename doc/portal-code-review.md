@@ -64,12 +64,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 
 ## Build and deploy
 
-### [ ] 05 · Build the portal once
+### [x] 05 · Build the portal once
 - **Area:** CI · **Effort:** S
 - **Where:** `.github/workflows/portal-build-deploy.yaml`, `portal/Dockerfile`
 - **Problem:** CI runs `pnpm build`, and the Dockerfile installs and builds everything again, which doubles CI time.
 - **Fix:** make the Dockerfile a runtime-only image that copies the CI `.next/standalone`, `.next/static` and `public` output. Or remove the CI build step and let Docker build. Keep `--frozen-lockfile`.
 - **Done when:** the workflow runs one build, the image starts with `node server.js`, and `/api/internal/health/ready` returns 200.
+- **Fixed:** 2026-10-20: `portal/Dockerfile` is now a single runtime stage that copies the CI build output, a new `portal/.dockerignore` allowlists only that output (context 52 MB, `node_modules` no longer sent), and the unused `READER_TOKEN` build secret was dropped from the workflow. Noted in `portal/README.md`. Ran the image locally (with a public Chainguard base, since the NAV registry needs auth): `ready`, `/`, static assets and `public/` all return 200.
 
 ### [ ] 06 · Stop deploying from the stale branch `portal-sed-er-i-neessi`
 - **Area:** CI · **Effort:** S · **Decision needed:** merge or delete the branch

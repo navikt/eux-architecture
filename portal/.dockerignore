@@ -1,0 +1,5 @@
+# The image only needs the output of `pnpm build` (see Dockerfile).
+*
+!.next/standalone
+!.next/static
+!public

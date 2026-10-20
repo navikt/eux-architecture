@@ -1,24 +1,7 @@
 # syntax=docker/dockerfile:1.10
 
-# ---------- Build stage ----------
-FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/node:22-dev AS builder
-
-ENV CI=true \
-    NEXT_TELEMETRY_DISABLED=1
-
-USER root
-RUN npm install -g pnpm@10
-
-WORKDIR /app
-
-COPY package.json pnpm-lock.yaml .npmrc ./
-RUN --mount=type=secret,id=READER_TOKEN,env=READER_TOKEN \
-    pnpm install --frozen-lockfile
-
-COPY . .
-RUN pnpm build
-
-# ---------- Runtime stage ----------
+# Runtime-only image. CI runs `pnpm build` once and this image copies the
+# standalone output, so nothing is installed or built here.
 FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/node:22-slim
 
 ENV NODE_ENV=production \
@@ -29,9 +12,9 @@ ENV NODE_ENV=production \
 
 WORKDIR /app
 
-COPY --from=builder --chown=nonroot:nonroot /app/.next/standalone ./
-COPY --from=builder --chown=nonroot:nonroot /app/.next/static ./.next/static
-COPY --from=builder --chown=nonroot:nonroot /app/public ./public
+COPY --chown=nonroot:nonroot .next/standalone ./
+COPY --chown=nonroot:nonroot .next/static ./.next/static
+COPY --chown=nonroot:nonroot public ./public
 
 USER nonroot
 EXPOSE 3000
