@@ -90,12 +90,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** both paths produce the same `receivedAt` for the same record and `mvn -q verify` is green.
 - **Fixed:** 2026-10-20: `SedHendelseRecord.of` now takes `receivedAt` from the Kafka record timestamp (falling back to now only for `NO_TIMESTAMP`) and no longer has the parameter, so `SedHendelseConsumer` and `SedHendelseBackfill` agree. Added `SedHendelseRecordTest`.
 
-### [ ] 08 · Detect dead SSE clients sooner
+### [x] 08 · Detect dead SSE clients sooner
 - **Area:** portal-core · **Effort:** S
 - **Where:** `sse/AbstractSseEmitterRegistry.kt`, `sse/SseHeartbeatScheduler.kt`
 - **Problem:** a client that has disconnected stays registered until the next failed write, up to 30 s later. This is harmless at today's scale.
 - **Fix:** lower the heartbeat interval (for example to 15 s), or close this task as "won't fix" with a reason.
 - **Done when:** a decision is recorded here, and any code change is green.
+- **Fixed:** 2026-10-20: lowered the heartbeat to 15 s (`HEARTBEAT_INTERVAL_MS`). The heartbeat now lives in `AbstractSseEmitterRegistry.heartbeat()` and `SseHeartbeatScheduler` calls it on every registry bean, so a new stream needs no scheduler change. Added `AbstractSseEmitterRegistryTest`. Checked against a running instance: a killed client was pruned on the second heartbeat after it left (≤ 30 s, was ≤ 60 s).
 
 ## portal: shared UI structure
 

@@ -1,31 +1,22 @@
 package no.nav.eux.portal.core.sse
 
-import io.github.oshai.kotlinlogging.KotlinLogging.logger
-import no.nav.eux.portal.core.navrinasak.sse.NavRinasakSseRegistry
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
+/**
+ * Sends a heartbeat on every SSE registry. A client that disconnects is only
+ * noticed when a write to it fails, usually the second heartbeat after it
+ * leaves, so the interval bounds how long a dead client stays registered.
+ */
 @Component
 class SseHeartbeatScheduler(
-    private val sseRegistry: SseEmitterRegistry,
-    private val navRinasakSseRegistry: NavRinasakSseRegistry,
+    private val registries: List<AbstractSseEmitterRegistry>,
 ) {
 
-    private val log = logger {}
+    @Scheduled(fixedDelay = HEARTBEAT_INTERVAL_MS)
+    fun sendHeartbeats() = registries.forEach { it.heartbeat() }
 
-    @Scheduled(fixedDelay = 30_000)
-    fun sendHeartbeats() {
-        heartbeat("SSE", sseRegistry.subscriberCount()) {
-            sseRegistry.broadcast("heartbeat", mapOf("type" to "heartbeat"))
-        }
-        heartbeat("nav-rinasak SSE", navRinasakSseRegistry.subscriberCount()) {
-            navRinasakSseRegistry.broadcast("heartbeat", mapOf("type" to "heartbeat"))
-        }
-    }
-
-    private fun heartbeat(label: String, count: Int, send: () -> Unit) {
-        if (count == 0) return
-        send()
-        log.debug { "$label heartbeat sendt til $count abonnenter" }
+    companion object {
+        const val HEARTBEAT_INTERVAL_MS = 15_000L
     }
 }

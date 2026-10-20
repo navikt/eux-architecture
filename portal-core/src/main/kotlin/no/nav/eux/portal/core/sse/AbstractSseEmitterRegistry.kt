@@ -8,7 +8,8 @@ import java.util.concurrent.ConcurrentHashMap
  * Shared machinery for the portal's Server-Sent-Events fan-out: a thread-safe
  * set of [SseEmitter]s that [open] registers and unregisters on completion,
  * timeout or error, a [broadcast] that prunes emitters which fail to receive,
- * and a subscriber count.
+ * a [heartbeat] that [SseHeartbeatScheduler] sends to every registry, and a
+ * subscriber count.
  *
  * A concrete registry exists per feature stream (the Kafka pages'
  * [SseEmitterRegistry] vs. the nav-rinasak monitor's
@@ -67,6 +68,16 @@ abstract class AbstractSseEmitterRegistry(private val label: String) {
             emitters.removeAll(dead)
             log.debug { "Fjernet ${dead.size} døde $label-tilkoblinger" }
         }
+    }
+
+    /**
+     * Keeps idle connections open and finds clients that have gone away: a
+     * write to a closed connection fails, so [broadcast] prunes the emitter.
+     */
+    fun heartbeat() {
+        if (emitters.isEmpty()) return
+        broadcast("heartbeat", mapOf("type" to "heartbeat"))
+        log.debug { "$label heartbeat sendt, abonnenter=${emitters.size}" }
     }
 
     fun subscriberCount(): Int = emitters.size
