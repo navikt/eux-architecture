@@ -72,12 +72,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** the workflow runs one build, the image starts with `node server.js`, and `/api/internal/health/ready` returns 200.
 - **Fixed:** 2026-10-20: `portal/Dockerfile` is now a single runtime stage that copies the CI build output, a new `portal/.dockerignore` allowlists only that output (context 52 MB, `node_modules` no longer sent), and the unused `READER_TOKEN` build secret was dropped from the workflow. Noted in `portal/README.md`. Ran the image locally (with a public Chainguard base, since the NAV registry needs auth): `ready`, `/`, static assets and `public/` all return 200.
 
-### [ ] 06 · Stop deploying from the stale branch `portal-sed-er-i-neessi`
+### [x] 06 · Stop deploying from the stale branch `portal-sed-er-i-neessi`
 - **Area:** CI · **Effort:** S · **Decision needed:** merge or delete the branch
 - **Where:** `on.push.branches` in `.github/workflows/portal-build-deploy.yaml` and `.github/workflows/portal-core-build-deploy.yaml`
 - **Problem:** the branch is unmerged but still triggers deploys to dev, so pushing to it can overwrite main's deployment.
 - **Fix:** remove it from both workflows. Ask the user whether the branch should also be deleted with `gh`.
 - **Done when:** only `main` (plus any intentional branches) triggers deploys and the YAML parses.
+- **Fixed:** 2026-10-20: the branch was already squash-merged as PR #16 (`ddc6bf4`), so it was removed from `on.push.branches` in `portal-build-deploy.yaml` and `portal-core-build-deploy.yaml` (now `[ main ]`) and deleted locally and on origin. Both files parse.
 
 ## portal-core
 
