@@ -3,8 +3,8 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import NextLink from "next/link";
 import { Accordion, BodyLong, BodyShort, Button, CopyButton, Detail, Heading, Table, ToggleGroup } from "@navikt/ds-react";
-import { ArrowRightIcon, ArrowsSquarepathIcon, ExternalLinkIcon, PaperplaneIcon, StarIcon, TestFlaskIcon } from "@navikt/aksel-icons";
-import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
+import { ArrowRightIcon, ArrowsSquarepathIcon, PaperplaneIcon, StarIcon, TestFlaskIcon } from "@navikt/aksel-icons";
+import { useReducedMotion } from "@/components/architecture/hooks";
 import { NODE_BY_ID, incoming } from "@/components/architecture/data";
 import { archHref } from "@/lib/links";
 import {
@@ -25,6 +25,10 @@ import {
   type EnvInfo,
 } from "@/components/miljoer/data";
 import { Section } from "@/components/page/Section";
+import { HeroStats } from "@/components/page/HeroStats";
+import { JumpNav } from "@/components/page/JumpNav";
+import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
+import { ExtLink } from "@/components/page/ExtLink";
 
 const SECTIONS = [
   { id: "samspill", label: "Q1 og Q2" },
@@ -33,7 +37,6 @@ const SECTIONS = [
   { id: "sporsmal", label: "Spørsmål" },
   { id: "videre", label: "Videre" },
 ];
-const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 const IN_BOTH = ENV_SERVICES.filter((s) => s.envs.length === 2).length;
 const SWAGGER_Q1_ONLY = ENV_SERVICES.filter((s) => s.swagger.length === 1 && s.swagger[0] === "q1");
@@ -45,7 +48,7 @@ const other = (env: EnvId): EnvId => (env === "q1" ? "q2" : "q1");
 
 /* ---------- Innhold ---------- */
 
-const FURTHER: { href: string; title: string; text: string; external?: boolean }[] = [
+const FURTHER: FurtherLink[] = [
   { href: "/kafka/sed-kobling", title: "SED-kobling", text: "Se samme SED sendt fra det ene miljøet og mottatt i det andre, med transporttid." },
   { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Hendelser fra RINA i Q1 og Q2, live fra Kafka." },
   { href: "/tests", title: "Tester", text: "Send en ekte SED fra Q1 til Q2 eller motsatt, og følg hvert kall." },
@@ -55,15 +58,6 @@ const FURTHER: { href: string; title: string; text: string; external?: boolean }
 ];
 
 /* ---------- Byggeklosser ---------- */
-
-function Ext({ href, children, mono }: { href: string; children: ReactNode; mono?: boolean }) {
-  return (
-    <a href={href} target="_blank" rel="noreferrer" className={`env-ext${mono ? " arch-mono" : ""}`}>
-      {children}
-      <ExternalLinkIcon aria-hidden />
-    </a>
-  );
-}
 
 function Copyable({ value, label }: { value: string; label?: string }) {
   return (
@@ -268,7 +262,7 @@ function EnvCard({ env }: { env: EnvInfo }) {
   const e = env.id;
   const rows: { k: string; v: ReactNode }[] = [
     { k: "Institusjon", v: <Copyable value={env.institution} /> },
-    { k: "RINA", v: <Ext href={rinaUrl(e)} mono>{env.rinaHost}</Ext> },
+    { k: "RINA", v: <ExtLink href={rinaUrl(e)} className="env-ext arch-mono">{env.rinaHost}</ExtLink> },
     { k: "RINA-versjon", v: <code>{env.rinaVersion}</code> },
     { k: "RINA-server", v: <Copyable value={env.rinaServer} /> },
     {
@@ -390,16 +384,16 @@ function ServiceTable() {
                       <code className="arch-subtle">{url.replace("https://", "")}</code>
                     ) : (
                       <span className="env-copy">
-                        <Ext href={url} mono>
+                        <ExtLink href={url} className="env-ext arch-mono">
                           {url.replace("https://", "")}
-                        </Ext>
+                        </ExtLink>
                         <CopyButton copyText={url} size="xsmall" title={`Kopier ${url}`} />
                       </span>
                     )}
                   </Table.DataCell>
                   <Table.DataCell>
                     {here && s.swagger.includes(env) ? (
-                      <Ext href={swaggerUrl(s, env)}>Swagger UI</Ext>
+                      <ExtLink href={swaggerUrl(s, env)} className="env-ext">Swagger UI</ExtLink>
                     ) : here && swaggerElsewhere ? (
                       <a href={swaggerUrl(s, other(env))} target="_blank" rel="noreferrer" className="env-table__elsewhere">
                         Bare i {ENVS[other(env)].name}
@@ -435,7 +429,6 @@ function ServiceTable() {
 /* ---------- Side ---------- */
 
 export default function EnvironmentsPage() {
-  const active = useScrollSpy(SECTION_IDS);
 
   return (
     <div className="portal-page--wide arch-page lite-page env-page">
@@ -452,22 +445,14 @@ export default function EnvironmentsPage() {
           </BodyLong>
         </div>
 
-        <dl className="arch-stats">
-          {[
+        <HeroStats
+          stats={[
             { n: 2, label: "testmiljøer", sub: `${ENVS.q1.institution} · ${ENVS.q2.institution}` },
             { n: IN_BOTH, label: "tjenester i begge", sub: `+${Q2_ONLY.length} bare i Q2` },
             { n: SWAGGER_COUNT, label: "med Swagger UI", sub: `${SWAGGER_Q1_ONLY.length} bare i Q1` },
             { n: sameRinaVersion ? "Lik" : "Ulik", label: "RINA-versjon", sub: sameRinaVersion ? ENVS.q1.rinaVersion : "se Q1 og Q2" },
-          ].map((s, i) => (
-            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
-              <dt>{s.label}</dt>
-              <dd>
-                <span className="arch-stat__n">{s.n}</span>
-                <span className="arch-stat__sub">{s.sub}</span>
-              </dd>
-            </div>
-          ))}
-        </dl>
+          ]}
+        />
 
         <div className="arch-flows">
           <a href="#miljo-q2" className="arch-flow-card" data-tone={ENVS.q2.tone}>
@@ -507,17 +492,7 @@ export default function EnvironmentsPage() {
         </div>
       </header>
 
-      <nav className="arch-jumpnav" aria-label="Innhold på siden">
-        <ol>
-          {SECTIONS.map((s) => (
-            <li key={s.id}>
-              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
-                {s.label}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      <JumpNav sections={SECTIONS} />
 
       <Section
         id="samspill"
@@ -585,13 +560,13 @@ export default function EnvironmentsPage() {
           <div>
             <dt>Gosys</dt>
             <dd>
-              Felles for begge: <Ext href={GOSYS_URL}>gosys.dev.intern.nav.no</Ext>
+              Felles for begge: <ExtLink href={GOSYS_URL} className="env-ext">gosys.dev.intern.nav.no</ExtLink>
             </dd>
           </div>
           <div>
             <dt>Produksjon</dt>
             <dd>
-              Ikke her. Bruk <Ext href={NAIS_CONSOLE}>NAIS-konsollen</Ext>
+              Ikke her. Bruk <ExtLink href={NAIS_CONSOLE} className="env-ext">NAIS-konsollen</ExtLink>
             </dd>
           </div>
         </dl>
@@ -670,25 +645,7 @@ export default function EnvironmentsPage() {
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">
-        <div className="arch-further">
-          {FURTHER.map((f) =>
-            f.external ? (
-              <a key={f.href} href={f.href} target="_blank" rel="noreferrer" className="arch-further__card">
-                <strong>
-                  {f.title} <ExternalLinkIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </a>
-            ) : (
-              <NextLink key={f.href} href={f.href} className="arch-further__card">
-                <strong>
-                  {f.title} <ArrowRightIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </NextLink>
-            ),
-          )}
-        </div>
+        <FurtherReading links={FURTHER} />
       </Section>
     </div>
   );

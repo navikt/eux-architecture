@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useState, type ReactNode } from "react";
-import NextLink from "next/link";
 import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
-import { ArrowRightIcon, ExternalLinkIcon, LightningIcon, MoonIcon, PadlockLockedIcon } from "@navikt/aksel-icons";
-import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
+import { ArrowRightIcon, LightningIcon, MoonIcon, PadlockLockedIcon } from "@navikt/aksel-icons";
+import { useReducedMotion } from "@/components/architecture/hooks";
 import { BUCS, ENVS, JOBS, STATUSES, differsFromProd, schedLabel, type Role, type StatusId } from "@/components/avslutning/data";
 import { archHref, ghHref } from "@/lib/links";
 import { CaseJourney } from "@/components/avslutning/CaseJourney";
@@ -17,6 +16,9 @@ import { BucTable } from "@/components/avslutning/BucTable";
 import { LocalGlobal } from "@/components/avslutning/LocalGlobal";
 import { SlackReport } from "@/components/avslutning/SlackReport";
 import { Section } from "@/components/page/Section";
+import { HeroStats } from "@/components/page/HeroStats";
+import { JumpNav } from "@/components/page/JumpNav";
+import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
 
 const SECTIONS = [
   { id: "livslop", label: "Livsløp" },
@@ -30,7 +32,6 @@ const SECTIONS = [
   { id: "ordliste", label: "Ordliste" },
   { id: "videre", label: "Videre" },
 ];
-const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 const NIGHT_JOBS = JOBS.filter((j) => j.sched.prod?.freq === "daily" && j.sched.prod.h < 6).length;
 const USED_STATUSES = STATUSES.filter((s) => !s.unused).length;
@@ -183,7 +184,7 @@ const GLOSSARY: { term: string; full?: string; text: string }[] = [
 
 const REPOS = ["eux-avslutt-rinasaker", "eux-avslutt-rinasaker-naisjob", "eux-rina-terminator-api"];
 
-const FURTHER: { href: string; title: string; text: string; external?: boolean }[] = [
+const FURTHER: FurtherLink[] = [
   { href: archHref("eux-avslutt-rinasaker"), title: "Arkitektur", text: "Se eux-avslutt-rinasaker i arkitekturkartet, med alt den snakker med." },
   { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker uten sendt SED slettes etter 15 dager." },
   { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hvordan SED-er journalføres automatisk." },
@@ -207,7 +208,6 @@ function Snippet({ children }: { children: string }) {
 /* ---------- Side ---------- */
 
 export default function AutomatiskAvslutningPage() {
-  const active = useScrollSpy(SECTION_IDS);
   const reduced = useReducedMotion();
   const [buc, setBuc] = useState("FB_BUC_01");
   const [role, setRole] = useState<Role>("sakseier");
@@ -247,22 +247,14 @@ export default function AutomatiskAvslutningPage() {
           </BodyLong>
         </div>
 
-        <dl className="arch-stats">
-          {[
+        <HeroStats
+          stats={[
             { n: BUCS.length, label: "BUC-typer", sub: "med egne regler" },
             { n: JOBS.length, label: "NAIS-jobber", sub: `${NIGHT_JOBS} av dem om natten` },
             { n: USED_STATUSES, label: "statuser i bruk", sub: `${STATUSES.length} i enumen` },
             { n: 2, label: "Kafka-topics", sub: "sak- og dokumenthendelser" },
-          ].map((s, i) => (
-            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
-              <dt>{s.label}</dt>
-              <dd>
-                <span className="arch-stat__n">{s.n}</span>
-                {s.sub && <span className="arch-stat__sub">{s.sub}</span>}
-              </dd>
-            </div>
-          ))}
-        </dl>
+          ]}
+        />
 
         <div className="arch-flows">
           <a href="#system" className="arch-flow-card" data-tone="meta-purple">
@@ -304,17 +296,7 @@ export default function AutomatiskAvslutningPage() {
         </div>
       </header>
 
-      <nav className="arch-jumpnav" aria-label="Innhold på siden">
-        <ol>
-          {SECTIONS.map((s) => (
-            <li key={s.id}>
-              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
-                {s.label}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      <JumpNav sections={SECTIONS} />
 
       <Section
         id="livslop"
@@ -542,25 +524,7 @@ export default function AutomatiskAvslutningPage() {
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">
-        <div className="arch-further">
-          {FURTHER.map((f) =>
-            f.external ? (
-              <a key={f.href} href={f.href} target="_blank" rel="noreferrer" className="arch-further__card">
-                <strong>
-                  {f.title} <ExternalLinkIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </a>
-            ) : (
-              <NextLink key={f.href} href={f.href} className="arch-further__card">
-                <strong>
-                  {f.title} <ArrowRightIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </NextLink>
-            ),
-          )}
-        </div>
+        <FurtherReading links={FURTHER} />
       </Section>
     </div>
   );

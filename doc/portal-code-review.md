@@ -124,12 +124,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** there is one `Section`, `pnpm test:search` passes, and the search index has the same number of sections as before (it is printed during `pnpm typecheck`).
 - **Fixed:** 2026-10-20: the 10 copies are replaced by `components/page/Section.tsx` (optional `aside` and `className`), and the home page's `home-section__head` is now the `arch-section__head--aside` modifier. The search index is byte-identical (84 entries). Home sections now get their `id`, so the existing `/#flyter`, `/#finn-fram` and `/#begreper` search links work, and the unstyled `ny-section` class is gone. Measured in headless Chrome: headings sit at the same place and size as before.
 
-### [ ] 12 · Extract the shared page scaffolding
+### [x] 12 · Extract the shared page scaffolding
 - **Area:** portal · **Effort:** M · **Depends on:** 11
 - **Where:** `arch-jumpnav`, `arch-stats`, `FURTHER` and `Ext` in the architecture, applications, environments, ny-i-teamet, nytt-i-neessi and prosesser pages
 - **Problem:** the jump-nav, hero stats, "Videre lesing" cards and external links are written by hand on each page.
 - **Fix:** create `JumpNav`, `HeroStats`, `FurtherReading` and `ExtLink` components in `components/page/`.
 - **Done when:** the pages use the shared components and look the same as before.
+- **Fixed:** 2026-10-20: added `JumpNav` (which now owns `useScrollSpy`, so pages lost `SECTION_IDS`/`active`), `HeroStats`, `FurtherReading` with a `FurtherLink` type, and `ExtLink` in `components/page/`. They are used by all 9 pages and by `LiveFurther` in `components/live/ui.tsx`. Adresseoppdatering keeps its own stats because they show item lists instead of a sub-line. The environments links now announce "åpnes i ny fane" instead of hiding the icon. Measured in headless Chrome on five pages: every stat, jump-nav link, card and external link has the same position and size as before, and the scroll spy still highlights the current section. The search index only lost the stray "åpnes i ny fane" text that came from the old local `Ext`.
 
 ### [ ] 13 · Keep the page list in one place
 - **Area:** portal · **Effort:** M

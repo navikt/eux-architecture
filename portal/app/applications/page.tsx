@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties, type Mou
 import NextLink from "next/link";
 import { BodyLong, BodyShort, Button, Chips, Detail, Heading, Search, Tag } from "@navikt/ds-react";
 import { ArrowRightIcon, BranchingIcon, ChevronDownIcon, ExternalLinkIcon, GlobeIcon, LightningIcon } from "@navikt/aksel-icons";
-import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
+import { useReducedMotion } from "@/components/architecture/hooks";
 import {
   JOB_COUNT,
   KIND_RANK,
@@ -25,6 +25,9 @@ import { ENV_IDS, ENVS, ENV_SERVICE_BY_ID, hostUrl, swaggerUrl } from "@/compone
 import { archHref, ghHref } from "@/lib/links";
 import type { Tone } from "@/lib/tones";
 import { Section } from "@/components/page/Section";
+import { HeroStats } from "@/components/page/HeroStats";
+import { JumpNav } from "@/components/page/JumpNav";
+import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
 
 /* ---------- Innhold ---------- */
 
@@ -64,7 +67,7 @@ const LIBRARIES = [
   { repo: "eux-versions-maven-plugin", tech: "Maven-plugin", text: "Øker patch-versjonen automatisk ut fra git-tagger. Brukes i CI/CD." },
 ];
 
-const FURTHER: { href: string; title: string; text: string }[] = [
+const FURTHER: FurtherLink[] = [
   { href: "/architecture", title: "Arkitektur", text: "Hele plattformen i ett kart, med flyter, mønstre og eksterne systemer." },
   { href: "/environments", title: "Miljøer", text: "Q1 og Q2: RINA, institusjoner, adresser, Swagger og helse." },
   { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Hendelser fra RINA, live fra Kafka i Q1 og Q2." },
@@ -74,7 +77,6 @@ const FURTHER: { href: string; title: string; text: string }[] = [
 ];
 
 const SECTIONS = [...PAGE_LAYERS.map((l) => ({ id: l.id, label: l.short })), { id: "biblioteker", label: "Biblioteker" }, { id: "videre", label: "Videre" }];
-const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 const APPS = NODES.filter((n) => n.kind === "app" || n.kind === "job");
 const APP_IDS = new Set(APPS.map((n) => n.id));
@@ -336,7 +338,6 @@ function AppCard({
 /* ---------- Side ---------- */
 
 export default function ApplicationsPage() {
-  const active = useScrollSpy(SECTION_IDS);
   const reduced = useReducedMotion();
   const [filter, setFilter] = useState<Filter>(NO_FILTER);
   const [open, setOpen] = useState<Set<string>>(() => new Set());
@@ -404,22 +405,14 @@ export default function ApplicationsPage() {
           </BodyLong>
         </div>
 
-        <dl className="arch-stats">
-          {[
+        <HeroStats
+          stats={[
             { n: SERVICE_COUNT, label: "tjenester", sub: LANGS.map((l) => `${LANG_COUNT[l]} ${l}`).join(" · ") },
             { n: JOB_COUNT, label: "NAIS-jobber", sub: "cron-utløsere" },
             { n: DB_COUNT, label: "med database", sub: "PostgreSQL i Cloud SQL" },
             { n: TOPIC_COUNT, label: "Kafka-topics", sub: "mellom tjenestene" },
-          ].map((s, i) => (
-            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
-              <dt>{s.label}</dt>
-              <dd>
-                <span className="arch-stat__n">{s.n}</span>
-                <span className="arch-stat__sub">{s.sub}</span>
-              </dd>
-            </div>
-          ))}
-        </dl>
+          ]}
+        />
 
         <div className="arch-flows">
           <NextLink href="/architecture#kart" className="arch-flow-card" data-tone="accent">
@@ -455,17 +448,7 @@ export default function ApplicationsPage() {
         </div>
       </header>
 
-      <nav className="arch-jumpnav" aria-label="Innhold på siden">
-        <ol>
-          {SECTIONS.map((s) => (
-            <li key={s.id}>
-              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
-                {s.label}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      <JumpNav sections={SECTIONS} />
 
       <div className="apps-toolbar" role="search">
         <div className="apps-toolbar__search">
@@ -560,16 +543,7 @@ export default function ApplicationsPage() {
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">
-        <div className="arch-further">
-          {FURTHER.map((f) => (
-            <NextLink key={f.href} href={f.href} className="arch-further__card">
-              <strong>
-                {f.title} <ArrowRightIcon aria-hidden />
-              </strong>
-              <span>{f.text}</span>
-            </NextLink>
-          ))}
-        </div>
+        <FurtherReading links={FURTHER} />
       </Section>
     </div>
   );

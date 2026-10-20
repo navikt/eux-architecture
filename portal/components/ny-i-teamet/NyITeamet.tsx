@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, PointerEvent, ReactNode } from "react";
+import type { CSSProperties, PointerEvent } from "react";
 import NextLink from "next/link";
 import { BodyLong, BodyShort, Detail, Heading } from "@navikt/ds-react";
 import {
@@ -21,7 +21,6 @@ import {
   VideoIcon,
   WavesIcon,
 } from "@navikt/aksel-icons";
-import { useScrollSpy } from "@/components/architecture/hooks";
 import { NODE_BY_ID, NODES, SERVICE_COUNT, incoming, outgoing } from "@/components/architecture/data";
 import { archHref } from "@/lib/links";
 import {
@@ -50,6 +49,9 @@ import { WordCards } from "./WordCards";
 import { NaisCluster } from "./NaisCluster";
 import { ring, starPath, useInView, usePointerParallax } from "./hooks";
 import { Section } from "@/components/page/Section";
+import { JumpNav } from "@/components/page/JumpNav";
+import { FurtherReading } from "@/components/page/FurtherReading";
+import { ExtLink } from "@/components/page/ExtLink";
 
 const SECTIONS = [
   { id: "teamet", label: "Teamet" },
@@ -64,7 +66,6 @@ const SECTIONS = [
   { id: "forste-uke", label: "Første uke" },
   { id: "videre", label: "Videre" },
 ];
-const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 const DB_COUNT = NODES.filter((n) => n.db).length;
 const NEIGHBOURS: { id: string; title: string; area: string }[] = [
@@ -95,14 +96,6 @@ function Count({ n }: { n: number }) {
       <span className="ny-count" style={{ "--to": n } as CSSProperties} aria-hidden />
       <span className="aksel-sr-only">{n}</span>
     </>
-  );
-}
-
-function Ext({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
-  return (
-    <a href={href} target="_blank" rel="noreferrer" className={className}>
-      {children} <ExternalLinkIcon title="åpnes i ny fane" />
-    </a>
   );
 }
 
@@ -397,7 +390,6 @@ function Neighbour({ id, title, area, side }: { id: string; title: string; area:
 /* ---------- Side ---------- */
 
 export function NyITeamet() {
-  const active = useScrollSpy(SECTION_IDS);
   const heroRef = usePointerParallax<HTMLElement>();
 
   return (
@@ -442,17 +434,7 @@ export function NyITeamet() {
         </dl>
       </header>
 
-      <nav className="arch-jumpnav" aria-label="Innhold på siden">
-        <ol>
-          {SECTIONS.map((s) => (
-            <li key={s.id}>
-              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
-                {s.label}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      <JumpNav sections={SECTIONS} />
 
       <Section id="teamet" eyebrow="Om oss" title="Dette er teamet">
         <div className="ny-team-grid">
@@ -513,9 +495,9 @@ export function NyITeamet() {
               <NextLink href="/" className="ny-textlink">
                 Plattformen forklart <ArrowRightIcon aria-hidden />
               </NextLink>
-              <Ext href={EESSI_URL} className="ny-textlink">
+              <ExtLink href={EESSI_URL} className="ny-textlink">
                 EESSI hos Europakommisjonen
-              </Ext>
+              </ExtLink>
             </div>
           </div>
           <div>
@@ -725,9 +707,9 @@ export function NyITeamet() {
                 ))}
               </ul>
               {t.href && (
-                <Ext href={t.href} className="ny-textlink">
+                <ExtLink href={t.href} className="ny-textlink">
                   {t.linkText}
-                </Ext>
+                </ExtLink>
               )}
             </article>
           ))}
@@ -743,9 +725,9 @@ export function NyITeamet() {
               testmiljøene. Noe står begge steder – det er greit å kjenne til begge.
             </BodyShort>
             <div className="ny-links">
-              <Ext href={CONFLUENCE} className="ny-textlink">
+              <ExtLink href={CONFLUENCE} className="ny-textlink">
                 Team EESSI NAV på Confluence
-              </Ext>
+              </ExtLink>
               <NextLink href="/" className="ny-textlink">
                 Portalens forside <ArrowRightIcon aria-hidden />
               </NextLink>
@@ -792,25 +774,7 @@ export function NyITeamet() {
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre herfra">
-        <div className="arch-further">
-          {FURTHER.map((f) =>
-            f.external ? (
-              <a key={f.href} href={f.href} target="_blank" rel="noreferrer" className="arch-further__card">
-                <strong>
-                  {f.title} <ExternalLinkIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </a>
-            ) : (
-              <NextLink key={f.href} href={f.href} className="arch-further__card">
-                <strong>
-                  {f.title} <ArrowRightIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </NextLink>
-            ),
-          )}
-        </div>
+        <FurtherReading links={FURTHER} />
       </Section>
 
       <footer className="portal-hero ny-outro">

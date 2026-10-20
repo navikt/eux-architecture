@@ -65,8 +65,16 @@ only by their navigation labels and marked as requiring login.
 When adding a documentation component directory, add it to `componentFolders`
 in the generator. Page sections use the shared `Section` from
 `components/page/Section.tsx`; each `<Section>` with literal `id` and `title`
-props becomes its own search hit linking to `#id`. Restart dev (or run `pnpm search:index`) to refresh the
-index after editing documentation.
+props becomes its own search hit linking to `#id`. Restart dev (or run
+`pnpm search:index`) to refresh the index after editing documentation.
+
+### Page building blocks
+
+Documentation pages share their scaffolding from `components/page/`:
+`Section`, `JumpNav` (the sticky "Innhold på siden" bar with scroll spy),
+`HeroStats` (the key figures in the hero), `FurtherReading` (the "Videre"
+link cards, typed by `FurtherLink`) and `ExtLink` (an inline link that opens
+in a new tab).
 
 ### Logged-in user
 

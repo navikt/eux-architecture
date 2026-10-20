@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useMemo, useState, type CSSProperties, type ReactNode } from "react";
-import NextLink from "next/link";
 import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
-import { ArrowRightIcon, ExternalLinkIcon, HourglassIcon, MoonIcon, TestFlaskIcon } from "@navikt/aksel-icons";
-import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
+import { ArrowRightIcon, HourglassIcon, MoonIcon, TestFlaskIcon } from "@navikt/aksel-icons";
+import { useReducedMotion } from "@/components/architecture/hooks";
 import { archHref, ghHref } from "@/lib/links";
 import {
   BEHANDLES,
@@ -34,6 +33,9 @@ import { StatusMachine } from "@/components/journalfoering/StatusMachine";
 import { NightJobs } from "@/components/journalfoering/NightJobs";
 import { ManualFlows } from "@/components/journalfoering/ManualFlows";
 import { Section } from "@/components/page/Section";
+import { HeroStats } from "@/components/page/HeroStats";
+import { JumpNav } from "@/components/page/JumpNav";
+import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
 
 const SECTIONS = [
   { id: "system", label: "Systemet" },
@@ -48,7 +50,6 @@ const SECTIONS = [
   { id: "ordliste", label: "Ordliste" },
   { id: "videre", label: "Videre" },
 ];
-const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 /* ---------- Innhold ---------- */
 
@@ -298,7 +299,7 @@ const GLOSSARY: { term: string; full?: string; text: string }[] = [
 
 const REPOS = ["eux-fagmodul-journalfoering", "eux-journalarkivar", "eux-journalarkivar-naisjob", "eux-journal", "eux-nav-rinasak"];
 
-const FURTHER: { href: string; title: string; text: string; external?: boolean }[] = [
+const FURTHER: FurtherLink[] = [
   { href: archHref("eux-fagmodul-journalfoering"), title: "Arkitektur", text: "Se fagmodulen i arkitekturkartet, med alt den snakker med." },
   { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan uvirksomme RINA-saker lukkes og arkiveres." },
   { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker uten sendt SED slettes." },
@@ -338,7 +339,6 @@ function SubHead({ title, children }: { title: string; children?: ReactNode }) {
 /* ---------- Side ---------- */
 
 export default function JournalfoeringPage() {
-  const active = useScrollSpy(SECTION_IDS);
   const reduced = useReducedMotion();
   const [input, setInput] = useState<SimInput>(DEFAULT_INPUT);
   const [status, setStatus] = useState<StatusId | null>(null);
@@ -372,22 +372,14 @@ export default function JournalfoeringPage() {
           </BodyLong>
         </div>
 
-        <dl className="arch-stats">
-          {[
+        <HeroStats
+          stats={[
             { n: BEHANDLES.length, label: "sektorer", sub: "journalføres her" },
             { n: 2, label: "Kafka-topics", sub: "sedmottatt og sedsendt" },
             { n: STATUSES.length, label: "journalstatuser", sub: "i eux-nav-rinasak" },
             { n: JOBS.length, label: "nattjobber", sub: "kl. 01.00 og 02.00" },
-          ].map((s, i) => (
-            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
-              <dt>{s.label}</dt>
-              <dd>
-                <span className="arch-stat__n">{s.n}</span>
-                <span className="arch-stat__sub">{s.sub}</span>
-              </dd>
-            </div>
-          ))}
-        </dl>
+          ]}
+        />
 
         <div className="arch-flows">
           <a href="#simulator" className="arch-flow-card" data-tone="accent">
@@ -425,17 +417,7 @@ export default function JournalfoeringPage() {
         </div>
       </header>
 
-      <nav className="arch-jumpnav" aria-label="Innhold på siden">
-        <ol>
-          {SECTIONS.map((s) => (
-            <li key={s.id}>
-              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
-                {s.label}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      <JumpNav sections={SECTIONS} />
 
       <Section
         id="system"
@@ -857,25 +839,7 @@ export default function JournalfoeringPage() {
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">
-        <div className="arch-further">
-          {FURTHER.map((f) =>
-            f.external ? (
-              <a key={f.href} href={f.href} target="_blank" rel="noreferrer" className="arch-further__card">
-                <strong>
-                  {f.title} <ExternalLinkIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </a>
-            ) : (
-              <NextLink key={f.href} href={f.href} className="arch-further__card">
-                <strong>
-                  {f.title} <ArrowRightIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </NextLink>
-            ),
-          )}
-        </div>
+        <FurtherReading links={FURTHER} />
       </Section>
     </div>
   );

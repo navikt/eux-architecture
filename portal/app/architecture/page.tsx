@@ -3,17 +3,20 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import NextLink from "next/link";
 import { Accordion, BodyLong, BodyShort, Detail, Heading, Link as DsLink, Table } from "@navikt/ds-react";
-import { ArrowRightIcon, ClockIcon, ExternalLinkIcon, LightningIcon, ArrowsSquarepathIcon } from "@navikt/aksel-icons";
+import { ArrowRightIcon, ClockIcon, LightningIcon, ArrowsSquarepathIcon } from "@navikt/aksel-icons";
 import { ArchitectureMap } from "@/components/architecture/ArchitectureMap";
 import { RequestFlow } from "@/components/architecture/RequestFlow";
 import { EventMetro } from "@/components/architecture/EventMetro";
 import { NightTimeline } from "@/components/architecture/NightTimeline";
 import { Catalogue } from "@/components/architecture/Catalogue";
 import { PatternMatrix } from "@/components/architecture/PatternMatrix";
-import { useReducedMotion, useScrollSpy } from "@/components/architecture/hooks";
+import { useReducedMotion } from "@/components/architecture/hooks";
 import { JOB_COUNT, NODES, NODE_BY_ID, SERVICE_COUNT, TOPIC_COUNT, incoming } from "@/components/architecture/data";
 import { GLOSSARY } from "@/components/architecture/glossary";
 import { Section } from "@/components/page/Section";
+import { HeroStats } from "@/components/page/HeroStats";
+import { JumpNav } from "@/components/page/JumpNav";
+import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
 
 const SECTIONS = [
   { id: "kart", label: "Kart" },
@@ -27,7 +30,6 @@ const SECTIONS = [
   { id: "ordliste", label: "Ordliste" },
   { id: "videre", label: "Videre" },
 ];
-const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 /* ---------- Innhold ---------- */
 
@@ -235,7 +237,7 @@ const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[]
   },
 ];
 
-const FURTHER: { href: string; title: string; text: string; external?: boolean }[] = [
+const FURTHER: FurtherLink[] = [
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
   { href: "/environments", title: "Miljøer", text: "Testmiljøene Q1 og Q2, med hver sin RINA-instans og frontend." },
   { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan inaktive RINA-saker lukkes og arkiveres – med regler per BUC, statuser og nattjobber." },
@@ -270,7 +272,6 @@ function UserChips({ ids, onFocusNode }: { ids: string[]; onFocusNode: (id: stri
 export default function ArchitecturePage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [detailRequest, setDetailRequest] = useState(0);
-  const active = useScrollSpy(SECTION_IDS);
   const reduced = useReducedMotion();
 
   const focusNode = useCallback((id: string) => {
@@ -311,22 +312,14 @@ export default function ArchitecturePage() {
           </BodyLong>
         </div>
 
-        <dl className="arch-stats">
-          {[
+        <HeroStats
+          stats={[
             { n: SERVICE_COUNT, label: "applikasjoner" },
             { n: JOB_COUNT, label: "NAIS-jobber" },
             { n: TOPIC_COUNT, label: "Kafka-topics" },
             { n: 2, label: "NAIS-klynger", sub: "dev-gcp og prod-gcp" },
-          ].map((s, i) => (
-            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
-              <dt>{s.label}</dt>
-              <dd>
-                <span className="arch-stat__n">{s.n}</span>
-                {s.sub && <span className="arch-stat__sub">{s.sub}</span>}
-              </dd>
-            </div>
-          ))}
-        </dl>
+          ]}
+        />
 
         <div className="arch-flows">
           <a href="#foresporsel" className="arch-flow-card" data-tone="accent">
@@ -368,17 +361,7 @@ export default function ArchitecturePage() {
         </div>
       </header>
 
-      <nav className="arch-jumpnav" aria-label="Innhold på siden">
-        <ol>
-          {SECTIONS.map((s) => (
-            <li key={s.id}>
-              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
-                {s.label}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      <JumpNav sections={SECTIONS} />
 
       <Section
         id="kart"
@@ -575,25 +558,7 @@ export default function ArchitecturePage() {
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">
-        <div className="arch-further">
-          {FURTHER.map((f) =>
-            f.external ? (
-              <a key={f.href} href={f.href} target="_blank" rel="noreferrer" className="arch-further__card">
-                <strong>
-                  {f.title} <ExternalLinkIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </a>
-            ) : (
-              <NextLink key={f.href} href={f.href} className="arch-further__card">
-                <strong>
-                  {f.title} <ArrowRightIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </NextLink>
-            ),
-          )}
-        </div>
+        <FurtherReading links={FURTHER} />
       </Section>
     </div>
   );

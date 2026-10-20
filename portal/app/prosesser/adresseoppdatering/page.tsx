@@ -1,10 +1,8 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
-import NextLink from "next/link";
 import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
-import { ArrowRightIcon, BucketMopIcon, ExternalLinkIcon, PaperplaneIcon, TasklistIcon } from "@navikt/aksel-icons";
-import { useScrollSpy } from "@/components/architecture/hooks";
+import { ArrowRightIcon, BucketMopIcon, PaperplaneIcon, TasklistIcon } from "@navikt/aksel-icons";
 import { archHref, ghHref } from "@/lib/links";
 import { CONSUMER_GROUP, ENVS, ORD_FOR_POSTBOKS, ORD_FOR_UKJENT, SEKTORER, TEST_RINASAK, type Tone } from "@/components/adresse/data";
 import { Journey } from "@/components/adresse/Journey";
@@ -13,6 +11,8 @@ import { SedPaths } from "@/components/adresse/SedPaths";
 import { NameMatch } from "@/components/adresse/NameMatch";
 import { AddressLab } from "@/components/adresse/AddressLab";
 import { Section } from "@/components/page/Section";
+import { JumpNav } from "@/components/page/JumpNav";
+import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
 
 const SECTIONS = [
   { id: "reisen", label: "Reisen" },
@@ -26,7 +26,6 @@ const SECTIONS = [
   { id: "ordliste", label: "Ordliste" },
   { id: "videre", label: "Videre" },
 ];
-const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 /* ---------- Innhold ---------- */
 
@@ -267,7 +266,7 @@ const GLOSSARY: { term: string; full?: string; text: string }[] = [
 
 const REPOS = ["eux-adresse-oppdatering", "eux-all-rina-events", "eux-rina-api"];
 
-const FURTHER: { href: string; title: string; text: string; external?: boolean }[] = [
+const FURTHER: FurtherLink[] = [
   { href: archHref("eux-adresse-oppdatering"), title: "Arkitektur", text: "Se eux-adresse-oppdatering i arkitekturkartet." },
   { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hvordan de samme SED-ene arkiveres i Dokarkiv." },
   { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan uvirksomme RINA-saker lukkes og arkiveres." },
@@ -371,7 +370,6 @@ function HeroArt() {
 const PROD = ENVS.find((e) => e.env === "prod")!;
 
 export default function AdresseoppdateringPage() {
-  const active = useScrollSpy(SECTION_IDS);
 
   return (
     <div className="portal-page--wide arch-page avs-page adr-page">
@@ -450,17 +448,7 @@ export default function AdresseoppdateringPage() {
         </div>
       </header>
 
-      <nav className="arch-jumpnav" aria-label="Innhold på siden">
-        <ol>
-          {SECTIONS.map((s) => (
-            <li key={s.id}>
-              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
-                {s.label}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      <JumpNav sections={SECTIONS} />
 
       <Section
         id="reisen"
@@ -719,25 +707,7 @@ export default function AdresseoppdateringPage() {
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">
-        <div className="arch-further">
-          {FURTHER.map((f) =>
-            f.external ? (
-              <a key={f.href} href={f.href} target="_blank" rel="noreferrer" className="arch-further__card">
-                <strong>
-                  {f.title} <ExternalLinkIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </a>
-            ) : (
-              <NextLink key={f.href} href={f.href} className="arch-further__card">
-                <strong>
-                  {f.title} <ArrowRightIcon aria-hidden />
-                </strong>
-                <span>{f.text}</span>
-              </NextLink>
-            ),
-          )}
-        </div>
+        <FurtherReading links={FURTHER} />
       </Section>
     </div>
   );

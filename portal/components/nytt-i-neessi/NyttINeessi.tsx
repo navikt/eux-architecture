@@ -20,7 +20,6 @@ import {
   PlusCircleIcon,
   SparklesIcon,
 } from "@navikt/aksel-icons";
-import { useScrollSpy } from "@/components/architecture/hooks";
 import {
   CDM44_NOTE,
   CHANGE_KINDS,
@@ -43,6 +42,8 @@ import {
   type SedFamily,
 } from "./data";
 import { Section } from "@/components/page/Section";
+import { HeroStats } from "@/components/page/HeroStats";
+import { JumpNav } from "@/components/page/JumpNav";
 
 const PAGE_URL = "https://eux-docs.intern.dev.nav.no/nytt-i-neessi";
 
@@ -55,7 +56,6 @@ const SECTIONS = [
   { id: "teknisk", label: "Teknisk" },
   { id: "om", label: "Om oversikten" },
 ];
-const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 const SCREEN_ICONS: Record<ScreenIcon, ComponentType<SVGProps<SVGSVGElement>>> = {
   house: HouseIcon,
@@ -400,7 +400,6 @@ function Tech() {
 /* ---------- Side ---------- */
 
 export function NyttINeessi() {
-  const active = useScrollSpy(SECTION_IDS);
 
   return (
     <div className="portal-page--wide arch-page nyt-page">
@@ -419,22 +418,14 @@ export function NyttINeessi() {
           </div>
         </div>
 
-        <dl className="arch-stats">
-          {[
+        <HeroStats
+          stats={[
             { n: SEDS_IN_PROD.length, label: "nye SED-er", sub: "i bruk i produksjon" },
             { n: SCREEN_CHANGE_COUNT, label: "endringer i skjermbilder", sub: "nytt, forbedret og rettet" },
             { n: UPDATED_SED_COUNT, label: "SED-er tilpasset", sub: "bl.a. datamodell 4.4" },
             { n: MONTHS.length, label: "måneder", sub: "desember 2025 – oktober 2026" },
-          ].map((s, i) => (
-            <div key={s.label} className="arch-stat" style={{ ["--arch-delay" as string]: `${120 + i * 70}ms` }}>
-              <dt>{s.label}</dt>
-              <dd>
-                <span className="arch-stat__n">{s.n}</span>
-                <span className="arch-stat__sub">{s.sub}</span>
-              </dd>
-            </div>
-          ))}
-        </dl>
+          ]}
+        />
 
         <div className="arch-flows">
           <a href="#nye-seder" className="arch-flow-card" data-tone="success">
@@ -470,17 +461,7 @@ export function NyttINeessi() {
         </div>
       </header>
 
-      <nav className="arch-jumpnav" aria-label="Innhold på siden">
-        <ol>
-          {SECTIONS.map((s) => (
-            <li key={s.id}>
-              <a href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
-                {s.label}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      <JumpNav sections={SECTIONS} />
 
       <Section id="kort" eyebrow="Oppsummert" title="Kort fortalt" lead="De største endringene for saksbehandlerne. Trykk på et kort for detaljer.">
         <ul className="nyt-highlights">

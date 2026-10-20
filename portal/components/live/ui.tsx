@@ -8,6 +8,7 @@ import { ENVS, type EnvId } from "@/components/miljoer/data";
 import { neessiSakUrl } from "@/lib/neessi";
 import { formatTime } from "@/lib/datetime";
 import { RECONNECT_MS, useSlashFocus, type ConnectionStatus } from "./hooks";
+import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
 
 /* ---------- De tre sanntidssidene ---------- */
 
@@ -525,7 +526,7 @@ export function LiveAbout({
   );
 }
 
-export function LiveFurther({ current, extra }: { current: LivePageId; extra: { href: string; title: string; text: string }[] }) {
+export function LiveFurther({ current, extra }: { current: LivePageId; extra: FurtherLink[] }) {
   const items = [
     ...LIVE_PAGES.filter((p) => p.id !== current).map((p) => ({ href: p.href, title: p.label, text: p.text })),
     ...extra,
@@ -538,16 +539,7 @@ export function LiveFurther({ current, extra }: { current: LivePageId; extra: { 
           Videre
         </Heading>
       </header>
-      <div className="arch-further">
-        {items.map((f) => (
-          <NextLink key={f.href} href={f.href} className="arch-further__card">
-            <strong>
-              {f.title} <ArrowRightIcon aria-hidden />
-            </strong>
-            <span>{f.text}</span>
-          </NextLink>
-        ))}
-      </div>
+      <FurtherReading links={items} />
     </section>
   );
 }
