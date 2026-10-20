@@ -19,8 +19,8 @@ export type Step = {
   httpStatus: number | null;
   responseBody: unknown;
   durationMs: number;
+  /** Generell melding. Feildetaljer fra eux-rina-api logges bare på serveren. */
   message: string;
-  error?: string;
 };
 
 export type Verification = {

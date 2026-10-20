@@ -1,7 +1,7 @@
 import "server-only";
 
 import { NextResponse } from "next/server";
-import { getClientCredentialsToken, AzureTokenError } from "@/lib/azureToken";
+import { getClientCredentialsToken } from "@/lib/azureToken";
 import { log } from "@/lib/log";
 import H001_NAV from "@/lib/seds/H001-NAV.json";
 import H001_NAV_UPDATE from "@/lib/seds/H001-NAV-update.json";
@@ -94,6 +94,21 @@ function substituteFnr<T>(payload: T, fnr: string): T {
   return JSON.parse(json) as T;
 }
 
+function parseResponseBody(res: Response, text: string): unknown {
+  const ct = res.headers.get("content-type") ?? "";
+  const trimmed = text.trim();
+  const looksLikeJson =
+    ct.includes("application/json") ||
+    trimmed.startsWith("{") ||
+    trimmed.startsWith("[");
+  return looksLikeJson ? tryParseJson(text) : text;
+}
+
+/**
+ * Kaller eux-rina-api og gjør svaret om til et steg for nettleseren.
+ * Feilsvar og unntak fra eux-rina-api logges her på serveren og sendes
+ * aldri videre: nettleseren får bare HTTP-status og en generell melding.
+ */
 async function runStep(
   base: string,
   token: string,
@@ -108,7 +123,6 @@ async function runStep(
     accept?: string;
   },
 ): Promise<Step> {
-  const url = `${base}${spec.path}`;
   const started = Date.now();
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
@@ -120,8 +134,23 @@ async function runStep(
     body =
       typeof spec.body === "string" ? spec.body : JSON.stringify(spec.body);
   }
+  const toStep = (
+    result: Pick<Step, "status" | "httpStatus" | "responseBody" | "message">,
+  ): Step => ({
+    id: spec.id,
+    index,
+    title: spec.title,
+    description: spec.description,
+    method: spec.method,
+    url: spec.path,
+    requestBody: spec.body ?? null,
+    durationMs: Date.now() - started,
+    ...result,
+  });
+  const logContext = { step: spec.id, method: spec.method, path: spec.path };
+
   try {
-    const res = await fetch(url, {
+    const res = await fetch(`${base}${spec.path}`, {
       method: spec.method,
       cache: "no-store",
       headers,
@@ -129,46 +158,29 @@ async function runStep(
       signal: AbortSignal.timeout(STEP_TIMEOUT_MS),
     });
     const text = await res.text();
-    const ct = res.headers.get("content-type") ?? "";
-    const responseBody =
-      ct.includes("application/json") ||
-      text.trim().startsWith("{") ||
-      text.trim().startsWith("[")
-        ? tryParseJson(text)
-        : text;
-    return {
-      id: spec.id,
-      index,
-      title: spec.title,
-      description: spec.description,
-      method: spec.method,
-      url: spec.path,
-      requestBody: spec.body ?? null,
+    if (!res.ok) {
+      log.warn(
+        { ...logContext, httpStatus: res.status, upstreamBody: text.slice(0, 2000) },
+        "smoke-test: eux-rina-api svarte med feil",
+      );
+    }
+    return toStep({
       status: res.ok ? "ok" : "fail",
       httpStatus: res.status,
-      responseBody,
-      durationMs: Date.now() - started,
-      message: `eux-rina-api svarte ${res.status} ${res.statusText}`,
-    };
+      responseBody: res.ok ? parseResponseBody(res, text) : null,
+      message: `eux-rina-api svarte ${res.status}`,
+    });
   } catch (err) {
-    return {
-      id: spec.id,
-      index,
-      title: spec.title,
-      description: spec.description,
-      method: spec.method,
-      url: spec.path,
-      requestBody: spec.body ?? null,
+    log.warn({ ...logContext, err }, "smoke-test: kall mot eux-rina-api feilet");
+    const timedOut = err instanceof DOMException && err.name === "TimeoutError";
+    return toStep({
       status: "fail",
       httpStatus: null,
       responseBody: null,
-      durationMs: Date.now() - started,
-      message:
-        err instanceof DOMException && err.name === "TimeoutError"
-          ? `eux-rina-api svarte ikke innen ${STEP_TIMEOUT_MS / 1000} s`
-          : "Nettverks- eller transportfeil før eux-rina-api rakk å svare",
-      error: (err as Error).message,
-    };
+      message: timedOut
+        ? `eux-rina-api svarte ikke innen ${STEP_TIMEOUT_MS / 1000} s`
+        : "Nettverks- eller transportfeil før eux-rina-api rakk å svare",
+    });
   }
 }
 
@@ -594,12 +606,14 @@ export async function POST(req: Request) {
   try {
     token = await getClientCredentialsToken(cfg.scope);
   } catch (err) {
-    const message =
-      err instanceof AzureTokenError
-        ? err.message
-        : "Kunne ikke hente Azure AD client_credentials-token";
-    log.warn({ err: (err as Error).message }, "smoke-test: token-feil");
-    return NextResponse.json({ ok: false, error: message }, { status: 502 });
+    log.warn({ err, sender }, "smoke-test: kunne ikke hente Azure AD-token");
+    return NextResponse.json(
+      {
+        ok: false,
+        error: `Kunne ikke hente Azure AD-token for eux-rina-api-${sender}. Se loggene til portalen for detaljer.`,
+      },
+      { status: 502 },
+    );
   }
 
   const createBody = substituteFnr(H001_NAV, fnr);

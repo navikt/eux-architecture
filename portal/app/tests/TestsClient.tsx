@@ -634,11 +634,6 @@ function StepCard({ step }: { step: Step }) {
               tone={step.status}
             />
           )}
-          {step.error && (
-            <Alert variant="error" inline>
-              {step.error}
-            </Alert>
-          )}
         </VStack>
       )}
 

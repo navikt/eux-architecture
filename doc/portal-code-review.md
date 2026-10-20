@@ -38,12 +38,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** the portal-core API can't be reached without auth from outside the cluster, the portal live pages still work, and the build is green.
 - **Fixed:** 2026-10-20: chose option A and removed the ingress from `portal-core/.nais/nais.yaml` and `dev.yaml`. The `azure` block stays for client-credentials calls to eux-nav-rinasak. Noted in `portal/README.md`.
 
-### [ ] 02 · Stop leaking Azure/RINA error text to the browser
+### [x] 02 · Stop leaking Azure/RINA error text to the browser
 - **Area:** portal · **Effort:** S
 - **Where:** `portal/app/api/tests/run/route.ts`, `portal/app/tests/smokeTest.ts`
 - **Problem:** the smoke-test route returns raw error messages from the token and RINA calls in its JSON response.
 - **Fix:** log the details on the server with the existing logger (`lib/log.ts`), and return a generic message per step.
 - **Done when:** no upstream error body or exception message reaches the response, the server logs still have the details, and the build is green.
+- **Fixed:** 2026-10-20: `runStep` now logs non-2xx bodies and exceptions with pino and returns `responseBody: null` plus a generic message. The token failure returns a generic 502 text. `Step.error` was removed from `smokeTest.ts` and `TestsClient.tsx`. Checked against a fake upstream: no error text in the response, full details in the logs.
 
 ### [ ] 03 · Guard the smoke-test POST
 - **Area:** portal · **Effort:** S
