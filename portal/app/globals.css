@@ -13136,3 +13136,210 @@ svg.ny-layer {
     display: none;
   }
 }
+
+/* ================================================================== */
+/* Smoke-test (/tests) – tst-*                                        */
+/* Every colour comes from Aksel --ax-* tokens, so the page follows    */
+/* light and dark mode.                                                */
+/* ================================================================== */
+
+.tst-page {
+  max-width: 62rem;
+}
+
+.tst-mono {
+  font-family: var(--arch-mono);
+}
+
+.tst-runner {
+  padding: 1.75rem;
+  border-radius: var(--ax-radius-16);
+  background: var(--ax-bg-neutral-soft);
+  border: 1px solid var(--ax-border-neutral-subtle);
+}
+
+.tst-runner__direction {
+  flex: 1 1 18rem;
+}
+
+.tst-runner__fnr {
+  min-width: 12rem;
+}
+
+/* ---------- Result ---------- */
+
+.tst-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--ax-radius-12);
+  background: var(--ax-bg-default);
+  border: 1px solid var(--ax-border-neutral-subtle);
+}
+
+.tst-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem 1.25rem;
+  width: 100%;
+  margin: 0;
+}
+
+.tst-facts dt {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ax-text-subtle);
+}
+
+.tst-facts dd {
+  margin: 0.15rem 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Field checks ---------- */
+
+.tst-checks__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  width: 100%;
+}
+
+.tst-scroll {
+  overflow-x: auto;
+}
+
+.tst-checks code {
+  overflow-wrap: anywhere;
+}
+
+.tst-checks tr.is-fail {
+  background: var(--ax-bg-danger-soft);
+}
+
+.tst-checks tr.is-fail .tst-checks__actual {
+  color: var(--ax-text-danger);
+}
+
+/* ---------- Steps ---------- */
+
+.tst-step {
+  --tst-accent: var(--ax-border-neutral-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--ax-radius-12);
+  background: var(--ax-bg-default);
+  border: 1px solid var(--ax-border-neutral-subtle);
+  border-inline-start: 4px solid var(--tst-accent);
+}
+
+.tst-step[data-status="ok"] {
+  --tst-accent: var(--ax-border-success);
+}
+
+.tst-step[data-status="fail"] {
+  --tst-accent: var(--ax-border-danger);
+}
+
+.tst-step__index {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--ax-radius-full);
+  background: var(--ax-bg-neutral-soft);
+  color: var(--ax-text-subtle);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tst-step__desc {
+  margin-inline-start: 2.75rem;
+}
+
+.tst-step__body {
+  padding-block-start: 0.75rem;
+  border-block-start: 1px dashed var(--ax-border-neutral-subtle);
+}
+
+.tst-step__chevron {
+  transition: rotate 120ms ease;
+}
+
+[aria-expanded="true"] .tst-step__chevron {
+  rotate: 180deg;
+}
+
+.tst-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--ax-radius-8);
+  background: var(--ax-bg-neutral-soft);
+}
+
+.tst-call code {
+  padding: 0;
+  background: none;
+  word-break: break-all;
+}
+
+.tst-payload {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--ax-radius-8);
+  background: var(--ax-bg-neutral-soft);
+  border: 1px solid var(--ax-border-neutral-subtle);
+}
+
+.tst-payload[data-failed] {
+  border-color: var(--ax-border-danger);
+}
+
+.tst-payload__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-block-end: 0.4rem;
+  margin-block-end: 0.5rem;
+  border-block-end: 1px solid var(--ax-border-neutral-subtle);
+}
+
+.tst-payload__body {
+  margin: 0;
+  max-height: 22rem;
+  overflow: auto;
+  font: 0.85rem/1.55 var(--arch-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.tst-payload__body:focus-visible {
+  outline: 2px solid var(--ax-border-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .tst-step__desc {
+    margin-inline-start: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tst-step__chevron {
+    transition: none;
+  }
+}

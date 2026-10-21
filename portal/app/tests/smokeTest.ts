@@ -69,3 +69,7 @@ export const MOTTAKER: Record<Direction, string> = {
   "q1-to-q2": "NO:NAVAT07",
   "q2-to-q1": "NO:NAVAT06",
 };
+export const DIRECTION_LABEL: Record<Direction, string> = {
+  "q1-to-q2": "Q1 → Q2",
+  "q2-to-q1": "Q2 → Q1",
+};

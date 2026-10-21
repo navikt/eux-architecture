@@ -164,19 +164,21 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** a burst of rows triggers one announcement.
 - **Fixed:** 2026-10-21: new `components/live/announce.tsx` with one sr-only `Announcer` and two hooks. `LiveTable` (which now takes `all` rows instead of `total`, plus a `newUnit`) sums new rows that pass the filters into one message, after a 1 s settle and at most every 5 s. `LiveToolbar` dropped `aria-live` from its count and announces the hit count 0.8 s after the search or its new `filters` prop changes. `LiveStatus` keeps `role="status"` on the label only, so the per-event ping no longer re-announces "Live". Checked in headless Chrome against a fake portal-core: a burst of 6 rows gave one "6 nye hendelser", three rows a second apart gave one "3 nye hendelser" 5 s after the previous, rows hidden by the filter were not counted, and typing a search gave one "2 av 15 hendelser". Noted in `portal/README.md`.
 
-### [ ] 17 · Port `TestsClient` to Aksel
+### [x] 17 · Port `TestsClient` to Aksel
 - **Area:** portal · **Effort:** M
 - **Where:** `app/tests/TestsClient.tsx`
 - **Problem:** it uses styled-jsx, hex colours and raw `<button>` elements, so it does not follow dark mode or the house style.
 - **Fix:** use Aksel components and `--ax-*` tokens. Check token names against `@navikt/ds-css`.
 - **Done when:** there is no styled-jsx or hex colour left in the file and it works in light and dark mode.
+- **Fixed:** 2026-10-21: done together with 18. The 816-line client is split into `TestsClient` (form and layout), `ResultSummary` (Aksel `Alert`, facts list, "Åpne i RINA" as a `Button` link), `Verifications` (Aksel `Accordion` and `Table`; groups with failures open by default) and `StepCard` (`aria-expanded`/`aria-controls` toggle, method `Tag`, payloads with Aksel `CopyButton`), plus `format.ts`. All styling is in a `tst-*` section of `globals.css` that uses only `--ax-*` tokens; there is no styled-jsx, hex colour or raw `<button>` left in `app/tests`. Compared with screenshots of the old page in headless Chrome, in light and dark mode.
 
-### [ ] 18 · Simplify the smoke-test route
+### [x] 18 · Simplify the smoke-test route
 - **Area:** portal · **Effort:** M · **Depends on:** 02
 - **Where:** `app/api/tests/run/route.ts`
 - **Problem:** every step repeats the same try, check and record code. One check compares timestamps as strings (`afterTs <= beforeTs`).
 - **Fix:** write a `step(name, fn)` helper, and compare timestamps with `Date.parse`.
 - **Done when:** the route is noticeably shorter, its behaviour and response shape are unchanged, and the build is green.
+- **Fixed:** 2026-10-21: `route.ts` went from 1056 to 344 lines. The step plumbing moved to `runner.ts` (`SmokeRun.call`, `pollOversikt` and `verify` handle the timeout, try, record and skip logic), and the field checks moved to `checks.ts` (`verifyOversikt` and `verifyNavSed` loop over the address fields). `isLater` compares `sistEndretDatoTid` with `Date.parse` and returns null if either value is missing or invalid. Dead re-parsing of a string response in step 1 is removed. Tested against a fake eux-rina-api and token endpoint in 15 scenarios (happy path, failures in create/update/send, oversikt down, missing ids, text response, field mismatch, unchanged timestamp, SED not sent, bad or custom fnr, missing Q2 config, empty body, 415). Every executed step's JSON and every HTTP status is byte-identical to the old route. The only intended differences are in skipped steps: each step keeps one title and description, and step 8's skip reason names the id that is actually missing.
 
 ### [x] 19 · Use the same stats scope on every live page
 - **Area:** portal · **Effort:** S

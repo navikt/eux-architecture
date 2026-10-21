@@ -55,6 +55,13 @@ RINA case, so the route requires `Content-Type: application/json` (otherwise
 415) and allows one run at a time per pod (otherwise 409). Upstream error
 details are logged on the server and never returned to the browser.
 
+The route is split in three: `route.ts` holds the guard and the eight steps,
+`runner.ts` (`SmokeRun`) runs the HTTP calls, polling and recording, and
+`checks.ts` holds the field checks. To add a step, call `run.call(...)` or
+`run.pollOversikt(...)` and then `run.verify(...)`. The page
+(`app/tests/TestsClient.tsx` plus `ResultSummary`, `Verifications` and
+`StepCard`) uses Aksel components and the `tst-*` classes in `globals.css`.
+
 ## Portal frame
 
 The left sidebar (`components/Sidebar.tsx`) holds the brand, the navigation and,
