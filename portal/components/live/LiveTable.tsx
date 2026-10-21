@@ -3,6 +3,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { BodyShort, Skeleton, Table } from "@navikt/ds-react";
 import { groupByDay, type LiveFeed } from "./hooks";
+import { Announcer, useArrivalAnnouncement } from "./announce";
 
 export interface LiveColumn<T> {
   header: string;
@@ -23,16 +24,51 @@ const rowStyle = (i: number, extra?: CSSProperties): CSSProperties =>
 /** The skeleton grid in globals.css (`.live-skel`) has seven columns. */
 const SKELETON_COLS = 7;
 
+export interface LiveTableProps<T> {
+  feed: Pick<LiveFeed, "loading" | "error">;
+  /** The rows that pass the search and filters, newest first. */
+  rows: T[];
+  /** Every row, before filtering. */
+  all: T[];
+  rowKey: (row: T) => string;
+  time: (row: T) => string | null | undefined;
+  columns: LiveColumn<T>[];
+  details: (row: T) => ReactNode;
+  rowProps?: (row: T) => LiveRowProps;
+  /** Singular and plural unit for the day headings, e.g. ["hendelse", "hendelser"]. */
+  unit: readonly [one: string, many: string];
+  /** Singular and plural for announcing new rows, e.g. ["ny hendelse", "nye hendelser"]. */
+  newUnit: readonly [one: string, many: string];
+  empty: { title: string; text: ReactNode };
+  className?: string;
+}
+
 /**
  * The table on a live page, with its loading, error, empty and no-hits states.
- * `rows` are the filtered rows, newest first, and are grouped by the day of
- * `time(row)`. `total` is the number of rows before filtering. Each row expands
- * to `details(row)`.
+ * The rows are grouped by the day of `time(row)`, and each row expands to
+ * `details(row)`. New rows that pass the filters are announced to screen
+ * readers as one throttled summary, such as "3 nye hendelser".
  */
-export function LiveTable<T>({
+export function LiveTable<T>(props: LiveTableProps<T>) {
+  const { feed, rows, all, rowKey, newUnit } = props;
+  const arrivals = useArrivalAnnouncement({
+    all: all.map(rowKey),
+    shown: rows.map(rowKey),
+    ready: !feed.loading,
+    label: (n) => `${n} ${n === 1 ? newUnit[0] : newUnit[1]}`,
+  });
+  return (
+    <>
+      <Announcer message={arrivals} />
+      <TableContent {...props} />
+    </>
+  );
+}
+
+function TableContent<T>({
   feed,
   rows,
-  total,
+  all,
   rowKey,
   time,
   columns,
@@ -41,29 +77,16 @@ export function LiveTable<T>({
   unit,
   empty,
   className,
-}: {
-  feed: Pick<LiveFeed, "loading" | "error">;
-  rows: T[];
-  total: number;
-  rowKey: (row: T) => string;
-  time: (row: T) => string | null | undefined;
-  columns: LiveColumn<T>[];
-  details: (row: T) => ReactNode;
-  rowProps?: (row: T) => LiveRowProps;
-  /** Singular and plural unit for the day headings, e.g. ["hendelse", "hendelser"]. */
-  unit: readonly [one: string, many: string];
-  empty: { title: string; text: ReactNode };
-  className?: string;
-}) {
+}: LiveTableProps<T>) {
   if (feed.loading) return <TableSkeleton />;
-  if (feed.error && total === 0) {
+  if (feed.error && all.length === 0) {
     return (
       <LiveMessage tone="danger" title="Fikk ikke kontakt med eux-portal-core">
         {feed.error}. Siden prøver å koble til strømmen igjen av seg selv.
       </LiveMessage>
     );
   }
-  if (total === 0) return <LiveMessage title={empty.title}>{empty.text}</LiveMessage>;
+  if (all.length === 0) return <LiveMessage title={empty.title}>{empty.text}</LiveMessage>;
   if (rows.length === 0) {
     return <LiveMessage title="Ingen treff">Prøv et annet søk, eller nullstill filtrene.</LiveMessage>;
   }

@@ -375,6 +375,7 @@ export default function NavRinasakSedPage() {
       <LiveToolbar
         query={q}
         onQuery={setQ}
+        filters={[env, status]}
         placeholder="RINA-sak, SED-type, fnr, saksbehandler …"
         shown={filtered.length}
         total={records.length}
@@ -393,13 +394,14 @@ export default function NavRinasakSedPage() {
         className="live-table--neessi"
         feed={feed}
         rows={filtered}
-        total={records.length}
+        all={records}
         rowKey={recordKey}
         time={sedTime}
         columns={columns(toks)}
         details={(r) => <SedDetails r={r} />}
         rowProps={rowProps}
         unit={["SED", "SED-er"]}
+        newUnit={["ny SED", "nye SED-er"]}
         empty={{ title: "Ingen SED-er ennå", text: "Opprett en sak i nEESSI, så dukker den opp her." }}
       />
 

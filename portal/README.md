@@ -35,6 +35,12 @@ loading, error, empty and no-hits states and day grouping, is the generic
 hero stats count only the rows that match the current search and filters, and
 say so while a filter is active.
 
+Screen-reader announcements live in `components/live/announce.tsx`. New rows
+that pass the filters are announced as one summary ("3 nye hendelser"): a
+burst within a second is one announcement, and a steady stream gives at most
+one every 5 s. The toolbar hit count is announced only after the search or a
+filter changes, never because rows streamed in.
+
 The **SED-er i nEESSI** page relies on portal-core polling
 `eux-nav-rinasak`'s `GET /api/v1/rinasaker/nyeste` per environment (Azure AD
 client-credentials). This requires the outbound access policy + `NAVRINASAK_*`

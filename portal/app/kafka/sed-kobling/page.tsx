@@ -395,6 +395,7 @@ export default function SedKoblingPage() {
       <LiveToolbar
         query={q}
         onQuery={setQ}
+        filters={[flow]}
         placeholder="SED-type, RINA-sak, dokument-ID …"
         shown={filtered.length}
         total={pairs.length}
@@ -413,13 +414,14 @@ export default function SedKoblingPage() {
         className="live-table--kobling"
         feed={feed}
         rows={filtered}
-        total={pairs.length}
+        all={pairs}
         rowKey={(p) => p.key}
         time={(p) => p.newestAt}
         columns={columns(toks)}
         details={(p) => <PairDetails p={p} />}
         rowProps={rowProps}
         unit={["par", "par"]}
+        newUnit={["nytt par", "nye par"]}
         empty={{ title: "Ingen par ennå", text: "Send en SED mellom Q1 og Q2, så dukker den opp her med en gang." }}
       />
 

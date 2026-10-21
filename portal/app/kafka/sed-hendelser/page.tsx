@@ -307,6 +307,7 @@ export default function SedHendelserPage() {
       <LiveToolbar
         query={q}
         onQuery={setQ}
+        filters={[env, dir]}
         placeholder="SED-type, RINA-sak, dokument-ID, institusjon …"
         shown={filtered.length}
         total={records.length}
@@ -325,13 +326,14 @@ export default function SedHendelserPage() {
         className="live-table--hendelser"
         feed={feed}
         rows={filtered}
-        total={records.length}
+        all={records}
         rowKey={recordKey}
         time={(r) => r.receivedAt}
         columns={columns(toks)}
         details={(r) => <HendelseDetails r={r} />}
         rowProps={rowProps}
         unit={["hendelse", "hendelser"]}
+        newUnit={["ny hendelse", "nye hendelser"]}
         empty={{ title: "Ingen SED-hendelser ennå", text: "Nye meldinger dukker opp her med en gang de kommer." }}
       />
 

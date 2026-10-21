@@ -156,12 +156,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** all three pages use it, there is no race on first load, and the build is green.
 - **Fixed:** 2026-10-20: added a column-driven `LiveTable<T>` in `components/live/LiveTable.tsx` (skeleton, error, empty and no-hits states, day rows, expandable rows, per-row `rowProps`) and a shared `EnvToggle` in `ui.tsx`. `useLiveStream` and `useSnapshot` are merged into `useLiveFeed`, which buffers stream events while a snapshot is in flight and replays them after it. Against a fake portal-core with a slow snapshot, the old build lost an early event, a status update, a new case and a removal; the new build keeps all four. The kobling page's error state now keys on pairs instead of raw records, and its skeleton has the same seven columns as the others.
 
-### [ ] 16 · Make live-region announcements less noisy
+### [x] 16 · Make live-region announcements less noisy
 - **Area:** portal · **Effort:** S
 - **Where:** `components/live/ui.tsx` and the live pages (`aria-live`)
 - **Problem:** every new row is announced, which floods screen readers.
 - **Fix:** announce a summary such as "3 nye hendelser", throttled to at most one announcement every few seconds.
 - **Done when:** a burst of rows triggers one announcement.
+- **Fixed:** 2026-10-21: new `components/live/announce.tsx` with one sr-only `Announcer` and two hooks. `LiveTable` (which now takes `all` rows instead of `total`, plus a `newUnit`) sums new rows that pass the filters into one message, after a 1 s settle and at most every 5 s. `LiveToolbar` dropped `aria-live` from its count and announces the hit count 0.8 s after the search or its new `filters` prop changes. `LiveStatus` keeps `role="status"` on the label only, so the per-event ping no longer re-announces "Live". Checked in headless Chrome against a fake portal-core: a burst of 6 rows gave one "6 nye hendelser", three rows a second apart gave one "3 nye hendelser" 5 s after the previous, rows hidden by the filter were not counted, and typing a search gave one "2 av 15 hendelser". Noted in `portal/README.md`.
 
 ### [ ] 17 · Port `TestsClient` to Aksel
 - **Area:** portal · **Effort:** M

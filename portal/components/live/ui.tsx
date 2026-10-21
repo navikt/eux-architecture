@@ -9,6 +9,7 @@ import { neessiSakUrl } from "@/lib/neessi";
 import { formatTime } from "@/lib/datetime";
 import { RECONNECT_MS, useSlashFocus, type ConnectionStatus } from "./hooks";
 import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
+import { Announcer, useFilterAnnouncement } from "./announce";
 
 /* ---------- De tre sanntidssidene ---------- */
 
@@ -73,9 +74,10 @@ export function LiveStatus({ status, lastEventAt }: { status: ConnectionStatus; 
         ? `Siste melding kom ${formatTime(new Date(lastEventAt).toISOString())}`
         : "Venter på nye meldinger";
   return (
-    <span className="live-status" data-status={status} title={title} role="status">
+    <span className="live-status" data-status={status} title={title}>
       <span className="live-status__dot" aria-hidden />
-      {STATUS_LABEL[status]}
+      {/* Only the label is live: the ping restarts on every event and must not re-announce it. */}
+      <span role="status">{STATUS_LABEL[status]}</span>
       <span className="live-status__ping" key={lastEventAt ?? 0} aria-hidden />
     </span>
   );
@@ -163,9 +165,15 @@ export function LiveHero({
 
 /* ---------- Verktøylinje ---------- */
 
+/**
+ * The search field, the page's filter toggles (`children`) and the hit count.
+ * The count is announced to screen readers when the search or `filters`
+ * change, not when rows stream in.
+ */
 export function LiveToolbar({
   query,
   onQuery,
+  filters,
   placeholder,
   shown,
   total,
@@ -175,6 +183,8 @@ export function LiveToolbar({
 }: {
   query: string;
   onQuery: (q: string) => void;
+  /** The current values of the filter toggles in `children`. */
+  filters: readonly string[];
   placeholder: string;
   shown: number;
   total: number;
@@ -184,6 +194,10 @@ export function LiveToolbar({
 }) {
   const searchRef = useRef<HTMLDivElement>(null);
   useSlashFocus(searchRef);
+  const hits = useFilterAnnouncement(
+    [query, ...filters].join("\n"),
+    total > 0 ? `${shown} av ${total} ${unit}` : null,
+  );
   return (
     <div className="live-toolbar" role="search">
       <div className="live-toolbar__search" ref={searchRef}>
@@ -205,9 +219,10 @@ export function LiveToolbar({
       </div>
       {children}
       <span className="live-toolbar__end">
-        <BodyShort size="small" className="arch-subtle live-toolbar__count" aria-live="polite">
+        <BodyShort size="small" className="arch-subtle live-toolbar__count">
           <Count value={shown} /> av {total} {unit}
         </BodyShort>
+        <Announcer message={hits} />
         {onReset && (
           <Button size="xsmall" variant="tertiary-neutral" onClick={onReset}>
             Nullstill
