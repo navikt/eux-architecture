@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BodyLong, BodyShort, Detail, ToggleGroup } from "@navikt/ds-react";
 import { ArrowRightIcon } from "@navikt/aksel-icons";
-import { ENVS, JOBS, differsFromProd, klokke, schedLabel, type Env, type JobId, type StatusId } from "./data";
-import { StatusChips } from "./StatusChips";
+import { klokke, nextDaily, r2, until } from "@/components/process/time";
+import { useOsloNow } from "@/components/process/useOsloNow";
 import { TONE } from "@/lib/tones";
+import { ENVS, JOBS, differsFromProd, schedLabel, type Env, type JobId, type StatusId } from "./data";
+import { StatusChips } from "./StatusChips";
 
 const S = 360;
 const C = S / 2;
 const R = 128;
 
 const ang = (h: number, m: number) => ((h + m / 60) / 24) * Math.PI * 2 - Math.PI / 2;
-// Rounded so server- and client-rendered SVG attributes match exactly
-const r2 = (n: number) => Math.round(n * 100) / 100;
 const pt = (h: number, m: number, r: number): [number, number] => [r2(C + r * Math.cos(ang(h, m))), r2(C + r * Math.sin(ang(h, m)))];
 
 function arc(t1: number, t2: number, r: number): string {
@@ -22,24 +22,6 @@ function arc(t1: number, t2: number, r: number): string {
   const large = t2 - t1 > 12 ? 1 : 0;
   return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`;
 }
-
-function osloNow(): { h: number; m: number } {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Oslo",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(new Date());
-  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
-  return { h: get("hour"), m: get("minute") };
-}
-
-const until = (mins: number) => {
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  if (h === 0) return `om ${m} min`;
-  return m === 0 ? `om ${h} t` : `om ${h} t ${m} min`;
-};
 
 const ENV_NOTES: Record<Env, string> = {
   prod: "Nattjobbene går i rekkefølge fra 01.00 til 05.00, så en sak kan gå fra UVIRKSOM til AVSLUTTET samme natt. Rapporten sendes den 1. hver måned.",
@@ -51,28 +33,15 @@ export function NightPipeline({ onFocusStatus }: { onFocusStatus: (s: StatusId) 
   const [env, setEnv] = useState<Env>("prod");
   const [selected, setSelected] = useState<JobId>("sett-uvirksom");
   const [hover, setHover] = useState<JobId | null>(null);
-  const [now, setNow] = useState<{ h: number; m: number } | null>(null);
-
-  useEffect(() => {
-    const tick = () => setNow(osloNow());
-    const first = window.setTimeout(tick, 0);
-    const t = window.setInterval(tick, 30_000);
-    return () => {
-      window.clearTimeout(first);
-      window.clearInterval(t);
-    };
-  }, []);
+  const now = useOsloNow();
 
   const daily = JOBS.flatMap((j) => {
     const s = j.sched[env];
     return s && s.freq === "daily" ? [{ j, s, t: s.h * 60 + s.m }] : [];
   });
   const rare = JOBS.filter((j) => j.sched[env]?.freq !== "daily");
-  const nowMin = now ? now.h * 60 + now.m : null;
-  /** Minutes until the next run at t; a job due right now counts as tomorrow's run. */
-  const minsUntil = (t: number) => (nowMin === null ? 0 : (t - nowMin + 1440) % 1440 || 1440);
-  const next = nowMin === null ? null : [...daily].sort((a, b) => minsUntil(a.t) - minsUntil(b.t))[0];
-  const nextIn = next ? minsUntil(next.t) : null;
+  const runs = now ? daily.map((d) => ({ ...d, mins: nextDaily(now, d.s.h, d.s.m).mins })) : [];
+  const next = runs.length ? runs.reduce((a, b) => (b.mins < a.mins ? b : a)) : null;
 
   const night = daily.filter((d) => d.s.h < 6).sort((a, b) => a.t - b.t);
   const chainFrom = night[0]?.t ?? 60;
@@ -162,7 +131,7 @@ export function NightPipeline({ onFocusStatus }: { onFocusStatus: (s: StatusId) 
 
             {/* Senter */}
             <circle cx={C} cy={C} r={58} fill="var(--ax-bg-neutral-soft)" />
-            {now && next && nextIn !== null ? (
+            {now && next ? (
               <g aria-live="polite">
                 <text x={C} y={C - 22} textAnchor="middle" fontSize={9.5} className="arch-eyebrow-svg" fill="var(--ax-text-neutral-subtle)">
                   NESTE KJØRING
@@ -171,7 +140,7 @@ export function NightPipeline({ onFocusStatus }: { onFocusStatus: (s: StatusId) 
                   {next.j.id}
                 </text>
                 <text x={C} y={C + 16} textAnchor="middle" fontSize={11.5} fill="var(--ax-text-accent)" fontWeight={700}>
-                  {until(nextIn)}
+                  {until(next.mins)}
                 </text>
                 <text x={C} y={C + 32} textAnchor="middle" fontSize={10} className="arch-mono" fill="var(--ax-text-neutral-subtle)">
                   nå {klokke(now.h, now.m)}

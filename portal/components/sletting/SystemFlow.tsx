@@ -7,8 +7,9 @@ import { ArrowRightIcon, ExternalLinkIcon, XMarkIcon } from "@navikt/aksel-icons
 import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
 import { archHref, ghHref } from "@/lib/links";
+import { klokke } from "@/components/process/time";
 import { TONE } from "@/lib/tones";
-import { JOBS, klokke, type Tone } from "./data";
+import { JOBS, type Tone } from "./data";
 
 const W = 1140;
 const H = 400;

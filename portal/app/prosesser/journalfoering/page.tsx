@@ -36,6 +36,7 @@ import { Section } from "@/components/page/Section";
 import { HeroStats } from "@/components/page/HeroStats";
 import { JumpNav } from "@/components/page/JumpNav";
 import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
+import { SlackCode as C, SlackFigure, SlackMessage } from "@/components/process/Slack";
 
 const SECTIONS = [
   { id: "system", label: "Systemet" },
@@ -53,7 +54,6 @@ const SECTIONS = [
 
 /* ---------- Innhold ---------- */
 
-const C = ({ children }: { children: ReactNode }) => <code className="avs-slack__code">{children}</code>;
 
 const ERRORS: { what: string; tone: Tone; how: ReactNode; result: StatusId[] | string }[] = [
   {
@@ -637,7 +637,7 @@ export default function JournalfoeringPage() {
             <SubHead title="Slik ser det ut i Slack">
               Fagmodulen poster til driftskanalen via en webhook. Meldingene starter med miljøet.
             </SubHead>
-            <figure className="avs-slack jfr-slack">
+            <SlackFigure className="jfr-slack" caption="Eksempler. Saks- og dokument-ID-ene er oppdiktet.">
               <div className="jfr-slack__feed">
                 {[
                   {
@@ -672,23 +672,12 @@ export default function JournalfoeringPage() {
                     ),
                   },
                 ].map((m, i) => (
-                  <div key={m.time} className="avs-slack__msg" style={{ "--jfr-i": i } as CSSProperties}>
-                    <span className="avs-slack__avatar" aria-hidden>
-                      EUX
-                    </span>
-                    <div className="avs-slack__body">
-                      <div className="avs-slack__meta">
-                        <strong>eux-fagmodul-journalfoering</strong>
-                        <span className="avs-slack__app">APP</span>
-                        <span className="arch-subtle">{m.time}</span>
-                      </div>
-                      <p>{m.body}</p>
-                    </div>
-                  </div>
+                  <SlackMessage key={m.time} app="eux-fagmodul-journalfoering" time={m.time} style={{ "--jfr-i": i } as CSSProperties}>
+                    <p>{m.body}</p>
+                  </SlackMessage>
                 ))}
               </div>
-              <figcaption>Eksempler. Saks- og dokument-ID-ene er oppdiktet.</figcaption>
-            </figure>
+            </SlackFigure>
           </div>
           <div className="arch-pitfalls avs-pitfalls jfr-pitfalls">
             {PITFALLS.map((g) => (

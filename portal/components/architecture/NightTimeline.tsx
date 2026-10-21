@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BodyShort, Detail } from "@navikt/ds-react";
 import { onActivate } from "./svg";
+import { hhmm, type OsloTime } from "@/components/process/time";
+import { useOsloNow } from "@/components/process/useOsloNow";
 import { useSvgIds } from "./hooks";
 
 type Job = { name: string; h: number; m: number; monthly?: boolean; note?: string };
@@ -64,7 +66,6 @@ const GROUP_H = 30;
 const ROW_H = 24;
 
 const xAt = (h: number, m = 0) => X0 + ((h + m / 60) / 24) * (X1 - X0);
-const hhmm = (h: number, m: number) => `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 
 type Row =
   | { type: "group"; g: Group; y: number }
@@ -87,20 +88,7 @@ const ROWS: Row[] = (() => {
 
 const H = ROWS[ROWS.length - 1].y + ROW_H + 10;
 
-type ClockTime = { h: number; m: number };
-
-function osloNow(): ClockTime {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Oslo",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(new Date());
-  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
-  return { h: get("hour"), m: get("minute") };
-}
-
-function nextJob(now: ClockTime) {
+function nextJob(now: OsloTime) {
   const nowMin = now.h * 60 + now.m;
   const all = GROUPS.flatMap((g) => g.jobs.filter((j) => !j.monthly).map((j) => ({ g, j, t: j.h * 60 + j.m })));
   all.sort((a, b) => a.t - b.t);
@@ -109,18 +97,8 @@ function nextJob(now: ClockTime) {
 
 export function NightTimeline({ onFocusNode }: { onFocusNode: (id: string) => void }) {
   const svg = useSvgIds();
-  const [now, setNow] = useState<ClockTime | null>(null);
+  const now = useOsloNow(60_000);
   const [hover, setHover] = useState<string | null>(null);
-
-  useEffect(() => {
-    const tick = () => setNow(osloNow());
-    const first = window.setTimeout(tick, 0);
-    const t = window.setInterval(tick, 60_000);
-    return () => {
-      window.clearTimeout(first);
-      window.clearInterval(t);
-    };
-  }, []);
 
   const next = now ? nextJob(now) : null;
   const hours = Array.from({ length: 25 }, (_, i) => i);

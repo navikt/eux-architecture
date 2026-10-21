@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BodyLong, BodyShort, ToggleGroup } from "@navikt/ds-react";
 import { ArrowRightIcon } from "@navikt/aksel-icons";
 import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
+import { klokke, nextDaily, nextOnDay, r2, until, type NextRun, type OsloTime } from "@/components/process/time";
+import { useOsloNow } from "@/components/process/useOsloNow";
 import { TONE } from "@/lib/tones";
 import { ENVS, JOBS, cronjobName, type Env, type Job, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
@@ -16,55 +18,18 @@ const TY = 164;
 const LANE_Y = 64;
 const START = 12;
 const SPAN = 24;
-const r2 = (n: number) => Math.round(n * 100) / 100;
 /** Timer fra kl. 12 i dag (12) til kl. 12 i morgen (36). */
 const xh = (h: number) => r2(X0 + ((h - START) / SPAN) * (X1 - X0));
 
 const SEDS = [12.7, 13.3, 14.2, 14.9, 15.6, 18.4, 21.1, 23.6, 27.2, 31.9, 32.6, 33.4, 34.1, 34.8, 35.5];
 const LANE_PILL_W = 262;
 
-type Oslo = { y: number; mo: number; d: number; h: number; m: number };
-
-function osloNow(): Oslo {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Oslo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(new Date());
-  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
-  return { y: get("year"), mo: get("month"), d: get("day"), h: get("hour"), m: get("minute") };
-}
-
-const klokke = (h: number, m = 0) => `${String(h).padStart(2, "0")}.${String(m).padStart(2, "0")}`;
-
-const until = (mins: number) => {
-  if (mins >= 48 * 60) return `om ${Math.round(mins / 1440)} dager`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  if (h === 0) return `om ${m} min`;
-  return m === 0 ? `om ${h} t` : `om ${h} t ${m} min`;
-};
-
-const MONTHS = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"];
-
 /** Neste kjøring i Oslo-tid. Støtter daglige og årlige cron-uttrykk. */
-function nextRun(job: Job, env: Env, now: Oslo): { mins: number; label: string } {
-  const [mm, hh, dom, mon] = job.sched[env].cron.split(" ");
-  const m = Number(mm);
-  const h = Number(hh);
-  if (dom === "*" && mon === "*") {
-    const nowMin = now.h * 60 + now.m;
-    const mins = (h * 60 + m - nowMin + 1440) % 1440 || 1440;
-    return { mins, label: `${mins > 1440 - nowMin ? "i morgen" : "i dag"} kl. ${klokke(h, m)}` };
-  }
-  const base = Date.UTC(now.y, now.mo - 1, now.d, now.h, now.m);
-  const thisYear = Date.UTC(now.y, Number(mon) - 1, Number(dom), h, m);
-  const target = thisYear > base ? thisYear : Date.UTC(now.y + 1, Number(mon) - 1, Number(dom), h, m);
-  return { mins: Math.round((target - base) / 60000), label: `${Number(dom)}. ${MONTHS[Number(mon) - 1]} kl. ${klokke(h, m)}` };
+function nextRun(job: Job, env: Env, now: OsloTime): NextRun {
+  const [mm, hh, dom, mon] = job.sched[env].cron.split(" ").map((f) => (f === "*" ? undefined : Number(f)));
+  const h = hh ?? 0;
+  const m = mm ?? 0;
+  return dom === undefined ? nextDaily(now, h, m) : nextOnDay(now, { day: dom, month: mon, h, m });
 }
 
 const APP: Record<Env, string> = { prod: "eux-journalarkivar", q1: "eux-journalarkivar-q1", q2: "eux-journalarkivar-q2" };
@@ -72,19 +37,9 @@ const APP: Record<Env, string> = { prod: "eux-journalarkivar", q1: "eux-journala
 export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => void }) {
   const reduced = useReducedMotion();
   const svg = useSvgIds();
-  const [now, setNow] = useState<Oslo | null>(null);
+  const now = useOsloNow();
   const [env, setEnv] = useState<Env>("prod");
   const [focus, setFocus] = useState<JobId | null>(null);
-
-  useEffect(() => {
-    const tick = () => setNow(osloNow());
-    const first = window.setTimeout(tick, 0);
-    const t = window.setInterval(tick, 30_000);
-    return () => {
-      window.clearTimeout(first);
-      window.clearInterval(t);
-    };
-  }, []);
 
   const nowH = now ? (now.h < START ? now.h + 24 : now.h) + now.m / 60 : null;
   const nightly = JOBS.filter((j) => j.sched[env].h !== null);

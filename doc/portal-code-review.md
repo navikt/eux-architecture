@@ -188,11 +188,19 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** the pages are consistent.
 - **Fixed:** 2026-10-20: done together with 15. All three heroes now count the filtered rows (search and toggles), and `LiveHero` takes a `filtered` flag that shows "Tallene under gjelder bare det som passer søket og filtrene." while a filter is active. The "av N" sub-line says "i utvalget" instead of "i minnet" when filtered. Checked in headless Chrome with `?miljo=q1` and `?status=sendt`.
 
-### [ ] 20 · Deduplicate the process pages
+### [x] 20 · Deduplicate the process pages
 - **Area:** portal · **Effort:** L
 - **Where:** `components/{avslutning,sletting,journalfoering,adresse}/*` (SystemFlow, StatusMachine, CaseJourney/Journey, `SlackReport`, `osloNow`/`until`/`r2`, schedule helpers, simulator ladder/presets) and `app/prosesser/*/page.tsx`
 - **Problem:** the playback, time and schedule helpers, the Slack report and the page scaffolding are copied across four features.
 - **Fix:** start with `components/process/time.ts` and the `SlackReport` component, then a generic flow and state-machine player. Do one slice per run and add the remaining slices as new tasks.
+- **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
+- **Fixed:** 2026-10-21: first slice. `components/process/time.ts` now holds the only `r2`, `hhmm`, `klokke`, `until`, `MONTHS`, `osloNow` and the "next run" math (`nextDaily`, `nextOnDay`), and `useOsloNow()` replaces four copies of the ticking-clock effect in `NightPipeline`, `NightStrip`, `NightJobs` and `NightTimeline`. `components/process/Slack.tsx` (`SlackFigure`, `SlackMessage`, `SlackCode`) is used by both `SlackReport`s and the journalføring page's Slack feed, and its classes were renamed from `avs-slack*` to `proc-slack*`. Old and new helpers gave identical results for 33 544 timestamps over a year, and the prerendered HTML is identical apart from the class rename and the journalføring Slack caption, which now has the same subtle colour as the other two. The rest is task 20b.
+
+### [ ] 20b · Share the flow and state-machine players across the process pages
+- **Area:** portal · **Effort:** L · **Depends on:** 20
+- **Where:** `components/{avslutning,sletting,journalfoering,adresse}/` `SystemFlow.tsx`, `StatusMachine.tsx`, `CaseJourney.tsx`/`Journey.tsx`/`CaseStory.tsx`, the simulators (`DecisionSimulator.tsx`, `journalfoering/Simulator.tsx`) and the page scaffolding in `app/prosesser/*/page.tsx`
+- **Problem:** the playback (play/pause/step, reduced motion), the state-machine layout and the simulator ladder/presets are still copied per feature.
+- **Fix:** extract a generic player into `components/process/`, one component per run, and add the remaining slices as new tasks.
 - **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
 
 ### [ ] 21 · Stop sharing CSS prefixes across features
@@ -201,6 +209,7 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Problem:** changing one page's styles can break another page.
 - **Fix:** rename the shared classes to a neutral prefix (for example `proc-*`).
 - **Done when:** each feature uses only its own prefix or `proc-*`.
+- **Note:** the Slack mock already uses `proc-slack*` (done in 20).
 
 ### [ ] 22 · Clean up leftovers in the process pages
 - **Area:** portal · **Effort:** S–M · **Best after:** 20

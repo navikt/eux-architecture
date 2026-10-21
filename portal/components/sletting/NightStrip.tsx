@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BodyLong, BodyShort } from "@navikt/ds-react";
 import { ArrowRightIcon } from "@navikt/aksel-icons";
 import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
+import { klokke, nextDaily, nextOnDay, r2, until, type NextRun, type OsloTime } from "@/components/process/time";
+import { useOsloNow } from "@/components/process/useOsloNow";
 import { TONE } from "@/lib/tones";
-import { JOBS, JOB_BY_ID, klokke, schedLabel, type JobId, type StatusId } from "./data";
+import { JOBS, JOB_BY_ID, schedLabel, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
 
 const W = 1100;
@@ -14,7 +16,6 @@ const X0 = 40;
 const X1 = 1040;
 const TY = 132;
 const HOURS = 27;
-const r2 = (n: number) => Math.round(n * 100) / 100;
 const xh = (h: number) => r2(X0 + (h / HOURS) * (X1 - X0));
 
 const MARKERS: { job: JobId; no: number; h: number; side: "end" | "start" }[] = [
@@ -25,67 +26,21 @@ const MARKERS: { job: JobId; no: number; h: number; side: "end" | "start" }[] = 
 ];
 const ARC = `M ${xh(2)} ${TY - 12} C ${xh(2)} 56 ${xh(25)} 56 ${xh(25)} ${TY - 12}`;
 
-type Oslo = { y: number; mo: number; d: number; h: number; m: number };
-
-function osloNow(): Oslo {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Oslo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(new Date());
-  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
-  return { y: get("year"), mo: get("month"), d: get("day"), h: get("hour"), m: get("minute") };
-}
-
-const until = (mins: number) => {
-  if (mins >= 48 * 60) return `om ${Math.round(mins / 1440)} dager`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  if (h === 0) return `om ${m} min`;
-  return m === 0 ? `om ${h} t` : `om ${h} t ${m} min`;
-};
-
-const MONTHS = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"];
-
-/** Minutter til neste kjøring, regnet i Oslo-tid. */
-function nextRun(job: JobId, now: Oslo): { mins: number; label: string } {
+/** Minutter til neste kjøring, regnet i Oslo-tid. Den månedlige jobben kjører den 1. */
+function nextRun(job: JobId, now: OsloTime): NextRun {
   const s = JOB_BY_ID[job].sched.prod;
-  if (s.freq === "daily") {
-    const nowMin = now.h * 60 + now.m;
-    const t = s.h * 60 + s.m;
-    const mins = (t - nowMin + 1440) % 1440 || 1440;
-    return { mins, label: mins > (24 * 60 - nowMin) ? `i morgen kl. ${klokke(s.h, s.m)}` : `i dag kl. ${klokke(s.h, s.m)}` };
-  }
-  const base = Date.UTC(now.y, now.mo - 1, now.d, now.h, now.m);
-  const thisMonth = Date.UTC(now.y, now.mo - 1, 1, s.h, s.m);
-  const target = thisMonth > base ? thisMonth : Date.UTC(now.y, now.mo, 1, s.h, s.m);
-  const month = new Date(target).getUTCMonth();
-  return { mins: Math.round((target - base) / 60000), label: `1. ${MONTHS[month]} kl. ${klokke(s.h, s.m)}` };
+  return s.freq === "daily" ? nextDaily(now, s.h, s.m) : nextOnDay(now, { day: 1, h: s.h, m: s.m });
 }
 
 export function NightStrip({ onFocusStatus }: { onFocusStatus: (s: StatusId) => void }) {
   const reduced = useReducedMotion();
   const svg = useSvgIds();
-  const [now, setNow] = useState<Oslo | null>(null);
+  const now = useOsloNow();
   const [focus, setFocus] = useState<JobId | null>(null);
-
-  useEffect(() => {
-    const tick = () => setNow(osloNow());
-    const first = window.setTimeout(tick, 0);
-    const t = window.setInterval(tick, 30_000);
-    return () => {
-      window.clearTimeout(first);
-      window.clearInterval(t);
-    };
-  }, []);
 
   const nowH = now ? now.h + now.m / 60 : null;
   const daily = JOBS.filter((j) => j.sched.prod.freq === "daily");
-  const nextDaily = now ? [...daily].sort((a, b) => nextRun(a.id, now).mins - nextRun(b.id, now).mins)[0].id : null;
+  const nextJob = now ? [...daily].sort((a, b) => nextRun(a.id, now).mins - nextRun(b.id, now).mins)[0].id : null;
 
   return (
     <div className="sl-night">
@@ -193,7 +148,7 @@ export function NightStrip({ onFocusStatus }: { onFocusStatus: (s: StatusId) => 
                 aria-hidden
               >
                 <line x1={x} x2={x} y1={TY + 11} y2={TY + 44} stroke="var(--ax-border-neutral-strong)" strokeDasharray="2 3" />
-                {nextDaily === mk.job && nowH !== null && mk.h === (mk.h % 24 > nowH ? mk.h % 24 : (mk.h % 24) + 24) && (
+                {nextJob === mk.job && nowH !== null && mk.h === (mk.h % 24 > nowH ? mk.h % 24 : (mk.h % 24) + 24) && (
                   <circle cx={x} cy={TY} r={14} fill="none" stroke={TONE.warning.stroke} strokeWidth={2} className="arch-night__next" />
                 )}
                 <circle

@@ -107,6 +107,12 @@ Documentation pages share their scaffolding from `components/page/`:
 link cards, typed by `FurtherLink`) and `ExtLink` (an inline link that opens
 in a new tab).
 
+The process pages (`app/prosesser/*`) and the night timeline share
+`components/process/`: `time.ts` (Oslo clock, `klokke`/`hhmm`, `until`, and
+`nextDaily`/`nextOnDay` for "next run" labels), `useOsloNow()` (a ticking
+Oslo clock that is null until hydration) and `Slack.tsx` (`SlackFigure`,
+`SlackMessage` and `SlackCode` for the Slack mocks, styled by `proc-slack*`).
+
 ### Logged-in user
 
 The portal is open to anyone with the URL. Only the smoke test (`/tests`) and

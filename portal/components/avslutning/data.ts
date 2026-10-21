@@ -5,6 +5,7 @@
  * eux-avslutt-rinasaker-naisjob and the RINA actions in eux-rina-terminator-api.
  */
 
+import { klokke } from "@/components/process/time";
 import type { Tone } from "@/lib/tones";
 
 export type { Tone };
@@ -527,11 +528,6 @@ export const ENVS: { id: Env; label: string }[] = [
   { id: "q1", label: "Q1" },
   { id: "q2", label: "Q2" },
 ];
-
-export const hhmm = (h: number, m: number) => `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-
-/** Norwegian clock format, e.g. "01.00". */
-export const klokke = (h: number, m: number) => hhmm(h, m).replace(":", ".");
 
 export const schedLabel = (s: Sched | null): string => {
   if (!s) return "ingen jobb";

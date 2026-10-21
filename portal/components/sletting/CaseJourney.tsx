@@ -4,8 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BodyShort, Button, Chips } from "@navikt/ds-react";
 import { ArrowRightIcon, PauseIcon, PlayIcon } from "@navikt/aksel-icons";
 import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
+import { klokke, r2 } from "@/components/process/time";
 import { TONE } from "@/lib/tones";
-import { STATUS_BY_ID, klokke, type StatusId } from "./data";
+import { STATUS_BY_ID, type StatusId } from "./data";
 
 /*
  * Tid måles i timer fra første hendelse, som i eksempelet kommer dag 0 kl. 14.00.
@@ -25,7 +26,6 @@ const SB = (X1 - XB) / (END_T - BREAK_T);
 const CARD_W = 180;
 const CARD_H = 62;
 
-const r2 = (n: number) => Math.round(n * 100) / 100;
 const xAt = (t: number) => r2(t <= BREAK_T ? X0 + Math.max(0, t) * SA : XB + (Math.min(t, END_T) - BREAK_T) * SB);
 const tAtX = (x: number) => (x <= XB ? (x - X0) / SA : BREAK_T + (x - XB) / SB);
 /** Timer fra start for et gitt klokkeslett på en gitt dag. */

@@ -5,6 +5,7 @@ import { BodyLong, BodyShort, Button, HStack, Switch, ToggleGroup } from "@navik
 import { ArrowsCirclepathIcon } from "@navikt/aksel-icons";
 import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate } from "@/components/architecture/svg";
+import { r2 } from "@/components/process/time";
 import { TONE } from "@/lib/tones";
 import type { StatusId, Tone } from "./data";
 import { StatusChips } from "./StatusChips";
@@ -129,7 +130,6 @@ const GUTTER = 44;
 const MARGIN = 86;
 const ROW0 = 108;
 const ROW = 42;
-const r2 = (n: number) => Math.round(n * 100) / 100;
 
 const OUTRO: Record<Flow, { text: string; status: StatusId[] }> = {
   journalfoer: {
