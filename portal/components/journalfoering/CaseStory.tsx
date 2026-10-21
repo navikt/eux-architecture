@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { BodyLong, BodyShort, Button, Detail, Heading, ToggleGroup } from "@navikt/ds-react";
-import { ChevronLeftIcon, ChevronRightIcon, CogIcon, EnvelopeClosedIcon, MoonIcon, PauseIcon, PersonIcon, PlayIcon } from "@navikt/aksel-icons";
+import { useState } from "react";
+import { BodyLong, BodyShort, Detail, Heading, ToggleGroup } from "@navikt/ds-react";
+import { CogIcon, EnvelopeClosedIcon, MoonIcon, PersonIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { StatusChip } from "@/components/process/StatusChips";
+import { StepButtons } from "@/components/process/StepButtons";
+import { useStepPlayer } from "@/components/process/useStepPlayer";
 import { deepEqual } from "@/lib/equal";
 import { STATUS_BY_ID, type StatusId, type Tone } from "./data";
 
@@ -160,35 +162,15 @@ const SHARED_STEPS = 3;
 export function CaseStory({ onFocusStatus }: { onFocusStatus: (s: StatusId) => void }) {
   const reduced = useReducedMotion();
   const [variant, setVariant] = useState<Variant>("neessi");
-  const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
   const list = steps(variant);
+  const player = useStepPlayer(list.length, STEP_MS);
+  const { index, running } = player;
   const step = list[index];
   const prev = index > 0 ? list[index - 1].board : null;
 
-  useEffect(() => {
-    if (!playing) return;
-    if (index >= list.length - 1) {
-      const t = setTimeout(() => setPlaying(false), 0);
-      return () => clearTimeout(t);
-    }
-    const t = setTimeout(() => setIndex((i) => i + 1), STEP_MS);
-    return () => clearTimeout(t);
-  }, [playing, index, list.length]);
-
-  const go = (i: number) => {
-    setPlaying(false);
-    setIndex(Math.max(0, Math.min(list.length - 1, i)));
-  };
   const changeVariant = (v: Variant) => {
     setVariant(v);
-    setPlaying(false);
-    if (index >= SHARED_STEPS) setIndex(SHARED_STEPS);
-  };
-  const play = () => {
-    if (playing) return setPlaying(false);
-    if (index >= list.length - 1) setIndex(0);
-    setPlaying(true);
+    player.go(Math.min(index, SHARED_STEPS));
   };
 
   const changed = (row: number, col: keyof Row) => !!prev && !deepEqual(prev.rows[row][col], step.board.rows[row][col]);
@@ -208,7 +190,7 @@ export function CaseStory({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
       <ol className="jfr-story__timeline" aria-label="Steg">
         {list.map((s, i) => (
           <li key={s.id} data-actor={s.actor} data-state={i < index ? "done" : i === index ? "now" : "next"}>
-            <button type="button" onClick={() => go(i)} aria-current={i === index ? "step" : undefined}>
+            <button type="button" onClick={() => player.go(i)} aria-current={i === index ? "step" : undefined}>
               <span className="jfr-story__dot" data-tone={ACTOR_TONE[s.actor]} aria-hidden>
                 {ACTOR_ICON[s.actor]}
               </span>
@@ -302,26 +284,11 @@ export function CaseStory({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
       </div>
 
       <div className="jfr-story__controls">
-        <Button size="small" variant="tertiary-neutral" icon={<ChevronLeftIcon aria-hidden />} onClick={() => go(index - 1)} disabled={index === 0}>
-          Forrige
-        </Button>
-        <Button size="small" variant="secondary-neutral" icon={playing ? <PauseIcon aria-hidden /> : <PlayIcon aria-hidden />} onClick={play}>
-          {playing ? "Pause" : index >= list.length - 1 ? "Spill av på nytt" : "Spill av"}
-        </Button>
-        <Button
-          size="small"
-          variant="tertiary-neutral"
-          icon={<ChevronRightIcon aria-hidden />}
-          iconPosition="right"
-          onClick={() => go(index + 1)}
-          disabled={index === list.length - 1}
-        >
-          Neste
-        </Button>
+        <StepButtons player={player} emphasis="neutral" />
         <BodyShort size="small" className="arch-subtle jfr-story__count">
           Steg {index + 1} av {list.length}
         </BodyShort>
-        {playing && !reduced && <span className="jfr-story__progress" key={index} style={{ ["--jfr-step" as string]: `${STEP_MS}ms` }} aria-hidden />}
+        {running && !reduced && <span className="jfr-story__progress" key={index} style={{ ["--jfr-step" as string]: `${STEP_MS}ms` }} aria-hidden />}
       </div>
     </div>
   );

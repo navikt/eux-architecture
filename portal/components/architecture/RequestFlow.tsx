@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { BodyLong, Button, Heading, HStack } from "@navikt/ds-react";
-import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "@navikt/aksel-icons";
+import { BodyLong, Heading, HStack } from "@navikt/ds-react";
+import { StepButtons } from "@/components/process/StepButtons";
+import { useStepPlayer } from "@/components/process/useStepPlayer";
 import { TONE, type Tone } from "@/lib/tones";
 import { useReducedMotion, useSvgIds } from "./hooks";
 import { onActivate, rounded } from "./svg";
@@ -104,6 +104,8 @@ const BRANCHES = [
 
 const RETURN_PATH = `M ${TOP[4].x} ${MID} L ${TOP[0].x + BOX_W} ${MID}`;
 
+const STEP_MS = 3800;
+
 const STEPS: { title: string; lit: string[]; text: string }[] = [
   {
     title: "Innlogging",
@@ -154,18 +156,10 @@ const PATH_FOR: Record<string, string> = {
 };
 
 export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void }) {
-  const [step, setStep] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const player = useStepPlayer(STEPS.length, STEP_MS);
+  const step = player.index;
   const reduced = useReducedMotion();
   const svg = useSvgIds();
-  const last = STEPS.length - 1;
-  const running = playing && step < last;
-
-  useEffect(() => {
-    if (!running) return;
-    const t = window.setInterval(() => setStep((s) => Math.min(s + 1, last)), 3800);
-    return () => window.clearInterval(t);
-  }, [running, last]);
 
   const current = STEPS[step];
   const lit = new Set(current.lit);
@@ -173,20 +167,6 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
   const isReturn = lit.has("ret");
   const boxState = (id: string) => (isReturn || litBoxes.has(id) ? "is-lit" : "is-dim");
   const edgeState = (id: string) => (lit.has(id) ? "is-lit" : "is-dim");
-
-  const go = (s: number) => {
-    setPlaying(false);
-    setStep(Math.max(0, Math.min(last, s)));
-  };
-
-  const togglePlay = () => {
-    if (running) {
-      setPlaying(false);
-    } else {
-      if (step >= last) setStep(0);
-      setPlaying(true);
-    }
-  };
 
   return (
     <div className="arch-rf">
@@ -318,7 +298,7 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
                 className="arch-rf__step"
                 aria-current={i === step ? "step" : undefined}
                 data-done={i < step || undefined}
-                onClick={() => go(i)}
+                onClick={() => player.go(i)}
               >
                 <span className="arch-rf__step-no">{i + 1}</span>
                 <span>{s.title}</span>
@@ -333,22 +313,7 @@ export function RequestFlow({ onFocusNode }: { onFocusNode: (id: string) => void
           <BodyLong size="small">{current.text}</BodyLong>
         </div>
         <HStack gap="space-8" className="arch-rf__controls">
-          <Button size="small" variant="secondary" icon={<ChevronLeftIcon aria-hidden />} onClick={() => go(step - 1)} disabled={step === 0}>
-            Forrige
-          </Button>
-          <Button size="small" variant="primary" icon={running ? <PauseIcon aria-hidden /> : <PlayIcon aria-hidden />} onClick={togglePlay}>
-            {running ? "Pause" : step >= last ? "Spill av på nytt" : "Spill av"}
-          </Button>
-          <Button
-            size="small"
-            variant="secondary"
-            icon={<ChevronRightIcon aria-hidden />}
-            iconPosition="right"
-            onClick={() => go(step + 1)}
-            disabled={step === last}
-          >
-            Neste
-          </Button>
+          <StepButtons player={player} />
         </HStack>
       </div>
     </div>

@@ -118,7 +118,15 @@ the play/pause/scrub case journeys (`proc-journey*`), and `StatusChips.tsx`
 built from `FlowCanvas.tsx` (`FlowCanvas`, `FlowEdge`, `EdgeLabel`, `Packets`,
 `Zone`, `Port`, `Topic`, `Box`), `useNodeSelection()`/`flowFilter()` for
 selection and flow toggles, and `FlowPanel.tsx` (`FlowToolbar`, `DetailPanel`,
-`DetailHint`, `NodeDetail`; `proc-toolbar`, `proc-detail`). The status machines
+`DetailHint`, `NodeDetail`; `proc-toolbar`, `proc-detail`). Avslutning and
+sletting draw the same system figure, so their `SystemFlow`s are built from
+`JobServiceFlow.tsx`: `useJobFlow()` (flow picker, selection and lit/dim
+state), `JobFlowCanvas` (Kafka zone, edges from `jobFlowEdges()` and edge
+labels), `RinaSystem`, `KafkaIntake`, `ServiceBox`, `JobsBox`, `TerminatorBox`
+and `SlackBox`, plus `jobPath()` and `JOB_PACKETS`. Each page passes in only
+its job rows, terminator calls and texts. The step-by-step players (the
+journalføring case story and the request flow on `/architecture`) use
+`useStepPlayer()` with `StepButtons` («Forrige», «Spill av», «Neste»). The status machines
 are built from `StateMachine.tsx` (`StateCanvas`, `StateEdges`, `StateLabels`,
 `StateNode`, `Lane`, `JobBadge` (`proc-sm__badge`), `ActorList`,
 `UnusedStatuses`, and `stateFocus()` for which edges and nodes to light up).
