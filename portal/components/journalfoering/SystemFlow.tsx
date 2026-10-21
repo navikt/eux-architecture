@@ -1,14 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import NextLink from "next/link";
-import { BodyLong, BodyShort, Button, Detail, Heading, HStack, Link as DsLink, ToggleGroup } from "@navikt/ds-react";
-import { ArrowRightIcon, ExternalLinkIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
-import { onActivate, rounded } from "@/components/architecture/svg";
-import { archHref, ghHref } from "@/lib/links";
+import { rounded } from "@/components/architecture/svg";
+import { Box, EdgeLabel, FlowCanvas, FlowEdge, Packets, Port, Topic, Zone, type Packet } from "@/components/process/FlowCanvas";
+import { FlowToolbar, NodeDetail, type NodeInfo } from "@/components/process/FlowPanel";
+import { flowFilter, useNodeSelection } from "@/components/process/useNodeSelection";
 import { TONE } from "@/lib/tones";
-import type { Tone } from "./data";
 
 const W = 1240;
 const H = 630;
@@ -81,6 +78,8 @@ const EDGES: { id: string; d: string; flows: FlowId[]; dashed?: boolean }[] = [
   { id: "nj-a", d: "M 1134 540 L 1134 512", flows: ["natten"] },
 ];
 
+const flowsOf = (edge: string) => EDGES.find((e) => e.id === edge)!.flows;
+
 const EDGE_LABELS: { edge: string; x: number; y: number; text: string; anchor?: "start" | "middle"; mono?: boolean }[] = [
   { edge: "cpi", x: 470, y: 13, text: "CPI-kall via eux-rina-api" },
   { edge: "ne-f", x: 362, y: 441, text: "PUT …/rinasak/{id}/fagsak", mono: true },
@@ -91,7 +90,7 @@ const EDGE_LABELS: { edge: string; x: number; y: number; text: string; anchor?: 
 const stagger = (rows: number[], from: number, to: number) =>
   rows.map((no, i) => ({ d: `M ${from} ${rowY(no)} L ${to} ${rowY(no)}`, dur: 1.3, begin: -i * 0.22 }));
 
-const PACKETS: Record<FlowId, { d: string; dur: number; begin?: number }[]> = {
+const PACKETS: Record<FlowId, Packet[]> = {
   alle: [],
   inn: [{ d: PATH_INN, dur: 3.2 }, ...stagger(F_ROWS.inn, 706, D_X), { d: PATH_CPI, dur: 3.4, begin: -1.2 }],
   ut: [{ d: PATH_UT, dur: 3.2 }, ...stagger(F_ROWS.ut, 706, D_X), { d: PATH_CPI, dur: 3.4, begin: -1.2 }],
@@ -138,16 +137,6 @@ const FLOWS: { id: FlowId; label: string; text: string }[] = [
     text: "Kl. 01.00 og 02.00 kaller hver sin CronJob eux-journalarkivar. Arkivaren fullfører midlertidige journalposter og avbryter gamle utgående uten bruker.",
   },
 ];
-
-type NodeInfo = {
-  title: string;
-  kind: string;
-  tone: Tone;
-  text: string;
-  facts: string[];
-  arch?: string;
-  repo?: string;
-};
 
 const INFO: Record<NodeId, NodeInfo> = {
   rina: {
@@ -350,377 +339,197 @@ const INFO: Record<NodeId, NodeInfo> = {
 
 export function SystemFlow() {
   const [flow, setFlow] = useState<FlowId>("alle");
-  const [selected, setSelected] = useState<NodeId | null>(null);
-  const reduced = useReducedMotion();
-  const svg = useSvgIds();
-
-  const litNodes = FLOW_NODES[flow];
-  const nodeState = (id: NodeId) => {
-    const cls = [];
-    if (selected === id) cls.push("is-active");
-    if (litNodes && !litNodes.includes(id)) cls.push("is-dim");
-    return cls.join(" ");
-  };
-  const edgeOn = (flows: FlowId[]) => flow === "alle" || flows.includes(flow);
-  const edgeState = (flows: FlowId[]) => (flow === "alle" ? "" : edgeOn(flows) ? "is-lit" : "is-dim");
-
-  const toggle = (id: NodeId) => setSelected((s) => (s === id ? null : id));
-  const nodeProps = (id: NodeId, label: string) => ({
-    className: `arch-node ${nodeState(id)}`,
-    role: "button" as const,
-    tabIndex: 0,
-    "aria-pressed": selected === id,
-    "aria-label": `${label}: vis detaljer`,
-    onClick: () => toggle(id),
-    onKeyDown: onActivate(() => toggle(id)),
-  });
-
-  const current = FLOWS.find((f) => f.id === flow)!;
-  const info = selected ? INFO[selected] : null;
-  const kafkaOn = flow === "alle" || flow === "inn" || flow === "ut";
-  const fRowOn = (no: number) => edgeOn(fFlows(no));
-  const aRowOn = edgeOn(["natten"]);
+  const lit = FLOW_NODES[flow];
+  const { selected, clear, nodeProps } = useNodeSelection<NodeId>((id) => !!lit && !lit.includes(id));
+  const edges = flowFilter(flow, "alle");
+  const fRowOn = (no: number) => edges.on(fFlows(no));
+  const aRowOn = edges.on(["natten"]);
 
   return (
-    <div className="avs-sys">
-      <div className="avs-toolbar">
-        <ToggleGroup size="small" value={flow} onChange={(v) => setFlow(v as FlowId)} label="Vis flyt">
-          {FLOWS.map((f) => (
-            <ToggleGroup.Item key={f.id} value={f.id} label={f.label} />
+    <div>
+      <FlowToolbar label="Vis flyt" value={flow} onChange={setFlow} options={FLOWS} />
+
+      <FlowCanvas width={W} height={H} minWidth={900} label="Systemene rundt automatisk journalføring">
+        <Zone x={252} y={246} w={210} h={110} tone="meta-purple" label="KAFKA · eessibasis" labelAt={[14, 15]} dim={!edges.on(["inn", "ut"])} />
+
+        {EDGES.map((e) => (
+          <FlowEdge key={e.id} d={e.d} state={edges.state(e.flows)} dashed={e.dashed} />
+        ))}
+        {EDGE_LABELS.map((l) => (
+          <EdgeLabel key={l.edge} x={l.x} y={l.y} state={edges.state(flowsOf(l.edge))} anchor={l.anchor} mono={l.mono}>
+            {l.text}
+          </EdgeLabel>
+        ))}
+
+        {/* Pakker – tegnes før boksene, så de glir bak dem */}
+        <Packets key={flow} packets={PACKETS[flow]} />
+
+        {/* RINA */}
+        <g {...nodeProps("rina", "RINA")}>
+          <rect x={30} y={40} width={200} height={88} rx={14} fill={TONE.info.fill} stroke={TONE.info.stroke} strokeWidth={1.5} className="arch-box" />
+          <text x={130} y={66} textAnchor="middle" fontSize={17} fontWeight={800} fill="var(--ax-text-neutral)">
+            RINA
+          </text>
+          <text x={130} y={83} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
+            saker og SED-er
+          </text>
+          <Port x={38} cy={62} label="CPI" />
+          <Port x={107} cy={109} label="NIE" />
+        </g>
+
+        {/* eux-all-rina-events */}
+        <Box x={30} y={158} w={200} h={46} title="eux-all-rina-events" sub="NIE → Kafka" tone="meta-purple" props={nodeProps("events", "eux-all-rina-events")} />
+
+        {/* eux-rina-document-events-v1 */}
+        <g {...nodeProps("doctopic", "eux-rina-document-events-v1")}>
+          <rect x={30} y={230} width={200} height={28} rx={14} fill="var(--ax-bg-default)" stroke={TONE["meta-purple"].stroke} strokeWidth={1.5} className="arch-box" />
+          {[0, 1, 2, 3].map((i) => (
+            <rect key={i} x={40 + i * 5} y={237} width={3} height={14} rx={1.5} fill={TONE["meta-purple"].stroke} opacity={0.35 + i * 0.2} />
           ))}
-        </ToggleGroup>
-        <BodyShort size="small" className="avs-toolbar__text" aria-live="polite">
-          {current.text}
-        </BodyShort>
-      </div>
+          <text x={64} y={248} fontSize={9.2} className="arch-mono" fill="var(--ax-text-neutral)">
+            eux-rina-document-events-v1
+          </text>
+        </g>
 
-      <div className="portal-diagram avs-surface">
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          style={{ width: "100%", minWidth: 900, height: "auto", display: "block" }}
-          role="group"
-          aria-label="Systemene rundt automatisk journalføring"
-        >
-          <defs>
-            <marker id={svg.id("arrow")} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M0,0 L10,5 L0,10 z" fill="var(--ax-border-neutral-strong)" />
-            </marker>
-          </defs>
+        {/* eux-legacy-rina-events */}
+        <Box x={30} y={284} w={200} h={46} title="eux-legacy-rina-events" sub="beriker fra CPI" tone="meta-purple" props={nodeProps("legacy", "eux-legacy-rina-events")} />
 
-          {/* Kafka-sone */}
-          <g className={`arch-rf__group ${kafkaOn ? "" : "is-dim"}`}>
-            <rect x={252} y={246} width={210} height={110} rx={14} fill="var(--ax-bg-meta-purple-soft)" fillOpacity={0.45} stroke="var(--ax-border-meta-purple)" strokeOpacity={0.5} strokeDasharray="5 5" />
-            <text x={266} y={261} fontSize={10} className="arch-eyebrow-svg" fill="var(--ax-text-meta-purple)">
-              KAFKA · eessibasis
-            </text>
-          </g>
+        {/* SED-topics */}
+        <Topic x={266} cy={284} w={182} name="sedmottatt-v1" tag="inn" props={nodeProps("mottatt", "eessibasis.sedmottatt-v1")} />
+        <Topic x={266} cy={330} w={182} name="sedsendt-v1" tag="ut" props={nodeProps("sendt", "eessibasis.sedsendt-v1")} />
 
-          {/* Kanter */}
-          {EDGES.map((e) => (
-            <g key={e.id} className={`arch-rf__edge ${edgeState(e.flows)}`}>
-              <path
-                d={e.d}
-                stroke="var(--ax-border-neutral-strong)"
-                strokeOpacity={0.75}
-                strokeWidth={1.6}
-                strokeDasharray={e.dashed ? "5 4" : undefined}
-                fill="none"
-                markerEnd={svg.url("arrow")}
-              />
-              <path d={e.d} stroke="var(--ax-border-accent)" strokeWidth={2.6} fill="none" className="arch-flow arch-flow--slow" />
+        {/* eux-neessi */}
+        <g {...nodeProps("neessi", "eux-neessi")}>
+          <rect x={30} y={380} width={200} height={132} rx={14} fill={TONE.success.fill} stroke={TONE.success.stroke} strokeWidth={1.5} className="arch-box" />
+          <text x={130} y={403} textAnchor="middle" fontSize={13.5} fontWeight={800} fill="var(--ax-text-neutral)">
+            eux-neessi
+          </text>
+          <text x={130} y={419} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
+            saksbehandler i nEESSI
+          </text>
+          {[
+            { cy: 450, t: "journalfør på fagsak" },
+            { cy: 488, t: "feilregistrer journalposter" },
+          ].map((c) => (
+            <g key={c.t}>
+              <rect x={44} y={c.cy - 12} width={172} height={24} rx={7} fill="var(--ax-bg-default)" stroke={TONE.success.stroke} strokeOpacity={0.55} />
+              <text x={130} y={c.cy + 4} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral)">
+                {c.t}
+              </text>
             </g>
           ))}
-          {EDGE_LABELS.map((l) => {
-            const e = EDGES.find((x) => x.id === l.edge)!;
-            return (
-              <text
-                key={l.edge}
-                x={l.x}
-                y={l.y}
-                textAnchor={l.anchor ?? "middle"}
-                fontSize={l.mono ? 10 : 10.5}
-                fontWeight={600}
-                className={`arch-halo arch-rf__edge ${edgeState(e.flows)} ${l.mono ? "arch-mono" : ""}`}
-                fill="var(--ax-text-neutral-subtle)"
-              >
-                {l.text}
+        </g>
+
+        {/* eux-fagmodul-journalfoering */}
+        <g {...nodeProps("fagmodul", "eux-fagmodul-journalfoering")}>
+          <rect x={486} y={40} width={220} height={430} rx={16} fill={TONE.accent.fill} stroke={TONE.accent.stroke} strokeWidth={1.8} className="arch-box" />
+          <rect x={486} y={40} width={220} height={430} rx={16} fill="none" stroke={TONE.accent.stroke} className="arch-pulse" />
+          <text x={596} y={62} textAnchor="middle" fontSize={12.5} fontWeight={800} fill="var(--ax-text-neutral)">
+            eux-fagmodul-journalfoering
+          </text>
+          <text x={596} y={78} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
+            Java · ingen database
+          </text>
+          {ROWS.filter((r) => r.f).map((r) => (
+            <text
+              key={r.no}
+              x={696}
+              y={r.cy + 3.6}
+              textAnchor="end"
+              fontSize={10.2}
+              fill="var(--ax-text-neutral)"
+              opacity={fRowOn(r.no) ? 1 : 0.32}
+              style={{ transition: "opacity 220ms ease" }}
+            >
+              {r.f}
+            </text>
+          ))}
+          <rect x={494} y={268} width={84} height={78} rx={9} fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeOpacity={0.6} />
+          <text x={536} y={300} textAnchor="middle" fontSize={10.5} fontWeight={700} fill="var(--ax-text-neutral)">
+            Kafka-lytter
+          </text>
+          <text x={536} y={315} textAnchor="middle" fontSize={9.5} fill="var(--ax-text-neutral-subtle)">
+            én om gangen
+          </text>
+          <rect x={494} y={438} width={84} height={24} rx={12} fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeOpacity={0.6} />
+          <text x={536} y={454} textAnchor="middle" fontSize={9.5} fontWeight={700} letterSpacing="0.1em" fill="var(--ax-text-accent)">
+            REST-API
+          </text>
+        </g>
+
+        {/* Kolonne D */}
+        {ROWS.map((r) => {
+          const tall = r.id === "journal";
+          const h = tall ? 44 : 34;
+          const t = TONE[INFO[r.id].tone];
+          return (
+            <g key={r.id} {...nodeProps(r.id, r.title)}>
+              <rect x={D_X} y={r.cy - h / 2} width={D_W} height={h} rx={10} fill={t.fill} stroke={t.stroke} strokeWidth={1.4} className="arch-box" />
+              <text x={D_X + D_W / 2} y={tall ? r.cy - 3 : r.cy + 4.5} textAnchor="middle" fontSize={12.5} fontWeight={700} fill="var(--ax-text-neutral)">
+                {r.title}
               </text>
-            );
-          })}
-
-          {/* Pakker – tegnes før boksene, så de glir bak dem */}
-          {!reduced &&
-            PACKETS[flow].map((p, i) => (
-              <circle key={`${flow}-${i}`} r={5} fill="var(--ax-bg-accent-strong)" className="arch-packet">
-                <animateMotion dur={`${p.dur}s`} begin={`${p.begin ?? 0}s`} repeatCount="indefinite" path={p.d} />
-              </circle>
-            ))}
-
-          {/* RINA */}
-          <g {...nodeProps("rina", "RINA")}>
-            <rect x={30} y={40} width={200} height={88} rx={14} fill={TONE.info.fill} stroke={TONE.info.stroke} strokeWidth={1.5} className="arch-box" />
-            <text x={130} y={66} textAnchor="middle" fontSize={17} fontWeight={800} fill="var(--ax-text-neutral)">
-              RINA
-            </text>
-            <text x={130} y={83} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
-              saker og SED-er
-            </text>
-            <Port x={38} cy={62} label="CPI" />
-            <Port x={107} cy={109} label="NIE" />
-          </g>
-
-          {/* eux-all-rina-events */}
-          <Box x={30} y={158} w={200} h={46} title="eux-all-rina-events" sub="NIE → Kafka" tone="meta-purple" props={nodeProps("events", "eux-all-rina-events")} />
-
-          {/* eux-rina-document-events-v1 */}
-          <g {...nodeProps("doctopic", "eux-rina-document-events-v1")}>
-            <rect x={30} y={230} width={200} height={28} rx={14} fill="var(--ax-bg-default)" stroke={TONE["meta-purple"].stroke} strokeWidth={1.5} className="arch-box" />
-            {[0, 1, 2, 3].map((i) => (
-              <rect key={i} x={40 + i * 5} y={237} width={3} height={14} rx={1.5} fill={TONE["meta-purple"].stroke} opacity={0.35 + i * 0.2} />
-            ))}
-            <text x={64} y={248} fontSize={9.2} className="arch-mono" fill="var(--ax-text-neutral)">
-              eux-rina-document-events-v1
-            </text>
-          </g>
-
-          {/* eux-legacy-rina-events */}
-          <Box x={30} y={284} w={200} h={46} title="eux-legacy-rina-events" sub="beriker fra CPI" tone="meta-purple" props={nodeProps("legacy", "eux-legacy-rina-events")} />
-
-          {/* SED-topics */}
-          <Topic cy={284} name="sedmottatt-v1" tag="inn" props={nodeProps("mottatt", "eessibasis.sedmottatt-v1")} />
-          <Topic cy={330} name="sedsendt-v1" tag="ut" props={nodeProps("sendt", "eessibasis.sedsendt-v1")} />
-
-          {/* eux-neessi */}
-          <g {...nodeProps("neessi", "eux-neessi")}>
-            <rect x={30} y={380} width={200} height={132} rx={14} fill={TONE.success.fill} stroke={TONE.success.stroke} strokeWidth={1.5} className="arch-box" />
-            <text x={130} y={403} textAnchor="middle" fontSize={13.5} fontWeight={800} fill="var(--ax-text-neutral)">
-              eux-neessi
-            </text>
-            <text x={130} y={419} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
-              saksbehandler i nEESSI
-            </text>
-            {[
-              { cy: 450, t: "journalfør på fagsak" },
-              { cy: 488, t: "feilregistrer journalposter" },
-            ].map((c) => (
-              <g key={c.t}>
-                <rect x={44} y={c.cy - 12} width={172} height={24} rx={7} fill="var(--ax-bg-default)" stroke={TONE.success.stroke} strokeOpacity={0.55} />
-                <text x={130} y={c.cy + 4} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral)">
-                  {c.t}
+              {tall && (
+                <text x={D_X + D_W / 2} y={r.cy + 13} textAnchor="middle" fontSize={10} fill="var(--ax-text-neutral-subtle)">
+                  ferdigstill og avbryt
                 </text>
-              </g>
-            ))}
-          </g>
+              )}
+            </g>
+          );
+        })}
 
-          {/* eux-fagmodul-journalfoering */}
-          <g {...nodeProps("fagmodul", "eux-fagmodul-journalfoering")}>
-            <rect x={486} y={40} width={220} height={430} rx={16} fill={TONE.accent.fill} stroke={TONE.accent.stroke} strokeWidth={1.8} className="arch-box" />
-            <rect x={486} y={40} width={220} height={430} rx={16} fill="none" stroke={TONE.accent.stroke} className="arch-pulse" />
-            <text x={596} y={62} textAnchor="middle" fontSize={12.5} fontWeight={800} fill="var(--ax-text-neutral)">
-              eux-fagmodul-journalfoering
+        {/* eux-journalarkivar */}
+        <g {...nodeProps("arkivar", "eux-journalarkivar")}>
+          <rect x={1046} y={40} width={176} height={472} rx={16} fill={TONE.warning.fill} stroke={TONE.warning.stroke} strokeWidth={1.6} className="arch-box" />
+          <text x={1134} y={62} textAnchor="middle" fontSize={13} fontWeight={800} fill="var(--ax-text-neutral)">
+            eux-journalarkivar
+          </text>
+          <text x={1134} y={78} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
+            Kotlin · om natten
+          </text>
+          {ROWS.filter((r) => r.a).map((r) => (
+            <text
+              key={r.no}
+              x={1058}
+              y={r.cy + 3.6}
+              fontSize={10.2}
+              fill="var(--ax-text-neutral)"
+              opacity={aRowOn ? 1 : 0.32}
+              style={{ transition: "opacity 220ms ease" }}
+            >
+              {r.a}
             </text>
-            <text x={596} y={78} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
-              Java · ingen database
-            </text>
-            {ROWS.filter((r) => r.f).map((r) => (
-              <text
-                key={r.no}
-                x={696}
-                y={r.cy + 3.6}
-                textAnchor="end"
-                fontSize={10.2}
-                fill="var(--ax-text-neutral)"
-                opacity={fRowOn(r.no) ? 1 : 0.32}
-                style={{ transition: "opacity 220ms ease" }}
-              >
-                {r.f}
+          ))}
+          <Moon cx={1134} cy={284} />
+        </g>
+
+        {/* eux-journalarkivar-naisjob */}
+        <g {...nodeProps("naisjob", "eux-journalarkivar-naisjob")}>
+          <rect x={978} y={540} width={248} height={76} rx={14} fill={TONE.warning.fill} stroke={TONE.warning.stroke} strokeWidth={1.5} className="arch-box" />
+          <text x={1102} y={560} textAnchor="middle" fontSize={12.5} fontWeight={800} fill="var(--ax-text-neutral)">
+            eux-journalarkivar-naisjob
+          </text>
+          {[
+            { no: 1, cy: 579, t: "ferdigstill", k: "01.00" },
+            { no: 2, cy: 599, t: "feilregistrer", k: "02.00" },
+          ].map((j) => (
+            <g key={j.no}>
+              <circle cx={998} cy={j.cy} r={7.5} fill={TONE.warning.strong} />
+              <text x={998} y={j.cy + 3.5} textAnchor="middle" fontSize={9.5} fontWeight={800} fill="var(--ax-text-warning-contrast)">
+                {j.no}
               </text>
-            ))}
-            <rect x={494} y={268} width={84} height={78} rx={9} fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeOpacity={0.6} />
-            <text x={536} y={300} textAnchor="middle" fontSize={10.5} fontWeight={700} fill="var(--ax-text-neutral)">
-              Kafka-lytter
-            </text>
-            <text x={536} y={315} textAnchor="middle" fontSize={9.5} fill="var(--ax-text-neutral-subtle)">
-              én om gangen
-            </text>
-            <rect x={494} y={438} width={84} height={24} rx={12} fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeOpacity={0.6} />
-            <text x={536} y={454} textAnchor="middle" fontSize={9.5} fontWeight={700} letterSpacing="0.1em" fill="var(--ax-text-accent)">
-              REST-API
-            </text>
-          </g>
-
-          {/* Kolonne D */}
-          {ROWS.map((r) => {
-            const tall = r.id === "journal";
-            const h = tall ? 44 : 34;
-            const t = TONE[INFO[r.id].tone];
-            return (
-              <g key={r.id} {...nodeProps(r.id, r.title)}>
-                <rect x={D_X} y={r.cy - h / 2} width={D_W} height={h} rx={10} fill={t.fill} stroke={t.stroke} strokeWidth={1.4} className="arch-box" />
-                <text x={D_X + D_W / 2} y={tall ? r.cy - 3 : r.cy + 4.5} textAnchor="middle" fontSize={12.5} fontWeight={700} fill="var(--ax-text-neutral)">
-                  {r.title}
-                </text>
-                {tall && (
-                  <text x={D_X + D_W / 2} y={r.cy + 13} textAnchor="middle" fontSize={10} fill="var(--ax-text-neutral-subtle)">
-                    ferdigstill og avbryt
-                  </text>
-                )}
-              </g>
-            );
-          })}
-
-          {/* eux-journalarkivar */}
-          <g {...nodeProps("arkivar", "eux-journalarkivar")}>
-            <rect x={1046} y={40} width={176} height={472} rx={16} fill={TONE.warning.fill} stroke={TONE.warning.stroke} strokeWidth={1.6} className="arch-box" />
-            <text x={1134} y={62} textAnchor="middle" fontSize={13} fontWeight={800} fill="var(--ax-text-neutral)">
-              eux-journalarkivar
-            </text>
-            <text x={1134} y={78} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
-              Kotlin · om natten
-            </text>
-            {ROWS.filter((r) => r.a).map((r) => (
-              <text
-                key={r.no}
-                x={1058}
-                y={r.cy + 3.6}
-                fontSize={10.2}
-                fill="var(--ax-text-neutral)"
-                opacity={aRowOn ? 1 : 0.32}
-                style={{ transition: "opacity 220ms ease" }}
-              >
-                {r.a}
+              <text x={1012} y={j.cy + 3.8} fontSize={10.5} className="arch-mono" fill="var(--ax-text-neutral)">
+                {j.t}
               </text>
-            ))}
-            <Moon cx={1134} cy={284} />
-          </g>
+              <text x={1212} y={j.cy + 3.8} textAnchor="end" fontSize={10.5} fontWeight={700} className="arch-mono" fill="var(--ax-text-warning)">
+                kl. {j.k}
+              </text>
+            </g>
+          ))}
+        </g>
+      </FlowCanvas>
 
-          {/* eux-journalarkivar-naisjob */}
-          <g {...nodeProps("naisjob", "eux-journalarkivar-naisjob")}>
-            <rect x={978} y={540} width={248} height={76} rx={14} fill={TONE.warning.fill} stroke={TONE.warning.stroke} strokeWidth={1.5} className="arch-box" />
-            <text x={1102} y={560} textAnchor="middle" fontSize={12.5} fontWeight={800} fill="var(--ax-text-neutral)">
-              eux-journalarkivar-naisjob
-            </text>
-            {[
-              { no: 1, cy: 579, t: "ferdigstill", k: "01.00" },
-              { no: 2, cy: 599, t: "feilregistrer", k: "02.00" },
-            ].map((j) => (
-              <g key={j.no}>
-                <circle cx={998} cy={j.cy} r={7.5} fill={TONE.warning.strong} />
-                <text x={998} y={j.cy + 3.5} textAnchor="middle" fontSize={9.5} fontWeight={800} fill="var(--ax-text-warning-contrast)">
-                  {j.no}
-                </text>
-                <text x={1012} y={j.cy + 3.8} fontSize={10.5} className="arch-mono" fill="var(--ax-text-neutral)">
-                  {j.t}
-                </text>
-                <text x={1212} y={j.cy + 3.8} textAnchor="end" fontSize={10.5} fontWeight={700} className="arch-mono" fill="var(--ax-text-warning)">
-                  kl. {j.k}
-                </text>
-              </g>
-            ))}
-          </g>
-        </svg>
-      </div>
-
-      {info ? (
-        <div className="avs-detail" data-tone={info.tone} aria-live="polite">
-          <div className="avs-detail__head">
-            <div>
-              <Detail className="arch-eyebrow">{info.kind}</Detail>
-              <Heading level="3" size="small" className="arch-mono">
-                {info.title}
-              </Heading>
-            </div>
-            <Button size="xsmall" variant="tertiary-neutral" icon={<XMarkIcon aria-hidden />} onClick={() => setSelected(null)}>
-              Lukk
-            </Button>
-          </div>
-          <BodyLong size="small">{info.text}</BodyLong>
-          <ul className="arch-facts">
-            {info.facts.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
-          <HStack gap="space-16" wrap>
-            {info.arch && (
-              <DsLink as={NextLink} href={archHref(info.arch)}>
-                Vis i arkitekturkartet <ArrowRightIcon aria-hidden />
-              </DsLink>
-            )}
-            {info.repo && (
-              <DsLink href={ghHref(info.repo)} target="_blank" rel="noreferrer">
-                navikt/{info.repo} <ExternalLinkIcon aria-hidden />
-              </DsLink>
-            )}
-          </HStack>
-        </div>
-      ) : (
-        <BodyShort size="small" className="avs-hint">
-          Velg en boks i figuren for å se hva den gjør.
-        </BodyShort>
-      )}
+      <NodeDetail info={selected ? INFO[selected] : null} onClose={clear} />
     </div>
-  );
-}
-
-function Box({
-  x,
-  y,
-  w,
-  h,
-  title,
-  sub,
-  tone,
-  props,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  title: string;
-  sub: string;
-  tone: Tone;
-  props: React.SVGProps<SVGGElement>;
-}) {
-  const t = TONE[tone];
-  return (
-    <g {...props}>
-      <rect x={x} y={y} width={w} height={h} rx={11} fill={t.fill} stroke={t.stroke} strokeWidth={1.5} className="arch-box" />
-      <text x={x + w / 2} y={y + 20} textAnchor="middle" fontSize={12.5} fontWeight={700} fill="var(--ax-text-neutral)">
-        {title}
-      </text>
-      <text x={x + w / 2} y={y + 35} textAnchor="middle" fontSize={10} fill="var(--ax-text-neutral-subtle)">
-        {sub}
-      </text>
-    </g>
-  );
-}
-
-function Port({ x, cy, label }: { x: number; cy: number; label: string }) {
-  return (
-    <g>
-      <rect x={x} y={cy - 11} width={46} height={22} rx={11} fill="var(--ax-bg-info-strong)" />
-      <text x={x + 23} y={cy + 4} textAnchor="middle" fontSize={10.5} fontWeight={800} letterSpacing="0.06em" fill="var(--ax-text-info-contrast)">
-        {label}
-      </text>
-    </g>
-  );
-}
-
-function Topic({ cy, name, tag, props }: { cy: number; name: string; tag: string; props: React.SVGProps<SVGGElement> }) {
-  const t = TONE["meta-purple"];
-  return (
-    <g {...props}>
-      <rect x={266} y={cy - 15} width={182} height={30} rx={15} fill="var(--ax-bg-default)" stroke={t.stroke} strokeWidth={1.5} className="arch-box" />
-      {[0, 1, 2, 3].map((i) => (
-        <rect key={i} x={278 + i * 6} y={cy - 7} width={3.5} height={14} rx={1.5} fill={t.stroke} opacity={0.35 + i * 0.2} />
-      ))}
-      <text x={308} y={cy + 4} fontSize={10.8} className="arch-mono" fill="var(--ax-text-neutral)">
-        {name}
-      </text>
-      <text x={436} y={cy + 3.5} textAnchor="end" fontSize={9} fontWeight={800} letterSpacing="0.08em" fill={t.text}>
-        {tag.toUpperCase()}
-      </text>
-    </g>
   );
 }
 

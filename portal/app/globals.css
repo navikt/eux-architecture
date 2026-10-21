@@ -2051,8 +2051,9 @@ html:has(.arch-page) {
   --tone-text: var(--ax-text-danger);
 }
 
-.arch-page .avs-surface,
-.dark .arch-page .avs-surface {
+/* Dotted diagram surface, toolbar and hint shared by the process pages (components/process/) */
+.arch-page .proc-surface,
+.dark .arch-page .proc-surface {
   background-image: radial-gradient(
     color-mix(in srgb, var(--ax-border-neutral-subtle) 70%, transparent) 1px,
     transparent 1.3px
@@ -2068,7 +2069,7 @@ html:has(.arch-page) {
   font-size: 0.85em;
 }
 
-.avs-toolbar {
+.proc-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2076,14 +2077,14 @@ html:has(.arch-page) {
   margin-bottom: 0.75rem;
 }
 
-.avs-toolbar__text {
+.proc-toolbar__text {
   flex: 1 1 320px;
   min-width: 0;
   color: var(--ax-text-neutral-subtle);
   animation: arch-fade 300ms ease;
 }
 
-.avs-hint {
+.proc-hint {
   margin-top: 0.75rem;
   padding: 0.75rem 1rem;
   border-radius: 12px;
@@ -2101,8 +2102,8 @@ html:has(.arch-page) {
   margin-top: 0.4rem;
 }
 
-/* Detail panel under the diagrams */
-.avs-detail {
+/* Detail panel under the diagrams (components/process/FlowPanel.tsx) */
+.proc-detail {
   position: relative;
   display: grid;
   gap: 0.6rem;
@@ -2117,7 +2118,7 @@ html:has(.arch-page) {
   animation: arch-rise 320ms var(--arch-ease) both;
 }
 
-.avs-detail::before {
+.proc-detail::before {
   content: "";
   position: absolute;
   inset: 0 auto 0 0;
@@ -2125,7 +2126,7 @@ html:has(.arch-page) {
   background: var(--tone-line);
 }
 
-.avs-detail__head {
+.proc-detail__head {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -2133,7 +2134,7 @@ html:has(.arch-page) {
   gap: 0.5rem 1rem;
 }
 
-.avs-detail .arch-facts {
+.proc-detail .arch-facts {
   margin-bottom: 0;
 }
 
@@ -3356,7 +3357,7 @@ html:has(.arch-page) {
 
 /* ---------- Dark ---------- */
 
-.dark .avs-detail,
+.dark .proc-detail,
 .dark .avs-job,
 .dark .avs-doc,
 .dark .avs-rung,
@@ -3375,7 +3376,7 @@ html:has(.arch-page) {
   background: color-mix(in srgb, var(--ax-bg-success-soft) 70%, var(--ax-bg-raised));
 }
 
-.dark .avs-detail {
+.dark .proc-detail {
   background:
     linear-gradient(120deg, color-mix(in srgb, var(--tone-soft) 60%, transparent), transparent 65%),
     var(--ax-bg-raised);
@@ -4640,7 +4641,7 @@ button.jfr-result__status:hover {
   color: var(--ax-text-accent-contrast);
 }
 
-.jfr-seq .avs-detail .arch-chips {
+.jfr-seq .proc-detail .arch-chips {
   justify-self: start;
 }
 

@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import NextLink from "next/link";
-import { BodyLong, BodyShort, Button, Detail, Heading, HStack, Link as DsLink, ToggleGroup } from "@navikt/ds-react";
-import { ArrowRightIcon, ExternalLinkIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
-import { onActivate, rounded } from "@/components/architecture/svg";
-import { archHref, ghHref } from "@/lib/links";
+import { useReducedMotion } from "@/components/architecture/hooks";
+import { rounded } from "@/components/architecture/svg";
+import { ArrowPath, EdgeLabel, FlowCanvas, FlowEdge, Packets, Port, Topic, Zone, type Packet } from "@/components/process/FlowCanvas";
+import { FlowToolbar, NodeDetail, type NodeInfo } from "@/components/process/FlowPanel";
+import { flowFilter, useNodeSelection } from "@/components/process/useNodeSelection";
 import { klokke } from "@/components/process/time";
 import { TONE } from "@/lib/tones";
-import { JOBS, type Tone } from "./data";
+import { JOBS } from "./data";
 
 const W = 1140;
 const H = 400;
@@ -44,6 +43,8 @@ const EDGES: { id: string; d: string; flows: FlowId[] }[] = [
   { id: "slack", d: rounded([[900, 270], [900, 345], [990, 345]], 12), flows: ["rapport"] },
 ];
 
+const flowsOf = (edge: string) => EDGES.find((e) => e.id === edge)!.flows;
+
 const EDGE_LABELS: { edge: string; x: number; y: number; text: string }[] = [
   { edge: "nie", x: 175, y: 121, text: "HTTP" },
   { edge: "case-in", x: 718, y: 91, text: "sak" },
@@ -53,7 +54,7 @@ const EDGE_LABELS: { edge: string; x: number; y: number; text: string }[] = [
   { edge: "slack", x: 945, y: 336, text: "webhook" },
 ];
 
-const PACKETS: Record<FlowId, { d: string; dur: number; begin?: number }[]> = {
+const PACKETS: Record<FlowId, Packet[]> = {
   alle: [],
   inn: [
     { d: rounded([[150, 130], [410, 130], [410, 100], [752, 100]], 8), dur: 2.8 },
@@ -105,16 +106,6 @@ const FLOWS: { id: FlowId; label: string; text: string }[] = [
     text: "Den 1. hver måned kl. 06.00 sender rapport-jobben tallene for forrige måned og køen nå til Slack. Jobben kjører bare i prod.",
   },
 ];
-
-type NodeInfo = {
-  title: string;
-  kind: string;
-  tone: Tone;
-  text: string;
-  facts: string[];
-  arch?: string;
-  repo?: string;
-};
 
 const INFO: Record<NodeId, NodeInfo> = {
   rina: {
@@ -211,337 +202,203 @@ const INFO: Record<NodeId, NodeInfo> = {
 
 export function SystemFlow() {
   const [flow, setFlow] = useState<FlowId>("alle");
-  const [selected, setSelected] = useState<NodeId | null>(null);
+  const lit = FLOW_NODES[flow];
+  const { selected, clear, nodeProps } = useNodeSelection<NodeId>((id) => !!lit && !lit.includes(id));
+  const edges = flowFilter(flow, "alle");
   const reduced = useReducedMotion();
-  const svg = useSvgIds();
-
-  const litNodes = FLOW_NODES[flow];
-  const nodeState = (id: NodeId) => {
-    const cls = [];
-    if (selected === id) cls.push("is-active");
-    if (litNodes && !litNodes.includes(id)) cls.push("is-dim");
-    return cls.join(" ");
-  };
-  const edgeOn = (flows: FlowId[]) => flow === "alle" || flows.includes(flow);
-  const edgeState = (flows: FlowId[]) => (flow === "alle" ? "" : edgeOn(flows) ? "is-lit" : "is-dim");
-
-  const toggle = (id: NodeId) => setSelected((s) => (s === id ? null : id));
-  const nodeProps = (id: NodeId, label: string) => ({
-    className: `arch-node ${nodeState(id)}`,
-    role: "button" as const,
-    tabIndex: 0,
-    "aria-pressed": selected === id,
-    "aria-label": `${label}: vis detaljer`,
-    onClick: () => toggle(id),
-    onKeyDown: onActivate(() => toggle(id)),
-  });
-
-  const current = FLOWS.find((f) => f.id === flow)!;
-  const info = selected ? INFO[selected] : null;
 
   return (
-    <div className="avs-sys">
-      <div className="avs-toolbar">
-        <ToggleGroup size="small" value={flow} onChange={(v) => setFlow(v as FlowId)} label="Vis flyt">
-          {FLOWS.map((f) => (
-            <ToggleGroup.Item key={f.id} value={f.id} label={f.label} />
-          ))}
-        </ToggleGroup>
-        <BodyShort size="small" className="avs-toolbar__text" aria-live="polite">
-          {current.text}
-        </BodyShort>
-      </div>
+    <div>
+      <FlowToolbar label="Vis flyt" value={flow} onChange={setFlow} options={FLOWS} />
 
-      <div className="portal-diagram avs-surface">
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          style={{ width: "100%", minWidth: 760, height: "auto", display: "block" }}
-          role="group"
-          aria-label="Systemene rundt automatisk sletting"
-        >
-          <defs>
-            <marker id={svg.id("arrow")} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M0,0 L10,5 L0,10 z" fill="var(--ax-border-neutral-strong)" />
-            </marker>
-          </defs>
+      <FlowCanvas width={W} height={H} minWidth={760} label="Systemene rundt automatisk sletting">
+        <Zone x={430} y={60} w={270} h={140} tone="meta-purple" label="KAFKA" dim={!edges.on(["inn"])} />
 
-          {/* Kafka-sone */}
-          <g className={`arch-rf__group ${flow !== "alle" && flow !== "inn" ? "is-dim" : ""}`}>
-            <rect x={430} y={60} width={270} height={140} rx={14} fill="var(--ax-bg-meta-purple-soft)" fillOpacity={0.45} stroke="var(--ax-border-meta-purple)" strokeOpacity={0.5} strokeDasharray="5 5" />
-            <text x={444} y={77} fontSize={10} className="arch-eyebrow-svg" fill="var(--ax-text-meta-purple)">
-              KAFKA
-            </text>
-          </g>
+        {EDGES.map((e) => (
+          <FlowEdge key={e.id} d={e.d} state={edges.state(e.flows)} />
+        ))}
+        {EDGE_LABELS.map((l) => (
+          <EdgeLabel key={l.edge} x={l.x} y={l.y} state={edges.state(flowsOf(l.edge))}>
+            {l.text}
+          </EdgeLabel>
+        ))}
 
-          {/* Kanter */}
-          {EDGES.map((e) => (
-            <g key={e.id} className={`arch-rf__edge ${edgeState(e.flows)}`}>
-              <path d={e.d} stroke="var(--ax-border-neutral-strong)" strokeOpacity={0.75} strokeWidth={1.6} fill="none" markerEnd={svg.url("arrow")} />
-              <path d={e.d} stroke="var(--ax-border-accent)" strokeWidth={2.6} fill="none" className="arch-flow arch-flow--slow" />
-            </g>
-          ))}
-          {EDGE_LABELS.map((l) => {
-            const e = EDGES.find((x) => x.id === l.edge)!;
+        {/* RINA */}
+        <g {...nodeProps("rina", "RINA")}>
+          <rect x={0} y={30} width={150} height={360} rx={16} fill={TONE.info.fill} stroke={TONE.info.stroke} strokeWidth={1.5} className="arch-box" />
+          <text x={75} y={60} textAnchor="middle" fontSize={17} fontWeight={800} fill="var(--ax-text-neutral)">
+            RINA
+          </text>
+          <text x={75} y={77} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
+            saker og SED-er
+          </text>
+          {[0, 1, 2].map((i) => {
+            const gone = i === 1;
             return (
-              <text
-                key={l.edge}
-                x={l.x}
-                y={l.y}
-                textAnchor="middle"
-                fontSize={10.5}
-                fontWeight={600}
-                className={`arch-halo arch-rf__edge ${edgeState(e.flows)}`}
-                fill="var(--ax-text-neutral-subtle)"
-              >
-                {l.text}
-              </text>
+              <g key={i} opacity={1 - i * 0.22}>
+                <rect
+                  x={20}
+                  y={176 + i * 38}
+                  width={110}
+                  height={28}
+                  rx={7}
+                  fill="var(--ax-bg-default)"
+                  stroke={gone ? TONE.danger.stroke : TONE.info.stroke}
+                  strokeOpacity={0.5}
+                  strokeDasharray={gone ? "3 3" : undefined}
+                />
+                <circle cx={33} cy={190 + i * 38} r={4} fill={gone ? TONE.danger.stroke : TONE.info.stroke} />
+                <rect x={43} y={185 + i * 38} width={60 - i * 12} height={4} rx={2} fill="var(--ax-border-neutral-subtle)" />
+                <rect x={43} y={193 + i * 38} width={38 + i * 8} height={3} rx={1.5} fill="var(--ax-border-neutral-subtle)" />
+                {gone && (
+                  <path
+                    d={`M 110 ${184 + i * 38} l 12 12 M 122 ${184 + i * 38} l -12 12`}
+                    stroke={TONE.danger.stroke}
+                    strokeWidth={1.8}
+                    strokeLinecap="round"
+                    className={flow === "rina" && !reduced ? "sl-sys__x" : ""}
+                  />
+                )}
+              </g>
             );
           })}
+          <Port x={96} cy={130} label="NIE" />
+          <Port x={96} cy={345} label="CPI" />
+        </g>
 
-          {/* RINA */}
-          <g {...nodeProps("rina", "RINA")}>
-            <rect x={0} y={30} width={150} height={360} rx={16} fill={TONE.info.fill} stroke={TONE.info.stroke} strokeWidth={1.5} className="arch-box" />
-            <text x={75} y={60} textAnchor="middle" fontSize={17} fontWeight={800} fill="var(--ax-text-neutral)">
-              RINA
-            </text>
-            <text x={75} y={77} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
-              saker og SED-er
-            </text>
-            {[0, 1, 2].map((i) => {
-              const gone = i === 1;
-              return (
-                <g key={i} opacity={1 - i * 0.22}>
-                  <rect
-                    x={20}
-                    y={176 + i * 38}
-                    width={110}
-                    height={28}
-                    rx={7}
-                    fill="var(--ax-bg-default)"
-                    stroke={gone ? TONE.danger.stroke : TONE.info.stroke}
-                    strokeOpacity={0.5}
-                    strokeDasharray={gone ? "3 3" : undefined}
-                  />
-                  <circle cx={33} cy={190 + i * 38} r={4} fill={gone ? TONE.danger.stroke : TONE.info.stroke} />
-                  <rect x={43} y={185 + i * 38} width={60 - i * 12} height={4} rx={2} fill="var(--ax-border-neutral-subtle)" />
-                  <rect x={43} y={193 + i * 38} width={38 + i * 8} height={3} rx={1.5} fill="var(--ax-border-neutral-subtle)" />
-                  {gone && (
-                    <path
-                      d={`M 110 ${184 + i * 38} l 12 12 M 122 ${184 + i * 38} l -12 12`}
-                      stroke={TONE.danger.stroke}
-                      strokeWidth={1.8}
-                      strokeLinecap="round"
-                      className={flow === "rina" && !reduced ? "sl-sys__x" : ""}
-                    />
-                  )}
-                </g>
-              );
-            })}
-            <Port x={96} cy={130} label="NIE" />
-            <Port x={96} cy={345} label="CPI" />
-          </g>
+        {/* eux-all-rina-events */}
+        <g {...nodeProps("events", "eux-all-rina-events")}>
+          <rect x={200} y={102} width={180} height={56} rx={12} fill={TONE["meta-purple"].fill} stroke={TONE["meta-purple"].stroke} strokeWidth={1.5} className="arch-box" />
+          <text x={290} y={127} textAnchor="middle" fontSize={12.5} fontWeight={700} fill="var(--ax-text-neutral)">
+            eux-all-rina-events
+          </text>
+          <text x={290} y={144} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
+            RINA → Kafka
+          </text>
+        </g>
 
-          {/* eux-all-rina-events */}
-          <g {...nodeProps("events", "eux-all-rina-events")}>
-            <rect x={200} y={102} width={180} height={56} rx={12} fill={TONE["meta-purple"].fill} stroke={TONE["meta-purple"].stroke} strokeWidth={1.5} className="arch-box" />
-            <text x={290} y={127} textAnchor="middle" fontSize={12.5} fontWeight={700} fill="var(--ax-text-neutral)">
-              eux-all-rina-events
-            </text>
-            <text x={290} y={144} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
-              RINA → Kafka
-            </text>
-          </g>
+        {/* Topics */}
+        <Topic x={446} cy={100} w={238} h={32} name="eux-rina-case-events-v1" props={nodeProps("topic-case", "eux-rina-case-events-v1")} />
+        <Topic x={446} cy={160} w={238} h={32} name="eux-rina-document-events-v1" props={nodeProps("topic-doc", "eux-rina-document-events-v1")} />
 
-          {/* Topics */}
-          <Topic cy={100} name="eux-rina-case-events-v1" props={nodeProps("topic-case", "eux-rina-case-events-v1")} />
-          <Topic cy={160} name="eux-rina-document-events-v1" props={nodeProps("topic-doc", "eux-rina-document-events-v1")} />
+        {/* eux-slett-usendte-rinasaker */}
+        <g {...nodeProps("app", "eux-slett-usendte-rinasaker")}>
+          <rect x={740} y={30} width={200} height={240} rx={16} fill={TONE.accent.fill} stroke={TONE.accent.stroke} strokeWidth={1.8} className="arch-box" />
+          <rect x={740} y={30} width={200} height={240} rx={16} fill="none" stroke={TONE.accent.stroke} className="arch-pulse" />
+          <text x={840} y={55} textAnchor="middle" fontSize={12} fontWeight={800} fill="var(--ax-text-neutral)">
+            eux-slett-usendte-rinasaker
+          </text>
+          <text x={840} y={72} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
+            Kotlin · Spring Boot
+          </text>
+          {[
+            { cy: 100, t: "leggTilSak" },
+            { cy: 160, t: "leggTilDokument" },
+          ].map((p) => (
+            <g key={p.t}>
+              <rect x={752} y={p.cy - 12} width={134} height={24} rx={7} fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeOpacity={0.55} />
+              <text x={819} y={p.cy + 4} textAnchor="middle" fontSize={10.5} className="arch-mono" fill="var(--ax-text-neutral)">
+                {p.t}
+              </text>
+            </g>
+          ))}
+          <text x={819} y={132} textAnchor="middle" fontSize={9.5} fill="var(--ax-text-neutral-subtle)">
+            Kafka-lyttere
+          </text>
+          <ArrowPath d="M 819 172 L 819 192" stroke={TONE.accent.stroke} strokeWidth={1.3} strokeDasharray="3 3" />
+          {/* Database */}
+          <path d="M 762 202 L 762 250 A 58 8 0 0 0 878 250 L 878 202" fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeWidth={1.3} />
+          <ellipse cx={820} cy={202} rx={58} ry={8} fill="var(--ax-bg-accent-moderate)" stroke={TONE.accent.stroke} strokeWidth={1.3} />
+          <text x={820} y={228} textAnchor="middle" fontSize={11} fontWeight={700} fill="var(--ax-text-neutral)">
+            PostgreSQL
+          </text>
+          <text x={820} y={243} textAnchor="middle" fontSize={9.5} className="arch-mono" fill="var(--ax-text-neutral-subtle)">
+            rinasak_status
+          </text>
+          {/* REST-API */}
+          <rect x={898} y={86} width={30} height={168} rx={8} fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeOpacity={0.55} />
+          <text x={913} y={170} textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={700} letterSpacing="0.12em" fill="var(--ax-text-accent)" transform="rotate(-90 913 170)">
+            REST-API
+          </text>
+          <ArrowPath d="M 898 226 L 880 226" stroke={TONE.accent.stroke} strokeWidth={1.3} strokeDasharray="3 3" />
+        </g>
 
-          {/* eux-slett-usendte-rinasaker */}
-          <g {...nodeProps("app", "eux-slett-usendte-rinasaker")}>
-            <rect x={740} y={30} width={200} height={240} rx={16} fill={TONE.accent.fill} stroke={TONE.accent.stroke} strokeWidth={1.8} className="arch-box" />
-            <rect x={740} y={30} width={200} height={240} rx={16} fill="none" stroke={TONE.accent.stroke} className="arch-pulse" />
-            <text x={840} y={55} textAnchor="middle" fontSize={12} fontWeight={800} fill="var(--ax-text-neutral)">
-              eux-slett-usendte-rinasaker
-            </text>
-            <text x={840} y={72} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
-              Kotlin · Spring Boot
-            </text>
-            {[
-              { cy: 100, t: "leggTilSak" },
-              { cy: 160, t: "leggTilDokument" },
-            ].map((p) => (
-              <g key={p.t}>
-                <rect x={752} y={p.cy - 12} width={134} height={24} rx={7} fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeOpacity={0.55} />
-                <text x={819} y={p.cy + 4} textAnchor="middle" fontSize={10.5} className="arch-mono" fill="var(--ax-text-neutral)">
-                  {p.t}
+        {/* NAIS-jobber */}
+        <g {...nodeProps("naisjob", "eux-slett-usendte-rinasaker-naisjob")}>
+          <rect x={990} y={30} width={150} height={240} rx={16} fill={TONE.warning.fill} stroke={TONE.warning.stroke} strokeWidth={1.5} className="arch-box" />
+          <text x={1065} y={55} textAnchor="middle" fontSize={13.5} fontWeight={800} fill="var(--ax-text-neutral)">
+            NAIS-jobber
+          </text>
+          <text x={1065} y={72} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
+            CronJob · uten token
+          </text>
+          {JOB_ROWS.map((j) => {
+            const on = edges.on(jobFlows(j.no));
+            return (
+              <g key={j.no} opacity={on ? 1 : 0.35} style={{ transition: "opacity 220ms ease" }}>
+                <rect x={1000} y={j.cy - 17} width={130} height={34} rx={8} fill="var(--ax-bg-default)" fillOpacity={0.85} />
+                <circle cx={1014} cy={j.cy} r={8} fill={TONE.warning.strong} />
+                <text x={1014} y={j.cy + 3.5} textAnchor="middle" fontSize={10} fontWeight={800} fill="var(--ax-text-warning-contrast)">
+                  {j.no}
+                </text>
+                <text x={1029} y={j.cy - 2} fontSize={11} fontWeight={600} className="arch-mono" fill="var(--ax-text-neutral)">
+                  {j.name}
+                </text>
+                <text x={1029} y={j.cy + 11} fontSize={9.5} fill="var(--ax-text-neutral-subtle)">
+                  {j.when}
                 </text>
               </g>
-            ))}
-            <text x={819} y={132} textAnchor="middle" fontSize={9.5} fill="var(--ax-text-neutral-subtle)">
-              Kafka-lyttere
-            </text>
-            <path d="M 819 172 L 819 192" stroke={TONE.accent.stroke} strokeWidth={1.3} strokeDasharray="3 3" markerEnd={svg.url("arrow")} />
-            {/* Database */}
-            <path d="M 762 202 L 762 250 A 58 8 0 0 0 878 250 L 878 202" fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeWidth={1.3} />
-            <ellipse cx={820} cy={202} rx={58} ry={8} fill="var(--ax-bg-accent-moderate)" stroke={TONE.accent.stroke} strokeWidth={1.3} />
-            <text x={820} y={228} textAnchor="middle" fontSize={11} fontWeight={700} fill="var(--ax-text-neutral)">
-              PostgreSQL
-            </text>
-            <text x={820} y={243} textAnchor="middle" fontSize={9.5} className="arch-mono" fill="var(--ax-text-neutral-subtle)">
-              rinasak_status
-            </text>
-            {/* REST-API */}
-            <rect x={898} y={86} width={30} height={168} rx={8} fill="var(--ax-bg-default)" stroke={TONE.accent.stroke} strokeOpacity={0.55} />
-            <text x={913} y={170} textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={700} letterSpacing="0.12em" fill="var(--ax-text-accent)" transform="rotate(-90 913 170)">
-              REST-API
-            </text>
-            <path d="M 898 226 L 880 226" stroke={TONE.accent.stroke} strokeWidth={1.3} strokeDasharray="3 3" markerEnd={svg.url("arrow")} />
-          </g>
+            );
+          })}
+          <text x={1065} y={256} textAnchor="middle" fontSize={9.5} fill="var(--ax-text-neutral-subtle)">
+            tidssone Europe/Oslo
+          </text>
+        </g>
 
-          {/* NAIS-jobber */}
-          <g {...nodeProps("naisjob", "eux-slett-usendte-rinasaker-naisjob")}>
-            <rect x={990} y={30} width={150} height={240} rx={16} fill={TONE.warning.fill} stroke={TONE.warning.stroke} strokeWidth={1.5} className="arch-box" />
-            <text x={1065} y={55} textAnchor="middle" fontSize={13.5} fontWeight={800} fill="var(--ax-text-neutral)">
-              NAIS-jobber
-            </text>
-            <text x={1065} y={72} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
-              CronJob · uten token
-            </text>
-            {JOB_ROWS.map((j) => {
-              const on = edgeOn(jobFlows(j.no));
-              return (
-                <g key={j.no} opacity={on ? 1 : 0.35} style={{ transition: "opacity 220ms ease" }}>
-                  <rect x={1000} y={j.cy - 17} width={130} height={34} rx={8} fill="var(--ax-bg-default)" fillOpacity={0.85} />
-                  <circle cx={1014} cy={j.cy} r={8} fill={TONE.warning.strong} />
-                  <text x={1014} y={j.cy + 3.5} textAnchor="middle" fontSize={10} fontWeight={800} fill="var(--ax-text-warning-contrast)">
-                    {j.no}
-                  </text>
-                  <text x={1029} y={j.cy - 2} fontSize={11} fontWeight={600} className="arch-mono" fill="var(--ax-text-neutral)">
-                    {j.name}
-                  </text>
-                  <text x={1029} y={j.cy + 11} fontSize={9.5} fill="var(--ax-text-neutral-subtle)">
-                    {j.when}
-                  </text>
-                </g>
-              );
-            })}
-            <text x={1065} y={256} textAnchor="middle" fontSize={9.5} fill="var(--ax-text-neutral-subtle)">
-              tidssone Europe/Oslo
-            </text>
-          </g>
+        {/* eux-rina-terminator-api */}
+        <g {...nodeProps("terminator", "eux-rina-terminator-api")}>
+          <rect x={420} y={300} width={270} height={90} rx={14} fill={TONE.info.fill} stroke={TONE.info.stroke} strokeWidth={1.5} className="arch-box" />
+          <text x={555} y={322} textAnchor="middle" fontSize={13} fontWeight={800} fill="var(--ax-text-neutral)">
+            eux-rina-terminator-api
+          </text>
+          {[
+            { y: 333, no: 2, verb: "GET", t: "…/{id}/status → kanSlettes" },
+            { y: 360, no: 1, verb: "DELETE", t: "…/{id} → Delete_Case" },
+          ].map((c) => {
+            const on = edges.on(jobFlows(c.no));
+            return (
+              <g key={c.verb} opacity={on ? 1 : 0.4} style={{ transition: "opacity 220ms ease" }}>
+                <rect x={432} y={c.y} width={246} height={21} rx={6} fill="var(--ax-bg-default)" stroke={TONE.info.stroke} strokeOpacity={0.5} />
+                <circle cx={444} cy={c.y + 10.5} r={6.5} fill={TONE.warning.strong} />
+                <text x={444} y={c.y + 13.6} textAnchor="middle" fontSize={8.5} fontWeight={800} fill="var(--ax-text-warning-contrast)">
+                  {c.no}
+                </text>
+                <text x={457} y={c.y + 14} fontSize={9.5} fontWeight={700} className="arch-mono" fill="var(--ax-text-info)">
+                  {c.verb}
+                </text>
+                <text x={c.verb === "GET" ? 481 : 499} y={c.y + 14} fontSize={9.5} className="arch-mono" fill="var(--ax-text-neutral)">
+                  {c.t}
+                </text>
+              </g>
+            );
+          })}
+        </g>
 
-          {/* eux-rina-terminator-api */}
-          <g {...nodeProps("terminator", "eux-rina-terminator-api")}>
-            <rect x={420} y={300} width={270} height={90} rx={14} fill={TONE.info.fill} stroke={TONE.info.stroke} strokeWidth={1.5} className="arch-box" />
-            <text x={555} y={322} textAnchor="middle" fontSize={13} fontWeight={800} fill="var(--ax-text-neutral)">
-              eux-rina-terminator-api
-            </text>
-            {[
-              { y: 333, no: 2, verb: "GET", t: "…/{id}/status → kanSlettes" },
-              { y: 360, no: 1, verb: "DELETE", t: "…/{id} → Delete_Case" },
-            ].map((c) => {
-              const on = edgeOn(jobFlows(c.no));
-              return (
-                <g key={c.verb} opacity={on ? 1 : 0.4} style={{ transition: "opacity 220ms ease" }}>
-                  <rect x={432} y={c.y} width={246} height={21} rx={6} fill="var(--ax-bg-default)" stroke={TONE.info.stroke} strokeOpacity={0.5} />
-                  <circle cx={444} cy={c.y + 10.5} r={6.5} fill={TONE.warning.strong} />
-                  <text x={444} y={c.y + 13.6} textAnchor="middle" fontSize={8.5} fontWeight={800} fill="var(--ax-text-warning-contrast)">
-                    {c.no}
-                  </text>
-                  <text x={457} y={c.y + 14} fontSize={9.5} fontWeight={700} className="arch-mono" fill="var(--ax-text-info)">
-                    {c.verb}
-                  </text>
-                  <text x={c.verb === "GET" ? 481 : 499} y={c.y + 14} fontSize={9.5} className="arch-mono" fill="var(--ax-text-neutral)">
-                    {c.t}
-                  </text>
-                </g>
-              );
-            })}
-          </g>
+        {/* Slack */}
+        <g {...nodeProps("slack", "Slack")}>
+          <rect x={990} y={316} width={150} height={58} rx={12} fill={TONE.success.fill} stroke={TONE.success.stroke} strokeWidth={1.5} className="arch-box" />
+          <text x={1065} y={341} textAnchor="middle" fontSize={13} fontWeight={800} fill="var(--ax-text-neutral)">
+            Slack
+          </text>
+          <text x={1065} y={358} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
+            månedsrapport
+          </text>
+        </g>
 
-          {/* Slack */}
-          <g {...nodeProps("slack", "Slack")}>
-            <rect x={990} y={316} width={150} height={58} rx={12} fill={TONE.success.fill} stroke={TONE.success.stroke} strokeWidth={1.5} className="arch-box" />
-            <text x={1065} y={341} textAnchor="middle" fontSize={13} fontWeight={800} fill="var(--ax-text-neutral)">
-              Slack
-            </text>
-            <text x={1065} y={358} textAnchor="middle" fontSize={10.5} fill="var(--ax-text-neutral-subtle)">
-              månedsrapport
-            </text>
-          </g>
+        <Packets key={flow} packets={PACKETS[flow]} />
+      </FlowCanvas>
 
-          {!reduced &&
-            PACKETS[flow].map((p, i) => (
-              <circle key={`${flow}-${i}`} r={5} fill="var(--ax-bg-accent-strong)" className="arch-packet">
-                <animateMotion dur={`${p.dur}s`} begin={`${p.begin ?? 0}s`} repeatCount="indefinite" path={p.d} />
-              </circle>
-            ))}
-        </svg>
-      </div>
-
-      {info ? (
-        <div className="avs-detail" data-tone={info.tone} aria-live="polite">
-          <div className="avs-detail__head">
-            <div>
-              <Detail className="arch-eyebrow">{info.kind}</Detail>
-              <Heading level="3" size="small" className="arch-mono">
-                {info.title}
-              </Heading>
-            </div>
-            <Button size="xsmall" variant="tertiary-neutral" icon={<XMarkIcon aria-hidden />} onClick={() => setSelected(null)}>
-              Lukk
-            </Button>
-          </div>
-          <BodyLong size="small">{info.text}</BodyLong>
-          <ul className="arch-facts">
-            {info.facts.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
-          <HStack gap="space-16" wrap>
-            {info.arch && (
-              <DsLink as={NextLink} href={archHref(info.arch)}>
-                Vis i arkitekturkartet <ArrowRightIcon aria-hidden />
-              </DsLink>
-            )}
-            {info.repo && (
-              <DsLink href={ghHref(info.repo)} target="_blank" rel="noreferrer">
-                navikt/{info.repo} <ExternalLinkIcon aria-hidden />
-              </DsLink>
-            )}
-          </HStack>
-        </div>
-      ) : (
-        <BodyShort size="small" className="avs-hint">
-          Velg en boks i figuren for å se hva den gjør.
-        </BodyShort>
-      )}
+      <NodeDetail info={selected ? INFO[selected] : null} onClose={clear} />
     </div>
-  );
-}
-
-function Port({ x, cy, label }: { x: number; cy: number; label: string }) {
-  return (
-    <g>
-      <rect x={x} y={cy - 11} width={46} height={22} rx={11} fill="var(--ax-bg-info-strong)" />
-      <text x={x + 23} y={cy + 4} textAnchor="middle" fontSize={10.5} fontWeight={800} letterSpacing="0.06em" fill="var(--ax-text-info-contrast)">
-        {label}
-      </text>
-    </g>
-  );
-}
-
-function Topic({ cy, name, props }: { cy: number; name: string; props: React.SVGProps<SVGGElement> }) {
-  const t = TONE["meta-purple"];
-  return (
-    <g {...props}>
-      <rect x={446} y={cy - 16} width={238} height={32} rx={16} fill="var(--ax-bg-default)" stroke={t.stroke} strokeWidth={1.5} className="arch-box" />
-      {[0, 1, 2, 3].map((i) => (
-        <rect key={i} x={458 + i * 6} y={cy - 7} width={3.5} height={14} rx={1.5} fill={t.stroke} opacity={0.35 + i * 0.2} />
-      ))}
-      <text x={488} y={cy + 4} fontSize={10.8} className="arch-mono" fill="var(--ax-text-neutral)">
-        {name}
-      </text>
-    </g>
   );
 }

@@ -114,7 +114,11 @@ Oslo clock that is null until hydration), `Slack.tsx` (`SlackFigure`,
 `SlackMessage` and `SlackCode` for the Slack mocks, styled by `proc-slack*`),
 `useJourneyPlayer()` with `Journey.tsx` (`JourneyBar` and `JourneyToken`) for
 the play/pause/scrub case journeys (`proc-journey*`), and `StatusChips.tsx`
-(`StatusChip`, `StatusChips`; `proc-chip`). New styles shared between process
+(`StatusChip`, `StatusChips`; `proc-chip`). The system-flow diagrams are
+built from `FlowCanvas.tsx` (`FlowCanvas`, `FlowEdge`, `EdgeLabel`, `Packets`,
+`Zone`, `Port`, `Topic`, `Box`), `useNodeSelection()`/`flowFilter()` for
+selection and flow toggles, and `FlowPanel.tsx` (`FlowToolbar`, `DetailPanel`,
+`DetailHint`, `NodeDetail`; `proc-toolbar`, `proc-detail`). New styles shared between process
 pages use the `proc-` prefix rather than another feature's prefix.
 
 ### Logged-in user

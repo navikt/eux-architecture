@@ -168,7 +168,7 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
         </Button>
       </HStack>
 
-      <div className="portal-diagram avs-surface">
+      <div className="portal-diagram proc-surface">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: "100%", minWidth: 760, height: "auto", display: "block" }}
@@ -301,7 +301,7 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
         </svg>
       </div>
 
-      <div className="avs-detail" data-tone={info.tone} aria-live="polite">
+      <div className="proc-detail" data-tone={info.tone} aria-live="polite">
         <BodyLong size="small">
           <StatusChip id={result} tone={info.tone} onClick={() => onFocusStatus(result)} />{" "}
           {text}

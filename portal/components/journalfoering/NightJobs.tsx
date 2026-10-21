@@ -51,18 +51,18 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
 
   return (
     <div className="jfr-night">
-      <div className="avs-toolbar">
+      <div className="proc-toolbar">
         <ToggleGroup size="small" value={env} onChange={(v) => setEnv(v as Env)} label="Miljø">
           {ENVS.map((e) => (
             <ToggleGroup.Item key={e} value={e} label={e} />
           ))}
         </ToggleGroup>
-        <BodyShort size="small" className="avs-toolbar__text">
+        <BodyShort size="small" className="proc-toolbar__text">
           Tidene er norsk tid. Naisjobbene har <code>timeZone: Europe/Oslo</code>.
         </BodyShort>
       </div>
 
-      <div className="portal-diagram avs-surface">
+      <div className="portal-diagram proc-surface">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: "100%", minWidth: 760, height: "auto", display: "block" }}

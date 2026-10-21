@@ -105,7 +105,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
 
   return (
     <div className="avs-sm sl-sm">
-      <div className="portal-diagram avs-surface">
+      <div className="portal-diagram proc-surface">
         <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", minWidth: 820, height: "auto", display: "block" }} role="group" aria-label="Statusene til en sak i eux-slett-usendte-rinasaker">
           <defs>
             {(
@@ -255,8 +255,8 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
       </div>
 
       {info ? (
-        <div className="avs-detail" data-tone={info.tone} aria-live="polite">
-          <div className="avs-detail__head">
+        <div className="proc-detail" data-tone={info.tone} aria-live="polite">
+          <div className="proc-detail__head">
             <div>
               <Detail className="arch-eyebrow">{info.label}</Detail>
               <Heading level="3" size="small" className="arch-mono">
@@ -305,7 +305,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
           </dl>
         </div>
       ) : (
-        <BodyShort size="small" className="avs-hint">
+        <BodyShort size="small" className="proc-hint">
           Velg en status for å se hvor saken kommer fra og hvor den kan gå videre. Den lilla prikken på hver status betyr at en
           SED flytter saken til DOKUMENT_SENT.
         </BodyShort>

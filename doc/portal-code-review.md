@@ -204,11 +204,19 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
 - **Fixed:** 2026-10-21: second slice, the case-journey player. `useJourneyPlayer()` (`components/process/useJourneyPlayer.ts`) replaces the two copies of the rAF play/pause/scrub/reset/reduced-motion logic, with an optional `JourneyScale` so sletting's broken axis still plays at an even speed along x. `JourneyBar` (play button, scrubber and status readout) and `JourneyToken` live in `components/process/Journey.tsx`. Both `CaseJourney`s lost about 70 lines each, and their shared classes were renamed from `avs-journey__*`, `avs-status-pill` and `avs-breathe` to `proc-journey__*`, `proc-status-pill` and `proc-breathe`. The prerendered HTML of all 15 pages is identical apart from the renames and avslutning's scrubber `aria-valuetext`, which now reads "dag 520" like the visible label. In headless Chrome the bar, scrubber, readout and pill have the same position, size and colours as before in light and dark mode at 1280 and 600 px. Play, pause, resume, scrub, reset when the scenario changes, and the reduced-motion jump to the end all behave as before. The rest is task 20c.
 
-### [ ] 20c · Share the remaining process-page building blocks
+### [x] 20c · Share the remaining process-page building blocks
 - **Area:** portal · **Effort:** L · **Depends on:** 20b
 - **Where:** `components/{avslutning,sletting,journalfoering,adresse}/SystemFlow.tsx` (`Port`, `Topic`, `Box` and the selection/hover props), the three `StatusMachine.tsx` (layout, detail panel), the simulators (`avslutning/DecisionSimulator.tsx`, `journalfoering/Simulator.tsx`: ladder and presets), the step players in `journalfoering/CaseStory.tsx` and `architecture/RequestFlow.tsx`, and the page scaffolding in `app/prosesser/*/page.tsx`
 - **Problem:** these are still copied per feature with small differences.
 - **Fix:** extract one building block per run into `components/process/` (start with the `SystemFlow` SVG primitives), and add the remaining slices as new tasks.
+- **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
+- **Fixed:** 2026-10-21: third slice, the system-flow diagrams. `components/process/FlowCanvas.tsx` holds the SVG pieces: `FlowCanvas` (surface, SVG and arrow marker), `FlowEdge`, `EdgeLabel`, `Packets`, `Zone`, `Port`, `Topic` and `Box`. `useNodeSelection()` (`useNodeSelection.ts`) holds the click/hover/keyboard selection and dimming props, and `flowFilter()` the per-flow toggle. `FlowPanel.tsx` holds `FlowToolbar`, `DetailPanel`, `DetailHint` and `NodeDetail`. The four `SystemFlow`s went from 524/547/740/613 to 370/404/549/453 lines, and the shared classes were renamed from `avs-toolbar*`, `avs-hint`, `avs-detail*` and `avs-surface` to `proc-*`. The toolbar's `aria-live` text is no longer re-mounted on every toggle, so screen readers announce the change once. In headless Chrome, all 242 states (every toggle, node click, Enter and Lukk, in light and dark mode) have the same position, size, computed styles and SVG attributes as before. The prerendered HTML of all 15 pages is identical apart from the renames, `useId` values and the unstyled `avs-sys`/`adr-sys` wrapper class, which was removed. The rest is task 20d.
+
+### [ ] 20d · Share the state machines, simulators and step players
+- **Area:** portal · **Effort:** L · **Depends on:** 20c
+- **Where:** the three `StatusMachine.tsx` (layout; the detail panel can now use `DetailPanel`/`DetailHint` from `components/process/FlowPanel.tsx`), the simulators (`avslutning/DecisionSimulator.tsx`, `journalfoering/Simulator.tsx`: ladder and presets), the step players in `journalfoering/CaseStory.tsx` and `architecture/RequestFlow.tsx`, the near-identical Kafka-intake layout in the avslutning and sletting `SystemFlow`s, and the page scaffolding in `app/prosesser/*/page.tsx`
+- **Problem:** these are still copied per feature with small differences.
+- **Fix:** extract one building block per run into `components/process/`, and add the remaining slices as new tasks.
 - **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
 
 ### [ ] 21 · Stop sharing CSS prefixes across features
@@ -217,7 +225,7 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Problem:** changing one page's styles can break another page.
 - **Fix:** rename the shared classes to a neutral prefix (for example `proc-*`).
 - **Done when:** each feature uses only its own prefix or `proc-*`.
-- **Note:** the Slack mock already uses `proc-slack*` (done in 20). The case journeys use `proc-journey__*`, `proc-status-pill` and `proc-breathe` (done in 20b), and the status chips use `proc-chip` and `proc-unused` (done with 22's `StatusChip` point). `avs-surface`, the `avs-legend*`, `avs-detail`, `avs-rung` and the `sl-*`/`jfr-*` classes used across features remain.
+- **Note:** the Slack mock already uses `proc-slack*` (done in 20). The case journeys use `proc-journey__*`, `proc-status-pill` and `proc-breathe` (done in 20b), and the status chips use `proc-chip` and `proc-unused` (done with 22's `StatusChip` point). The toolbar, hint, detail panel and surface use `proc-toolbar*`, `proc-hint`, `proc-detail*` and `proc-surface` (done in 20c). The `avs-legend*`, `avs-rung` and the `sl-*`/`jfr-*` classes used across features remain.
 
 ### [ ] 22 · Clean up leftovers in the process pages
 - **Area:** portal · **Effort:** S–M · **Best after:** 20

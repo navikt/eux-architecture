@@ -169,18 +169,18 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
 
   return (
     <div className="avs-sm jfr-sm">
-      <div className="avs-toolbar">
+      <div className="proc-toolbar">
         <ToggleGroup size="small" value={filter} onChange={(v) => setFilter(v as Filter)} label="Hvem flytter SED-en?">
           <ToggleGroup.Item value="alle">Alle</ToggleGroup.Item>
           <ToggleGroup.Item value="F">Fagmodulen</ToggleGroup.Item>
           <ToggleGroup.Item value="1">ferdigstill</ToggleGroup.Item>
           <ToggleGroup.Item value="2">feilregistrer</ToggleGroup.Item>
         </ToggleGroup>
-        <BodyShort size="small" className="avs-toolbar__text" aria-live="polite">
+        <BodyShort size="small" className="proc-toolbar__text" aria-live="polite">
           {FILTER_TEXT[filter]}
         </BodyShort>
       </div>
-      <div className="portal-diagram avs-surface">
+      <div className="portal-diagram proc-surface">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: "100%", minWidth: 860, height: "auto", display: "block" }}
@@ -326,8 +326,8 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
       </div>
 
       {info ? (
-        <div className="avs-detail" data-tone={info.tone} aria-live="polite">
-          <div className="avs-detail__head">
+        <div className="proc-detail" data-tone={info.tone} aria-live="polite">
+          <div className="proc-detail__head">
             <div>
               <Detail className="arch-eyebrow">{info.label}</Detail>
               <Heading level="3" size="small" className="arch-mono">
@@ -381,7 +381,7 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
           </dl>
         </div>
       ) : (
-        <BodyShort size="small" className="avs-hint">
+        <BodyShort size="small" className="proc-hint">
           Velg en status for å se hvem som setter den, og hvor SED-en kan gå videre. Statusen ligger i tabellen sed_journalstatus i eux-nav-rinasak,
           én rad per SED-versjon.
         </BodyShort>

@@ -50,19 +50,19 @@ export function NightPipeline({ onFocusStatus }: { onFocusStatus: (s: StatusId) 
 
   return (
     <div className="avs-night">
-      <div className="avs-toolbar">
+      <div className="proc-toolbar">
         <ToggleGroup size="small" value={env} onChange={(v) => setEnv(v as Env)} label="Miljø">
           {ENVS.map((e) => (
             <ToggleGroup.Item key={e.id} value={e.id} label={e.label} />
           ))}
         </ToggleGroup>
-        <BodyShort size="small" className="avs-toolbar__text" aria-live="polite">
+        <BodyShort size="small" className="proc-toolbar__text" aria-live="polite">
           {ENV_NOTES[env]}
         </BodyShort>
       </div>
 
       <div className="avs-night__grid">
-        <div className="portal-diagram avs-surface avs-night__dial">
+        <div className="portal-diagram proc-surface avs-night__dial">
           <svg viewBox={`0 0 ${S} ${S}`} style={{ width: "100%", maxWidth: 420, height: "auto", display: "block", margin: "0 auto" }} role="img" aria-label={`Døgnklokke for ${env}: ${daily.map((d) => `${d.j.id} ${klokke(d.s.h, d.s.m)}`).join(", ")}`}>
             <circle cx={C} cy={C} r={R} fill="none" stroke="var(--ax-border-neutral-subtle)" strokeWidth={14} opacity={0.5} />
             {/* Natt (mørk halvdel) */}

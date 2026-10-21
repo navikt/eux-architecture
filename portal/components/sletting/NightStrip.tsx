@@ -44,7 +44,7 @@ export function NightStrip({ onFocusStatus }: { onFocusStatus: (s: StatusId) => 
 
   return (
     <div className="sl-night">
-      <div className="portal-diagram avs-surface">
+      <div className="portal-diagram proc-surface">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: "100%", minWidth: 760, height: "auto", display: "block" }}

@@ -206,7 +206,7 @@ export function CaseJourney({
         </HStack>
       </div>
 
-      <div className="portal-diagram avs-surface proc-journey__surface">
+      <div className="portal-diagram proc-surface proc-journey__surface">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: "100%", minWidth: 760, height: "auto", display: "block" }}

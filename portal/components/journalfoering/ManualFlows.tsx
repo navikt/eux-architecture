@@ -198,7 +198,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
         </Button>
       </HStack>
 
-      <div className="portal-diagram avs-surface">
+      <div className="portal-diagram proc-surface">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: "100%", minWidth: 900, height: "auto", display: "block" }}
@@ -391,7 +391,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
         ))}
       </ol>
 
-      <div className="avs-detail" data-tone="warning" aria-live="polite">
+      <div className="proc-detail" data-tone="warning" aria-live="polite">
         <BodyLong size="small">{OUTRO[flow].text}</BodyLong>
         <StatusChips ids={OUTRO[flow].status} onFocusStatus={onFocusStatus} />
       </div>
