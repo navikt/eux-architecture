@@ -110,8 +110,12 @@ in a new tab).
 The process pages (`app/prosesser/*`) and the night timeline share
 `components/process/`: `time.ts` (Oslo clock, `klokke`/`hhmm`, `until`, and
 `nextDaily`/`nextOnDay` for "next run" labels), `useOsloNow()` (a ticking
-Oslo clock that is null until hydration) and `Slack.tsx` (`SlackFigure`,
-`SlackMessage` and `SlackCode` for the Slack mocks, styled by `proc-slack*`).
+Oslo clock that is null until hydration), `Slack.tsx` (`SlackFigure`,
+`SlackMessage` and `SlackCode` for the Slack mocks, styled by `proc-slack*`),
+`useJourneyPlayer()` with `Journey.tsx` (`JourneyBar` and `JourneyToken`) for
+the play/pause/scrub case journeys (`proc-journey*`), and `StatusChips.tsx`
+(`StatusChip`, `StatusChips`; `proc-chip`). New styles shared between process
+pages use the `proc-` prefix rather than another feature's prefix.
 
 ### Logged-in user
 

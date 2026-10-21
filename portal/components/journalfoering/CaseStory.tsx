@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BodyLong, BodyShort, Button, Detail, Heading, ToggleGroup } from "@navikt/ds-react";
 import { ChevronLeftIcon, ChevronRightIcon, CogIcon, EnvelopeClosedIcon, MoonIcon, PauseIcon, PersonIcon, PlayIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
+import { StatusChip } from "@/components/process/StatusChips";
 import { STATUS_BY_ID, type StatusId, type Tone } from "./data";
 
 type Variant = "neessi" | "gosys";
@@ -274,15 +275,12 @@ export function CaseStory({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
                 </span>
                 <span role="cell" data-changed={changed(i, "status")} key={`s-${index}-${variant}-${changed(i, "status")}`}>
                   {r.status ? (
-                    <button
-                      type="button"
-                      className="avs-chip arch-mono"
-                      data-tone={STATUS_BY_ID[r.status].tone}
+                    <StatusChip
+                      id={r.status}
+                      tone={STATUS_BY_ID[r.status].tone}
                       onClick={() => onFocusStatus(r.status!)}
                       title={`${STATUS_BY_ID[r.status].label} – vis i statusdiagrammet`}
-                    >
-                      {r.status}
-                    </button>
+                    />
                   ) : (
                     <span className="jfr-board__none">–</span>
                   )}

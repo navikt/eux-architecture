@@ -3,6 +3,7 @@
 import { BodyLong, BodyShort, Detail, Heading, HStack } from "@navikt/ds-react";
 import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate, rounded } from "@/components/architecture/svg";
+import { StatusChip } from "@/components/process/StatusChips";
 import { TONE } from "@/lib/tones";
 import { JOB_BY_ID, STATUSES, STATUS_BY_ID, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
@@ -310,14 +311,12 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
         </BodyShort>
       )}
 
-      <HStack gap="space-8" align="center" className="avs-unused">
+      <HStack gap="space-8" align="center" className="proc-unused">
         <BodyShort size="small" className="arch-subtle">
           Finnes i enumen, men brukes ikke:
         </BodyShort>
         {STATUSES.filter((s) => s.unused).map((s) => (
-          <button key={s.id} type="button" className="avs-chip arch-mono" data-tone="neutral" aria-pressed={selected === s.id} onClick={() => toggle(s.id)}>
-            {s.id}
-          </button>
+          <StatusChip key={s.id} id={s.id} tone="neutral" pressed={selected === s.id} onClick={() => toggle(s.id)} />
         ))}
       </HStack>
     </div>

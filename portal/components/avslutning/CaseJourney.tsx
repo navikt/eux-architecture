@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { BodyShort, Button, Chips, Detail, HStack, ToggleGroup } from "@navikt/ds-react";
-import { ArrowRightIcon, PauseIcon, PlayIcon } from "@navikt/aksel-icons";
-import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
+import { useMemo, useState } from "react";
+import { Chips, Detail, HStack, ToggleGroup } from "@navikt/ds-react";
+import { useSvgIds } from "@/components/architecture/hooks";
+import { JourneyBar, JourneyToken } from "@/components/process/Journey";
+import { useJourneyPlayer } from "@/components/process/useJourneyPlayer";
 import { BUCS, BUC_BY_NAME, FAMILIES, STATUS_BY_ID, scopeFor, type Role, type StatusId } from "./data";
 import { TONE } from "@/lib/tones";
 
@@ -166,64 +167,19 @@ export function CaseJourney({
   const scope = scopeFor(b, role);
   const effective: Scenario = scope === null ? "treff" : scenario;
   const journey = useMemo(() => buildJourney(buc, role, effective), [buc, role, effective]);
-  const reduced = useReducedMotion();
   const svg = useSvgIds();
-
-  const [day, setDay] = useState<number | null>(null);
-  const [playing, setPlaying] = useState(false);
-  const shown = day ?? journey.end;
-  const raf = useRef<number | null>(null);
-  const startDay = useRef(0);
   const key = `${buc}-${role}-${effective}`;
-  const [lastKey, setLastKey] = useState(key);
-  if (lastKey !== key) {
-    setLastKey(key);
-    setDay(null);
-    setPlaying(false);
-  }
-
-  useEffect(() => {
-    if (!playing) return;
-    const total = journey.end;
-    const duration = 6500;
-    let start: number | null = null;
-    const from = startDay.current;
-    const step = (ts: number) => {
-      if (start === null) start = ts - (from / total) * duration;
-      const d = Math.min(total, ((ts - start) / duration) * total);
-      setDay(Math.round(d));
-      if (d < total) raf.current = requestAnimationFrame(step);
-      else setPlaying(false);
-    };
-    raf.current = requestAnimationFrame(step);
-    return () => {
-      if (raf.current !== null) cancelAnimationFrame(raf.current);
-    };
-  }, [playing, journey.end]);
+  const player = useJourneyPlayer({ end: journey.end, durationMs: 6500, resetKey: key });
+  const { shown, playing } = player;
 
   const status = statusAt(journey, shown);
   const info = STATUS_BY_ID[status];
   const milestones = [0, ...journey.nights.map((n) => n.day), ...(journey.open ? [] : [journey.end])];
   const ticks = [90, 180, 270, 360, 450, 540, 630, 720].filter((t) => milestones.every((m) => Math.abs(xAt(m) - xAt(t)) > 34));
 
-  const play = () => {
-    if (playing) {
-      setPlaying(false);
-      return;
-    }
-    if (reduced) {
-      setDay(null);
-      return;
-    }
-    const from = day === null || day >= journey.end ? 0 : day;
-    startDay.current = from;
-    setDay(from);
-    setPlaying(true);
-  };
-
   return (
-    <div className="avs-journey">
-      <div className="avs-journey__controls">
+    <div className="proc-journey">
+      <div className="proc-journey__controls">
         <div className="avs-bucpicker" role="group" aria-label="Velg BUC">
           {FAMILIES.map((f) => (
             <div key={f.id} className="avs-bucpicker__family" data-tone={f.tone}>
@@ -250,7 +206,7 @@ export function CaseJourney({
         </HStack>
       </div>
 
-      <div className="portal-diagram avs-surface avs-journey__surface">
+      <div className="portal-diagram avs-surface proc-journey__surface">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: "100%", minWidth: 760, height: "auto", display: "block" }}
@@ -290,7 +246,7 @@ export function CaseJourney({
             const w = Math.max(4, xAt(s.to) - x);
             const fill = s.open ? svg.url("open-fade") : t.stroke;
             return (
-              <g key={`${key}-${i}`} className="avs-journey__seg" style={{ animationDelay: `${i * 120}ms` }}>
+              <g key={`${key}-${i}`} className="proc-journey__seg" style={{ animationDelay: `${i * 120}ms` }}>
                 <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill={fill} opacity={0.3} />
                 <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill={fill} opacity={s.open ? 0.6 : 0.95} clipPath={svg.url("progress")} />
                 {s.open && <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill="none" stroke={t.stroke} strokeDasharray="4 5" opacity={0.7} />}
@@ -380,50 +336,18 @@ export function CaseJourney({
           )}
 
           {/* Markør */}
-          <g
-            className="avs-journey__token"
-            style={{ transform: `translate(${xAt(shown)}px, ${TRACK_Y}px)`, transition: playing ? "none" : "transform 300ms ease" }}
-          >
-            <circle r={13} fill={TONE[info.tone].strong} opacity={0.2} className={playing ? "" : "avs-breathe"} />
-            <circle r={7.5} fill={TONE[info.tone].strong} stroke="var(--ax-bg-default)" strokeWidth={2.5} />
-          </g>
+          <JourneyToken x={xAt(shown)} y={TRACK_Y} tone={info.tone} playing={playing} />
         </svg>
       </div>
 
-      <div className="avs-journey__bar">
-        <Button
-          size="small"
-          variant="primary"
-          icon={playing ? <PauseIcon aria-hidden /> : <PlayIcon aria-hidden />}
-          onClick={play}
-        >
-          {playing ? "Pause" : "Spill av"}
-        </Button>
-        <label className="avs-journey__range">
-          <span className="aksel-sr-only">Dag i saken</span>
-          <input
-            type="range"
-            min={0}
-            max={journey.end}
-            value={shown}
-            onChange={(e) => {
-              setPlaying(false);
-              setDay(Number(e.target.value));
-            }}
-            aria-valuetext={`Dag ${shown}`}
-          />
-        </label>
-        <div className="avs-journey__now" data-tone={info.tone} aria-live="polite">
-          <span className="avs-journey__day arch-mono">dag {shown}</span>
-          <button type="button" className="avs-status-pill" onClick={() => onFocusStatus(status)} title="Vis i statusdiagrammet">
-            <span className="arch-mono">{status}</span>
-            <ArrowRightIcon aria-hidden />
-          </button>
-          <BodyShort size="small" className="arch-subtle">
-            {info.label}
-          </BodyShort>
-        </div>
-      </div>
+      <JourneyBar
+        player={player}
+        end={journey.end}
+        rangeLabel="Dag i saken"
+        when={`dag ${shown}`}
+        status={info}
+        onFocusStatus={() => onFocusStatus(status)}
+      />
     </div>
   );
 }

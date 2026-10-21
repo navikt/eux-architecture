@@ -196,11 +196,19 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
 - **Fixed:** 2026-10-21: first slice. `components/process/time.ts` now holds the only `r2`, `hhmm`, `klokke`, `until`, `MONTHS`, `osloNow` and the "next run" math (`nextDaily`, `nextOnDay`), and `useOsloNow()` replaces four copies of the ticking-clock effect in `NightPipeline`, `NightStrip`, `NightJobs` and `NightTimeline`. `components/process/Slack.tsx` (`SlackFigure`, `SlackMessage`, `SlackCode`) is used by both `SlackReport`s and the journalføring page's Slack feed, and its classes were renamed from `avs-slack*` to `proc-slack*`. Old and new helpers gave identical results for 33 544 timestamps over a year, and the prerendered HTML is identical apart from the class rename and the journalføring Slack caption, which now has the same subtle colour as the other two. The rest is task 20b.
 
-### [ ] 20b · Share the flow and state-machine players across the process pages
+### [x] 20b · Share the flow and state-machine players across the process pages
 - **Area:** portal · **Effort:** L · **Depends on:** 20
 - **Where:** `components/{avslutning,sletting,journalfoering,adresse}/` `SystemFlow.tsx`, `StatusMachine.tsx`, `CaseJourney.tsx`/`Journey.tsx`/`CaseStory.tsx`, the simulators (`DecisionSimulator.tsx`, `journalfoering/Simulator.tsx`) and the page scaffolding in `app/prosesser/*/page.tsx`
 - **Problem:** the playback (play/pause/step, reduced motion), the state-machine layout and the simulator ladder/presets are still copied per feature.
 - **Fix:** extract a generic player into `components/process/`, one component per run, and add the remaining slices as new tasks.
+- **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
+- **Fixed:** 2026-10-21: second slice, the case-journey player. `useJourneyPlayer()` (`components/process/useJourneyPlayer.ts`) replaces the two copies of the rAF play/pause/scrub/reset/reduced-motion logic, with an optional `JourneyScale` so sletting's broken axis still plays at an even speed along x. `JourneyBar` (play button, scrubber and status readout) and `JourneyToken` live in `components/process/Journey.tsx`. Both `CaseJourney`s lost about 70 lines each, and their shared classes were renamed from `avs-journey__*`, `avs-status-pill` and `avs-breathe` to `proc-journey__*`, `proc-status-pill` and `proc-breathe`. The prerendered HTML of all 15 pages is identical apart from the renames and avslutning's scrubber `aria-valuetext`, which now reads "dag 520" like the visible label. In headless Chrome the bar, scrubber, readout and pill have the same position, size and colours as before in light and dark mode at 1280 and 600 px. Play, pause, resume, scrub, reset when the scenario changes, and the reduced-motion jump to the end all behave as before. The rest is task 20c.
+
+### [ ] 20c · Share the remaining process-page building blocks
+- **Area:** portal · **Effort:** L · **Depends on:** 20b
+- **Where:** `components/{avslutning,sletting,journalfoering,adresse}/SystemFlow.tsx` (`Port`, `Topic`, `Box` and the selection/hover props), the three `StatusMachine.tsx` (layout, detail panel), the simulators (`avslutning/DecisionSimulator.tsx`, `journalfoering/Simulator.tsx`: ladder and presets), the step players in `journalfoering/CaseStory.tsx` and `architecture/RequestFlow.tsx`, and the page scaffolding in `app/prosesser/*/page.tsx`
+- **Problem:** these are still copied per feature with small differences.
+- **Fix:** extract one building block per run into `components/process/` (start with the `SystemFlow` SVG primitives), and add the remaining slices as new tasks.
 - **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
 
 ### [ ] 21 · Stop sharing CSS prefixes across features
@@ -209,13 +217,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Problem:** changing one page's styles can break another page.
 - **Fix:** rename the shared classes to a neutral prefix (for example `proc-*`).
 - **Done when:** each feature uses only its own prefix or `proc-*`.
-- **Note:** the Slack mock already uses `proc-slack*` (done in 20).
+- **Note:** the Slack mock already uses `proc-slack*` (done in 20). The case journeys use `proc-journey__*`, `proc-status-pill` and `proc-breathe` (done in 20b), and the status chips use `proc-chip` and `proc-unused` (done with 22's `StatusChip` point). `avs-surface`, the `avs-legend*`, `avs-detail`, `avs-rung` and the `sl-*`/`jfr-*` classes used across features remain.
 
 ### [ ] 22 · Clean up leftovers in the process pages
 - **Area:** portal · **Effort:** S–M · **Best after:** 20
 - **Where:** `components/{journalfoering,adresse,sletting}/*`
 - **Problem:**
-  - an inline `StatusChip` copy
+  - ~~an inline `StatusChip` copy~~ (done 2026-10-21: `components/process/StatusChips.tsx` has `StatusChip` and a generic `StatusChips`; the three feature `StatusChips` are thin wrappers that bind their `STATUS_BY_ID`, the unused `active` prop is gone, and the inline chips in `journalfoering/CaseStory`, `sletting/RinaSequence` and both "brukes ikke" rows in the status machines use `StatusChip`. All 61 chips on the three pages have the same position, size and colours in light and dark mode.)
   - `SET_BY_ACTOR`
   - three `JSON.stringify` comparators
   - sletting copy that describes the deletion rules inaccurately

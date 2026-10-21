@@ -5,6 +5,7 @@ import { BodyLong, Button, Chips, HStack, Label, ToggleGroup } from "@navikt/ds-
 import { ArrowsCirclepathIcon } from "@navikt/aksel-icons";
 import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate } from "@/components/architecture/svg";
+import { StatusChip } from "@/components/process/StatusChips";
 import { TONE } from "@/lib/tones";
 import { STATUS_BY_ID, type StatusId, type Tone } from "./data";
 
@@ -302,9 +303,7 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
 
       <div className="avs-detail" data-tone={info.tone} aria-live="polite">
         <BodyLong size="small">
-          <button type="button" className="avs-chip arch-mono" data-tone={info.tone} onClick={() => onFocusStatus(result)}>
-            {result}
-          </button>{" "}
+          <StatusChip id={result} tone={info.tone} onClick={() => onFocusStatus(result)} />{" "}
           {text}
         </BodyLong>
       </div>

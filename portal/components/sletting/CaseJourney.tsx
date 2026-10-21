@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { BodyShort, Button, Chips } from "@navikt/ds-react";
-import { ArrowRightIcon, PauseIcon, PlayIcon } from "@navikt/aksel-icons";
-import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
+import { useMemo, useState } from "react";
+import { Chips } from "@navikt/ds-react";
+import { useSvgIds } from "@/components/architecture/hooks";
+import { JourneyBar, JourneyToken } from "@/components/process/Journey";
 import { klokke, r2 } from "@/components/process/time";
+import { useJourneyPlayer, type JourneyScale } from "@/components/process/useJourneyPlayer";
 import { TONE } from "@/lib/tones";
 import { STATUS_BY_ID, type StatusId } from "./data";
 
@@ -32,6 +33,11 @@ const tAtX = (x: number) => (x <= XB ? (x - X0) / SA : BREAK_T + (x - XB) / SB);
 const at = (day: number, h: number) => day * 24 + h - START_H;
 const dayOf = (t: number) => Math.floor((t + START_H) / 24);
 const hourOf = (t: number) => (((t + START_H) % 24) + 24) % 24;
+/** Avspillingen går med jevn fart langs x-aksen, så den komprimerte delen går fortere. */
+const SCALE: JourneyScale = {
+  toProgress: (t) => (xAt(t) - X0) / (X1 - X0),
+  fromProgress: (p) => tAtX(X0 + p * (X1 - X0)),
+};
 
 const ELIGIBLE_T = at(15, 14);
 
@@ -131,39 +137,9 @@ const MIDNIGHTS = [16, 17, 18].map((d) => at(d, 0));
 export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) => void }) {
   const [id, setId] = useState<ScenarioId>("slettes");
   const sc = SCENARIO_BY_ID[id];
-  const reduced = useReducedMotion();
   const svg = useSvgIds();
-
-  const [t, setT] = useState<number | null>(null);
-  const [playing, setPlaying] = useState(false);
-  const shown = t ?? END_T;
-  const raf = useRef<number | null>(null);
-  const startX = useRef(X0);
-  const [lastId, setLastId] = useState(id);
-  if (lastId !== id) {
-    setLastId(id);
-    setT(null);
-    setPlaying(false);
-  }
-
-  useEffect(() => {
-    if (!playing) return;
-    const duration = 7000;
-    const span = X1 - X0;
-    let start: number | null = null;
-    const from = startX.current;
-    const step = (ts: number) => {
-      if (start === null) start = ts - ((from - X0) / span) * duration;
-      const x = Math.min(X1, X0 + ((ts - start) / duration) * span);
-      setT(Math.round(tAtX(x)));
-      if (x < X1) raf.current = requestAnimationFrame(step);
-      else setPlaying(false);
-    };
-    raf.current = requestAnimationFrame(step);
-    return () => {
-      if (raf.current !== null) cancelAnimationFrame(raf.current);
-    };
-  }, [playing]);
+  const player = useJourneyPlayer({ end: END_T, durationMs: 7000, resetKey: id, scale: SCALE });
+  const { shown, playing } = player;
 
   const status = statusAt(sc, shown);
   const finalTone = sc.final === undefined ? null : TONE[STATUS_BY_ID[statusAt(sc, sc.final)].tone];
@@ -173,27 +149,12 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
     [sc],
   );
 
-  const play = () => {
-    if (playing) {
-      setPlaying(false);
-      return;
-    }
-    if (reduced) {
-      setT(null);
-      return;
-    }
-    const from = t === null || t >= END_T ? 0 : t;
-    startX.current = xAt(from);
-    setT(from);
-    setPlaying(true);
-  };
-
   const day = dayOf(shown);
   const when = `dag ${day} kl. ${klokke(hourOf(shown), 0)}`;
 
   return (
-    <div className="avs-journey sl-journey">
-      <div className="avs-journey__controls">
+    <div className="proc-journey">
+      <div className="proc-journey__controls">
         <Chips size="small" aria-label="Velg hva som skjer med saken">
           {SCENARIOS.map((s) => (
             <Chips.Toggle key={s.id} selected={s.id === id} checkmark={false} onClick={() => setId(s.id)}>
@@ -203,7 +164,7 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
         </Chips>
       </div>
 
-      <div className="portal-diagram avs-surface avs-journey__surface">
+      <div className="portal-diagram avs-surface proc-journey__surface">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: "100%", minWidth: 760, height: "auto", display: "block" }}
@@ -269,7 +230,7 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
             const x = xAt(s.from);
             const w = Math.max(4, r2(xAt(s.to) - x));
             return (
-              <g key={`${id}-${i}`} className="avs-journey__seg" style={{ animationDelay: `${i * 120}ms` }}>
+              <g key={`${id}-${i}`} className="proc-journey__seg" style={{ animationDelay: `${i * 120}ms` }}>
                 <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill={tone.stroke} opacity={0.3} />
                 <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill={tone.stroke} opacity={s.open ? 0.75 : 0.95} clipPath={svg.url("progress")} />
                 {s.open && <rect x={x} y={TRACK_Y - 7} width={w} height={14} rx={7} fill="none" stroke={tone.stroke} strokeDasharray="4 5" opacity={0.7} />}
@@ -307,7 +268,7 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
             const lit = shown >= c.t;
             const tone = c.status ? TONE[STATUS_BY_ID[c.status].tone] : null;
             return (
-              <g key={`${id}-c${i}`} className="avs-journey__seg" style={{ animationDelay: `${200 + i * 140}ms` }}>
+              <g key={`${id}-c${i}`} className="proc-journey__seg" style={{ animationDelay: `${200 + i * 140}ms` }}>
                 <g opacity={lit ? 1 : 0.5} style={{ transition: "opacity 220ms ease" }}>
                   <line
                     x1={x}
@@ -357,52 +318,26 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
 
           {/* Endelig status */}
           {sc.final !== undefined && finalTone && (
-            <g className="avs-journey__seg" style={{ animationDelay: "500ms" }} opacity={shown >= sc.final ? 1 : 0.4}>
+            <g className="proc-journey__seg" style={{ animationDelay: "500ms" }} opacity={shown >= sc.final ? 1 : 0.4}>
               <circle cx={xAt(sc.final)} cy={TRACK_Y} r={9} fill="var(--ax-bg-default)" stroke={finalTone.stroke} strokeWidth={2} />
               <circle cx={xAt(sc.final)} cy={TRACK_Y} r={4.5} fill={finalTone.strong} />
             </g>
           )}
 
           {/* Markør */}
-          <g
-            className="avs-journey__token"
-            style={{ transform: `translate(${xAt(shown)}px, ${TRACK_Y}px)`, transition: playing ? "none" : "transform 300ms ease" }}
-          >
-            <circle r={13} fill={TONE[info.tone].strong} opacity={0.2} className={playing ? "" : "avs-breathe"} />
-            <circle r={7.5} fill={TONE[info.tone].strong} stroke="var(--ax-bg-default)" strokeWidth={2.5} />
-          </g>
+          <JourneyToken x={xAt(shown)} y={TRACK_Y} tone={info.tone} playing={playing} />
         </svg>
       </div>
 
-      <div className="avs-journey__bar">
-        <Button size="small" variant="primary" icon={playing ? <PauseIcon aria-hidden /> : <PlayIcon aria-hidden />} onClick={play}>
-          {playing ? "Pause" : "Spill av"}
-        </Button>
-        <label className="avs-journey__range">
-          <span className="aksel-sr-only">Tidspunkt i saken</span>
-          <input
-            type="range"
-            min={0}
-            max={END_T}
-            value={shown}
-            onChange={(e) => {
-              setPlaying(false);
-              setT(Number(e.target.value));
-            }}
-            aria-valuetext={when}
-          />
-        </label>
-        <div className="avs-journey__now" data-tone={info.tone} aria-live="polite">
-          <span className="avs-journey__day sl-journey__when arch-mono">{when}</span>
-          <button type="button" className="avs-status-pill" onClick={() => onFocusStatus(status)} title="Vis i statusdiagrammet">
-            <span className="arch-mono">{status}</span>
-            <ArrowRightIcon aria-hidden />
-          </button>
-          <BodyShort size="small" className="arch-subtle">
-            {info.label}
-          </BodyShort>
-        </div>
-      </div>
+      <JourneyBar
+        player={player}
+        end={END_T}
+        rangeLabel="Tidspunkt i saken"
+        when={when}
+        whenClassName="sl-journey__when"
+        status={info}
+        onFocusStatus={() => onFocusStatus(status)}
+      />
     </div>
   );
 }

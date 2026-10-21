@@ -2137,8 +2137,8 @@ html:has(.arch-page) {
   margin-bottom: 0;
 }
 
-/* Status chip (button) */
-.avs-chip {
+/* Status chip (components/process/StatusChips.tsx), shared by the process pages */
+.proc-chip {
   display: inline-flex;
   align-items: center;
   padding: 0.1rem 0.5rem;
@@ -2155,13 +2155,12 @@ html:has(.arch-page) {
     box-shadow 150ms ease;
 }
 
-.avs-chip:hover {
+.proc-chip:hover {
   translate: 0 -1px;
   box-shadow: 0 6px 14px -10px var(--tone-line, var(--ax-border-neutral));
 }
 
-.avs-chip:focus-visible,
-.avs-status-pill:focus-visible,
+.proc-chip:focus-visible,
 .avs-buclink:focus-visible,
 .avs-palette__btn:focus-visible,
 .avs-doc__main:focus-visible,
@@ -2171,7 +2170,7 @@ html:has(.arch-page) {
   outline-offset: 2px;
 }
 
-.avs-chip[aria-pressed="true"] {
+.proc-chip[aria-pressed="true"] {
   border-width: 2px;
   border-color: var(--ax-border-accent);
 }
@@ -2234,12 +2233,6 @@ html:has(.arch-page) {
 
 /* ---------- Livsløp ---------- */
 
-.avs-journey__controls {
-  display: grid;
-  gap: 0.9rem;
-  margin-bottom: 0.9rem;
-}
-
 .avs-bucpicker {
   display: flex;
   flex-wrap: wrap;
@@ -2261,87 +2254,10 @@ html:has(.arch-page) {
   font-size: 0.7rem;
 }
 
-.avs-journey__seg {
-  animation: arch-fade 500ms ease both;
-}
-
-.avs-journey__token {
-  pointer-events: none;
-}
-
-.avs-breathe {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: avs-breathe 1.8s ease-in-out infinite;
-}
-
-@keyframes avs-breathe {
-  0%,
-  100% {
-    transform: scale(0.85);
-    opacity: 0.25;
-  }
-  50% {
-    transform: scale(1.25);
-    opacity: 0.08;
-  }
-}
-
-.avs-journey__bar {
-  display: grid;
-  grid-template-columns: auto minmax(160px, 1fr) auto;
-  align-items: center;
-  gap: 0.75rem 1.25rem;
-  margin-top: 0.85rem;
-}
-
-.avs-journey__range input,
 .avs-range {
   width: 100%;
   accent-color: var(--ax-bg-accent-strong);
   cursor: pointer;
-}
-
-.avs-journey__now {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem 0.6rem;
-}
-
-.avs-journey__day {
-  min-width: 4.5rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--ax-text-neutral-subtle);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.avs-status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid var(--tone-line);
-  background: var(--tone-soft);
-  color: var(--tone-text);
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    background-color 200ms ease,
-    border-color 200ms ease,
-    color 200ms ease;
-}
-
-.avs-status-pill:hover svg {
-  translate: 2px 0;
-}
-
-.avs-status-pill svg {
-  transition: translate 150ms ease;
 }
 
 /* ---------- Natten ---------- */
@@ -2584,11 +2500,11 @@ html:has(.arch-page) {
   border-color: var(--ax-border-danger);
 }
 
-.avs-unused {
+.proc-unused {
   margin-top: 0.75rem;
 }
 
-.avs-unused .avs-chip {
+.proc-unused .proc-chip {
   border-style: dashed;
   color: var(--ax-text-neutral-subtle);
 }
@@ -3251,6 +3167,120 @@ html:has(.arch-page) {
   overflow-wrap: anywhere;
 }
 
+/* Case journey (components/process/Journey.tsx), shared by the process pages */
+.proc-journey__controls {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.proc-journey__seg {
+  animation: arch-fade 500ms ease both;
+}
+
+.proc-journey__token {
+  pointer-events: none;
+}
+
+.proc-breathe {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: proc-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes proc-breathe {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.25;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.08;
+  }
+}
+
+.proc-journey__bar {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.85rem;
+}
+
+.proc-journey__range input {
+  width: 100%;
+  accent-color: var(--ax-bg-accent-strong);
+  cursor: pointer;
+}
+
+.proc-journey__now {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+}
+
+.proc-journey__when {
+  min-width: 4.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ax-text-neutral-subtle);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.proc-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--tone-line);
+  background: var(--tone-soft);
+  color: var(--tone-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.proc-status-pill:hover svg {
+  translate: 2px 0;
+}
+
+.proc-status-pill svg {
+  transition: translate 150ms ease;
+}
+
+.proc-status-pill:focus-visible {
+  outline: 2px solid var(--ax-border-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .proc-journey__bar {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .proc-journey__now {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proc-breathe {
+    display: none;
+  }
+
+  .proc-journey__token {
+    transition: none !important;
+  }
+}
+
 /* Slack mock (components/process/Slack.tsx), shared by the process pages */
 .proc-slack {
   margin: 0;
@@ -3393,28 +3423,8 @@ html:has(.arch-page) {
     grid-template-columns: 1fr;
   }
 
-  .avs-journey__bar {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .avs-journey__now {
-    grid-column: 1 / -1;
-  }
-
   .avs-job__body {
     padding-left: 0.9rem;
-  }
-}
-
-/* ---------- Reduced motion ---------- */
-
-@media (prefers-reduced-motion: reduce) {
-  .avs-breathe {
-    display: none;
-  }
-
-  .avs-journey__token {
-    transition: none !important;
   }
 }
 
@@ -4750,11 +4760,11 @@ button.jfr-result__status:hover {
   gap: 0.3rem 1.15rem;
 }
 
-.jfr-err__path .avs-chip {
+.jfr-err__path .proc-chip {
   position: relative;
 }
 
-.jfr-err__path .avs-chip + .avs-chip::before {
+.jfr-err__path .proc-chip + .proc-chip::before {
   content: "→";
   position: absolute;
   left: -0.95rem;
