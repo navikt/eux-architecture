@@ -1,14 +1,21 @@
 "use client";
 
-import { BodyLong, BodyShort, Button, Detail, Heading, Select, Switch, ToggleGroup } from "@navikt/ds-react";
+import { BodyLong, Button, Select, Switch, ToggleGroup } from "@navikt/ds-react";
+import { ArrowRightIcon } from "@navikt/aksel-icons";
 import {
-  ArrowRightIcon,
-  CheckmarkCircleIcon,
-  CircleSlashIcon,
-  ExclamationmarkTriangleIcon,
-  MinusCircleIcon,
-  XMarkOctagonIcon,
-} from "@navikt/aksel-icons";
+  Ladder,
+  ResultCaveat,
+  ResultFacts,
+  ResultLabel,
+  ResultStatus,
+  Rung,
+  RungText,
+  STEP_STATUS,
+  SimForm,
+  SimGroup,
+  SimPresets,
+  SimResult,
+} from "@/components/process/Simulator";
 import {
   ANNEN,
   OVERSTYRT,
@@ -20,9 +27,7 @@ import {
   TEMAER,
   bucAnnen,
   bucLabel,
-  presetInput,
   relevant,
-  sameInput,
   sedLabel,
   simulate,
   type Outcome,
@@ -31,24 +36,8 @@ import {
   type SektorId,
   type SimInput,
   type StatusId,
-  type StepState,
   type Tone,
 } from "./data";
-
-const STATE_ICON: Record<StepState, React.ReactNode> = {
-  done: <CheckmarkCircleIcon aria-hidden />,
-  warn: <ExclamationmarkTriangleIcon aria-hidden />,
-  stop: <XMarkOctagonIcon aria-hidden />,
-  skip: <MinusCircleIcon aria-hidden />,
-  off: <CircleSlashIcon aria-hidden />,
-};
-const STATE_TEXT: Record<StepState, string> = {
-  done: "OK",
-  warn: "Merk",
-  stop: "Stopp",
-  skip: "Nås ikke",
-  off: "Ikke aktuelt",
-};
 
 const OUTCOME: Record<Outcome, { tone: Tone; eyebrow: string; headline: string }> = {
   ferdigstilt: { tone: "success", eyebrow: "Journalposten blir", headline: "Ferdigstilt" },
@@ -105,31 +94,21 @@ export function Simulator({
     }
   })();
 
-  const facts: { k: string; v?: string; jump?: string }[] = [
-    { k: "Tema", v: res.tema, jump: "regler" },
+  const facts = [
+    { k: "Tema", v: res.tema },
     { k: "Behandlingstema", v: res.behandlingstema === undefined ? undefined : res.behandlingstema || "–" },
     { k: "Behandlingstype", v: res.behandlingstype === undefined ? undefined : res.behandlingstype || "–" },
-    { k: "Enhet", v: res.enhet === "NORG2" ? "fra NORG2" : res.enhet, jump: "regler" },
+    { k: "Enhet", v: res.enhet === "NORG2" ? "fra NORG2" : res.enhet },
     { k: "Oppgave", v: res.oppgave },
-  ];
+  ].filter((f): f is { k: string; v: string } => f.v !== undefined);
 
   return (
-    <div className="avs-sim jfr-sim">
-      <div className="jfr-presets" role="group" aria-label="Eksempler">
-        <Detail className="arch-eyebrow">Prøv</Detail>
-        {PRESETS.map((p) => {
-          const on = sameInput(presetInput(p.input), input);
-          return (
-            <button key={p.id} type="button" className="jfr-preset" aria-pressed={on} onClick={() => onChange(presetInput(p.input))}>
-              {p.label}
-            </button>
-          );
-        })}
-      </div>
+    <div className="proc-sim">
+      <SimPresets presets={PRESETS} value={input} onPick={onChange} />
 
-      <div className="avs-sim__grid">
+      <div className="proc-sim__grid">
         {/* Valg */}
-        <div className="arch-card jfr-sim__form" data-tone="accent">
+        <SimForm>
           <ToggleGroup size="small" value={input.retning} onChange={(v) => set({ retning: v as Retning })} label="Retning" fill>
             <ToggleGroup.Item value="inn" label="Inngående" />
             <ToggleGroup.Item value="ut" label="Utgående" />
@@ -168,8 +147,7 @@ export function Simulator({
             </Select>
           </div>
 
-          <fieldset className="jfr-sim__group">
-            <legend>RINA-saken</legend>
+          <SimGroup legend="RINA-saken">
             <Switch size="small" checked={input.navRinasak} onChange={(e) => set({ navRinasak: e.target.checked })}>
               Finnes i nav-rinasak
             </Switch>
@@ -211,10 +189,9 @@ export function Simulator({
                 ))}
               </Select>
             )}
-          </fieldset>
+          </SimGroup>
 
-          <fieldset className="jfr-sim__group">
-            <legend>Personen</legend>
+          <SimGroup legend="Personen">
             <Switch size="small" checked={input.person} onChange={(e) => set({ person: e.target.checked })}>
               Finnes i PDL
             </Switch>
@@ -227,85 +204,39 @@ export function Simulator({
             <Switch size="small" checked={input.sakseier} disabled={!rel.sakseier} onChange={(e) => set({ sakseier: e.target.checked })}>
               NAV er sakseier
             </Switch>
-          </fieldset>
+          </SimGroup>
 
-          <fieldset className="jfr-sim__group">
-            <legend>Dokarkiv</legend>
+          <SimGroup legend="Dokarkiv">
             <Switch size="small" checked={input.dokarkivFeil} disabled={!rel.dokarkivFeil} onChange={(e) => set({ dokarkivFeil: e.target.checked })}>
               Svarer med feil
             </Switch>
-          </fieldset>
-        </div>
+          </SimGroup>
+        </SimForm>
 
         {/* Stegene i fagmodulen */}
-        <ol className="avs-ladder jfr-ladder" aria-label="Stegene i fagmodulen, i rekkefølge" aria-live="polite">
+        <Ladder label="Stegene i fagmodulen, i rekkefølge">
           {res.steps.map((s, i) => (
-            <li key={s.id} className="avs-rung" data-state={s.state} style={{ "--arch-delay": `${i * 30}ms` } as React.CSSProperties}>
-              <span className="avs-rung__icon">{STATE_ICON[s.state]}</span>
-              <div className="avs-rung__body">
-                <div className="avs-rung__head">
-                  <strong>
-                    <span className="jfr-rung__no">{i + 1}</span>
-                    {STEP_TITLE[s.id]}
-                  </strong>
-                  {s.value ? (
-                    <span key={s.value} className="jfr-rung__value arch-mono">
-                      {s.value}
-                    </span>
-                  ) : (
-                    <span className="avs-rung__state">{STATE_TEXT[s.state]}</span>
-                  )}
-                </div>
-                {s.state !== "skip" && (
-                  <BodyShort size="small" className="jfr-rung__text">
-                    {s.text}
-                  </BodyShort>
-                )}
-              </div>
-            </li>
+            <Rung key={s.id} no={i + 1} state={s.state} title={STEP_TITLE[s.id]} value={s.value} status={STEP_STATUS[s.state]}>
+              {s.state !== "skip" && <RungText>{s.text}</RungText>}
+            </Rung>
           ))}
-        </ol>
+        </Ladder>
 
         {/* Resultat */}
-        <div className="avs-result jfr-result" data-tone={o.tone} aria-live="polite">
-          <Detail className="arch-eyebrow">{o.eyebrow}</Detail>
-          <Heading key={res.outcome} level="3" size="medium" className="jfr-result__headline">
-            {o.headline}
-          </Heading>
+        <SimResult tone={o.tone} eyebrow={o.eyebrow} headline={o.headline}>
           {res.status ? (
-            <button
-              key={res.status}
-              type="button"
-              className="avs-result__status arch-mono jfr-result__status"
-              onClick={() => onFocusStatus(res.status!)}
-              title="Vis i statusdiagrammet"
-            >
+            <ResultStatus key={res.status} onClick={() => onFocusStatus(res.status!)}>
               {res.status}
-            </button>
+            </ResultStatus>
           ) : (
-            <span key="ingen" className="avs-result__status jfr-result__status">
+            <ResultStatus key="ingen" mono={false}>
               ingen journalstatus
-            </span>
+            </ResultStatus>
           )}
-          {res.status && (
-            <BodyShort size="small" className="avs-result__label">
-              {STATUS_BY_ID[res.status].label}
-            </BodyShort>
-          )}
-          {res.tema && (
-            <dl className="jfr-result__facts">
-              {facts
-                .filter((f) => f.v !== undefined)
-                .map((f) => (
-                  <div key={f.k}>
-                    <dt>{f.k}</dt>
-                    <dd className="arch-mono">{f.v}</dd>
-                  </div>
-                ))}
-            </dl>
-          )}
+          {res.status && <ResultLabel>{STATUS_BY_ID[res.status].label}</ResultLabel>}
+          {res.tema && <ResultFacts facts={facts} />}
           <BodyLong size="small">{nextText}</BodyLong>
-          <div className="jfr-result__links">
+          <div className="proc-result__links">
             {(res.outcome === "midlertidig" || res.outcome === "feilet") && (
               <Button size="xsmall" variant="tertiary" icon={<ArrowRightIcon aria-hidden />} iconPosition="right" onClick={() => onJump("natten")}>
                 Hva skjer i natt?
@@ -318,11 +249,9 @@ export function Simulator({
             )}
           </div>
           {(res.outcome === "ferdigstilt" || res.outcome === "midlertidig") && (
-            <BodyShort size="small" className="arch-subtle jfr-result__caveat">
-              Forenklet: Det er Dokarkiv som avgjør om journalposten faktisk blir ferdigstilt.
-            </BodyShort>
+            <ResultCaveat>Forenklet: Det er Dokarkiv som avgjør om journalposten faktisk blir ferdigstilt.</ResultCaveat>
           )}
-        </div>
+        </SimResult>
       </div>
     </div>
   );

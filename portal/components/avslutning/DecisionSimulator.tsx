@@ -2,17 +2,8 @@
 
 import { useState } from "react";
 import { BodyLong, BodyShort, Button, Detail, Heading, Select, ToggleGroup } from "@navikt/ds-react";
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  ArrowsCirclepathIcon,
-  CheckmarkCircleIcon,
-  CircleSlashIcon,
-  MinusCircleIcon,
-  PlusIcon,
-  XMarkIcon,
-  XMarkOctagonIcon,
-} from "@navikt/aksel-icons";
+import { ArrowLeftIcon, ArrowRightIcon, ArrowsCirclepathIcon, PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { Ladder, ResultLabel, ResultStatus, Rung, SimResult } from "@/components/process/Simulator";
 import {
   BUCS,
   BUC_BY_NAME,
@@ -39,12 +30,6 @@ function preset(b: BucRule): SimDoc[] {
   ];
 }
 
-const STATE_ICON: Record<CritState, React.ReactNode> = {
-  hit: <CheckmarkCircleIcon aria-hidden />,
-  miss: <XMarkOctagonIcon aria-hidden />,
-  skip: <MinusCircleIcon aria-hidden />,
-  na: <CircleSlashIcon aria-hidden />,
-};
 const STATE_TEXT: Record<CritState, string> = {
   hit: "Treff",
   miss: "Ikke treff",
@@ -89,7 +74,7 @@ export function DecisionSimulator({
   })();
 
   return (
-    <div className="avs-sim" id="simulator">
+    <div className="proc-sim" id="simulator">
       <div className="avs-sim__controls">
         <Select label="BUC" size="small" value={buc} onChange={(e) => onBuc(e.target.value)} className="avs-sim__select">
           {FAMILIES.map((f) => (
@@ -114,7 +99,7 @@ export function DecisionSimulator({
         </div>
       </div>
 
-      <div className="avs-sim__grid">
+      <div className="proc-sim__grid">
         {/* Sakshistorikk */}
         <div className="avs-sim__docs arch-card" data-tone="accent">
           <Heading level="3" size="xsmall">
@@ -184,51 +169,40 @@ export function DecisionSimulator({
         </div>
 
         {/* Kriteriestige */}
-        <ol className="avs-ladder" aria-label="Kriteriene i til-avslutning, i rekkefølgen de vurderes" aria-live="polite">
-          {ev.rows.map((r, i) => {
-            const c = CRITERION_BY_ID[r.id];
-            return (
-              <li key={r.id} className="avs-rung" data-state={r.state} style={{ "--arch-delay": `${i * 40}ms` } as React.CSSProperties}>
-                <span className="avs-rung__icon">{STATE_ICON[r.state]}</span>
-                <div className="avs-rung__body">
-                  <div className="avs-rung__head">
-                    <strong>{c.title}</strong>
-                    <span className="avs-rung__state">{STATE_TEXT[r.state]}</span>
-                  </div>
-                  {r.state !== "na" && (
-                    <div className="avs-rung__list">
-                      {r.id === "fallback" ? (
-                        <span className="arch-mono">{b.fallback} dager</span>
-                      ) : (
-                        r.list.map((t) => (
-                          <span key={t} className="avs-rung__sed arch-mono">
-                            {t}
-                          </span>
-                        ))
-                      )}
-                    </div>
+        <Ladder label="Kriteriene i til-avslutning, i rekkefølgen de vurderes">
+          {ev.rows.map((r) => (
+            <Rung key={r.id} state={r.state} title={CRITERION_BY_ID[r.id].title} status={STATE_TEXT[r.state]}>
+              {r.state !== "na" && (
+                <div className="proc-rung__list">
+                  {r.id === "fallback" ? (
+                    <span className="arch-mono">{b.fallback} dager</span>
+                  ) : (
+                    r.list.map((t) => (
+                      <span key={t} className="avs-sed arch-mono">
+                        {t}
+                      </span>
+                    ))
                   )}
-                  {r.note && <BodyShort size="small" className="avs-rung__note">{r.note}</BodyShort>}
                 </div>
-              </li>
-            );
-          })}
-        </ol>
+              )}
+              {r.note && (
+                <BodyShort size="small" className="proc-rung__note">
+                  {r.note}
+                </BodyShort>
+              )}
+            </Rung>
+          ))}
+        </Ladder>
 
         {/* Resultat */}
-        <div className="avs-result" data-tone={result.tone} aria-live="polite">
-          <Detail className="arch-eyebrow">Resultat av til-avslutning</Detail>
-          <span key={ev.result} className="avs-result__status arch-mono">
-            {ev.result}
-          </span>
-          <BodyShort size="small" className="avs-result__label">
-            {result.label}
-          </BodyShort>
+        <SimResult tone={result.tone} eyebrow="Resultat av til-avslutning">
+          <ResultStatus key={ev.result}>{ev.result}</ResultStatus>
+          <ResultLabel>{result.label}</ResultLabel>
           <BodyLong size="small">{resultText}</BodyLong>
           <Button size="xsmall" variant="tertiary" icon={<ArrowRightIcon aria-hidden />} iconPosition="right" onClick={() => onFocusStatus(ev.result)}>
             Vis i statusdiagrammet
           </Button>
-        </div>
+        </SimResult>
       </div>
     </div>
   );

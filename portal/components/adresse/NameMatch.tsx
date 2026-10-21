@@ -1,16 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { BodyLong, BodyShort, Detail, Heading, Switch, TextField } from "@navikt/ds-react";
-import { CheckmarkCircleIcon, ExclamationmarkTriangleIcon, MinusCircleIcon, XMarkOctagonIcon } from "@navikt/aksel-icons";
-import { MATCH_PRESETS, sameInput, samePerson, type EditOp, type MatchCheck, type MatchCheckId, type MatchInput, type Person, type StepState, type Tone } from "./data";
-
-const STATE_ICON: Record<StepState, React.ReactNode> = {
-  done: <CheckmarkCircleIcon aria-hidden />,
-  warn: <ExclamationmarkTriangleIcon aria-hidden />,
-  stop: <XMarkOctagonIcon aria-hidden />,
-  skip: <MinusCircleIcon aria-hidden />,
-};
+import { BodyLong, Switch, TextField } from "@navikt/ds-react";
+import { Ladder, ResultCaveat, Rung, RungText, SimForm, SimGroup, SimPresets, SimResult } from "@/components/process/Simulator";
+import { MATCH_PRESETS, samePerson, type EditOp, type MatchCheck, type MatchCheckId, type MatchInput, type Person, type StepState, type Tone } from "./data";
 
 const TITLE: Record<MatchCheckId, string> = {
   pin: "Norsk PIN i SED-en?",
@@ -69,25 +62,17 @@ export function NameMatch() {
           };
 
   return (
-    <div className="avs-sim adr-match">
-      <div className="jfr-presets" role="group" aria-label="Eksempler">
-        <Detail className="arch-eyebrow">Prøv</Detail>
-        {MATCH_PRESETS.map((p) => (
-          <button key={p.id} type="button" className="jfr-preset" aria-pressed={sameInput(p.input, input)} onClick={() => setInput(p.input)}>
-            {p.label}
-          </button>
-        ))}
-      </div>
+    <div className="proc-sim">
+      <SimPresets presets={MATCH_PRESETS} value={input} onPick={setInput} />
 
-      <div className="avs-sim__grid adr-match__grid">
-        <div className="arch-card jfr-sim__form adr-match__form" data-tone="accent">
+      <div className="proc-sim__grid">
+        <SimForm>
           <Switch size="small" checked={input.norPin} onChange={(e) => setInput((i) => ({ ...i, norPin: e.target.checked }))}>
             SED-en har en PIN med landkode NOR
           </Switch>
           <div className="adr-match__cols" data-off={input.norPin || undefined}>
             {(["sed", "sak"] as const).map((side) => (
-              <fieldset key={side} className="jfr-sim__group" disabled={input.norPin}>
-                <legend>{side === "sed" ? "Bruker i SED-en" : "Bruker i RINA-saken"}</legend>
+              <SimGroup key={side} legend={side === "sed" ? "Bruker i SED-en" : "Bruker i RINA-saken"} disabled={input.norPin}>
                 {FIELDS.map((f) => (
                   <TextField
                     key={f.key}
@@ -98,48 +83,31 @@ export function NameMatch() {
                     autoComplete="off"
                   />
                 ))}
-              </fieldset>
+              </SimGroup>
             ))}
           </div>
-        </div>
+        </SimForm>
 
-        <ol className="avs-ladder jfr-ladder" aria-label="Sjekkene, i rekkefølge" aria-live="polite">
+        <Ladder label="Sjekkene, i rekkefølge">
           {res.checks.map((c, i) => {
             const state = stateOf(c);
             return (
-              <li key={c.id} className="avs-rung" data-state={state} style={{ "--arch-delay": `${i * 30}ms` } as React.CSSProperties}>
-                <span className="avs-rung__icon">{STATE_ICON[state]}</span>
-                <div className="avs-rung__body">
-                  <div className="avs-rung__head">
-                    <strong>
-                      <span className="jfr-rung__no">{i + 1}</span>
-                      {TITLE[c.id]}
-                    </strong>
-                    {c.distance !== undefined ? (
-                      <span key={c.distance} className="jfr-rung__value arch-mono">
-                        avstand {c.distance}
-                      </span>
-                    ) : (
-                      <span className="avs-rung__state">{state === "skip" ? "Nås ikke" : c.ok ? "Ja" : "Nei"}</span>
-                    )}
-                  </div>
-                  {state !== "skip" && (
-                    <BodyShort size="small" className="jfr-rung__text">
-                      {textOf(c, input)}
-                    </BodyShort>
-                  )}
-                  {c.ops && c.ops.length > 0 && <Ops ops={c.ops} />}
-                </div>
-              </li>
+              <Rung
+                key={c.id}
+                no={i + 1}
+                state={state}
+                title={TITLE[c.id]}
+                value={c.distance === undefined ? undefined : `avstand ${c.distance}`}
+                status={state === "skip" ? "Nås ikke" : c.ok ? "Ja" : "Nei"}
+              >
+                {state !== "skip" && <RungText>{textOf(c, input)}</RungText>}
+                {c.ops && c.ops.length > 0 && <Ops ops={c.ops} />}
+              </Rung>
             );
           })}
-        </ol>
+        </Ladder>
 
-        <div className="avs-result jfr-result" data-tone={result.tone} aria-live="polite">
-          <Detail className="arch-eyebrow">Bruker får</Detail>
-          <Heading key={result.headline} level="3" size="medium" className="jfr-result__headline">
-            {result.headline}
-          </Heading>
+        <SimResult tone={result.tone} eyebrow="Bruker får" headline={result.headline}>
           <BodyLong size="small">{result.text}</BodyLong>
           {failed && FAIL_LOG[failed.id] && (
             <div className="adr-log" data-level="INFO">
@@ -147,10 +115,10 @@ export function NameMatch() {
               <code>{FAIL_LOG[failed.id]}</code>
             </div>
           )}
-          <BodyShort size="small" className="arch-subtle jfr-result__caveat">
+          <ResultCaveat>
             Navnene sammenlignes med små bokstaver. Avstanden er antall bokstaver som må byttes, legges til eller fjernes (Levenshtein).
-          </BodyShort>
-        </div>
+          </ResultCaveat>
+        </SimResult>
       </div>
     </div>
   );

@@ -122,8 +122,14 @@ selection and flow toggles, and `FlowPanel.tsx` (`FlowToolbar`, `DetailPanel`,
 are built from `StateMachine.tsx` (`StateCanvas`, `StateEdges`, `StateLabels`,
 `StateNode`, `Lane`, `JobBadge` (`proc-sm__badge`), `ActorList`,
 `UnusedStatuses`, and `stateFocus()` for which edges and nodes to light up).
-New styles shared between process
-pages use the `proc-` prefix rather than another feature's prefix.
+The four simulators are built from `Simulator.tsx`: `SimPresets` (the "Prøv"
+examples, typed by `SimPreset`; the pressed one is found with `deepEqual` from
+`lib/equal.ts`), `SimForm` and `SimGroup` for the inputs, `Ladder`, `Rung` and
+`RungText` for the steps or criteria, and `SimResult`, `ResultStatus`,
+`ResultLabel`, `ResultFacts` and `ResultCaveat` for the result card
+(`proc-sim*`, `proc-presets`, `proc-ladder`, `proc-rung*`, `proc-result*`).
+New styles shared between process pages use the `proc-` prefix rather than
+another feature's prefix.
 
 ### Logged-in user
 

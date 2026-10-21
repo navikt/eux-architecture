@@ -8,6 +8,7 @@
  * eux-all-rina-events (.nais/topics).
  */
 
+import type { SimPreset } from "@/components/process/Simulator";
 import type { Tone } from "@/lib/tones";
 
 export type { Tone };
@@ -544,7 +545,7 @@ const adr = (type: AdresseType, gate: string, bygning: string, by: string, postn
   landkode: landkode || null,
 });
 
-export const PRESETS: { id: string; label: string; input: SimInput }[] = [
+export const PRESETS: SimPreset<SimInput>[] = [
   {
     id: "svensk",
     label: "Svensk kontaktadresse",
@@ -588,9 +589,6 @@ export const PRESETS: { id: string; label: string; input: SimInput }[] = [
 ];
 
 export const DEFAULT_INPUT = PRESETS[0].input;
-
-/** Strukturell likhet for enkle inputobjekter (samme nøkkelrekkefølge). */
-export const sameInput = <T>(a: T, b: T) => JSON.stringify(a) === JSON.stringify(b);
 
 /* ------------------------------------------------------------------ */
 /* Samme person? (FinnIdent.kt)                                         */
@@ -666,7 +664,7 @@ export function samePerson(input: MatchInput): { checks: MatchCheck[]; ident: "p
   return { checks, ident: ok ? "sak" : null };
 }
 
-export const MATCH_PRESETS: { id: string; label: string; input: MatchInput }[] = [
+export const MATCH_PRESETS: SimPreset<MatchInput>[] = [
   {
     id: "skrivefeil",
     label: "Ombyttede bokstaver",

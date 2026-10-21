@@ -93,7 +93,7 @@ export function BucTable({ selected, onPick }: { selected: string; onPick: (buc:
                       <span key={p.label} className="avs-rule__part">
                         <span className="arch-subtle">{p.label}</span>{" "}
                         {p.seds?.map((s) => (
-                          <span key={s} className="avs-rung__sed arch-mono">
+                          <span key={s} className="avs-sed arch-mono">
                             {s}
                           </span>
                         ))}

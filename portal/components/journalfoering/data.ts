@@ -7,6 +7,7 @@
  * eux-nav-rinasak and eux-neessi.
  */
 
+import type { SimPreset } from "@/components/process/Simulator";
 import type { Tone } from "@/lib/tones";
 
 export type { Tone };
@@ -756,7 +757,10 @@ export const DEFAULT_INPUT: SimInput = {
   dokarkivFeil: false,
 };
 
-export const PRESETS: { id: string; label: string; input: Partial<SimInput> }[] = [
+export const presetInput = (p: Partial<SimInput>): SimInput => ({ ...DEFAULT_INPUT, ...p });
+
+/** Examples for the simulator, as changes from `DEFAULT_INPUT`. */
+const EXAMPLES: SimPreset<Partial<SimInput>>[] = [
   { id: "fb", label: "Ny FB-sak", input: {} },
   { id: "u001", label: "U001 i ny sak", input: { sektor: "UB", buc: "UB_BUC_01", sed: "U001", sakseier: false } },
   { id: "h-forste", label: "Første H-SED", input: { sektor: "H", buc: "H_ANNEN", sed: "H001" } },
@@ -773,6 +777,4 @@ export const PRESETS: { id: string; label: string; input: Partial<SimInput> }[] 
   { id: "pensjon", label: "Pensjon", input: { sektor: "P", buc: "P_ANNEN", sed: ANNEN } },
 ];
 
-export const presetInput = (p: Partial<SimInput>): SimInput => ({ ...DEFAULT_INPUT, ...p });
-
-export const sameInput = (a: SimInput, b: SimInput) => (Object.keys(a) as (keyof SimInput)[]).every((k) => a[k] === b[k]);
+export const PRESETS: SimPreset<SimInput>[] = EXAMPLES.map((p) => ({ ...p, input: presetInput(p.input) }));

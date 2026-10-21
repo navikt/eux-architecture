@@ -5,6 +5,7 @@ import { BodyLong, BodyShort, Button, Detail, Heading, ToggleGroup } from "@navi
 import { ChevronLeftIcon, ChevronRightIcon, CogIcon, EnvelopeClosedIcon, MoonIcon, PauseIcon, PersonIcon, PlayIcon } from "@navikt/aksel-icons";
 import { useReducedMotion } from "@/components/architecture/hooks";
 import { StatusChip } from "@/components/process/StatusChips";
+import { deepEqual } from "@/lib/equal";
 import { STATUS_BY_ID, type StatusId, type Tone } from "./data";
 
 type Variant = "neessi" | "gosys";
@@ -152,8 +153,6 @@ const ACTOR_ICON = {
 
 const ACTOR_TONE: Record<Actor, Tone> = { fagmodul: "accent", natt: "warning", saksbehandler: "meta-purple" };
 
-const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
-
 const STEP_MS = 4200;
 /** s1–s3 er like i begge variantene; bytte av variant etter dem hopper til første variantsteg. */
 const SHARED_STEPS = 3;
@@ -192,7 +191,7 @@ export function CaseStory({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
     setPlaying(true);
   };
 
-  const changed = (row: number, col: keyof Row) => !!prev && !same(prev.rows[row][col], step.board.rows[row][col]);
+  const changed = (row: number, col: keyof Row) => !!prev && !deepEqual(prev.rows[row][col], step.board.rows[row][col]);
 
   return (
     <div className="jfr-story">

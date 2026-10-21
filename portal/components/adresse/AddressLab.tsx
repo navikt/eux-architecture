@@ -2,7 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { BodyLong, BodyShort, CopyButton, Detail, Heading, Select, Switch, TextField } from "@navikt/ds-react";
-import { CheckmarkCircleIcon, ExclamationmarkTriangleIcon, MinusCircleIcon, XMarkOctagonIcon } from "@navikt/aksel-icons";
+import { Ladder, ResultFacts, Rung, RungText, STEP_STATUS, SimForm, SimGroup, SimPresets, SimResult } from "@/components/process/Simulator";
 import {
   DEFAULT_INPUT,
   I_PDL,
@@ -11,7 +11,6 @@ import {
   PRESETS,
   RULE_TEXT,
   STEP_TITLE,
-  sameInput,
   simulate,
   tilAdresse,
   type AdresseType,
@@ -19,17 +18,8 @@ import {
   type Outcome,
   type SedAdresse,
   type SimInput,
-  type StepState,
   type Tone,
 } from "./data";
-
-const STATE_ICON: Record<StepState, React.ReactNode> = {
-  done: <CheckmarkCircleIcon aria-hidden />,
-  warn: <ExclamationmarkTriangleIcon aria-hidden />,
-  stop: <XMarkOctagonIcon aria-hidden />,
-  skip: <MinusCircleIcon aria-hidden />,
-};
-const STATE_TEXT: Record<StepState, string> = { done: "OK", warn: "Merk", stop: "Stopp", skip: "Nås ikke" };
 
 const OUTCOME_TONE: Record<Outcome, Tone> = { sendt: "success", stopp: "neutral", feil: "danger" };
 
@@ -61,20 +51,12 @@ export function AddressLab() {
   const type = input.adresse.type;
 
   return (
-    <div className="avs-sim jfr-sim adr-lab">
-      <div className="jfr-presets" role="group" aria-label="Eksempler">
-        <Detail className="arch-eyebrow">Prøv</Detail>
-        {PRESETS.map((p) => (
-          <button key={p.id} type="button" className="jfr-preset" aria-pressed={sameInput(p.input, input)} onClick={() => setInput(p.input)}>
-            {p.label}
-          </button>
-        ))}
-      </div>
+    <div className="proc-sim">
+      <SimPresets presets={PRESETS} value={input} onPick={setInput} />
 
-      <div className="avs-sim__grid">
-        <div className="arch-card jfr-sim__form adr-lab__form" data-tone="accent">
-          <fieldset className="jfr-sim__group">
-            <legend>Adressen i SED-en</legend>
+      <div className="proc-sim__grid">
+        <SimForm>
+          <SimGroup legend="Adressen i SED-en">
             <div className="adr-lab__fields">
               <Select label="type" size="small" value={type} onChange={(e) => setAdr({ type: e.target.value as AdresseType })} className="arch-mono">
                 {TYPES.map((t) => (
@@ -103,10 +85,9 @@ export function AddressLab() {
                 <option value="">(tom)</option>
               </Select>
             </div>
-          </fieldset>
+          </SimGroup>
 
-          <fieldset className="jfr-sim__group">
-            <legend>RINA-saken</legend>
+          <SimGroup legend="RINA-saken">
             <Select
               label="Første motpart"
               description={type === "bosted" ? "Avgjør om bostedsadressen sendes." : "Navnet blir kilde i meldingen."}
@@ -122,10 +103,9 @@ export function AddressLab() {
               ))}
               <option value="">Ingen motpart</option>
             </Select>
-          </fieldset>
+          </SimGroup>
 
-          <fieldset className="jfr-sim__group">
-            <legend>PDL i dag</legend>
+          <SimGroup legend="PDL i dag">
             <Select
               label={`${type[0].toUpperCase()}${type.slice(1)}adresse i PDL`}
               size="small"
@@ -142,60 +122,32 @@ export function AddressLab() {
             <Switch size="small" checked={input.doed} disabled={type === "kontakt"} onChange={(e) => set({ doed: e.target.checked })}>
               Personen er død
             </Switch>
-          </fieldset>
-        </div>
+          </SimGroup>
+        </SimForm>
 
-        <ol className="avs-ladder jfr-ladder" aria-label="Stegene for én adresse, i rekkefølge" aria-live="polite">
+        <Ladder label="Stegene for én adresse, i rekkefølge">
           {res.steps.map((s, i) => (
-            <li key={s.id} className="avs-rung" data-state={s.state} style={{ "--arch-delay": `${i * 30}ms` } as React.CSSProperties}>
-              <span className="avs-rung__icon">{STATE_ICON[s.state]}</span>
-              <div className="avs-rung__body">
-                <div className="avs-rung__head">
-                  <strong>
-                    <span className="jfr-rung__no">{i + 1}</span>
-                    {STEP_TITLE[s.id]}
-                  </strong>
-                  {s.value ? (
-                    <span key={s.value} className="jfr-rung__value arch-mono">
-                      {s.value}
-                    </span>
-                  ) : (
-                    <span className="avs-rung__state">{STATE_TEXT[s.state]}</span>
-                  )}
-                </div>
-                {s.state !== "skip" && (
-                  <BodyShort size="small" className="jfr-rung__text">
-                    {s.text}
-                  </BodyShort>
-                )}
-              </div>
-            </li>
+            <Rung key={s.id} no={i + 1} state={s.state} title={STEP_TITLE[s.id]} value={s.value} status={STEP_STATUS[s.state]}>
+              {s.state !== "skip" && <RungText>{s.text}</RungText>}
+            </Rung>
           ))}
-        </ol>
+        </Ladder>
 
-        <div className="avs-result jfr-result" data-tone={OUTCOME_TONE[res.outcome]} aria-live="polite">
-          <Detail className="arch-eyebrow">Adressen</Detail>
-          <Heading key={res.headline} level="3" size="medium" className="jfr-result__headline">
-            {res.headline}
-          </Heading>
-          {res.opplysningstype && (
-            <dl className="jfr-result__facts">
-              <div>
-                <dt>Opplysning</dt>
-                <dd className="arch-mono">{res.opplysningstype}</dd>
-              </div>
-              <div>
-                <dt>Adressetype</dt>
-                <dd className="arch-mono">{res.adressetype}</dd>
-              </div>
-            </dl>
+        <SimResult tone={OUTCOME_TONE[res.outcome]} eyebrow="Adressen" headline={res.headline}>
+          {res.opplysningstype && res.adressetype && (
+            <ResultFacts
+              facts={[
+                { k: "Opplysning", v: res.opplysningstype },
+                { k: "Adressetype", v: res.adressetype },
+              ]}
+            />
           )}
           <BodyLong size="small">{res.text}</BodyLong>
           <div className="adr-log" data-level={res.log.level}>
             <span className="adr-log__level">{res.log.level}</span>
             <code>{res.log.msg}</code>
           </div>
-        </div>
+        </SimResult>
       </div>
 
       <div className="adr-lab__out">
