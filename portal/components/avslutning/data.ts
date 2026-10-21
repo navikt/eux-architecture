@@ -292,6 +292,8 @@ export interface StatusInfo {
   next: StatusId[];
   /** Endpoint in eux-rina-terminator-api that is called from this status. */
   rina?: string;
+  /** No job looks at the case again. */
+  final?: boolean;
   unused?: boolean;
 }
 
@@ -324,6 +326,7 @@ export const STATUSES: StatusInfo[] = [
     text: "BUC-en har ingen avslutningsregel for NAVs rolle i saken, så NAV gjør ingenting. Statusen er endelig – appen rører ikke saken igjen.",
     into: ["til-avslutning"],
     next: [],
+    final: true,
   },
   {
     id: "TIL_AVSLUTNING_LOKALT",
@@ -375,6 +378,7 @@ export const STATUSES: StatusInfo[] = [
     text: "Saken er arkivert i RINA. Statusen er endelig.",
     into: ["arkiver"],
     next: [],
+    final: true,
   },
   {
     id: "SLETT_DOKUMENTUTKAST",
@@ -392,6 +396,7 @@ export const STATUSES: StatusInfo[] = [
     text: "eux-rina-terminator-api svarte 409: handlingen finnes ikke på saken i RINA. Ingen jobb plukker opp saken igjen.",
     into: ["avslutt", "arkiver", "slett-dokumentutkast"],
     next: [],
+    final: true,
   },
   {
     id: "HANDLING_FEILET",
@@ -400,6 +405,7 @@ export const STATUSES: StatusInfo[] = [
     text: "Kallet til eux-rina-terminator-api feilet med 5xx, nettverksfeil eller en annen exception. Ingen jobb plukker opp saken igjen.",
     into: ["avslutt", "arkiver", "slett-dokumentutkast"],
     next: [],
+    final: true,
   },
   { id: "DOKUMENT_SENT", label: "Ubrukt", tone: "neutral", text: UNUSED_TEXT, into: [], next: [], unused: true },
   { id: "KAN_IKKE_AVSLUTTES", label: "Ubrukt", tone: "neutral", text: UNUSED_TEXT, into: [], next: [], unused: true },

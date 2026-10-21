@@ -2436,8 +2436,13 @@ html:has(.arch-page) {
 
 /* ---------- Statusmaskin ---------- */
 
-.avs-sm__badge {
+.proc-sm__badge {
   pointer-events: auto;
+  transition: opacity 200ms ease;
+}
+
+.proc-sm__badge.is-dim {
+  opacity: 0.22;
 }
 
 .avs-legend {
@@ -4546,8 +4551,8 @@ button.jfr-result__status:hover {
 
 /* ---------- Statuser ---------- */
 
-.avs-legend__badge.jfr-legend__f,
-.avs-night__no.jfr-no--f {
+.avs-legend__badge[data-tone="accent"],
+.avs-night__no[data-tone="accent"] {
   background: var(--ax-bg-accent-strong);
   color: var(--ax-text-accent-contrast);
 }
@@ -4556,14 +4561,6 @@ button.jfr-result__status:hover {
   color: var(--ax-text-neutral);
   font-style: normal;
   font-weight: 800;
-}
-
-.jfr-sm__badge {
-  transition: opacity 200ms ease;
-}
-
-.jfr-sm__badge.is-dim {
-  opacity: 0.22;
 }
 
 .jfr-sm__stay {

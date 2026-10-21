@@ -118,7 +118,11 @@ the play/pause/scrub case journeys (`proc-journey*`), and `StatusChips.tsx`
 built from `FlowCanvas.tsx` (`FlowCanvas`, `FlowEdge`, `EdgeLabel`, `Packets`,
 `Zone`, `Port`, `Topic`, `Box`), `useNodeSelection()`/`flowFilter()` for
 selection and flow toggles, and `FlowPanel.tsx` (`FlowToolbar`, `DetailPanel`,
-`DetailHint`, `NodeDetail`; `proc-toolbar`, `proc-detail`). New styles shared between process
+`DetailHint`, `NodeDetail`; `proc-toolbar`, `proc-detail`). The status machines
+are built from `StateMachine.tsx` (`StateCanvas`, `StateEdges`, `StateLabels`,
+`StateNode`, `Lane`, `JobBadge` (`proc-sm__badge`), `ActorList`,
+`UnusedStatuses`, and `stateFocus()` for which edges and nodes to light up).
+New styles shared between process
 pages use the `proc-` prefix rather than another feature's prefix.
 
 ### Logged-in user

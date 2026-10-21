@@ -212,9 +212,17 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
 - **Fixed:** 2026-10-21: third slice, the system-flow diagrams. `components/process/FlowCanvas.tsx` holds the SVG pieces: `FlowCanvas` (surface, SVG and arrow marker), `FlowEdge`, `EdgeLabel`, `Packets`, `Zone`, `Port`, `Topic` and `Box`. `useNodeSelection()` (`useNodeSelection.ts`) holds the click/hover/keyboard selection and dimming props, and `flowFilter()` the per-flow toggle. `FlowPanel.tsx` holds `FlowToolbar`, `DetailPanel`, `DetailHint` and `NodeDetail`. The four `SystemFlow`s went from 524/547/740/613 to 370/404/549/453 lines, and the shared classes were renamed from `avs-toolbar*`, `avs-hint`, `avs-detail*` and `avs-surface` to `proc-*`. The toolbar's `aria-live` text is no longer re-mounted on every toggle, so screen readers announce the change once. In headless Chrome, all 242 states (every toggle, node click, Enter and Lukk, in light and dark mode) have the same position, size, computed styles and SVG attributes as before. The prerendered HTML of all 15 pages is identical apart from the renames, `useId` values and the unstyled `avs-sys`/`adr-sys` wrapper class, which was removed. The rest is task 20d.
 
-### [ ] 20d · Share the state machines, simulators and step players
+### [x] 20d · Share the state machines, simulators and step players
 - **Area:** portal · **Effort:** L · **Depends on:** 20c
 - **Where:** the three `StatusMachine.tsx` (layout; the detail panel can now use `DetailPanel`/`DetailHint` from `components/process/FlowPanel.tsx`), the simulators (`avslutning/DecisionSimulator.tsx`, `journalfoering/Simulator.tsx`: ladder and presets), the step players in `journalfoering/CaseStory.tsx` and `architecture/RequestFlow.tsx`, the near-identical Kafka-intake layout in the avslutning and sletting `SystemFlow`s, and the page scaffolding in `app/prosesser/*/page.tsx`
+- **Problem:** these are still copied per feature with small differences.
+- **Fix:** extract one building block per run into `components/process/`, and add the remaining slices as new tasks.
+- **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
+- **Fixed:** 2026-10-21: fourth slice, the status machines. `components/process/StateMachine.tsx` holds `StateEdge` with one style table per edge kind (`plain`, `back`, `error`, `event`, `manual`), `stateFocus()` (which edges and nodes are lit or dimmed for a selection or filter), `StateCanvas` (surface, SVG and one marker per kind), `StateEdges` (path, flow, packet and origin dot), `StateLabels`, `StateNode`, `Lane`, `JobBadge`, `ActorList`/`toActors()` and `UnusedStatuses`. The three `StatusMachine`s went from 306/324/391 to 180/193/225 lines. The job badges are keyed by job id instead of a separate number table, avslutning's final statuses are a `final` flag in `data.ts`, and the avslutning and sletting detail panels use `DetailPanel`/`DetailHint`, so they gained the same "Lukk" button as journalføring. `avs-sm__badge`/`jfr-sm__badge` became `proc-sm__badge`, and `jfr-no--f`/`jfr-legend__f` became `data-tone="accent"`. In headless Chrome all 124 states (every node, filter and unused chip, in light and dark mode) are pixel-identical to before, except the "kaller RINA" lane pills in avslutning (width now follows the label, 5 px wider) and the origin dots, which now fade with their dimmed edge. The text is identical apart from "Lukk", and Lukk clears the selection. The rest is task 20e.
+
+### [ ] 20e · Share the simulators and step players
+- **Area:** portal · **Effort:** L · **Depends on:** 20d
+- **Where:** the simulators (`avslutning/DecisionSimulator.tsx`, `journalfoering/Simulator.tsx`: ladder and presets), the step players in `journalfoering/CaseStory.tsx` and `architecture/RequestFlow.tsx`, the near-identical Kafka-intake layout in the avslutning and sletting `SystemFlow`s, and the page scaffolding in `app/prosesser/*/page.tsx`
 - **Problem:** these are still copied per feature with small differences.
 - **Fix:** extract one building block per run into `components/process/`, and add the remaining slices as new tasks.
 - **Done when:** the slice is extracted, every page using it looks the same as before, and the build is green.
@@ -225,14 +233,14 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Problem:** changing one page's styles can break another page.
 - **Fix:** rename the shared classes to a neutral prefix (for example `proc-*`).
 - **Done when:** each feature uses only its own prefix or `proc-*`.
-- **Note:** the Slack mock already uses `proc-slack*` (done in 20). The case journeys use `proc-journey__*`, `proc-status-pill` and `proc-breathe` (done in 20b), and the status chips use `proc-chip` and `proc-unused` (done with 22's `StatusChip` point). The toolbar, hint, detail panel and surface use `proc-toolbar*`, `proc-hint`, `proc-detail*` and `proc-surface` (done in 20c). The `avs-legend*`, `avs-rung` and the `sl-*`/`jfr-*` classes used across features remain.
+- **Note:** the Slack mock already uses `proc-slack*` (done in 20). The case journeys use `proc-journey__*`, `proc-status-pill` and `proc-breathe` (done in 20b), and the status chips use `proc-chip` and `proc-unused` (done with 22's `StatusChip` point). The toolbar, hint, detail panel and surface use `proc-toolbar*`, `proc-hint`, `proc-detail*` and `proc-surface` (done in 20c). The status-machine job badges use `proc-sm__badge`, and the fagmodul badge uses `data-tone="accent"` instead of `jfr-no--f`/`jfr-legend__f` (done in 20d). The `avs-legend*`, `avs-rung` and the `sl-*`/`jfr-*` classes used across features remain.
 
 ### [ ] 22 · Clean up leftovers in the process pages
 - **Area:** portal · **Effort:** S–M · **Best after:** 20
 - **Where:** `components/{journalfoering,adresse,sletting}/*`
 - **Problem:**
   - ~~an inline `StatusChip` copy~~ (done 2026-10-21: `components/process/StatusChips.tsx` has `StatusChip` and a generic `StatusChips`; the three feature `StatusChips` are thin wrappers that bind their `STATUS_BY_ID`, the unused `active` prop is gone, and the inline chips in `journalfoering/CaseStory`, `sletting/RinaSequence` and both "brukes ikke" rows in the status machines use `StatusChip`. All 61 chips on the three pages have the same position, size and colours in light and dark mode.)
-  - `SET_BY_ACTOR`
+  - ~~`SET_BY_ACTOR`~~ (done 2026-10-21 in 20d: journalføring's `ACTORS` table holds each actor's name and title, and the edges list their actor ids in `by`, so `ACTOR_TEXT` and `SET_BY_ACTOR` are gone.)
   - three `JSON.stringify` comparators
   - sletting copy that describes the deletion rules inaccurately
   - Journey rendering each scene twice
