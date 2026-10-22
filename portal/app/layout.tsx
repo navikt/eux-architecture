@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { Box } from "@navikt/ds-react";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeProvider, THEME_STORAGE_KEY } from "@/components/ThemeProvider";
+import { sidebarBootScript } from "@/lib/sidebar";
 
 export const metadata: Metadata = {
   title: "Team EESSI Nav",
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="no" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript + sidebarBootScript }} />
       </head>
       <body>
         <ThemeProvider>

@@ -5,6 +5,7 @@ import {
   type CSSProperties,
 } from "react";
 import { useRouter } from "next/navigation";
+import { Tooltip } from "@navikt/ds-react";
 import {
   ArrowRightIcon, ComponentIcon, FileTextIcon, MagnifyingGlassIcon,
   PadlockLockedIcon, SparklesIcon, WavesIcon, XMarkIcon,
@@ -39,7 +40,11 @@ function Highlight({ text, query }: { text: string; query: string }) {
   );
 }
 
-export function CommandMenu({ onNavigate }: { onNavigate: () => void }) {
+export function CommandMenu({ onNavigate, compact = false }: {
+  onNavigate: () => void;
+  /** Icon-only trigger for the collapsed sidebar rail. */
+  compact?: boolean;
+}) {
   const router = useRouter();
   const isMac = useSyncExternalStore(subscribePlatform, isMacPlatform, () => true);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -120,21 +125,25 @@ export function CommandMenu({ onNavigate }: { onNavigate: () => void }) {
     setActive(0);
   }
 
+  const trigger = (
+    <button
+      type="button"
+      className={styles.trigger}
+      data-color="neutral"
+      onClick={open}
+      aria-haspopup="dialog"
+      aria-controls={`${id}-dialog`}
+      aria-keyshortcuts="Meta+K Control+K"
+    >
+      <MagnifyingGlassIcon aria-hidden />
+      <span>Søk i portalen</span>
+      <kbd>{isMac ? "⌘" : "Ctrl"} K</kbd>
+    </button>
+  );
+
   return (
     <>
-      <button
-        type="button"
-        className={styles.trigger}
-        data-color="neutral"
-        onClick={open}
-        aria-haspopup="dialog"
-        aria-controls={`${id}-dialog`}
-        aria-keyshortcuts="Meta+K Control+K"
-      >
-        <MagnifyingGlassIcon aria-hidden />
-        <span>Søk i portalen</span>
-        <kbd>{isMac ? "⌘" : "Ctrl"} K</kbd>
-      </button>
+      {compact ? <Tooltip content="Søk i portalen" keys={[isMac ? "⌘" : "Ctrl", "K"]} placement="right">{trigger}</Tooltip> : trigger}
 
       <dialog
         ref={dialogRef}

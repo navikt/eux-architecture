@@ -68,6 +68,14 @@ The left sidebar (`components/Sidebar.tsx`) holds the brand, the navigation and,
 at the bottom, the profile area (`components/UserMenu.tsx`). On small screens it
 collapses into a compact bar with a menu button.
 
+On wide screens the sidebar can be collapsed to an icon rail with the round
+handle on its right edge or **Cmd+B** (macOS) / **Ctrl+B**. In the rail, links,
+search and login show their names as tooltips. The choice is kept in
+`localStorage` (`portal-sidebar`) and applied before first paint as
+`<html data-sidebar="collapsed">` by a boot script in `app/layout.tsx`
+(`lib/sidebar.ts`), so the page never flashes the wrong width. All rail styles
+key off that attribute in `app/globals.css`.
+
 `lib/navigation.ts` is the single list of pages (`NAVIGATION`). The sidebar
 renders it, the search index is generated from it, and `start: true` puts a
 page in the command menu's start list. The home page cards refer to pages by

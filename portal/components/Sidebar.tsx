@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Tooltip } from "@navikt/ds-react";
 import {
+  ChevronLeftIcon,
   ExternalLinkIcon,
   MenuHamburgerIcon,
   PadlockLockedIcon,
   XMarkIcon,
 } from "@navikt/aksel-icons";
 import { NAV_SECTIONS, type NavItem } from "@/lib/navigation";
+import {
+  SIDEBAR_COLLAPSED,
+  SIDEBAR_DESKTOP_QUERY,
+  SIDEBAR_STORAGE_KEY,
+} from "@/lib/sidebar";
 import { UserMenu, useCurrentUser } from "./UserMenu";
 import { CommandMenu } from "./CommandMenu";
 
@@ -31,6 +38,61 @@ function BrandMark() {
   );
 }
 
+/* ── Collapsed state ──────────────────────────────────────────────────────
+   Lives on <html data-sidebar> (set before first paint, see lib/sidebar.ts) and
+   is mirrored to localStorage. React reads it via useSyncExternalStore. */
+
+const collapseListeners = new Set<() => void>();
+
+function emitCollapse() {
+  for (const listener of collapseListeners) listener();
+}
+
+function applyCollapsed(collapsed: boolean) {
+  const el = document.documentElement;
+  if (collapsed) el.setAttribute("data-sidebar", SIDEBAR_COLLAPSED);
+  else el.removeAttribute("data-sidebar");
+}
+
+function onStorage(event: StorageEvent) {
+  if (event.key !== SIDEBAR_STORAGE_KEY) return;
+  applyCollapsed(event.newValue === SIDEBAR_COLLAPSED);
+  emitCollapse();
+}
+
+function subscribeCollapsed(callback: () => void) {
+  collapseListeners.add(callback);
+  if (collapseListeners.size === 1) window.addEventListener("storage", onStorage);
+  return () => {
+    collapseListeners.delete(callback);
+    if (collapseListeners.size === 0) window.removeEventListener("storage", onStorage);
+  };
+}
+
+function setCollapsed(collapsed: boolean) {
+  applyCollapsed(collapsed);
+  try {
+    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, collapsed ? SIDEBAR_COLLAPSED : "expanded");
+  } catch {
+    /* storage unavailable — the choice lasts until reload */
+  }
+  emitCollapse();
+}
+
+const isCollapsed = () =>
+  document.documentElement.getAttribute("data-sidebar") === SIDEBAR_COLLAPSED;
+
+function subscribeDesktop(callback: () => void) {
+  const media = window.matchMedia(SIDEBAR_DESKTOP_QUERY);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
+const isDesktop = () => window.matchMedia(SIDEBAR_DESKTOP_QUERY).matches;
+const serverFalse = () => false;
+const subscribePlatform = () => () => {};
+const isMacPlatform = () => /Mac|iPhone|iPad/.test(navigator.platform);
+
 function isActive(pathname: string, item: NavItem): boolean {
   if (item.external) return false;
   if (item.href === "/") return pathname === "/";
@@ -42,6 +104,41 @@ export function Sidebar() {
   const user = useCurrentUser();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
+  const collapsed = useSyncExternalStore(subscribeCollapsed, isCollapsed, serverFalse);
+  const desktop = useSyncExternalStore(subscribeDesktop, isDesktop, serverFalse);
+  const isMac = useSyncExternalStore(subscribePlatform, isMacPlatform, () => true);
+  // The icon-only rail only exists on wide screens; the mobile menu is unaffected.
+  const rail = collapsed && desktop;
+  const toggleCollapsed = useCallback(() => setCollapsed(!isCollapsed()), []);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        !event.altKey &&
+        !event.shiftKey &&
+        event.key.toLowerCase() === "b" &&
+        !event.isComposing &&
+        isDesktop() &&
+        !document.querySelector("dialog[open]")
+      ) {
+        event.preventDefault();
+        if (!event.repeat) toggleCollapsed();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [toggleCollapsed]);
+
+  const brand = (
+    <Link href="/" className="portal-brand" onClick={close}>
+      <BrandMark />
+      <span className="portal-brand__text">
+        <span className="portal-brand__name">Team EESSI</span>
+        <span className="portal-brand__sub">Arkitekturportal · Nav</span>
+      </span>
+    </Link>
+  );
 
   return (
     <aside
@@ -51,14 +148,30 @@ export function Sidebar() {
         if (e.key === "Escape") close();
       }}
     >
+      <Tooltip
+        content={collapsed ? "Vis sidemeny" : "Skjul sidemeny"}
+        keys={[isMac ? "⌘" : "Ctrl", "B"]}
+        placement="right"
+      >
+        <button
+          type="button"
+          className="portal-sidebar__collapse"
+          aria-expanded={!collapsed}
+          aria-controls="portal-sidebar-panel"
+          onClick={toggleCollapsed}
+        >
+          <ChevronLeftIcon aria-hidden />
+        </button>
+      </Tooltip>
+
       <div className="portal-sidebar__top">
-        <Link href="/" className="portal-brand" onClick={close}>
-          <BrandMark />
-          <span className="portal-brand__text">
-            <span className="portal-brand__name">Team EESSI</span>
-            <span className="portal-brand__sub">Arkitekturportal · Nav</span>
-          </span>
-        </Link>
+        {rail ? (
+          <Tooltip content="Team EESSI · Oversikt" placement="right">
+            {brand}
+          </Tooltip>
+        ) : (
+          brand
+        )}
         <button
           type="button"
           className="portal-sidebar__toggle"
@@ -71,7 +184,7 @@ export function Sidebar() {
         </button>
       </div>
 
-      <CommandMenu onNavigate={close} />
+      <CommandMenu onNavigate={close} compact={rail} />
 
       <div id="portal-sidebar-panel" className="portal-sidebar__panel">
         <nav aria-label="Hovedmeny" className="portal-sidebar__nav">
@@ -92,32 +205,42 @@ export function Sidebar() {
                       <span className="portal-sidebar__label">{item.label}</span>
                     </>
                   );
-                  if (item.external) {
-                    return (
-                      <li key={item.href}>
-                        <a href={item.href} className={className} target="_blank" rel="noreferrer">
-                          {content}
-                          <ExternalLinkIcon title="åpnes i ny fane" className="portal-sidebar__trail" />
-                        </a>
-                      </li>
-                    );
-                  }
+                  const locked = item.requiresLogin && user.status === "anonymous";
+                  const link = item.external ? (
+                    <a href={item.href} className={className} target="_blank" rel="noreferrer">
+                      {content}
+                      <ExternalLinkIcon title="åpnes i ny fane" className="portal-sidebar__trail" />
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={className}
+                      aria-current={active ? "page" : undefined}
+                      onClick={close}
+                    >
+                      {content}
+                      {locked && (
+                        <PadlockLockedIcon
+                          title="Krever innlogging"
+                          className="portal-sidebar__trail"
+                        />
+                      )}
+                    </Link>
+                  );
+                  const hint = item.external
+                    ? `${item.label} (åpnes i ny fane)`
+                    : locked
+                      ? `${item.label} · krever innlogging`
+                      : item.label;
                   return (
                     <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        className={className}
-                        aria-current={active ? "page" : undefined}
-                        onClick={close}
-                      >
-                        {content}
-                        {item.requiresLogin && user.status === "anonymous" && (
-                          <PadlockLockedIcon
-                            title="Krever innlogging"
-                            className="portal-sidebar__trail"
-                          />
-                        )}
-                      </Link>
+                      {rail ? (
+                        <Tooltip content={hint} placement="right">
+                          {link}
+                        </Tooltip>
+                      ) : (
+                        link
+                      )}
                     </li>
                   );
                 })}
@@ -126,7 +249,7 @@ export function Sidebar() {
           ))}
         </nav>
 
-        <UserMenu state={user} />
+        <UserMenu state={user} compact={rail} />
       </div>
     </aside>
   );

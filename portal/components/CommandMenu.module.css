@@ -19,9 +19,27 @@
   box-shadow: 0 0 18px color-mix(in srgb, var(--ax-bg-accent-strong) 12%, transparent);
 }
 
-.trigger > svg { width: 19px; height: 19px; }
-.trigger > span { flex: 1; font-size: 0.9rem; }
+.trigger > svg { flex: none; width: 19px; height: 19px; }
+.trigger > span { flex: 1; font-size: 0.9rem; white-space: nowrap; }
 .trigger kbd { font-size: 0.75rem; white-space: nowrap; }
+.trigger > span, .trigger kbd { transition: opacity var(--portal-sidebar-motion); }
+
+/* Collapsed sidebar rail: an icon-only, centred search button. */
+@media (min-width: 900px) {
+  .trigger {
+    overflow: hidden;
+    transition: border-color 160ms, box-shadow 160ms, margin var(--portal-sidebar-motion), padding var(--portal-sidebar-motion);
+  }
+  :global(html[data-sidebar="collapsed"]) .trigger {
+    margin-inline: calc((var(--portal-rail-w) - 48px) / 2);
+    padding-inline: calc((48px - 2px - 19px) / 2);
+  }
+  :global(html[data-sidebar="collapsed"]) .trigger > span,
+  :global(html[data-sidebar="collapsed"]) .trigger kbd { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trigger, .trigger > span, .trigger kbd { transition: none; }
+}
 .dialog {
   --search-accent: var(--ax-text-accent);
   position: fixed;

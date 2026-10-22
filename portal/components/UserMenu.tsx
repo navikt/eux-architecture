@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ActionMenu, Skeleton } from "@navikt/ds-react";
+import { ActionMenu, Skeleton, Tooltip } from "@navikt/ds-react";
 import {
   ChevronUpDownIcon,
   EnterIcon,
@@ -102,10 +102,27 @@ function loginHref(pathname: string, selectAccount = false): string {
 }
 
 /** Bottom-of-sidebar profile area: who is logged in, account actions and theme. */
-export function UserMenu({ state }: { state: UserState }) {
+export function UserMenu({ state, compact = false }: {
+  state: UserState;
+  /** Avatar-only layout for the collapsed sidebar rail. */
+  compact?: boolean;
+}) {
   const pathname = usePathname();
   const sessionEndsAt = useSessionEndsAt(
     state.status === "authenticated" && !state.user.mock,
+  );
+
+  const loginLink = (
+    <a className="portal-user__card portal-user__card--link" href={loginHref(pathname)}>
+      <span className="portal-user__avatar portal-user__avatar--empty" aria-hidden>
+        <PersonIcon />
+      </span>
+      <span className="portal-user__text">
+        <span className="portal-user__name">Logg inn</span>
+        <span className="portal-user__meta">Nav-ansatt (Entra ID)</span>
+      </span>
+      <EnterIcon aria-hidden className="portal-user__chevron" />
+    </a>
   );
 
   return (
@@ -120,18 +137,11 @@ export function UserMenu({ state }: { state: UserState }) {
         </div>
       )}
 
-      {state.status === "anonymous" && (
-        <a className="portal-user__card portal-user__card--link" href={loginHref(pathname)}>
-          <span className="portal-user__avatar portal-user__avatar--empty" aria-hidden>
-            <PersonIcon />
-          </span>
-          <span className="portal-user__text">
-            <span className="portal-user__name">Logg inn</span>
-            <span className="portal-user__meta">Nav-ansatt (Entra ID)</span>
-          </span>
-          <EnterIcon aria-hidden className="portal-user__chevron" />
-        </a>
-      )}
+      {state.status === "anonymous" && (compact ? (
+        <Tooltip content="Logg inn som Nav-ansatt" placement="right">
+          {loginLink}
+        </Tooltip>
+      ) : loginLink)}
 
       {state.status === "authenticated" && (
         <ActionMenu>
