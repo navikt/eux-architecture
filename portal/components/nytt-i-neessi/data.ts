@@ -6,7 +6,6 @@
  * Prodstatus: eux-web-app og eux-neessi (5.0.184) ble sist prodsatt 06.10.2026.
  */
 
-export const PERIOD_FROM = "1. desember 2025";
 export const UPDATED = "12. oktober 2026";
 export const PROD_DATE = "6. oktober 2026";
 
@@ -36,6 +35,11 @@ export const MONTHS: { id: Month; label: string; short: string }[] = [
   { id: "2026-09", label: "September 2026", short: "Sep" },
   { id: "2026-10", label: "Oktober 2026", short: "Okt" },
 ];
+
+/** The first and last month in the overview, e.g. "desember 2025" and "oktober 2026". */
+export const FIRST_MONTH = MONTHS[0].label.toLowerCase();
+export const LAST_MONTH = MONTHS[MONTHS.length - 1].label.toLowerCase();
+export const PERIOD_FROM = `1. ${FIRST_MONTH}`;
 
 export const monthLabel = (m: Month) => MONTHS.find((x) => x.id === m)?.label ?? m;
 export const monthShort = (m: Month) => {

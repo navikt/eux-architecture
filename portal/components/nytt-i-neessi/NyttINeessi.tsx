@@ -23,6 +23,8 @@ import {
 import {
   CDM44_NOTE,
   CHANGE_KINDS,
+  FIRST_MONTH,
+  LAST_MONTH,
   MONTHS,
   NEW_SEDS,
   PERIOD_FROM,
@@ -42,6 +44,7 @@ import {
   type SedFamily,
 } from "./data";
 import { Section } from "@/components/page/Section";
+import { joinOg } from "@/lib/text";
 import { HeroStats } from "@/components/page/HeroStats";
 import { JumpNav } from "@/components/page/JumpNav";
 
@@ -73,6 +76,13 @@ const SCREEN_ICONS: Record<ScreenIcon, ComponentType<SVGProps<SVGSVGElement>>> =
 };
 
 const SEDS_IN_PROD = NEW_SEDS.filter((s) => s.status === "prod");
+const SEDS_NOT_ACTIVE = NEW_SEDS.filter((s) => s.status === "ikke-aktivert");
+const NEW_SEDS_LEAD = [
+  `${SEDS_IN_PROD.length} SED-er kan nå lages og sendes fra nEESSI uten å gå via RINA.`,
+  SEDS_NOT_ACTIVE.length > 0 && `I tillegg er ${joinOg(SEDS_NOT_ACTIVE.map((s) => s.code))} laget, men ikke slått på ennå.`,
+]
+  .filter(Boolean)
+  .join(" ");
 const SCREEN_CHANGE_COUNT = SCREENS.reduce((n, a) => n + a.changes.length, 0);
 const UPDATED_SED_COUNT = new Set(UPDATED_SEDS.flatMap((u) => u.seds)).size;
 const TOTAL_PRS = REPO_COUNTS.reduce((n, r) => n + r.prs, 0);
@@ -411,7 +421,7 @@ export function NyttINeessi() {
         <div className="arch-hero__text">
           <Detail className="arch-eyebrow">nEESSI · oppdatert {UPDATED}</Detail>
           <Heading level="1" size="xlarge" spacing>
-            Nytt i nEESSI siden desember 2025
+            Nytt i nEESSI siden {FIRST_MONTH}
           </Heading>
           <BodyLong size="large" className="arch-hero__lead">
             Dette har skjedd i nEESSI fra {PERIOD_FROM}: nye SED-er, endringer i skjermbildene og feil som er rettet. Alt
@@ -427,7 +437,7 @@ export function NyttINeessi() {
             { n: SEDS_IN_PROD.length, label: "nye SED-er", sub: "i bruk i produksjon" },
             { n: SCREEN_CHANGE_COUNT, label: "endringer i skjermbilder", sub: "nytt, forbedret og rettet" },
             { n: UPDATED_SED_COUNT, label: "SED-er tilpasset", sub: "bl.a. datamodell 4.4" },
-            { n: MONTHS.length, label: "måneder", sub: "desember 2025 – oktober 2026" },
+            { n: MONTHS.length, label: "måneder", sub: `${FIRST_MONTH} – ${LAST_MONTH}` },
           ]}
         />
 
@@ -486,7 +496,7 @@ export function NyttINeessi() {
         id="nye-seder"
         eyebrow="For saksbehandler"
         title="Nye SED-er"
-        lead={`${SEDS_IN_PROD.length} SED-er kan nå lages og sendes fra nEESSI uten å gå via RINA. I tillegg er X013 laget, men ikke slått på ennå.`}
+        lead={NEW_SEDS_LEAD}
       >
         <NewSeds />
       </Section>

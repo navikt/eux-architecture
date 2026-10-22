@@ -300,7 +300,7 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** the copied link matches the current host.
 - **Fixed:** 2026-10-22: `PAGE_URL` is replaced by `PAGE_PATH`, and the button gets `new URL(PAGE_PATH, window.location.origin)` through `useSyncExternalStore` (the server renders the path). In headless Chrome the button copied `http://localhost:3917/nytt-i-neessi` and `http://127.0.0.1:3917/nytt-i-neessi` on the two hosts, without the `#tidslinje` the page was opened with.
 
-### [ ] 27 · Derive the numbers written in prose
+### [x] 27 · Derive the numbers written in prose
 - **Area:** portal · **Effort:** S–M
 - **Where:**
   - `app/architecture/page.tsx` ("De ni tjenestene med database", "15 dager")
@@ -311,6 +311,7 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Problem:** these numbers go stale silently. For example, "15 dager" should come from `GRENSE_DAGER`.
 - **Fix:** compute them from the data. Add `db?: boolean` to `ArchNode` and verify each value against the source repos.
 - **Done when:** none of the listed numbers is hardcoded.
+- **Fixed:** 2026-10-22: every "15 dager" (architecture and avslutning further-reading links, `EventMetro`, the slett-usendte summary, the sletting status and job texts, the DB column note and the whole sletting `CaseJourney` example, whose days are now counted from `D = GRENSE_DAGER`) uses `GRENSE_DAGER`. "De ni tjenestene med database" is `tallord(DB_COUNT)` (`ArchNode.db` already existed; the nine flags match `sqlInstances` in the repos). The avslutt "sju jobber" and the three naisjob summaries count and list the jobs from the process `JOBS` (the journalarkivar and slett-usendte summaries now name the jobs: "ferdigstill (01.00) og feilregistrer (02.00)", "slett, til-sletting og rapport"). Nytt i nEESSI takes its period from `MONTHS` (`FIRST_MONTH`, `LAST_MONTH`, `PERIOD_FROM`) and lists the not-activated SEDs from `NEW_SEDS`. Journalføring's `NightJobs` places the jobs and the arc by their prod hour and reads "25.11" from the q2 cron. New `lib/text.ts` (`tallord`, `capitalize`, `joinOg`); `scripts/resolve-ts.mjs` lets the Node tests load data modules with `@/` imports; `scripts/search-index.mjs` now indexes template literals in text positions and exported number constants, so the derived copy stays searchable. The prerendered HTML is identical apart from the two reworded naisjob summaries.
 
 ### [ ] 28 · Derive the service facts from `data.ts`
 - **Area:** portal · **Effort:** L · **Best after:** 27

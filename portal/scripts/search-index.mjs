@@ -8,9 +8,49 @@ const parse = (path) => ts.createSourceFile(path, readFileSync(path, "utf8"), ts
 const clean = (text) => text.replace(/\s+/g, " ").trim();
 const property = (node, name) => node.properties.find((p) => ts.isPropertyAssignment(p) && p.name.getText() === name)?.initializer;
 const literal = (node) => node && ts.isStringLiteral(node) ? node.text : "";
+const isText = (node) => ts.isStringLiteral(node) || ts.isTemplateLiteral(node);
+const isConstant = (node) => ts.isStringLiteral(node) || ts.isNumericLiteral(node);
+// A template's literal parts, with `${NAME}` filled in when NAME is a known constant.
+function templateText(node, constants) {
+  if (ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
+  return node.head.text + node.templateSpans.map((span) => {
+    const value = ts.isIdentifier(span.expression) ? constants.get(span.expression.text) : undefined;
+    return (value ?? " ") + span.literal.text;
+  }).join("");
+}
 // Filled from lib/navigation.ts below; `page: "/href"` references index as the page's label.
 const navLabels = new Map();
 const textKeys = new Set(["title", "label", "text", "description", "summary", "lead", "what", "how", "note", "body", "name", "term", "meaning", "sub", "detail", "facts", "explanation"]);
+const textAttributes = new Set(["title", "lead", "eyebrow", "term"]);
+
+const isTextKey = (node) => ts.isPropertyAssignment(node) && textKeys.has(node.name.getText());
+const isTextAttribute = (node) => ts.isJsxAttribute(node) && textAttributes.has(node.name.getText());
+const isNodeCall = (node) => ts.isCallExpression(node) && ["app", "ext", "topic"].includes(node.expression.getText());
+const words = (text) => text.split(/\s+/).filter((word) => /\p{L}/u.test(word)).length;
+
+// Whether a string is visible copy.
+function isTextPosition(node) {
+  const parent = node.parent;
+  return (
+    isTextKey(parent) ||
+    ts.isArrayLiteralExpression(parent) ||
+    isNodeCall(parent) ||
+    ts.isJsxExpression(parent) ||
+    isTextAttribute(parent)
+  );
+}
+
+// Templates are also class names, keys and code snippets, so only text properties (and their lists), text
+// attributes and node arguments count, and only when they hold a phrase rather than a fragment like "Kopier ${id}".
+function isTemplateTextPosition(node, text) {
+  const parent = node.parent;
+  return words(text) >= 3 && (
+    isTextKey(parent) ||
+    isNodeCall(parent) ||
+    (ts.isArrayLiteralExpression(parent) && isTextKey(parent.parent)) ||
+    (ts.isJsxExpression(parent) && isTextAttribute(parent.parent))
+  );
+}
 
 function textOf(node, constants = new Map()) {
   const parts = [];
@@ -21,18 +61,13 @@ function textOf(node, constants = new Map()) {
       if (ts.isNumericLiteral(expression)) parts.push(expression.text);
       if (ts.isIdentifier(expression) && constants.has(expression.text)) parts.push(constants.get(expression.text));
     }
-    if (ts.isStringLiteral(child)) {
+    if (isText(child)) {
+      const text = ts.isStringLiteral(child) ? child.text : templateText(child, constants);
       const parent = child.parent;
-      if (ts.isPropertyAssignment(parent) && parent.name.getText() === "page" && navLabels.has(child.text)) {
-        parts.push(navLabels.get(child.text));
-      } else if (
-        (ts.isPropertyAssignment(parent) && textKeys.has(parent.name.getText())) ||
-        ts.isArrayLiteralExpression(parent) ||
-        (ts.isCallExpression(parent) && ["app", "ext", "topic"].includes(parent.expression.getText())) ||
-        ts.isJsxExpression(parent) ||
-        (ts.isJsxAttribute(parent) && ["title", "lead", "eyebrow", "term"].includes(parent.name.getText()))
-      ) {
-        if (!/^(https?:|\/|@|#)/.test(child.text)) parts.push(child.text);
+      if (ts.isPropertyAssignment(parent) && parent.name.getText() === "page" && navLabels.has(text)) {
+        parts.push(navLabels.get(text));
+      } else if ((ts.isStringLiteral(child) ? isTextPosition(child) : isTemplateTextPosition(child, text)) && !/^(https?:|\/|@|#)/.test(text)) {
+        parts.push(text);
       }
     }
     ts.forEachChild(child, visit);
@@ -41,7 +76,7 @@ function textOf(node, constants = new Map()) {
   return clean(parts.join(" "));
 }
 
-// Exported string constants per module, so shared copy imported with `@/…` is indexed where it is rendered.
+// Exported string and number constants per module, so shared copy imported with `@/…` is indexed where it is rendered.
 const stringExports = new Map();
 function importedStrings(source) {
   const found = new Map();
@@ -57,7 +92,7 @@ function importedStrings(source) {
       for (const node of parse(path).statements) {
         if (!ts.isVariableStatement(node) || !node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)) continue;
         for (const declaration of node.declarationList.declarations) {
-          if (ts.isIdentifier(declaration.name) && declaration.initializer && ts.isStringLiteral(declaration.initializer)) {
+          if (ts.isIdentifier(declaration.name) && declaration.initializer && isConstant(declaration.initializer)) {
             strings.set(declaration.name.text, declaration.initializer.text);
           }
         }
@@ -152,7 +187,7 @@ for (const section of sections.elements) {
           for (const node of statement.declarationList.declarations) {
             if (ts.isIdentifier(node.name) && node.initializer) {
               declarations.set(node.name.text, node.initializer);
-              if (ts.isStringLiteral(node.initializer) || ts.isNumericLiteral(node.initializer)) constants.set(node.name.text, node.initializer.text);
+              if (isConstant(node.initializer)) constants.set(node.name.text, node.initializer.text);
             }
           }
         }

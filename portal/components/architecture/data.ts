@@ -5,6 +5,11 @@
  * Keep in sync with README.md.
  */
 
+import { JOBS as AVSLUTT_JOBS } from "@/components/avslutning/data";
+import { JOBS as ARKIVAR_JOBS } from "@/components/journalfoering/data";
+import { klokke } from "@/components/process/time";
+import { GRENSE_DAGER, JOBS as SLETT_JOBS } from "@/components/sletting/data";
+import { capitalize, joinOg, tallord } from "@/lib/text";
 import type { Tone } from "@/lib/tones";
 
 export type Zone =
@@ -75,6 +80,9 @@ const ext = (id: string, name: string, summary: string): ArchNode => ({
   kind: "external",
   summary,
 });
+
+/** "Sju cron-jobber", counted from the job list in the process data. */
+const cronJobs = (n: number) => `${capitalize(tallord(n))} cron-jobber`;
 
 const topic = (name: string, summary: string, facts?: string[]): ArchNode => ({
   id: name,
@@ -302,7 +310,7 @@ export const NODES: ArchNode[] = [
       db: true,
       facts: [
         "Følger sakene via sak- og dokumenthendelser.",
-        "Startes av sju jobber i eux-avslutt-rinasaker-naisjob.",
+        `Startes av ${tallord(AVSLUTT_JOBS.length)} jobber i eux-avslutt-rinasaker-naisjob.`,
         "Utfører handlingene via eux-rina-terminator-api.",
       ],
       link: { href: "/prosesser/automatisk-avslutning", label: "Automatisk avslutning" },
@@ -312,7 +320,7 @@ export const NODES: ArchNode[] = [
     "eux-slett-usendte-rinasaker",
     "bakgrunn",
     "Kotlin",
-    "Sletter RINA-saker der ingen SED er sendt eller mottatt etter 15 dager.",
+    `Sletter RINA-saker der ingen SED er sendt eller mottatt etter ${GRENSE_DAGER} dager.`,
     {
       db: true,
       facts: [
@@ -365,8 +373,7 @@ export const NODES: ArchNode[] = [
     kind: "job",
     lang: "Kotlin",
     repo: "eux-avslutt-rinasaker-naisjob",
-    summary:
-      "Sju cron-jobber som driver avslutningsløpet i eux-avslutt-rinasaker, fra «sett uvirksom» til «arkiver».",
+    summary: `${cronJobs(AVSLUTT_JOBS.length)} som driver avslutningsløpet i eux-avslutt-rinasaker, fra «sett uvirksom» til «arkiver».`,
     link: { href: "/prosesser/automatisk-avslutning", label: "Automatisk avslutning" },
   },
   {
@@ -377,7 +384,9 @@ export const NODES: ArchNode[] = [
     kind: "job",
     lang: "Kotlin",
     repo: "eux-journalarkivar-naisjob",
-    summary: "To cron-jobber som starter ferdigstilling (01.00) og feilregistrering (02.00) i eux-journalarkivar.",
+    summary: `${cronJobs(ARKIVAR_JOBS.length)} i eux-journalarkivar: ${joinOg(
+      ARKIVAR_JOBS.map((j) => (j.sched.prod.h === null ? j.id : `${j.id} (${klokke(j.sched.prod.h)})`)),
+    )}.`,
   },
   {
     id: "eux-slett-usendte-rinasaker-naisjob",
@@ -387,7 +396,7 @@ export const NODES: ArchNode[] = [
     kind: "job",
     lang: "Kotlin",
     repo: "eux-slett-usendte-rinasaker-naisjob",
-    summary: "Tre cron-jobber i eux-slett-usendte-rinasaker: slett, til-sletting og en månedlig rapport.",
+    summary: `${cronJobs(SLETT_JOBS.length)} i eux-slett-usendte-rinasaker: ${joinOg(SLETT_JOBS.map((j) => j.id))}.`,
     link: { href: "/prosesser/automatisk-sletting", label: "Automatisk sletting" },
   },
 
@@ -604,3 +613,4 @@ export const PLATFORM_INTRO =
 export const SERVICE_COUNT = NODES.filter((n) => n.kind === "app").length;
 export const JOB_COUNT = NODES.filter((n) => n.kind === "job").length;
 export const TOPIC_COUNT = NODES.filter((n) => n.kind === "topic").length;
+export const DB_COUNT = NODES.filter((n) => n.db).length;

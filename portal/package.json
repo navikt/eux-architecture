@@ -15,9 +15,9 @@
     "start": "next start",
     "pretypecheck": "pnpm search:index",
     "typecheck": "tsc --noEmit",
-    "test": "pnpm search:index && node --experimental-strip-types --test scripts/*.test.mjs",
-    "test:search": "pnpm search:index && node --experimental-strip-types --test scripts/search.test.mjs",
-    "test:data": "node --experimental-strip-types --test scripts/data.test.mjs",
+    "test": "pnpm search:index && node --experimental-strip-types --import ./scripts/resolve-ts.mjs --test scripts/*.test.mjs",
+    "test:search": "pnpm search:index && node --experimental-strip-types --import ./scripts/resolve-ts.mjs --test scripts/search.test.mjs",
+    "test:data": "node --experimental-strip-types --import ./scripts/resolve-ts.mjs --test scripts/data.test.mjs",
     "lint": "eslint ."
   },
   "dependencies": {

@@ -94,9 +94,12 @@ only by their navigation labels and marked as requiring login.
 When adding a documentation component directory, add it to `componentFolders`
 in the generator. Page sections use the shared `Section` from
 `components/page/Section.tsx`; each `<Section>` with literal `id` and `title`
-props becomes its own search hit linking to `#id`. Exported string constants
-imported with `@/…` (such as `PLATFORM_INTRO`) are indexed where they are
-rendered as `{CONSTANT}`. Restart dev (or run
+props becomes its own search hit linking to `#id`. Exported string and number
+constants imported with `@/…` (such as `PLATFORM_INTRO` and `GRENSE_DAGER`) are
+indexed where they are rendered as `{CONSTANT}` or used as `${CONSTANT}` in a
+template. Templates are indexed in text properties (`text`, `summary`, `facts`
+…), in `title`/`lead`/`eyebrow`/`term` props and in the architecture model,
+and only when they hold at least three words. Restart dev (or run
 `pnpm search:index`) to refresh the index after editing documentation.
 
 ### Page building blocks
@@ -244,6 +247,15 @@ pnpm install
 | `pnpm test` | All tests in `scripts/*.test.mjs` (CI runs this) |
 | `pnpm test:search` | Search ranking, typo tolerance, content indexing and privacy checks |
 | `pnpm test:data` | Cross-checks between data files, e.g. that every `ENV_SERVICES` id is an app in `components/architecture/data.ts` |
+
+The tests load TypeScript data modules directly with Node.
+`scripts/resolve-ts.mjs` resolves `@/…` and extensionless imports for them, so
+data files may import each other the same way as the app. They cannot import
+`.tsx` files at runtime (type-only imports are fine).
+
+Numbers and lists in prose are derived from the data rather than typed in, for
+example `${GRENSE_DAGER} dager` or `tallord(DB_COUNT)` ("ni"). `lib/text.ts`
+has `tallord`, `capitalize` and `joinOg` for Norwegian copy.
 
 ## Deployment
 

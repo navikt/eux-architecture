@@ -11,7 +11,9 @@ import { NightTimeline } from "@/components/architecture/NightTimeline";
 import { Catalogue } from "@/components/architecture/Catalogue";
 import { PatternMatrix } from "@/components/architecture/PatternMatrix";
 import { useReducedMotion } from "@/components/architecture/hooks";
-import { JOB_COUNT, NODES, NODE_BY_ID, PLATFORM_INTRO, SERVICE_COUNT, TOPIC_COUNT, incoming } from "@/components/architecture/data";
+import { DB_COUNT, JOB_COUNT, NODES, NODE_BY_ID, PLATFORM_INTRO, SERVICE_COUNT, TOPIC_COUNT, incoming } from "@/components/architecture/data";
+import { GRENSE_DAGER } from "@/components/sletting/data";
+import { tallord } from "@/lib/text";
 import { GLOSSARY } from "@/components/architecture/glossary";
 import { Section } from "@/components/page/Section";
 import { HeroStats } from "@/components/page/HeroStats";
@@ -243,7 +245,7 @@ const FURTHER: FurtherLink[] = [
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
   { href: "/environments", title: "Miljøer", text: "Testmiljøene Q1 og Q2, med hver sin RINA-instans og frontend." },
   { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan inaktive RINA-saker lukkes og arkiveres – med regler per BUC, statuser og nattjobber." },
-  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker der ingen SED er sendt eller mottatt, slettes etter 15 dager." },
+  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: `Hvordan saker der ingen SED er sendt eller mottatt, slettes etter ${GRENSE_DAGER} dager.` },
   { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hvordan SED-er journalføres automatisk." },
   { href: "/prosesser/adresseoppdatering", title: "Adresseoppdatering", text: "Hvordan utenlandske adresser i innkommende SED-er havner i PDL." },
   { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Sanntidsmonitor for sedmottatt og sedsendt i Q1 og Q2." },
@@ -506,7 +508,7 @@ export default function ArchitecturePage() {
               for MDC-basert sporing. Java-tjenestene gjør det ikke.
             </li>
             <li>
-              <strong>Database.</strong> De ni tjenestene med database har hver sin PostgreSQL-instans i Cloud SQL
+              <strong>Database.</strong> De {tallord(DB_COUNT)} tjenestene med database har hver sin PostgreSQL-instans i Cloud SQL
               (<code>sqlInstances</code> i NAIS-manifestet), med skjemaendringer via Flyway.
             </li>
           </ul>

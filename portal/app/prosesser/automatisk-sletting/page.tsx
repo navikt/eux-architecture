@@ -239,7 +239,7 @@ const DB_COLUMNS: [string, string][] = [
   ["rinasak_id", "unik"],
   ["status", "indeks"],
   ["buc_type", ""],
-  ["opprettet_tidspunkt", "15 dager"],
+  ["opprettet_tidspunkt", `${GRENSE_DAGER} dager`],
   ["endret_tidspunkt", "rapport"],
 ];
 

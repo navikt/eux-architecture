@@ -8,7 +8,7 @@ import { JobCard, JobFlow } from "@/components/process/Jobs";
 import { klokke, nextDaily, nextOnDay, r2, type NextRun, type OsloTime } from "@/components/process/time";
 import { useOsloNow } from "@/components/process/useOsloNow";
 import { TONE } from "@/lib/tones";
-import { ENVS, JOBS, cronjobName, type Env, type Job, type JobId, type StatusId } from "./data";
+import { ENVS, JOBS, JOB_BY_ID, cronjobName, type Env, type Job, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
 
 const W = 1100;
@@ -33,6 +33,23 @@ function nextRun(job: Job, env: Env, now: OsloTime): NextRun {
   return dom === undefined ? nextDaily(now, h, m) : nextOnDay(now, { day: dom, month: mon, h, m });
 }
 
+/** A job's place on the axis: its prod hour, also where it is drawn in environments where it does not run at night. */
+const jobH = (job: Job) => {
+  const h = job.sched.prod.h ?? START;
+  return h < START ? h + 24 : h;
+};
+/** Day and month of a cron that runs once a year, e.g. "25.11". */
+const cronDate = (cron: string) => {
+  const [, , dom, mon] = cron.split(" ");
+  return `${dom}.${mon}`;
+};
+
+/** UKJENT journalposts that ferdigstill leaves are picked up by feilregistrer later the same night. */
+const ARC_FROM = JOB_BY_ID.ferdigstill;
+const ARC_TO = JOB_BY_ID.feilregistrer;
+const [AX, BX] = [xh(jobH(ARC_FROM)), xh(jobH(ARC_TO))];
+const ARC = `M ${AX} ${TY - 13} C ${AX} 112 ${BX} 112 ${BX} ${TY - 13}`;
+
 const APP: Record<Env, string> = { prod: "eux-journalarkivar", q1: "eux-journalarkivar-q1", q2: "eux-journalarkivar-q2" };
 
 export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => void }) {
@@ -46,8 +63,6 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
   const nightly = JOBS.filter((j) => j.sched[env].h !== null);
   const next = now ? [...JOBS].sort((a, b) => nextRun(a, env, now).mins - nextRun(b, env, now).mins)[0].id : null;
   const both = nightly.length === JOBS.length;
-  const [ax, bx] = [xh(25), xh(26)];
-  const ARC = `M ${ax} ${TY - 13} C ${ax} 112 ${bx} 112 ${bx} ${TY - 13}`;
   const LANE = `M ${X0 + LANE_PILL_W} ${LANE_Y} L ${X1} ${LANE_Y}`;
 
   return (
@@ -114,7 +129,7 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
             </text>
           </g>
 
-          {/* Buen fra 01 til 02 */}
+          {/* Buen fra ferdigstill til feilregistrer */}
           {both && (
             <g className={`jfr-night__arc ${focus ? "is-on" : ""}`}>
               <path d={ARC} fill="none" stroke="var(--ax-border-warning)" strokeWidth={1.8} markerEnd={svg.url("arrow")} />
@@ -124,7 +139,7 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
                   <animateMotion dur="3.6s" repeatCount="indefinite" path={ARC} />
                 </circle>
               )}
-              <text x={xh(25.5)} y={100} textAnchor="middle" fontSize={11} fontWeight={800} className="arch-halo" fill="var(--ax-text-warning)">
+              <text x={r2((AX + BX) / 2)} y={100} textAnchor="middle" fontSize={11} fontWeight={800} className="arch-halo" fill="var(--ax-text-warning)">
                 fortsatt UKJENT
               </text>
             </g>
@@ -165,12 +180,12 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
 
           {/* Jobbene */}
           {JOBS.map((j) => {
-            const h = j.id === "ferdigstill" ? 25 : 26;
+            const h = jobH(j);
             const x = xh(h);
             const on = focus === j.id;
             const dim = focus !== null && !on;
             const off = j.sched[env].h === null;
-            const side = j.id === "ferdigstill" ? "end" : "start";
+            const side = j === ARC_FROM ? "end" : "start";
             const tx = side === "end" ? x + 4 : x - 4;
             return (
               <g
@@ -239,7 +254,7 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
               no={j.no}
               title={j.title}
               name={cronjobName(j, env)}
-              time={s.h === null ? "25.11" : klokke(s.h)}
+              time={s.h === null ? cronDate(s.cron) : klokke(s.h)}
               run={run}
               where={`i ${env} `}
               text={j.text}

@@ -6,6 +6,7 @@ import { ArrowRightIcon, LightningIcon, MoonIcon, PadlockLockedIcon } from "@nav
 import { useScrollTo } from "@/components/architecture/hooks";
 import { BUCS, ENVS, JOBS, STATUSES, differsFromProd, schedLabel, type Role, type StatusId } from "@/components/avslutning/data";
 import { archHref } from "@/lib/links";
+import { GRENSE_DAGER } from "@/components/sletting/data";
 import { CaseJourney } from "@/components/avslutning/CaseJourney";
 import { SystemFlow } from "@/components/avslutning/SystemFlow";
 import { NightPipeline } from "@/components/avslutning/NightPipeline";
@@ -192,7 +193,7 @@ const REPOS = ["eux-avslutt-rinasaker", "eux-avslutt-rinasaker-naisjob", "eux-ri
 
 const FURTHER: FurtherLink[] = [
   { href: archHref("eux-avslutt-rinasaker"), title: "Arkitektur", text: "Se eux-avslutt-rinasaker i arkitekturkartet, med alt den snakker med." },
-  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker der ingen SED er sendt eller mottatt, slettes etter 15 dager." },
+  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: `Hvordan saker der ingen SED er sendt eller mottatt, slettes etter ${GRENSE_DAGER} dager.` },
   { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hvordan SED-er journalføres automatisk." },
   { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Sanntidsmonitor for sedmottatt og sedsendt i Q1 og Q2." },
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },

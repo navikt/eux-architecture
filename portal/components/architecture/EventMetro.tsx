@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { BodyShort, Button, Detail, HStack } from "@navikt/ds-react";
+import { GRENSE_DAGER } from "@/components/sletting/data";
 import { onActivate, rounded } from "./svg";
 import { useSvgIds } from "./hooks";
 
@@ -114,7 +115,7 @@ const STATIONS: Station[] = [
     x: 760,
     lines: ["doc", "case"],
     labelY: 98,
-    text: "Følger nye saker og om det er sendt eller mottatt en SED i dem. Saker uten SED etter 15 dager slettes hvis RINA tillater det.",
+    text: `Følger nye saker og om det er sendt eller mottatt en SED i dem. Saker uten SED etter ${GRENSE_DAGER} dager slettes hvis RINA tillater det.`,
     focus: "eux-slett-usendte-rinasaker",
   },
   {

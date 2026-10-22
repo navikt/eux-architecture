@@ -7,12 +7,14 @@ import { JourneyBar, JourneyToken } from "@/components/process/Journey";
 import { klokke, r2 } from "@/components/process/time";
 import { useJourneyPlayer, type JourneyScale } from "@/components/process/useJourneyPlayer";
 import { TONE } from "@/lib/tones";
-import { STATUS_BY_ID, type StatusId } from "./data";
+import { GRENSE_DAGER, STATUS_BY_ID, type StatusId } from "./data";
 
 /*
  * Tid måles i timer fra første hendelse, som i eksempelet kommer dag 0 kl. 14.00.
- * Aksen er brutt: dag 0–15 er komprimert, dag 15–19 forstørret.
+ * Aksen er brutt: dag 0–D er komprimert, dag D–D+4 forstørret, der D er GRENSE_DAGER.
+ * Nettene i eksempelet regnes fra D, så de følger grensen.
  */
+const D = GRENSE_DAGER;
 const W = 1140;
 const H = 300;
 const X0 = 60;
@@ -20,8 +22,8 @@ const XB = 407;
 const X1 = 1080;
 const TRACK_Y = 150;
 const START_H = 14;
-const BREAK_T = 15 * 24 - START_H; // dag 15 kl. 00.00
-const END_T = 19 * 24 - START_H; // dag 19 kl. 00.00
+const BREAK_T = D * 24 - START_H; // dag D kl. 00.00
+const END_T = (D + 4) * 24 - START_H; // dag D+4 kl. 00.00
 const SA = (XB - X0) / BREAK_T;
 const SB = (X1 - XB) / (END_T - BREAK_T);
 const CARD_W = 180;
@@ -39,14 +41,14 @@ const SCALE: JourneyScale = {
   fromProgress: (p) => tAtX(X0 + p * (X1 - X0)),
 };
 
-const ELIGIBLE_T = at(15, 14);
+const ELIGIBLE_T = at(D, START_H);
 
 type ScenarioId = "slettes" | "sed" | "nei" | "borte" | "feil";
 type Seg = { from: number; status: StatusId };
 type Card = { t: number; title: string; line: string; status?: StatusId; muted?: string; mail?: boolean };
 type Scenario = { id: ScenarioId; label: string; segs: Seg[]; cards: Card[]; final?: number };
 
-const til = (line: string, status?: StatusId, muted?: string): Card => ({ t: at(16, 2), title: "☾ Natt til dag 16", line: `02.00 til-sletting${line}`, status, muted });
+const til = (line: string, status?: StatusId, muted?: string): Card => ({ t: at(D + 1, 2), title: `☾ Natt til dag ${D + 1}`, line: `02.00 til-sletting${line}`, status, muted });
 const slett = (day: number, line: string, status?: StatusId, muted?: string): Card => ({
   t: at(day, 1),
   title: `☾ Natt til dag ${day}`,
@@ -61,11 +63,11 @@ const SCENARIOS: Scenario[] = [
     label: "Slettes",
     segs: [
       { from: 0, status: "NY_SAK" },
-      { from: at(16, 2), status: "TIL_SLETTING" },
-      { from: at(17, 1), status: "SLETTET" },
+      { from: at(D + 1, 2), status: "TIL_SLETTING" },
+      { from: at(D + 2, 1), status: "SLETTET" },
     ],
-    cards: [til(" · ja", "TIL_SLETTING"), slett(17, " · 204", "SLETTET")],
-    final: at(17, 1),
+    cards: [til(" · ja", "TIL_SLETTING"), slett(D + 2, " · 204", "SLETTET")],
+    final: at(D + 2, 1),
   },
   {
     id: "sed",
@@ -85,33 +87,33 @@ const SCENARIOS: Scenario[] = [
     label: "Kan ikke slettes",
     segs: [
       { from: 0, status: "NY_SAK" },
-      { from: at(16, 2), status: "KAN_IKKE_SLETTES" },
+      { from: at(D + 1, 2), status: "KAN_IKKE_SLETTES" },
     ],
-    cards: [til(" · nei", "KAN_IKKE_SLETTES"), slett(17, "", undefined, "ser ikke saken")],
-    final: at(16, 2),
+    cards: [til(" · nei", "KAN_IKKE_SLETTES"), slett(D + 2, "", undefined, "ser ikke saken")],
+    final: at(D + 1, 2),
   },
   {
     id: "borte",
     label: "Borte fra før (404)",
     segs: [
       { from: 0, status: "NY_SAK" },
-      { from: at(16, 2), status: "TIL_SLETTING" },
-      { from: at(17, 1), status: "NOT_FOUND" },
+      { from: at(D + 1, 2), status: "TIL_SLETTING" },
+      { from: at(D + 2, 1), status: "NOT_FOUND" },
     ],
-    cards: [til(" · ja", "TIL_SLETTING"), slett(17, " · 404", "NOT_FOUND")],
-    final: at(17, 1),
+    cards: [til(" · ja", "TIL_SLETTING"), slett(D + 2, " · 404", "NOT_FOUND")],
+    final: at(D + 2, 1),
   },
   {
     id: "feil",
     label: "Feiler to ganger",
     segs: [
       { from: 0, status: "NY_SAK" },
-      { from: at(16, 2), status: "TIL_SLETTING" },
-      { from: at(17, 1), status: "SLETTING_FEILET_RETRY" },
-      { from: at(18, 1), status: "SLETTING_FEILET" },
+      { from: at(D + 1, 2), status: "TIL_SLETTING" },
+      { from: at(D + 2, 1), status: "SLETTING_FEILET_RETRY" },
+      { from: at(D + 3, 1), status: "SLETTING_FEILET" },
     ],
-    cards: [til(" · ja", "TIL_SLETTING"), slett(17, " · 500", "SLETTING_FEILET_RETRY"), slett(18, " · 500", "SLETTING_FEILET")],
-    final: at(18, 1),
+    cards: [til(" · ja", "TIL_SLETTING"), slett(D + 2, " · 500", "SLETTING_FEILET_RETRY"), slett(D + 3, " · 500", "SLETTING_FEILET")],
+    final: at(D + 3, 1),
   },
 ];
 const SCENARIO_BY_ID = Object.fromEntries(SCENARIOS.map((s) => [s.id, s])) as Record<ScenarioId, Scenario>;
@@ -123,16 +125,16 @@ const statusAt = (s: Scenario, t: number): StatusId => {
 };
 
 /** Netter (22–06) i den forstørrede delen. */
-const NIGHTS = [14, 15, 16, 17, 18]
+const NIGHTS = [D - 1, D, D + 1, D + 2, D + 3]
   .map((d) => ({ d, from: Math.max(at(d, 22), BREAK_T), to: Math.min(at(d + 1, 6), END_T) }))
   .filter((n) => n.to > n.from);
 
 const DAY_LABELS = [
   { d: 5, t: at(5, 12) },
   { d: 10, t: at(10, 12) },
-  ...[15, 16, 17, 18].map((d) => ({ d, t: at(d, 12) })),
+  ...[D, D + 1, D + 2, D + 3].map((d) => ({ d, t: at(d, 12) })),
 ];
-const MIDNIGHTS = [16, 17, 18].map((d) => at(d, 0));
+const MIDNIGHTS = [D + 1, D + 2, D + 3].map((d) => at(d, 0));
 
 export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) => void }) {
   const [id, setId] = useState<ScenarioId>("slettes");
@@ -185,10 +187,10 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
           {/* Forstørret område og netter */}
           <rect x={XB} y={26} width={X1 - XB + 30} height={H - 34} rx={12} fill={svg.url("zoom-fade")} />
           <text x={X0} y={18} fontSize={10} fontWeight={700} className="arch-eyebrow-svg" fill="var(--ax-text-neutral-subtle)">
-            DAG 0–15 · KOMPRIMERT
+            DAG 0–{D} · KOMPRIMERT
           </text>
           <text x={XB + 14} y={18} fontSize={10} fontWeight={700} className="arch-eyebrow-svg" fill="var(--ax-text-accent)">
-            DAG 15–19 · FORSTØRRET
+            DAG {D}–{D + 4} · FORSTØRRET
           </text>
           {NIGHTS.map((n) => (
             <g key={n.d}>
@@ -212,15 +214,15 @@ export function CaseJourney({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
             </text>
           ))}
 
-          {/* 15-dagersgrensen */}
+          {/* Grensen */}
           <g className="sl-journey__limit">
             <line x1={xAt(ELIGIBLE_T)} x2={xAt(ELIGIBLE_T)} y1={TRACK_Y - 10} y2={TRACK_Y - 70} stroke="var(--ax-border-warning)" strokeWidth={1.5} strokeDasharray="3 3" />
             <circle cx={xAt(ELIGIBLE_T)} cy={TRACK_Y - 70} r={3} fill="var(--ax-border-warning)" />
             <text x={xAt(ELIGIBLE_T) - 8} y={TRACK_Y - 66} textAnchor="end" fontSize={10.5} fontWeight={700} fill="var(--ax-text-warning)">
-              15 dager
+              {D} dager
             </text>
             <text x={xAt(ELIGIBLE_T) - 8} y={TRACK_Y - 53} textAnchor="end" fontSize={9.5} fill="var(--ax-text-neutral-subtle)">
-              dag 15 kl. 14.00
+              dag {D} kl. {klokke(START_H)}
             </text>
           </g>
 
