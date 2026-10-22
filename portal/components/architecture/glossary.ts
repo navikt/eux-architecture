@@ -3,11 +3,7 @@
  * the Oversikt page (the key terms). Definitions follow the official EU terms.
  */
 
-export interface GlossaryEntry {
-  term: string;
-  full?: string;
-  text: string;
-}
+import type { GlossaryEntry } from "@/components/page/Glossary";
 
 export const GLOSSARY: GlossaryEntry[] = [
   { term: "EESSI", full: "Electronic Exchange of Social Security Information", text: "EUs system for elektronisk utveksling av trygdeinformasjon mellom landene." },

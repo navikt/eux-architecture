@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useId, useState, useSyncExternalStore } from "react";
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
@@ -16,6 +16,15 @@ export function useReducedMotion(): boolean {
     subscribeReducedMotion,
     () => window.matchMedia(REDUCED_MOTION).matches,
     () => false,
+  );
+}
+
+/** Scrolls the element with the given id to the top of the view, smoothly unless the user prefers reduced motion. */
+export function useScrollTo(): (id: string) => void {
+  const reduced = useReducedMotion();
+  return useCallback(
+    (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }),
+    [reduced],
   );
 }
 

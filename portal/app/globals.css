@@ -2092,7 +2092,7 @@ html:has(.arch-page) {
   color: var(--ax-text-neutral-subtle);
 }
 
-.avs-subhead {
+.proc-subhead {
   display: grid;
   gap: 0.25rem;
   margin: 2.25rem 0 0.75rem;
@@ -3328,11 +3328,11 @@ button.proc-result__status:hover {
   white-space: nowrap;
 }
 
-.avs-pitfalls {
+.proc-pitfalls {
   margin-top: 1.5rem;
 }
 
-.avs-pitfalls code {
+.proc-pitfalls code {
   overflow-wrap: anywhere;
 }
 
@@ -3389,7 +3389,7 @@ button.proc-result__status:hover {
   font-size: 0.78rem;
 }
 
-.avs-snippet {
+.proc-snippet {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -3399,7 +3399,7 @@ button.proc-result__status:hover {
   overflow-x: auto;
 }
 
-.avs-snippet code {
+.proc-snippet code {
   flex: 1;
   min-width: 0;
   font-size: 0.8rem;
@@ -4809,7 +4809,7 @@ button.proc-result__status:hover {
   align-items: start;
 }
 
-.jfr-pitfalls.avs-pitfalls {
+.jfr-pitfalls.proc-pitfalls {
   display: grid;
   gap: 1.25rem;
   margin-top: 2.25rem;
@@ -7394,7 +7394,7 @@ button.proc-result__status:hover {
   background: var(--tone-soft);
 }
 
-.adr-pitfalls.avs-pitfalls {
+.adr-pitfalls.proc-pitfalls {
   margin-top: 2.25rem;
 }
 

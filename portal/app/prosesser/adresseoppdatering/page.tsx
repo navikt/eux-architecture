@@ -1,9 +1,9 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
-import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Detail, Heading, Table } from "@navikt/ds-react";
 import { ArrowRightIcon, BucketMopIcon, PaperplaneIcon, TasklistIcon } from "@navikt/aksel-icons";
-import { archHref, ghHref } from "@/lib/links";
+import { archHref } from "@/lib/links";
 import { CONSUMER_GROUP, ENVS, ORD_FOR_POSTBOKS, ORD_FOR_UKJENT, SEKTORER, TEST_RINASAK, type Tone } from "@/components/adresse/data";
 import { Journey } from "@/components/adresse/Journey";
 import { SystemFlow } from "@/components/adresse/SystemFlow";
@@ -12,7 +12,10 @@ import { NameMatch } from "@/components/adresse/NameMatch";
 import { AddressLab } from "@/components/adresse/AddressLab";
 import { Section } from "@/components/page/Section";
 import { JumpNav } from "@/components/page/JumpNav";
-import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
+import { FurtherReading, repoLinks, type FurtherLink } from "@/components/page/FurtherReading";
+import { Glossary, type GlossaryEntry } from "@/components/page/Glossary";
+import { Pitfalls, type PitfallGroup } from "@/components/page/Pitfalls";
+import { Snippet } from "@/components/process/Snippet";
 
 const SECTIONS = [
   { id: "reisen", label: "Reisen" },
@@ -118,7 +121,7 @@ const ERRORS: { what: string; tone: Tone; how: ReactNode; result: string }[] = [
   },
 ];
 
-const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[] = [
+const PITFALLS: PitfallGroup[] = [
   {
     group: "Vask og mapping",
     items: [
@@ -248,7 +251,7 @@ const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[]
   },
 ];
 
-const GLOSSARY: { term: string; full?: string; text: string }[] = [
+const GLOSSARY: GlossaryEntry[] = [
   { term: "SED", full: "Structured Electronic Document", text: "Dokumentet som sendes mellom land i EESSI, f.eks. H001 eller U002." },
   { term: "BUC", full: "Business Use Case", text: "En type RINA-sak. Delen foran første «_» er sektoren, f.eks. H i H_BUC_01." },
   { term: "PIN", full: "Personal Identification Number", text: "En persons ident i et land. I SED-en har hver PIN en landkode." },
@@ -272,7 +275,7 @@ const FURTHER: FurtherLink[] = [
   { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan uvirksomme RINA-saker lukkes og arkiveres." },
   { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker uten sendt SED slettes." },
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
-  ...REPOS.map((r) => ({ href: ghHref(r), title: r, text: "Kildekoden på GitHub.", external: true })),
+  ...repoLinks(REPOS),
 ];
 
 const LOG_PHRASES: { text: string; means: string }[] = [
@@ -282,17 +285,6 @@ const LOG_PHRASES: { text: string; means: string }[] = [
   { text: "Eksternt kall feilet", means: "Et kall feilet og prøves igjen. Viser hvilket og forsøk nr." },
   { text: "Dokumentet har feilet 3 ganger, sendes til DLT", means: "SED-en er gitt opp." },
 ];
-
-/* ---------- Byggeklosser ---------- */
-
-function Snippet({ children }: { children: string }) {
-  return (
-    <div className="avs-snippet">
-      <code>{children}</code>
-      <CopyButton copyText={children} size="xsmall" />
-    </div>
-  );
-}
 
 /* ---------- Hero-illustrasjon ---------- */
 
@@ -583,27 +575,7 @@ export default function AdresseoppdateringPage() {
           </Table>
         </div>
 
-        <div className="arch-pitfalls avs-pitfalls adr-pitfalls">
-          {PITFALLS.map((g) => (
-            <div key={g.group}>
-              <Heading level="3" size="small" spacing>
-                {g.group}
-              </Heading>
-              <Accordion size="small">
-                {g.items.map((p) => (
-                  <Accordion.Item key={p.title}>
-                    <Accordion.Header>{p.title}</Accordion.Header>
-                    <Accordion.Content>
-                      <BodyLong as="div" size="small">
-                        {p.body}
-                      </BodyLong>
-                    </Accordion.Content>
-                  </Accordion.Item>
-                ))}
-              </Accordion>
-            </div>
-          ))}
-        </div>
+        <Pitfalls groups={PITFALLS} className="proc-pitfalls adr-pitfalls" />
       </Section>
 
       <Section id="drift" eyebrow="Drift" title="Kjøring og oppfølging" lead="Appen har ingen database og ingen egne metrikker. Det meste følges opp i loggene.">
@@ -693,17 +665,7 @@ export default function AdresseoppdateringPage() {
       </Section>
 
       <Section id="ordliste" eyebrow="Begreper" title="Ordliste">
-        <dl className="arch-glossary">
-          {GLOSSARY.map((g) => (
-            <div key={g.term}>
-              <dt>
-                {g.term}
-                {g.full && <span className="arch-glossary__full">{g.full}</span>}
-              </dt>
-              <dd>{g.text}</dd>
-            </div>
-          ))}
-        </dl>
+        <Glossary entries={GLOSSARY} />
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">

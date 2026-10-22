@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useMemo, useState, type CSSProperties, type ReactNode } from "react";
-import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Detail, Heading, Table } from "@navikt/ds-react";
 import { ArrowRightIcon, HourglassIcon, MoonIcon, TestFlaskIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
-import { archHref, ghHref } from "@/lib/links";
+import { useScrollTo } from "@/components/architecture/hooks";
+import { archHref } from "@/lib/links";
 import {
   BEHANDLES,
   BEHANDLINGSTEMA_ROWS,
@@ -35,7 +35,11 @@ import { ManualFlows } from "@/components/journalfoering/ManualFlows";
 import { Section } from "@/components/page/Section";
 import { HeroStats } from "@/components/page/HeroStats";
 import { JumpNav } from "@/components/page/JumpNav";
-import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
+import { FurtherReading, repoLinks, type FurtherLink } from "@/components/page/FurtherReading";
+import { Glossary, type GlossaryEntry } from "@/components/page/Glossary";
+import { Pitfalls, type PitfallGroup } from "@/components/page/Pitfalls";
+import { Snippet } from "@/components/process/Snippet";
+import { SubHead } from "@/components/process/SubHead";
 import { SlackCode as C, SlackFigure, SlackMessage } from "@/components/process/Slack";
 
 const SECTIONS = [
@@ -122,7 +126,7 @@ const ERRORS: { what: string; tone: Tone; how: ReactNode; result: StatusId[] | s
   },
 ];
 
-const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[] = [
+const PITFALLS: PitfallGroup[] = [
   {
     group: "Fagmodulen",
     items: [
@@ -277,7 +281,7 @@ const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[]
   },
 ];
 
-const GLOSSARY: { term: string; full?: string; text: string }[] = [
+const GLOSSARY: GlossaryEntry[] = [
   { term: "SED", full: "Structured Electronic Document", text: "Dokumentet som sendes mellom land i EESSI, f.eks. S005 eller H001." },
   { term: "BUC", full: "Business Use Case", text: "En type RINA-sak. Delen foran første «_» er sektoren, f.eks. UB i UB_BUC_01." },
   { term: "Sektor", text: "Fagområdet til BUC-en. Fagmodulen journalfører åtte: FB, UB, H, S, M, R, AW og AD." },
@@ -307,47 +311,17 @@ const FURTHER: FurtherLink[] = [
   { href: "/nav-rinasak/sed-er", title: "SED-er i nEESSI", text: "Saker og SED-er som registreres i eux-nav-rinasak, i sanntid." },
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
   { href: "/environments", title: "Miljøer", text: "Testmiljøene Q1 og Q2, med hver sin RINA-instans." },
-  ...REPOS.map((r) => ({ href: ghHref(r), title: r, text: "Kildekoden på GitHub.", external: true })),
+  ...repoLinks(REPOS),
 ];
-
-/* ---------- Byggeklosser ---------- */
-
-function Snippet({ children }: { children: string }) {
-  return (
-    <div className="avs-snippet">
-      <code>{children}</code>
-      <CopyButton copyText={children} size="xsmall" />
-    </div>
-  );
-}
-
-function SubHead({ title, children }: { title: string; children?: ReactNode }) {
-  return (
-    <div className="avs-subhead">
-      <Heading level="3" size="small">
-        {title}
-      </Heading>
-      {children && (
-        <BodyShort size="small" className="arch-subtle">
-          {children}
-        </BodyShort>
-      )}
-    </div>
-  );
-}
 
 /* ---------- Side ---------- */
 
 export default function JournalfoeringPage() {
-  const reduced = useReducedMotion();
   const [input, setInput] = useState<SimInput>(DEFAULT_INPUT);
   const [status, setStatus] = useState<StatusId | null>(null);
   const result = useMemo(() => simulate(input), [input]);
 
-  const scrollTo = useCallback(
-    (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }),
-    [reduced],
-  );
+  const scrollTo = useScrollTo();
   const focusStatus = useCallback(
     (s: StatusId) => {
       setStatus(s);
@@ -679,27 +653,7 @@ export default function JournalfoeringPage() {
               </div>
             </SlackFigure>
           </div>
-          <div className="arch-pitfalls avs-pitfalls jfr-pitfalls">
-            {PITFALLS.map((g) => (
-              <div key={g.group}>
-                <Heading level="3" size="small" spacing>
-                  {g.group}
-                </Heading>
-                <Accordion size="small">
-                  {g.items.map((p) => (
-                    <Accordion.Item key={p.title}>
-                      <Accordion.Header>{p.title}</Accordion.Header>
-                      <Accordion.Content>
-                        <BodyLong as="div" size="small">
-                          {p.body}
-                        </BodyLong>
-                      </Accordion.Content>
-                    </Accordion.Item>
-                  ))}
-                </Accordion>
-              </div>
-            ))}
-          </div>
+          <Pitfalls groups={PITFALLS} className="proc-pitfalls jfr-pitfalls" />
         </div>
       </Section>
 
@@ -814,17 +768,7 @@ export default function JournalfoeringPage() {
       </Section>
 
       <Section id="ordliste" eyebrow="Begreper" title="Ordliste">
-        <dl className="arch-glossary">
-          {GLOSSARY.map((g) => (
-            <div key={g.term}>
-              <dt>
-                {g.term}
-                {g.full && <span className="arch-glossary__full">{g.full}</span>}
-              </dt>
-              <dd>{g.text}</dd>
-            </div>
-          ))}
-        </dl>
+        <Glossary entries={GLOSSARY} />
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">

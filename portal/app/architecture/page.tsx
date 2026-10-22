@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState } from "react";
 import NextLink from "next/link";
-import { Accordion, BodyLong, BodyShort, Detail, Heading, Link as DsLink, Table } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Detail, Heading, Link as DsLink, Table } from "@navikt/ds-react";
 import { ArrowRightIcon, ClockIcon, LightningIcon, ArrowsSquarepathIcon } from "@navikt/aksel-icons";
 import { ArchitectureMap } from "@/components/architecture/ArchitectureMap";
 import { RequestFlow } from "@/components/architecture/RequestFlow";
@@ -17,6 +17,8 @@ import { Section } from "@/components/page/Section";
 import { HeroStats } from "@/components/page/HeroStats";
 import { JumpNav } from "@/components/page/JumpNav";
 import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
+import { Glossary } from "@/components/page/Glossary";
+import { Pitfalls, type PitfallGroup } from "@/components/page/Pitfalls";
 
 const SECTIONS = [
   { id: "kart", label: "Kart" },
@@ -55,7 +57,7 @@ const EXTERNAL: { name: string; what: string; users: string[]; note?: string; ve
   })),
 ];
 
-const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[] = [
+const PITFALLS: PitfallGroup[] = [
   {
     group: "Plattformen",
     items: [
@@ -518,41 +520,11 @@ export default function ArchitecturePage() {
         title="Fallgruver"
         lead="Ting som har overrasket før, og som er lette å gå i igjen."
       >
-        <div className="arch-pitfalls">
-          {PITFALLS.map((g) => (
-            <div key={g.group}>
-              <Heading level="3" size="small" spacing>
-                {g.group}
-              </Heading>
-              <Accordion size="small">
-                {g.items.map((p) => (
-                  <Accordion.Item key={p.title}>
-                    <Accordion.Header>{p.title}</Accordion.Header>
-                    <Accordion.Content>
-                      <BodyLong as="div" size="small">
-                        {p.body}
-                      </BodyLong>
-                    </Accordion.Content>
-                  </Accordion.Item>
-                ))}
-              </Accordion>
-            </div>
-          ))}
-        </div>
+        <Pitfalls groups={PITFALLS} />
       </Section>
 
       <Section id="ordliste" eyebrow="Begreper" title="Ordliste">
-        <dl className="arch-glossary">
-          {GLOSSARY.map((g) => (
-            <div key={g.term}>
-              <dt>
-                {g.term}
-                {g.full && <span className="arch-glossary__full">{g.full}</span>}
-              </dt>
-              <dd>{g.text}</dd>
-            </div>
-          ))}
-        </dl>
+        <Glossary entries={GLOSSARY} />
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">

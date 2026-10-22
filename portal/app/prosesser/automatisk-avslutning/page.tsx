@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useState, type ReactNode } from "react";
-import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Detail, Heading, Table } from "@navikt/ds-react";
 import { ArrowRightIcon, LightningIcon, MoonIcon, PadlockLockedIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
+import { useScrollTo } from "@/components/architecture/hooks";
 import { BUCS, ENVS, JOBS, STATUSES, differsFromProd, schedLabel, type Role, type StatusId } from "@/components/avslutning/data";
-import { archHref, ghHref } from "@/lib/links";
+import { archHref } from "@/lib/links";
 import { CaseJourney } from "@/components/avslutning/CaseJourney";
 import { SystemFlow } from "@/components/avslutning/SystemFlow";
 import { NightPipeline } from "@/components/avslutning/NightPipeline";
@@ -18,7 +18,11 @@ import { SlackReport } from "@/components/avslutning/SlackReport";
 import { Section } from "@/components/page/Section";
 import { HeroStats } from "@/components/page/HeroStats";
 import { JumpNav } from "@/components/page/JumpNav";
-import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
+import { FurtherReading, repoLinks, type FurtherLink } from "@/components/page/FurtherReading";
+import { Glossary, type GlossaryEntry } from "@/components/page/Glossary";
+import { Pitfalls, type PitfallGroup } from "@/components/page/Pitfalls";
+import { Snippet } from "@/components/process/Snippet";
+import { SubHead } from "@/components/process/SubHead";
 
 const SECTIONS = [
   { id: "livslop", label: "Livsløp" },
@@ -72,7 +76,7 @@ const RESPONSES: { code: string; what: ReactNode; result: StatusId[]; tone: "suc
   },
 ];
 
-const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[] = [
+const PITFALLS: PitfallGroup[] = [
   {
     group: "Regler og statuser",
     items: [
@@ -168,7 +172,7 @@ const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[]
   },
 ];
 
-const GLOSSARY: { term: string; full?: string; text: string }[] = [
+const GLOSSARY: GlossaryEntry[] = [
   { term: "RINA", full: "Reference Implementation of a National Application", text: "Europakommisjonens system for å behandle EESSI-saker. Sakene som lukkes og arkiveres, ligger her." },
   { term: "BUC", full: "Business Use Case", text: "En saksprosess i EESSI. Reglene for avslutning er satt per BUC." },
   { term: "SED", full: "Structured Electronic Document", text: "Et strukturert dokument som sendes mellom landene i en BUC." },
@@ -191,32 +195,17 @@ const FURTHER: FurtherLink[] = [
   { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Sanntidsmonitor for sedmottatt og sedsendt i Q1 og Q2." },
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
   { href: "/environments", title: "Miljøer", text: "Testmiljøene Q1 og Q2, med hver sin RINA-instans." },
-  ...REPOS.map((r) => ({ href: ghHref(r), title: r, text: "Kildekoden på GitHub.", external: true })),
+  ...repoLinks(REPOS),
 ];
-
-/* ---------- Byggeklosser ---------- */
-
-function Snippet({ children }: { children: string }) {
-  return (
-    <div className="avs-snippet">
-      <code>{children}</code>
-      <CopyButton copyText={children} size="xsmall" />
-    </div>
-  );
-}
 
 /* ---------- Side ---------- */
 
 export default function AutomatiskAvslutningPage() {
-  const reduced = useReducedMotion();
   const [buc, setBuc] = useState("FB_BUC_01");
   const [role, setRole] = useState<Role>("sakseier");
   const [status, setStatus] = useState<StatusId | null>(null);
 
-  const scrollTo = useCallback(
-    (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }),
-    [reduced],
-  );
+  const scrollTo = useScrollTo();
   const focusStatus = useCallback(
     (s: StatusId) => {
       setStatus(s);
@@ -341,15 +330,10 @@ export default function AutomatiskAvslutningPage() {
         lead="Hver natt vurderer til-avslutning de uvirksomme sakene mot reglene for BUC-en. Kriteriene prøves i fast rekkefølge, og det første som slår til, avgjør. Bygg opp en sak og se hvilket kriterium som slår til."
       >
         <DecisionSimulator buc={buc} role={role} onBuc={setBuc} onRole={setRole} onFocusStatus={focusStatus} />
-        <div className="avs-subhead">
-          <Heading level="3" size="small">
-            Alle BUC-ene
-          </Heading>
-          <BodyShort size="small" className="arch-subtle">
-            «Motparten» betyr at NAV ikke lukker saken i den rollen, og saken får status AVSLUTTES_AV_MOTPART. Klikk på en
-            BUC for å prøve den i simulatoren.
-          </BodyShort>
-        </div>
+        <SubHead title="Alle BUC-ene">
+          «Motparten» betyr at NAV ikke lukker saken i den rollen, og saken får status AVSLUTTES_AV_MOTPART. Klikk på en BUC for
+          å prøve den i simulatoren.
+        </SubHead>
         <BucTable selected={buc} onPick={pickBuc} />
       </Section>
 
@@ -401,27 +385,7 @@ export default function AutomatiskAvslutningPage() {
           </Table>
         </div>
 
-        <div className="arch-pitfalls avs-pitfalls">
-          {PITFALLS.map((g) => (
-            <div key={g.group}>
-              <Heading level="3" size="small" spacing>
-                {g.group}
-              </Heading>
-              <Accordion size="small">
-                {g.items.map((p) => (
-                  <Accordion.Item key={p.title}>
-                    <Accordion.Header>{p.title}</Accordion.Header>
-                    <Accordion.Content>
-                      <BodyLong as="div" size="small">
-                        {p.body}
-                      </BodyLong>
-                    </Accordion.Content>
-                  </Accordion.Item>
-                ))}
-              </Accordion>
-            </div>
-          ))}
-        </div>
+        <Pitfalls groups={PITFALLS} className="proc-pitfalls" />
       </Section>
 
       <Section
@@ -510,17 +474,7 @@ export default function AutomatiskAvslutningPage() {
       </Section>
 
       <Section id="ordliste" eyebrow="Begreper" title="Ordliste">
-        <dl className="arch-glossary">
-          {GLOSSARY.map((g) => (
-            <div key={g.term}>
-              <dt>
-                {g.term}
-                {g.full && <span className="arch-glossary__full">{g.full}</span>}
-              </dt>
-              <dd>{g.text}</dd>
-            </div>
-          ))}
-        </dl>
+        <Glossary entries={GLOSSARY} />
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">

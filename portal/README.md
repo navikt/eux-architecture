@@ -103,9 +103,13 @@ rendered as `{CONSTANT}`. Restart dev (or run
 
 Documentation pages share their scaffolding from `components/page/`:
 `Section`, `JumpNav` (the sticky "Innhold på siden" bar with scroll spy),
-`HeroStats` (the key figures in the hero), `FurtherReading` (the "Videre"
-link cards, typed by `FurtherLink`) and `ExtLink` (an inline link that opens
-in a new tab).
+`HeroStats` (the key figures in the hero), `Pitfalls` (the "Fallgruver"
+accordions, typed by `PitfallGroup`), `Glossary` (the "Ordliste" cards, typed
+by `GlossaryEntry`), `FurtherReading` (the "Videre" link cards, typed by
+`FurtherLink`; `repoLinks()` adds one GitHub card per repository) and
+`ExtLink` (an inline link that opens in a new tab). `useScrollTo()` in
+`components/architecture/hooks.ts` scrolls to a section id and respects
+reduced motion.
 
 The process pages (`app/prosesser/*`) and the night timeline share
 `components/process/`: `time.ts` (Oslo clock, `klokke`/`hhmm`, `until`, and
@@ -114,7 +118,9 @@ Oslo clock that is null until hydration), `Slack.tsx` (`SlackFigure`,
 `SlackMessage` and `SlackCode` for the Slack mocks, styled by `proc-slack*`),
 `useJourneyPlayer()` with `Journey.tsx` (`JourneyBar` and `JourneyToken`) for
 the play/pause/scrub case journeys (`proc-journey*`), and `StatusChips.tsx`
-(`StatusChip`, `StatusChips`; `proc-chip`). The system-flow diagrams are
+(`StatusChip`, `StatusChips`; `proc-chip`), `Snippet` (a copyable command or
+query, `proc-snippet`) and `SubHead` (a level-3 heading with a subtle line,
+`proc-subhead`). The system-flow diagrams are
 built from `FlowCanvas.tsx` (`FlowCanvas`, `FlowEdge`, `EdgeLabel`, `Packets`,
 `Zone`, `Port`, `Topic`, `Box`), `useNodeSelection()`/`flowFilter()` for
 selection and flow toggles, and `FlowPanel.tsx` (`FlowToolbar`, `DetailPanel`,

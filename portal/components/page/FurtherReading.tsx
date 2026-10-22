@@ -1,7 +1,12 @@
 import NextLink from "next/link";
 import { ArrowRightIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
+import { ghHref } from "@/lib/links";
 
 export type FurtherLink = { href: string; title: string; text: string; external?: boolean };
+
+/** One "Kildekoden på GitHub" card per repository. */
+export const repoLinks = (repos: readonly string[]): FurtherLink[] =>
+  repos.map((r) => ({ href: ghHref(r), title: r, text: "Kildekoden på GitHub.", external: true }));
 
 /** The "Videre lesing" link cards at the bottom of a page. External links open in a new tab. */
 export function FurtherReading({ links }: { links: readonly FurtherLink[] }) {

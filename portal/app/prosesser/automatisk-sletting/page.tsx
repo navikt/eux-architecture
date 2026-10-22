@@ -1,10 +1,10 @@
 "use client";
 
 import { Fragment, useCallback, useState, type ReactNode } from "react";
-import { Accordion, BodyLong, BodyShort, CopyButton, Detail, Heading, Table } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Detail, Heading, Table } from "@navikt/ds-react";
 import { ArrowRightIcon, LightningIcon, MoonIcon, TrashIcon } from "@navikt/aksel-icons";
-import { useReducedMotion } from "@/components/architecture/hooks";
-import { archHref, ghHref } from "@/lib/links";
+import { useScrollTo } from "@/components/architecture/hooks";
+import { archHref } from "@/lib/links";
 import { ENVS, GRENSE_DAGER, JOBS, STATUSES, differsFromProd, schedLabel, type StatusId } from "@/components/sletting/data";
 import { CaseJourney } from "@/components/sletting/CaseJourney";
 import { SystemFlow } from "@/components/sletting/SystemFlow";
@@ -16,7 +16,10 @@ import { SlackReport } from "@/components/sletting/SlackReport";
 import { Section } from "@/components/page/Section";
 import { HeroStats } from "@/components/page/HeroStats";
 import { JumpNav } from "@/components/page/JumpNav";
-import { FurtherReading, type FurtherLink } from "@/components/page/FurtherReading";
+import { FurtherReading, repoLinks, type FurtherLink } from "@/components/page/FurtherReading";
+import { Glossary, type GlossaryEntry } from "@/components/page/Glossary";
+import { Pitfalls, type PitfallGroup } from "@/components/page/Pitfalls";
+import { Snippet } from "@/components/process/Snippet";
 
 const SECTIONS = [
   { id: "livslop", label: "Livsløp" },
@@ -101,7 +104,7 @@ const RESPONSES: { call: string; job: string; endpoint: string; rows: Response[]
   },
 ];
 
-const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[] = [
+const PITFALLS: PitfallGroup[] = [
   {
     group: "Statuser og tid",
     items: [
@@ -217,7 +220,7 @@ const PITFALLS: { group: string; items: { title: string; body: ReactNode }[] }[]
   },
 ];
 
-const GLOSSARY: { term: string; full?: string; text: string }[] = [
+const GLOSSARY: GlossaryEntry[] = [
   { term: "RINA", full: "Reference Implementation of a National Application", text: "Europakommisjonens system for å behandle EESSI-saker. Sakene som slettes, ligger her." },
   { term: "CPI", full: "Case Processing Interface", text: "REST-API-et til RINA. eux-rina-terminator-api bruker det for å hente og slette saker." },
   { term: "BUC", full: "Business Use Case", text: "En saksprosess i EESSI. Sletting gjelder alle BUC-typer likt." },
@@ -247,30 +250,15 @@ const FURTHER: FurtherLink[] = [
   { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Sanntidsmonitor for sedmottatt og sedsendt i Q1 og Q2." },
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
   { href: "/environments", title: "Miljøer", text: "Testmiljøene Q1 og Q2, med hver sin RINA-instans." },
-  ...REPOS.map((r) => ({ href: ghHref(r), title: r, text: "Kildekoden på GitHub.", external: true })),
+  ...repoLinks(REPOS),
 ];
-
-/* ---------- Byggeklosser ---------- */
-
-function Snippet({ children }: { children: string }) {
-  return (
-    <div className="avs-snippet">
-      <code>{children}</code>
-      <CopyButton copyText={children} size="xsmall" />
-    </div>
-  );
-}
 
 /* ---------- Side ---------- */
 
 export default function AutomatiskSlettingPage() {
-  const reduced = useReducedMotion();
   const [status, setStatus] = useState<StatusId | null>(null);
 
-  const scrollTo = useCallback(
-    (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }),
-    [reduced],
-  );
+  const scrollTo = useScrollTo();
   const focusStatus = useCallback(
     (s: StatusId) => {
       setStatus(s);
@@ -435,27 +423,7 @@ export default function AutomatiskSlettingPage() {
           </Table>
         </div>
 
-        <div className="arch-pitfalls avs-pitfalls">
-          {PITFALLS.map((g) => (
-            <div key={g.group}>
-              <Heading level="3" size="small" spacing>
-                {g.group}
-              </Heading>
-              <Accordion size="small">
-                {g.items.map((p) => (
-                  <Accordion.Item key={p.title}>
-                    <Accordion.Header>{p.title}</Accordion.Header>
-                    <Accordion.Content>
-                      <BodyLong as="div" size="small">
-                        {p.body}
-                      </BodyLong>
-                    </Accordion.Content>
-                  </Accordion.Item>
-                ))}
-              </Accordion>
-            </div>
-          ))}
-        </div>
+        <Pitfalls groups={PITFALLS} className="proc-pitfalls" />
       </Section>
 
       <Section
@@ -559,17 +527,7 @@ export default function AutomatiskSlettingPage() {
       </Section>
 
       <Section id="ordliste" eyebrow="Begreper" title="Ordliste">
-        <dl className="arch-glossary">
-          {GLOSSARY.map((g) => (
-            <div key={g.term}>
-              <dt>
-                {g.term}
-                {g.full && <span className="arch-glossary__full">{g.full}</span>}
-              </dt>
-              <dd>{g.text}</dd>
-            </div>
-          ))}
-        </dl>
+        <Glossary entries={GLOSSARY} />
       </Section>
 
       <Section id="videre" eyebrow="Mer" title="Videre lesing">
