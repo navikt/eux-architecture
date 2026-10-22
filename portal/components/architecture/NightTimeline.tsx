@@ -2,69 +2,43 @@
 
 import { useState } from "react";
 import { BodyShort, Detail } from "@navikt/ds-react";
-import { onActivate } from "./svg";
-import { hhmm, type OsloTime } from "@/components/process/time";
+import { JOBS as AVSLUTT_JOBS } from "@/components/avslutning/data";
+import { JOBS as ARKIVAR_JOBS } from "@/components/journalfoering/data";
+import { cronTime, hhmm, type OsloTime } from "@/components/process/time";
 import { useOsloNow } from "@/components/process/useOsloNow";
+import { JOBS as SLETT_JOBS } from "@/components/sletting/data";
+import { NODES } from "./data";
 import { useSvgIds } from "./hooks";
+import { onActivate } from "./svg";
 
-type Job<N extends string = string> = {
-  name: N;
+type Job = {
+  name: string;
   h: number;
   m: number;
   monthly?: boolean;
   note?: string;
   /** Jobben i samme gruppe som må ha kjørt først. Tegnes som en pil fra den. */
-  after?: NoInfer<N>;
+  after?: string;
 };
-type Group = { id: string; title: string; target: string; kind: "naisjob" | "scheduled"; jobs: Job[] };
+type Group = { id: string; kind: "naisjob" | "scheduled"; jobs: Job[] };
 
-/** Lar TypeScript sjekke at hver `after` peker på en jobb i samme liste. */
-const jobs = <N extends string>(list: Job<N>[]): Job[] => list;
+/** A NAIS job at its prod time, read from its cron. */
+const naisjob = (name: string, cron: string | undefined, after?: string): Job[] =>
+  cron ? [{ name, ...cronTime(cron), after }] : [];
+
+const naisjobs = (id: string, jobs: Job[]): Group => ({
+  id,
+  kind: "naisjob",
+  jobs: [...jobs].sort((a, b) => a.h * 60 + a.m - (b.h * 60 + b.m)),
+});
 
 const GROUPS: Group[] = [
-  {
-    id: "eux-journalarkivar-naisjob",
-    title: "eux-journalarkivar-naisjob",
-    target: "eux-journalarkivar",
-    kind: "naisjob",
-    jobs: jobs([
-      { name: "ferdigstill", h: 1, m: 0 },
-      { name: "feilregistrer", h: 2, m: 0 },
-    ]),
-  },
-  {
-    id: "eux-avslutt-rinasaker-naisjob",
-    title: "eux-avslutt-rinasaker-naisjob",
-    target: "eux-avslutt-rinasaker",
-    kind: "naisjob",
-    jobs: jobs([
-      { name: "rapport", h: 0, m: 5, monthly: true },
-      { name: "sett-uvirksom", h: 1, m: 0 },
-      { name: "til-avslutning", h: 2, m: 0, after: "sett-uvirksom" },
-      { name: "avslutt", h: 3, m: 0, after: "til-avslutning" },
-      { name: "til-arkivering", h: 4, m: 0, after: "avslutt" },
-      { name: "arkiver", h: 5, m: 0, after: "til-arkivering" },
-      { name: "slett-dokumentutkast", h: 14, m: 42 },
-    ]),
-  },
-  {
-    id: "eux-slett-usendte-rinasaker-naisjob",
-    title: "eux-slett-usendte-rinasaker-naisjob",
-    target: "eux-slett-usendte-rinasaker",
-    kind: "naisjob",
-    jobs: jobs([
-      { name: "slett", h: 1, m: 0 },
-      { name: "til-sletting", h: 2, m: 0 },
-      { name: "rapport", h: 6, m: 0, monthly: true },
-    ]),
-  },
-  {
-    id: "eux-barnetrygd",
-    title: "eux-barnetrygd",
-    target: "eux-barnetrygd",
-    kind: "scheduled",
-    jobs: jobs([{ name: "@Scheduled", h: 22, m: 0, note: "innebygd i appen" }]),
-  },
+  naisjobs("eux-journalarkivar-naisjob", ARKIVAR_JOBS.flatMap((j) => naisjob(j.id, j.sched.prod.cron))),
+  naisjobs("eux-avslutt-rinasaker-naisjob", AVSLUTT_JOBS.flatMap((j) => naisjob(j.id, j.sched.prod?.cron, j.after))),
+  naisjobs("eux-slett-usendte-rinasaker-naisjob", SLETT_JOBS.flatMap((j) => naisjob(j.id, j.sched.prod.cron))),
+  ...NODES.flatMap((n): Group[] =>
+    n.scheduled ? [{ id: n.id, kind: "scheduled", jobs: [{ name: "@Scheduled", ...cronTime(n.scheduled), note: "innebygd i appen" }] }] : [],
+  ),
 ];
 
 const W = 1140;
@@ -157,14 +131,14 @@ export function NightTimeline({ onFocusNode }: { onFocusNode: (id: string) => vo
                   className="arch-night__group"
                   role="button"
                   tabIndex={0}
-                  aria-label={`Vis detaljer om ${r.g.title}`}
+                  aria-label={`Vis detaljer om ${r.g.id}`}
                   onClick={focus}
                   onKeyDown={onActivate(focus)}
                 >
                   <rect x={0} y={r.y + 3} width={LABEL_W} height={GROUP_H - 6} rx={6} className="arch-night__group-bg" />
                   <circle cx={12} cy={r.y + GROUP_H / 2} r={4} fill={r.g.kind === "scheduled" ? "var(--ax-border-success)" : "var(--ax-border-warning)"} />
                   <text x={24} y={r.y + GROUP_H / 2 + 4.5} fontSize={12.5} fontWeight={700} fill="var(--ax-text-neutral)">
-                    {r.g.title}
+                    {r.g.id}
                   </text>
                 </g>
               );
@@ -245,7 +219,7 @@ export function NightTimeline({ onFocusNode }: { onFocusNode: (id: string) => vo
         <BodyShort size="small" aria-live="polite">
           {next && now ? (
             <>
-              Neste planlagte kjøring: <strong>{next.g.title}</strong> · <span className="arch-mono">{next.j.name}</span> kl.{" "}
+              Neste planlagte kjøring: <strong>{next.g.id}</strong> · <span className="arch-mono">{next.j.name}</span> kl.{" "}
               <strong>{hhmm(next.j.h, next.j.m)}</strong>
             </>
           ) : (

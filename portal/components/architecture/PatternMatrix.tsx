@@ -4,39 +4,12 @@ import { useState } from "react";
 import { BodyShort } from "@navikt/ds-react";
 import { NODES, NODE_BY_ID, incoming, outgoing, type ArchNode } from "./data";
 
-const OPENAPI = new Set([
-  "eux-nav-rinasak",
-  "eux-journal",
-  "eux-oppgave",
-  "eux-relaterte-rinasaker",
-  "eux-journalarkivar",
-  "eux-rina-terminator-api",
-]);
-
-const CAFFEINE = new Set(["eux-neessi", "eux-rina-api", "eux-fagmodul-journalfoering", "eux-rina-terminator-api"]);
-
-const RETRY: Record<string, string> = {
-  "eux-rina-api": "@Retryable",
-  "eux-rina-case-search": "@Retryable",
-  "eux-legacy-rina-events": "@Retryable",
-  "eux-fagmodul-journalfoering": "@Retryable",
-  "eux-journalarkivar": "@Retryable",
-  "eux-barnetrygd": "@Retryable",
-  "eux-adresse-oppdatering": "@Retryable",
-  "eux-person-oppdatering": "@Retryable",
-  "eux-oppgave": "Spring Retry",
-  "eux-neessi": "Resilience4j",
-};
-
-const STARTER_PARENT = new Set(["eux-all-rina-events", "eux-legacy-rina-events", "eux-rina-case-search"]);
-const LOGGING_JOBS = new Set(["eux-journalarkivar-naisjob", "eux-slett-usendte-rinasaker-naisjob"]);
-
 type Cell = boolean | string | null;
 
 const COLUMNS: { id: string; label: string; title: string; value: (n: ArchNode) => Cell }[] = [
   { id: "lang", label: "Språk", title: "Programmeringsspråk", value: (n) => n.lang ?? null },
   { id: "db", label: "PostgreSQL", title: "PostgreSQL (Cloud SQL) med Flyway", value: (n) => !!n.db },
-  { id: "openapi", label: "OpenAPI", title: "OpenAPI-kodegenerering og flermodul-Maven", value: (n) => OPENAPI.has(n.id) },
+  { id: "openapi", label: "OpenAPI", title: "OpenAPI-kodegenerering og flermodul-Maven", value: (n) => !!n.patterns?.openapi },
   {
     id: "kin",
     label: "Kafka inn",
@@ -55,19 +28,15 @@ const COLUMNS: { id: string; label: string; title: string; value: (n: ArchNode) 
     title: "GraphQL-klient mot PDL og/eller SAF",
     value: (n) => outgoing(n.id).some((e) => e.to === "pdl" || e.to === "saf"),
   },
-  { id: "cache", label: "Caffeine", title: "Caching i minnet med Caffeine", value: (n) => CAFFEINE.has(n.id) },
-  { id: "retry", label: "Retry", title: "Mekanisme for nye forsøk", value: (n) => RETRY[n.id] ?? false },
-  {
-    id: "log",
-    label: "eux-logging",
-    title: "MDC-basert sporing med eux-logging",
-    value: (n) => (n.kind === "app" && n.lang === "Kotlin") || LOGGING_JOBS.has(n.id),
-  },
+  { id: "cache", label: "Caffeine", title: "Caching i minnet med Caffeine", value: (n) => !!n.patterns?.caffeine },
+  { id: "retry", label: "Retry", title: "Mekanisme for nye forsøk", value: (n) => n.patterns?.retry ?? false },
+  { id: "log", label: "eux-logging", title: "MDC-basert sporing med eux-logging", value: (n) => !!n.patterns?.logging },
   {
     id: "parent",
     label: "Parent POM",
     title: "Maven-parent",
-    value: (n) => (n.lang === "TypeScript" ? null : STARTER_PARENT.has(n.id) ? "starter-parent" : "eux-parent-pom"),
+    value: (n) =>
+      n.lang === "TypeScript" ? null : n.patterns?.parent === "spring-boot-starter-parent" ? "starter-parent" : "eux-parent-pom",
   },
 ];
 

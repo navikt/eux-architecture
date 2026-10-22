@@ -30,6 +30,20 @@ export type NodeKind = "person" | "app" | "job" | "topic" | "external" | "team";
 
 export type Lang = "Java" | "Kotlin" | "TypeScript";
 
+/** Build and library patterns, checked against each repo's pom.xml and sources. Shown in the pattern matrix. */
+export interface Patterns {
+  /** OpenAPI code generation and a multi-module Maven build. */
+  openapi?: boolean;
+  /** In-memory caching with Caffeine. */
+  caffeine?: boolean;
+  /** How failed calls are retried. */
+  retry?: "@Retryable" | "Spring Retry" | "Resilience4j";
+  /** MDC-based tracing with eux-logging. */
+  logging?: boolean;
+  /** Maven parent, when it is not eux-parent-pom. */
+  parent?: "spring-boot-starter-parent";
+}
+
 export interface ArchNode {
   id: string;
   /** Full name, e.g. eux-rina-api */
@@ -40,6 +54,9 @@ export interface ArchNode {
   kind: NodeKind;
   lang?: Lang;
   db?: boolean;
+  patterns?: Patterns;
+  /** Prod cron of a Spring @Scheduled job built into the app (Spring's six-field form, from .nais/prod.yaml). A fact must name its time. */
+  scheduled?: string;
   repo?: string;
   summary: string;
   facts?: string[];
@@ -127,6 +144,7 @@ export const NODES: ArchNode[] = [
     "Backend for nEESSI. Orkestrerer kall mot EUX-tjenestene og en rekke NAV-systemer.",
     {
       short: "eux-neessi",
+      patterns: { caffeine: true, retry: "Resilience4j" },
       facts: [
         "Alle RINA-operasjoner går via eux-rina-api.",
         "Kaller ikke eux-oppgave eller eux-rina-case-search direkte.",
@@ -144,6 +162,7 @@ export const NODES: ArchNode[] = [
     "Kobler RINA-saker til fagsaker i NAV og holder journalstatus per SED.",
     {
       db: true,
+      patterns: { openapi: true, logging: true },
       facts: [
         "Kalles av eux-neessi, flere bakgrunnstjenester, melosys-eessi og eux-portal-core.",
         "Journalstatusen her avstemmes nattlig mot Dokarkiv av eux-journalarkivar.",
@@ -158,6 +177,7 @@ export const NODES: ArchNode[] = [
     "Ferdigstiller og feilregistrerer journalposter i Dokarkiv.",
     {
       db: true,
+      patterns: { openapi: true, logging: true },
       facts: ["Slår opp saker i eux-nav-rinasak og journalposter i SAF, og bruker eux-oppgave ved behov."],
     },
   ),
@@ -168,6 +188,7 @@ export const NODES: ArchNode[] = [
     "Oppretter, oppdaterer og ferdigstiller oppgaver i NAV Oppgave på vegne av EUX-tjenestene.",
     {
       db: true,
+      patterns: { openapi: true, retry: "Spring Retry", logging: true },
       facts: [
         "Eneste EUX-tjeneste som snakker med NAV Oppgave.",
         "Brukes av eux-journal, eux-fagmodul-journalfoering, eux-journalarkivar og eux-barnetrygd – ikke av eux-neessi.",
@@ -180,14 +201,14 @@ export const NODES: ArchNode[] = [
     "domene",
     "Kotlin",
     "Lagrer innstillinger per saksbehandler, som foretrukket enhet.",
-    { db: true, facts: ["Kalles kun av eux-neessi."] },
+    { db: true, patterns: { logging: true }, facts: ["Kalles kun av eux-neessi."] },
   ),
   app(
     "eux-relaterte-rinasaker",
     "domene",
     "Kotlin",
     "Holder oversikt over hvilke RINA-saker som henger sammen.",
-    { db: true, facts: ["Kalles kun av eux-neessi."] },
+    { db: true, patterns: { openapi: true, logging: true }, facts: ["Kalles kun av eux-neessi."] },
   ),
 
   // RINA-integrasjon
@@ -197,6 +218,7 @@ export const NODES: ArchNode[] = [
     "Java",
     "Mellomvaren mot RINA. All lesing og skriving av saker, SED-er og vedlegg går hit – også fra andre team.",
     {
+      patterns: { caffeine: true, retry: "@Retryable" },
       facts: [
         "Transformerer SED-er mellom NAV-format og EU-format (EessiAcl).",
         "Logger inn i CPI med shared-secret JWT → CAS-billett → JSESSIONID, bufret i 29 minutter.",
@@ -212,6 +234,7 @@ export const NODES: ArchNode[] = [
     "Kotlin",
     "Utfører oppryddingshandlinger i RINA: avslutte saker lokalt eller globalt, arkivere, slette saker og slette dokumentutkast.",
     {
+      patterns: { openapi: true, caffeine: true, logging: true },
       facts: [
         "Kalles av eux-avslutt-rinasaker og eux-slett-usendte-rinasaker.",
         "Logger inn i RINA med systembruker og CAS-billett.",
@@ -226,6 +249,7 @@ export const NODES: ArchNode[] = [
     "Søkeindeks over RINA-saker, bygd fra hendelser. eux-rina-api bruker den til å finne saker for en person.",
     {
       db: true,
+      patterns: { retry: "@Retryable", parent: "spring-boot-starter-parent" },
       facts: [
         "Konsumerer sak-, dokument- og varslingshendelser. Har DLQ for dokumenthendelser.",
         "Logger inn i RINA med systembruker og CAS-billett.",
@@ -239,6 +263,7 @@ export const NODES: ArchNode[] = [
     "Kotlin",
     "Lager PDF for SED-typene U020 og U029 med PDFBox.",
     {
+      patterns: { logging: true },
       facts: [
         "Kalles kun av eux-rina-api.",
         "Henter data fra RINA CPI med egen systembruker-innlogging.",
@@ -253,6 +278,7 @@ export const NODES: ArchNode[] = [
     "Java",
     "Tar imot hendelser fra RINA (NIE) over HTTP og publiserer dem på tre Kafka-topics.",
     {
+      patterns: { parent: "spring-boot-starter-parent" },
       facts: [
         "Endepunkt: POST /events/v1/{eventType}.",
         "Bruker spring-boot-starter-parent, ikke eux-parent-pom.",
@@ -265,6 +291,7 @@ export const NODES: ArchNode[] = [
     "Java",
     "Gjør dokumenthendelser om til det eldre formatet: beriker dem fra RINA CPI og publiserer sedmottatt-v1 og sedsendt-v1.",
     {
+      patterns: { retry: "@Retryable", parent: "spring-boot-starter-parent" },
       facts: [
         "Logger inn i RINA med systembruker og CAS-billett.",
         "Bruker spring-boot-starter-parent, ikke eux-parent-pom.",
@@ -280,6 +307,7 @@ export const NODES: ArchNode[] = [
     "Java",
     "Journalfører mottatte og sendte SED-er automatisk og oppretter oppgaver ved behov.",
     {
+      patterns: { caffeine: true, retry: "@Retryable" },
       facts: [
         "Konsumerer sedmottatt-v1 og sedsendt-v1, én melding om gangen.",
         "eux-neessi kaller den for å journalføre alle SED-er i en sak på en fagsak.",
@@ -294,6 +322,7 @@ export const NODES: ArchNode[] = [
     "Kotlin",
     "Nattlig avstemming av journalstatus: ferdigstiller det som kan løses, og feilregistrerer det som fortsatt er uavklart etter 30 dager.",
     {
+      patterns: { openapi: true, retry: "@Retryable", logging: true },
       facts: [
         "Ferdigstill: status UKJENT, FEILET_FERDIGSTILL eller FEILREGISTRERT.",
         "Feilregistrer: FEILET_FEILREGISTRER, og UKJENT eldre enn 30 dager.",
@@ -308,6 +337,7 @@ export const NODES: ArchNode[] = [
     "Avslutter og arkiverer inaktive RINA-saker automatisk.",
     {
       db: true,
+      patterns: { logging: true },
       facts: [
         "Følger sakene via sak- og dokumenthendelser.",
         `Startes av ${tallord(AVSLUTT_JOBS.length)} jobber i eux-avslutt-rinasaker-naisjob.`,
@@ -323,6 +353,7 @@ export const NODES: ArchNode[] = [
     `Sletter RINA-saker der ingen SED er sendt eller mottatt etter ${GRENSE_DAGER} dager.`,
     {
       db: true,
+      patterns: { logging: true },
       facts: [
         "Følger nye saker via sak- og dokumenthendelser.",
         "Spør eux-rina-terminator-api om saken kan slettes før den slettes.",
@@ -337,6 +368,7 @@ export const NODES: ArchNode[] = [
     "Kotlin",
     "Leser dokumenthendelser og sender adresser fra mottatte SED-er til PDL via PDL-Mottak.",
     {
+      patterns: { retry: "@Retryable", logging: true },
       facts: [
         "Henter SED-en og RINA-saken fra eux-rina-api.",
         "Sjekker personen og eksisterende adresser i PDL før den sender.",
@@ -350,7 +382,7 @@ export const NODES: ArchNode[] = [
     "bakgrunn",
     "Java",
     "Leser sedmottatt-v1 og sender utenlandske identifikasjonsnumre til PDL via PDL-Mottak.",
-    { db: true, facts: ["Poller én melding om gangen."] },
+    { db: true, patterns: { retry: "@Retryable" }, facts: ["Poller én melding om gangen."] },
   ),
   app(
     "eux-barnetrygd",
@@ -358,6 +390,8 @@ export const NODES: ArchNode[] = [
     "Java",
     "Årlig fornyelse av barnetrygdsaker i EESSI.",
     {
+      patterns: { retry: "@Retryable" },
+      scheduled: "0 0 22 * * ?",
       facts: [
         "Startes av en innebygd Spring @Scheduled-cron (kl. 22.00 i prod), ikke av en NAIS-jobb.",
       ],
@@ -383,6 +417,7 @@ export const NODES: ArchNode[] = [
     zone: "jobber",
     kind: "job",
     lang: "Kotlin",
+    patterns: { logging: true },
     repo: "eux-journalarkivar-naisjob",
     summary: `${cronJobs(ARKIVAR_JOBS.length)} i eux-journalarkivar: ${joinOg(
       ARKIVAR_JOBS.map((j) => (j.sched.prod.h === null ? j.id : `${j.id} (${klokke(j.sched.prod.h)})`)),
@@ -395,6 +430,7 @@ export const NODES: ArchNode[] = [
     zone: "jobber",
     kind: "job",
     lang: "Kotlin",
+    patterns: { logging: true },
     repo: "eux-slett-usendte-rinasaker-naisjob",
     summary: `${cronJobs(SLETT_JOBS.length)} i eux-slett-usendte-rinasaker: ${joinOg(SLETT_JOBS.map((j) => j.id))}.`,
     link: { href: "/prosesser/automatisk-sletting", label: "Automatisk sletting" },
@@ -493,7 +529,7 @@ export const EDGES: ArchEdge[] = [
     "graph",
     "slack",
   ),
-  ...rest("eux-rina-api", "rina", "pdl", "eux-rina-case-search", "eux-pdf", "eux-all-rina-events"),
+  ...rest("eux-rina-api", "rina", "eux-rina-case-search", "eux-pdf", "pdl", "eux-all-rina-events"),
   ...rest("eux-journal", "saf", "dokarkiv", "eux-oppgave", "eux-nav-rinasak"),
   ...rest("eux-oppgave", "nav-oppgave"),
   ...rest("eux-rina-terminator-api", "rina"),

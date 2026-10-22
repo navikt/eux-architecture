@@ -25,6 +25,16 @@ export const hhmm = (h: number, m = 0) => `${pad(h)}:${pad(m)}`;
 /** Norwegian clock format, e.g. "01.00". */
 export const klokke = (h: number, m = 0) => `${pad(h)}.${pad(m)}`;
 
+/**
+ * When a cron with a fixed time runs: hour, minute, and whether it is limited to one day of the month.
+ * Takes the five-field NAIS form ("5 0 1 * *") and Spring's six-field form, which starts with seconds ("0 0 22 * * ?").
+ */
+export function cronTime(cron: string): { h: number; m: number; monthly: boolean } {
+  const fields = cron.trim().split(/\s+/);
+  const [m, h, dom] = fields.length === 6 ? fields.slice(1) : fields;
+  return { h: Number(h), m: Number(m), monthly: dom !== "*" && dom !== "?" };
+}
+
 /** Relative time in Norwegian, e.g. "om 2 t 5 min" or "om 12 dager". */
 export function until(mins: number): string {
   if (mins >= 2 * DAY_MINS) return `om ${Math.round(mins / DAY_MINS)} dager`;

@@ -438,6 +438,8 @@ export interface Job {
   text: string;
   rina?: string;
   limit?: string;
+  /** The job that must have run first the same night, because it writes the statuses this one reads. */
+  after?: JobId;
   sched: Record<Env, Sched | null>;
 }
 
@@ -465,6 +467,7 @@ export const JOBS: Job[] = [
     from: ["UVIRKSOM"],
     to: ["TIL_AVSLUTNING_LOKALT", "TIL_AVSLUTNING_GLOBALT", "AVSLUTTES_AV_MOTPART"],
     text: "Vurderer hver uvirksom sak mot reglene for BUC-en og NAVs rolle. Uten treff blir saken stående og vurderes igjen neste natt. Kaller ikke RINA.",
+    after: "sett-uvirksom",
     sched: { prod: daily(2), q1: daily(2), q2: daily(12, 5, "05 12 * * *") },
   },
   {
@@ -477,6 +480,7 @@ export const JOBS: Job[] = [
     text: "Lukker sakene i RINA via eux-rina-terminator-api: lokalt med «Close case», eller globalt ved å opprette og sende X001.",
     rina: "avsluttLokalt · avsluttGlobalt",
     limit: "Maks 1 000 lokale og 1 000 globale per BUC per kjøring.",
+    after: "til-avslutning",
     sched: all(daily(3)),
   },
   {
@@ -487,6 +491,7 @@ export const JOBS: Job[] = [
     from: ["AVSLUTTET_LOKALT", "AVSLUTTET_GLOBALT"],
     to: ["TIL_ARKIVERING"],
     text: "Finner avsluttede saker som ikke er endret på 180 dager (400 for FB_BUC_01). Kaller ikke RINA.",
+    after: "avslutt",
     sched: all(daily(4)),
   },
   {
@@ -498,6 +503,7 @@ export const JOBS: Job[] = [
     to: ["ARKIVERT"],
     text: "Arkiverer sakene i RINA via eux-rina-terminator-api.",
     rina: "arkiver",
+    after: "til-arkivering",
     sched: all(daily(5)),
   },
   {

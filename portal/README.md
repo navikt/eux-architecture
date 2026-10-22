@@ -102,6 +102,19 @@ template. Templates are indexed in text properties (`text`, `summary`, `facts`
 and only when they hold at least three words. Restart dev (or run
 `pnpm search:index`) to refresh the index after editing documentation.
 
+### Architecture model
+
+`components/architecture/data.ts` is the one source for the `/architecture`
+diagrams. The pattern matrix reads each node's `patterns` (OpenAPI, Caffeine,
+retry, eux-logging, Maven parent) and `db`; the request flow lists the REST
+callees of eux-neessi and eux-rina-api from `EDGES`; the event metro
+(`metro.ts`) puts each station on the topics it reads or writes in `EDGES`;
+and the night timeline places the process pages' `JOBS` by their prod cron
+(chained by `after`) plus every node with a built-in `scheduled` cron. Only
+positions and copy live in the components. `pnpm test:data` fails when a
+service on a metro topic has no station, or a chained job runs before its
+predecessor.
+
 ### Page building blocks
 
 Documentation pages share their scaffolding from `components/page/`:
@@ -115,8 +128,8 @@ by `GlossaryEntry`), `FurtherReading` (the "Videre" link cards, typed by
 reduced motion.
 
 The process pages (`app/prosesser/*`) and the night timeline share
-`components/process/`: `time.ts` (Oslo clock, `klokke`/`hhmm`, `until`, and
-`nextDaily`/`nextOnDay` for "next run" labels), `useOsloNow()` (a ticking
+`components/process/`: `time.ts` (Oslo clock, `klokke`/`hhmm`, `until`,
+`nextDaily`/`nextOnDay` for "next run" labels, and `cronTime` for NAIS and Spring crons), `useOsloNow()` (a ticking
 Oslo clock that is null until hydration), `Slack.tsx` (`SlackFigure`,
 `SlackMessage` and `SlackCode` for the Slack mocks, styled by `proc-slack*`),
 `useJourneyPlayer()` with `Journey.tsx` (`JourneyBar` and `JourneyToken`) for
@@ -246,7 +259,7 @@ pnpm install
 | `pnpm lint` | ESLint |
 | `pnpm test` | All tests in `scripts/*.test.mjs` (CI runs this) |
 | `pnpm test:search` | Search ranking, typo tolerance, content indexing and privacy checks |
-| `pnpm test:data` | Cross-checks between data files, e.g. that every `ENV_SERVICES` id is an app in `components/architecture/data.ts` |
+| `pnpm test:data` | Cross-checks between data files, e.g. that every `ENV_SERVICES` id is an app in `components/architecture/data.ts` and that the event metro covers every topic consumer |
 
 The tests load TypeScript data modules directly with Node.
 `scripts/resolve-ts.mjs` resolves `@/…` and extensionless imports for them, so

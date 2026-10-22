@@ -4,6 +4,7 @@ import { BodyLong, Heading, HStack } from "@navikt/ds-react";
 import { StepButtons } from "@/components/process/StepButtons";
 import { useStepPlayer } from "@/components/process/useStepPlayer";
 import { TONE, type Tone } from "@/lib/tones";
+import { NODE_BY_ID, outgoing, type ArchNode } from "./data";
 import { useReducedMotion, useSvgIds } from "./hooks";
 import { onActivate, rounded } from "./svg";
 
@@ -40,60 +41,43 @@ const HOPS = [
 type LowItem = { id: string; name: string; desc?: string };
 type LowBox = { id: string; x: number; w: number; title: string; sub: string; tone: Tone; cols: number; items: LowItem[] };
 
+/** What the request uses each callee for, shown next to it in the one-column boxes. */
+const ROLE: Record<string, string> = {
+  "eux-nav-rinasak": "fagsak ↔ RINA-sak",
+  "eux-journal": "journalposter",
+  "eux-fagmodul-journalfoering": "journalfør sak",
+  "eux-relaterte-rinasaker": "relaterte saker",
+  "eux-saksbehandler": "innstillinger",
+  "eux-rina-case-search": "saker for en person",
+  "eux-pdf": "PDF for U020 og U029",
+  pdl: "persondata",
+  "eux-all-rina-events": "republisering",
+};
+
+const ON_TOP = new Set(TOP.map((b) => b.id));
+
+/** A box listing what `from` calls over REST in the architecture model, minus the services in the top row. */
+const box = (b: Omit<LowBox, "items">, from: string, keep: (n: ArchNode) => boolean = () => true): LowBox => ({
+  ...b,
+  items: outgoing(from)
+    .filter((e) => e.kind === "rest" && !ON_TOP.has(e.to))
+    .map((e) => NODE_BY_ID[e.to])
+    .filter(keep)
+    .map((n) => ({ id: n.id, name: n.name, desc: b.cols === 1 ? ROLE[n.id] : undefined })),
+});
+
 const LOW: LowBox[] = [
-  {
-    id: "A",
-    x: 0,
-    w: 360,
-    title: "EUX-tjenester",
-    sub: "Kalles av eux-neessi",
-    tone: "success",
-    cols: 1,
-    items: [
-      { id: "eux-nav-rinasak", name: "eux-nav-rinasak", desc: "fagsak ↔ RINA-sak" },
-      { id: "eux-journal", name: "eux-journal", desc: "journalposter" },
-      { id: "eux-fagmodul-journalfoering", name: "eux-fagmodul-journalfoering", desc: "journalfør sak" },
-      { id: "eux-relaterte-rinasaker", name: "eux-relaterte-rinasaker", desc: "relaterte saker" },
-      { id: "eux-saksbehandler", name: "eux-saksbehandler", desc: "innstillinger" },
-    ],
-  },
-  {
-    id: "B",
-    x: 390,
-    w: 360,
-    title: "NAV-systemer",
-    sub: "Kalles direkte av eux-neessi",
-    tone: "neutral",
-    cols: 2,
-    items: [
-      { id: "pdl", name: "PDL" },
-      { id: "saf", name: "SAF" },
-      { id: "dokarkiv", name: "Dokarkiv" },
-      { id: "sak", name: "Sak" },
-      { id: "aareg", name: "Aa-registeret" },
-      { id: "inntekt", name: "Inntekt" },
-      { id: "norg2", name: "NORG2" },
-      { id: "dokdist", name: "Dokdistfordeling" },
-      { id: "nom", name: "NOM" },
-      { id: "graph", name: "Microsoft Graph" },
-      { id: "slack", name: "Slack" },
-    ],
-  },
-  {
-    id: "C",
-    x: 780,
-    w: 360,
-    title: "Bak eux-rina-api",
-    sub: "Kalles av eux-rina-api",
-    tone: "info",
-    cols: 1,
-    items: [
-      { id: "eux-rina-case-search", name: "eux-rina-case-search", desc: "saker for en person" },
-      { id: "eux-pdf", name: "eux-pdf", desc: "PDF for U020 og U029" },
-      { id: "pdl", name: "PDL", desc: "persondata" },
-      { id: "eux-all-rina-events", name: "eux-all-rina-events", desc: "republisering" },
-    ],
-  },
+  box(
+    { id: "A", x: 0, w: 360, title: "EUX-tjenester", sub: "Kalles av eux-neessi", tone: "success", cols: 1 },
+    "eux-neessi",
+    (n) => n.kind === "app",
+  ),
+  box(
+    { id: "B", x: 390, w: 360, title: "NAV-systemer", sub: "Kalles direkte av eux-neessi", tone: "neutral", cols: 2 },
+    "eux-neessi",
+    (n) => n.kind === "external",
+  ),
+  box({ id: "C", x: 780, w: 360, title: "Bak eux-rina-api", sub: "Kalles av eux-rina-api", tone: "info", cols: 1 }, "eux-rina-api"),
 ];
 
 const BRANCHES = [

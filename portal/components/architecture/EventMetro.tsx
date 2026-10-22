@@ -2,52 +2,14 @@
 
 import { useState } from "react";
 import { BodyShort, Button, Detail, HStack } from "@navikt/ds-react";
-import { GRENSE_DAGER } from "@/components/sletting/data";
 import { onActivate, rounded } from "./svg";
 import { useSvgIds } from "./hooks";
-
-type LineId = "doc" | "case" | "notif" | "mottatt" | "sendt";
+import { LEG_X, LINES, LINE_ORDER, SOURCE, STATIONS, type LineId, type Station } from "./metro";
 
 const W = 1140;
 const H = 410;
 
-const LINES: Record<LineId, { name: string; color: string; y: number; desc: string }> = {
-  doc: {
-    name: "eux-rina-document-events-v1",
-    color: "var(--ax-border-meta-purple)",
-    y: 130,
-    desc: "Dokumenthendelser – en SED er opprettet, sendt, mottatt osv. Har egne retry-, DLT- og DLQ-topics for konsumentene som trenger det.",
-  },
-  case: {
-    name: "eux-rina-case-events-v1",
-    color: "var(--ax-border-accent)",
-    y: 170,
-    desc: "Sakshendelser – en RINA-sak er opprettet, endret eller lukket.",
-  },
-  notif: {
-    name: "eux-rina-notification-events-v1",
-    color: "var(--ax-border-success)",
-    y: 210,
-    desc: "Varslingshendelser fra RINA. Kun eux-rina-case-search leser dem.",
-  },
-  sendt: {
-    name: "sedsendt-v1",
-    color: "var(--ax-border-brand-magenta, var(--ax-border-danger))",
-    y: 300,
-    desc: "Sendte SED-er i det eldre formatet. En offentlig kontrakt som andre team leser.",
-  },
-  mottatt: {
-    name: "sedmottatt-v1",
-    color: "var(--ax-border-warning)",
-    y: 340,
-    desc: "Mottatte SED-er i det eldre formatet. En offentlig kontrakt som andre team leser.",
-  },
-};
-
-const LINE_ORDER: LineId[] = ["doc", "case", "notif", "sendt", "mottatt"];
-
 const SRC_X = 290;
-const LEG_X = 1000;
 const SENDT_TURN = 1050;
 const MOTTATT_TURN = 1080;
 const LOW_END = 300;
@@ -75,116 +37,6 @@ const LINE_PATH: Record<LineId, string> = {
     22,
   ),
 };
-
-type Station = {
-  id: string;
-  label: string;
-  x: number;
-  lines: LineId[];
-  /** Label above (top lines) or below (bottom lines), with stagger offset. */
-  labelY: number;
-  text: string;
-  focus?: string;
-  href?: string;
-  ghost?: boolean;
-  team?: boolean;
-};
-
-const STATIONS: Station[] = [
-  {
-    id: "eux-rina-case-search",
-    label: "rina-case-search",
-    x: 520,
-    lines: ["doc", "case", "notif"],
-    labelY: 98,
-    text: "Bygger søkeindeksen over RINA-saker fra alle tre topics. Dokumenthendelser som ikke kan behandles, havner på en DLQ.",
-    focus: "eux-rina-case-search",
-  },
-  {
-    id: "eux-avslutt-rinasaker",
-    label: "avslutt-rinasaker",
-    x: 640,
-    lines: ["doc", "case"],
-    labelY: 80,
-    text: "Følger sakene via sak- og dokumenthendelser for å vite når de har vært inaktive lenge nok til å avsluttes.",
-    focus: "eux-avslutt-rinasaker",
-  },
-  {
-    id: "eux-slett-usendte-rinasaker",
-    label: "slett-usendte-rinasaker",
-    x: 760,
-    lines: ["doc", "case"],
-    labelY: 98,
-    text: `Følger nye saker og om det er sendt eller mottatt en SED i dem. Saker uten SED etter ${GRENSE_DAGER} dager slettes hvis RINA tillater det.`,
-    focus: "eux-slett-usendte-rinasaker",
-  },
-  {
-    id: "eux-adresse-oppdatering",
-    label: "adresse-oppdatering",
-    x: 880,
-    lines: ["doc"],
-    labelY: 80,
-    text: "Oppdaterer utenlandske adresser i PDL. Feilede meldinger prøves 3 ganger med 15 sekunders mellomrom før de havner på en DLT.",
-    focus: "eux-adresse-oppdatering",
-  },
-  {
-    id: "eux-legacy-rina-events",
-    label: "legacy-rina-events",
-    x: LEG_X,
-    lines: ["doc", "sendt", "mottatt"],
-    labelY: 98,
-    text: "Overgangen mellom nytt og gammelt format: beriker dokumenthendelser med data fra RINA CPI og publiserer dem på sedsendt-v1 og sedmottatt-v1.",
-    focus: "eux-legacy-rina-events",
-  },
-  {
-    id: "eux-fagmodul-journalfoering",
-    label: "fagmodul-journalfoering",
-    x: 880,
-    lines: ["sendt", "mottatt"],
-    labelY: 374,
-    text: "Journalfører sendte og mottatte SED-er automatisk og oppretter oppgaver via eux-oppgave ved behov.",
-    focus: "eux-fagmodul-journalfoering",
-  },
-  {
-    id: "eux-person-oppdatering",
-    label: "person-oppdatering",
-    x: 740,
-    lines: ["mottatt"],
-    labelY: 394,
-    text: "Leser bare mottatte SED-er og sender utenlandske identifikasjonsnumre til PDL via PDL-Mottak.",
-    focus: "eux-person-oppdatering",
-  },
-  {
-    id: "eessi-pensjon",
-    label: "eessi-pensjon",
-    x: 600,
-    lines: ["sendt", "mottatt"],
-    labelY: 374,
-    text: "Pensjonsområdets EESSI-applikasjoner (annet team) leser begge topicene.",
-    focus: "eessi-pensjon",
-    team: true,
-  },
-  {
-    id: "melosys-eessi",
-    label: "melosys-eessi",
-    x: 460,
-    lines: ["sendt", "mottatt"],
-    labelY: 374,
-    text: "Melosys (annet team) leser begge topicene.",
-    focus: "melosys-eessi",
-    team: true,
-  },
-  {
-    id: "eux-portal-core",
-    label: "portal-core (kun dev)",
-    x: 340,
-    lines: ["sendt", "mottatt"],
-    labelY: 374,
-    text: "Backenden til denne portalen leser dev-utgaven av topicene og viser SED-hendelser live.",
-    href: "/kafka/sed-hendelser",
-    ghost: true,
-  },
-];
 
 const STATION_R = 8;
 
@@ -248,9 +100,9 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
               role="button"
               tabIndex={0}
               className="arch-metro__hub"
-              aria-label="Vis detaljer om eux-all-rina-events"
-              onClick={() => onFocusNode("eux-all-rina-events")}
-              onKeyDown={onActivate(() => onFocusNode("eux-all-rina-events"))}
+              aria-label={`Vis detaljer om ${SOURCE}`}
+              onClick={() => onFocusNode(SOURCE)}
+              onKeyDown={onActivate(() => onFocusNode(SOURCE))}
             >
               <rect x={146} y={110} width={144} height={120} rx={14} fill="var(--ax-bg-meta-purple-soft)" stroke="var(--ax-border-meta-purple)" strokeWidth={1.5} />
               <text x={218} y={150} textAnchor="middle" fontSize={13} fontWeight={700} fill="var(--ax-text-neutral)">
