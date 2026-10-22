@@ -4,13 +4,18 @@ import { useState } from "react";
 import { BodyLong } from "@navikt/ds-react";
 import { rounded } from "@/components/architecture/svg";
 import { DetailHint, DetailPanel, FlowToolbar } from "@/components/process/FlowPanel";
+import { Fact, Facts } from "@/components/process/Facts";
 import {
   ActorList,
   JobBadge,
   Lane,
+  LegendBadge,
+  LegendItem,
+  LegendMark,
   StateCanvas,
   StateEdges,
   StateLabels,
+  StateLegend,
   StateNode,
   stateFocus,
   toActors,
@@ -165,54 +170,33 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
         ))}
       </StateCanvas>
 
-      <div className="avs-legend" aria-hidden>
-        <span>
-          <i className="avs-legend__badge" data-tone="accent">F</i> fagmodulen
-        </span>
-        <span>
-          <i className="avs-legend__badge">1</i> ferdigstill 01.00
-        </span>
-        <span>
-          <i className="avs-legend__badge">2</i> feilregistrer 02.00
-        </span>
-        <span>
-          <i className="jfr-legend__stay">↻</i> kan bli stående til neste natt
-        </span>
-        <span>
-          <i className="avs-legend__final" /> ingen jobb ser på SED-en igjen
-        </span>
-        <span>
-          <i className="avs-legend__line" data-kind="error" /> feil i jobben
-        </span>
-      </div>
+      <StateLegend>
+        <LegendItem mark={<LegendBadge tone="accent">F</LegendBadge>}>fagmodulen</LegendItem>
+        <LegendItem mark={<LegendBadge>1</LegendBadge>}>ferdigstill 01.00</LegendItem>
+        <LegendItem mark={<LegendBadge>2</LegendBadge>}>feilregistrer 02.00</LegendItem>
+        <LegendItem mark={<i className="jfr-legend__stay">↻</i>}>kan bli stående til neste natt</LegendItem>
+        <LegendItem mark={<LegendMark kind="final" />}>ingen jobb ser på SED-en igjen</LegendItem>
+        <LegendItem mark={<LegendMark kind="error" />}>feil i jobben</LegendItem>
+      </StateLegend>
 
       {info ? (
         <DetailPanel tone={info.tone} eyebrow={info.label} title={info.id} onClose={() => onSelect(null)}>
           <BodyLong size="small">{info.text}</BodyLong>
-          <dl className="avs-job__meta">
-            <div>
-              <dt>Settes av</dt>
-              <dd>
-                <ActorList actors={setBy(info.setBy)} />
-              </dd>
-            </div>
-            <div>
-              <dt>Går videre til</dt>
-              <dd>
-                {info.next.length > 0 ? (
-                  <StatusChips ids={info.next} onFocusStatus={onSelect} />
-                ) : (
-                  <span className="arch-subtle">Ingen. Statusen er endelig.</span>
-                )}
-              </dd>
-            </div>
+          <Facts>
+            <Fact term="Settes av">
+              <ActorList actors={setBy(info.setBy)} />
+            </Fact>
+            <Fact term="Går videre til">
+              {info.next.length > 0 ? (
+                <StatusChips ids={info.next} onFocusStatus={onSelect} />
+              ) : (
+                <span className="arch-subtle">Ingen. Statusen er endelig.</span>
+              )}
+            </Fact>
             {STAYS[info.id] && (
-              <div>
-                <dt>Blir stående</dt>
-                <dd>{STAYS[info.id]}</dd>
-              </div>
+              <Fact term="Blir stående">{STAYS[info.id]}</Fact>
             )}
-          </dl>
+          </Facts>
         </DetailPanel>
       ) : (
         <DetailHint>

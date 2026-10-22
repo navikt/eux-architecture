@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { BodyLong, BodyShort, Detail, ToggleGroup } from "@navikt/ds-react";
-import { ArrowRightIcon } from "@navikt/aksel-icons";
+import { Fact, Facts } from "@/components/process/Facts";
+import { JobFlow, JobNo } from "@/components/process/Jobs";
 import { klokke, nextDaily, r2, until } from "@/components/process/time";
 import { useOsloNow } from "@/components/process/useOsloNow";
 import { TONE } from "@/lib/tones";
@@ -158,9 +159,7 @@ export function NightPipeline({ onFocusStatus }: { onFocusStatus: (s: StatusId) 
               <ul>
                 {rare.map((j) => (
                   <li key={j.id}>
-                    <span className="avs-night__no" aria-hidden>
-                      {j.no}
-                    </span>
+                    <JobNo hidden>{j.no}</JobNo>
                     <span className="arch-mono">{j.id}</span>
                     <span className="arch-subtle">{schedLabel(j.sched[env])}</span>
                   </li>
@@ -186,7 +185,7 @@ export function NightPipeline({ onFocusStatus }: { onFocusStatus: (s: StatusId) 
                   onFocus={() => setHover(j.id)}
                   onBlur={() => setHover(null)}
                 >
-                  <span className="avs-night__no">{j.no}</span>
+                  <JobNo>{j.no}</JobNo>
                   <span className="avs-job__name">
                     <strong>{j.title}</strong>
                     <span className="arch-mono">{j.id}</span>
@@ -200,36 +199,22 @@ export function NightPipeline({ onFocusStatus }: { onFocusStatus: (s: StatusId) 
                   <div className="avs-job__body">
                     <BodyLong size="small">{j.text}</BodyLong>
                     {(j.from.length > 0 || j.to.length > 0) && (
-                      <div className="avs-job__flow">
-                        <StatusChips ids={j.from} onFocusStatus={onFocusStatus} />
-                        <ArrowRightIcon aria-hidden className="arch-subtle" />
-                        <StatusChips ids={j.to} onFocusStatus={onFocusStatus} />
-                      </div>
+                      <JobFlow from={<StatusChips ids={j.from} onFocusStatus={onFocusStatus} />} to={<StatusChips ids={j.to} onFocusStatus={onFocusStatus} />} />
                     )}
-                    <dl className="avs-job__meta">
-                      <div>
-                        <dt>Tidsplan</dt>
-                        <dd>
-                          {schedLabel(s)} {s && <code>{s.cron}</code>}
-                        </dd>
-                      </div>
+                    <Facts>
+                      <Fact term="Tidsplan">
+                        {schedLabel(s)} {s && <code>{s.cron}</code>}
+                      </Fact>
                       {j.rina && (
-                        <div>
-                          <dt>RINA</dt>
-                          <dd className="arch-mono">{j.rina}</dd>
-                        </div>
+                        <Fact term="RINA" mono>
+                          {j.rina}
+                        </Fact>
                       )}
-                      {j.limit && (
-                        <div>
-                          <dt>Grense</dt>
-                          <dd>{j.limit}</dd>
-                        </div>
-                      )}
-                      <div>
-                        <dt>App</dt>
-                        <dd className="arch-mono">{j.app}</dd>
-                      </div>
-                    </dl>
+                      {j.limit && <Fact term="Grense">{j.limit}</Fact>}
+                      <Fact term="App" mono>
+                        {j.app}
+                      </Fact>
+                    </Facts>
                   </div>
                 )}
               </li>

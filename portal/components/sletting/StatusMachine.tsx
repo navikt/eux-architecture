@@ -3,13 +3,18 @@
 import { BodyLong } from "@navikt/ds-react";
 import { rounded } from "@/components/architecture/svg";
 import { DetailHint, DetailPanel } from "@/components/process/FlowPanel";
+import { Fact, Facts } from "@/components/process/Facts";
 import {
   ActorList,
   JobBadge,
   Lane,
+  LegendBadge,
+  LegendItem,
+  LegendMark,
   StateCanvas,
   StateEdges,
   StateLabels,
+  StateLegend,
   StateNode,
   UnusedStatuses,
   stateFocus,
@@ -129,56 +134,35 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
         ))}
       </StateCanvas>
 
-      <div className="avs-legend" aria-hidden>
-        <span>
-          <i className="avs-legend__badge">1</i> jobben som flytter saken
-        </span>
-        <span>
-          <i className="avs-legend__lane" /> neste jobb kaller RINA
-        </span>
-        <span>
-          <i className="avs-legend__final" /> ingen jobb ser på saken igjen
-        </span>
-        <span>
-          <i className="sl-legend__sed" /> en SED setter DOKUMENT_SENT – fra alle statuser
-        </span>
-        <span>
-          <i className="avs-legend__line" data-kind="kafka" /> Kafka-hendelse
-        </span>
-        <span>
-          <i className="avs-legend__line" data-kind="error" /> feil
-        </span>
-      </div>
+      <StateLegend>
+        <LegendItem mark={<LegendBadge>1</LegendBadge>}>jobben som flytter saken</LegendItem>
+        <LegendItem mark={<LegendMark kind="lane" />}>neste jobb kaller RINA</LegendItem>
+        <LegendItem mark={<LegendMark kind="final" />}>ingen jobb ser på saken igjen</LegendItem>
+        <LegendItem mark={<i className="sl-legend__sed" />}>en SED setter DOKUMENT_SENT – fra alle statuser</LegendItem>
+        <LegendItem mark={<LegendMark kind="kafka" />}>Kafka-hendelse</LegendItem>
+        <LegendItem mark={<LegendMark kind="error" />}>feil</LegendItem>
+      </StateLegend>
 
       {info ? (
         <DetailPanel tone={info.tone} eyebrow={info.label} title={info.id} onClose={() => onSelect(null)}>
           <BodyLong size="small">{info.text}</BodyLong>
-          <dl className="avs-job__meta">
+          <Facts>
             {info.into.length > 0 && (
-              <div>
-                <dt>Settes av</dt>
-                <dd>
-                  <ActorList actors={toActors(info.into, JOB_BY_ID, (name) => ({ name: EVENT_TEXT[name] ?? name }))} />
-                </dd>
-              </div>
+              <Fact term="Settes av">
+                <ActorList actors={toActors(info.into, JOB_BY_ID, (name) => ({ name: EVENT_TEXT[name] ?? name }))} />
+              </Fact>
             )}
             {info.next.length > 0 && (
-              <div>
-                <dt>Går videre til</dt>
-                <dd>
-                  <StatusChips ids={info.next} onFocusStatus={onSelect} />
-                </dd>
-              </div>
+              <Fact term="Går videre til">
+                <StatusChips ids={info.next} onFocusStatus={onSelect} />
+              </Fact>
             )}
             {RINA_CALL[info.id] && (
-              <div>
-                <dt>RINA</dt>
-                <dd>
-                  <code>{RINA_CALL[info.id]}</code> i eux-rina-terminator-api
-                </dd>
-              </div>
+              <Fact term="RINA">
+                <code>{RINA_CALL[info.id]}</code> i eux-rina-terminator-api
+              </Fact>
             )}
-          </dl>
+          </Facts>
         </DetailPanel>
       ) : (
         <DetailHint>

@@ -135,15 +135,26 @@ journalføring case story and the request flow on `/architecture`) use
 `useStepPlayer()` with `StepButtons` («Forrige», «Spill av», «Neste»). The status machines
 are built from `StateMachine.tsx` (`StateCanvas`, `StateEdges`, `StateLabels`,
 `StateNode`, `Lane`, `JobBadge` (`proc-sm__badge`), `ActorList`,
-`UnusedStatuses`, and `stateFocus()` for which edges and nodes to light up).
+`UnusedStatuses`, `stateFocus()` for which edges and nodes to light up, and
+`StateLegend`, `LegendItem`, `LegendBadge` and `LegendMark` for the key
+underneath; `proc-legend*`). The night-job lists use `Jobs.tsx`: `JobCard`
+(name, schedule, live countdown and description; `proc-job*`), `JobNo`
+(`proc-jobno`) and `JobFlow` (statuses in → statuses out; `proc-jobflow`).
+`Facts.tsx` (`Facts`, `Fact`; `proc-facts`) is the labelled list in detail
+panels, job cards and operations cards, and `Ops.tsx` (`OpsGrid`,
+`OpsColumn`, `OpsCard`, `OpsValues`; `proc-ops*`) lays out the «Drift»
+section at the end of each page.
 The four simulators are built from `Simulator.tsx`: `SimPresets` (the "Prøv"
 examples, typed by `SimPreset`; the pressed one is found with `deepEqual` from
 `lib/equal.ts`), `SimForm` and `SimGroup` for the inputs, `Ladder`, `Rung` and
 `RungText` for the steps or criteria, and `SimResult`, `ResultStatus`,
 `ResultLabel`, `ResultFacts` and `ResultCaveat` for the result card
 (`proc-sim*`, `proc-presets`, `proc-ladder`, `proc-rung*`, `proc-result*`).
-New styles shared between process pages use the `proc-` prefix rather than
-another feature's prefix.
+Styles shared between process pages use the `proc-` prefix and live in the
+«Process pages (proc-*)» section of `app/globals.css`, before the feature
+sections. A feature never uses another feature's prefix (`avs-`, `sl-`, `jfr-`,
+`adr-`); feature-specific overrides of `proc-*` classes stay in the feature's
+own section.
 
 ### Logged-in user
 

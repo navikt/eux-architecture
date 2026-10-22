@@ -19,6 +19,8 @@ import { JumpNav } from "@/components/page/JumpNav";
 import { FurtherReading, repoLinks, type FurtherLink } from "@/components/page/FurtherReading";
 import { Glossary, type GlossaryEntry } from "@/components/page/Glossary";
 import { Pitfalls, type PitfallGroup } from "@/components/page/Pitfalls";
+import { JobNo } from "@/components/process/Jobs";
+import { OpsCard, OpsColumn, OpsGrid, OpsValues } from "@/components/process/Ops";
 import { Snippet } from "@/components/process/Snippet";
 
 const SECTIONS = [
@@ -268,7 +270,7 @@ export default function AutomatiskSlettingPage() {
   );
 
   return (
-    <div className="portal-page--wide arch-page avs-page sl-page">
+    <div className="portal-page--wide arch-page proc-page sl-page">
       <header className="portal-hero arch-hero">
         <div className="arch-hero__text">
           <Detail className="arch-eyebrow">Prosess</Detail>
@@ -384,7 +386,7 @@ export default function AutomatiskSlettingPage() {
         title="Svar og fallgruver"
         lead="Svaret fra eux-rina-terminator-api avgjør neste status. Statussjekken gir aldri et nytt forsøk, mens slett prøver én gang til natten etter."
       >
-        <div className="arch-table avs-errors sl-errors">
+        <div className="arch-table proc-errors sl-errors">
           <Table size="small">
             <Table.Header>
               <Table.Row>
@@ -407,7 +409,7 @@ export default function AutomatiskSlettingPage() {
                   {g.rows.map((r) => (
                     <Table.Row key={r.code}>
                       <Table.HeaderCell scope="row">
-                        <span className="avs-code" data-tone={r.tone}>
+                        <span className="proc-code" data-tone={r.tone}>
                           {r.code}
                         </span>
                       </Table.HeaderCell>
@@ -432,7 +434,7 @@ export default function AutomatiskSlettingPage() {
         title="Kjøring, miljøer og rapport"
         lead="Alle jobbene ligger i eux-slett-usendte-rinasaker-naisjob og kjører i tidssonen Europe/Oslo. Hver jobb gjør ett kall mot samme endepunkt, med prosessnavnet i stien."
       >
-        <div className="arch-table avs-jobtable">
+        <div className="arch-table proc-jobtable">
           <Table size="small">
             <Table.Header>
               <Table.Row>
@@ -448,17 +450,17 @@ export default function AutomatiskSlettingPage() {
               {JOBS.map((j) => (
                 <Table.Row key={j.id}>
                   <Table.HeaderCell scope="row">
-                    <span className="avs-night__no avs-night__no--inline" aria-hidden>
+                    <JobNo inline hidden>
                       {j.no}
-                    </span>{" "}
+                    </JobNo>{" "}
                     <span className="arch-mono">{j.id}</span>
                   </Table.HeaderCell>
                   {ENVS.map((e) => {
                     const s = j.sched[e.id];
                     return (
-                      <Table.DataCell key={e.id} className={e.id !== "prod" && differsFromProd(j, e.id) ? "avs-diffcell" : undefined}>
+                      <Table.DataCell key={e.id} className={e.id !== "prod" && differsFromProd(j, e.id) ? "proc-diffcell" : undefined}>
                         <span className={s.freq === "never" ? "arch-subtle" : ""}>{schedLabel(s)}</span>
-                        <code className="avs-cron">{s.cron}</code>
+                        <code className="proc-cron">{s.cron}</code>
                       </Table.DataCell>
                     );
                   })}
@@ -467,44 +469,29 @@ export default function AutomatiskSlettingPage() {
             </Table.Body>
           </Table>
         </div>
-        <BodyShort size="small" className="arch-subtle avs-note">
+        <BodyShort size="small" className="arch-subtle proc-note">
           Uthevede celler avviker fra prod. CronJob-ene heter <code>eux-slett-usendte-rinasaker-&lt;jobb&gt;-naisjob</code>, med{" "}
           <code>-q1</code>/<code>-q2</code> i dev.
         </BodyShort>
 
-        <div className="avs-ops">
-          <div className="avs-ops__col">
-            <article className="arch-card avs-ops__card" data-tone="accent">
-              <Heading level="3" size="xsmall">
-                Endepunktet
-              </Heading>
+        <OpsGrid>
+          <OpsColumn>
+            <OpsCard tone="accent" title="Endepunktet">
               <Snippet>{"POST /api/v1/sletteprosess/{sletteprosess}/execute"}</Snippet>
               <BodyShort size="small">
                 Synkront: svarer <code>204</code> når prosessen er ferdig, og <code>400</code> for et ukjent prosessnavn. Gyldige
                 verdier:
               </BodyShort>
-              <ul className="avs-ops__values">
-                {JOBS.map((j) => (
-                  <li key={j.id} className="arch-mono">
-                    {j.id}
-                  </li>
-                ))}
-              </ul>
-            </article>
-            <article className="arch-card avs-ops__card" data-tone="warning">
-              <Heading level="3" size="xsmall">
-                Kjøre en jobb manuelt
-              </Heading>
+              <OpsValues values={JOBS.map((j) => j.id)} />
+            </OpsCard>
+            <OpsCard tone="warning" title="Kjøre en jobb manuelt">
               <BodyShort size="small">Start en ny kjøring fra CronJob-en, f.eks. slett i prod:</BodyShort>
               <Snippet>kubectl create job --from=cronjob/eux-slett-usendte-rinasaker-slett-naisjob slett-manuell -n eessibasis</Snippet>
               <BodyShort size="small" className="arch-subtle">
                 Navnet på den nye jobben må være unikt. Husk at slett faktisk sletter i RINA.
               </BodyShort>
-            </article>
-            <article className="arch-card avs-ops__card" data-tone="neutral">
-              <Heading level="3" size="xsmall">
-                Tabellen rinasak_status
-              </Heading>
+            </OpsCard>
+            <OpsCard tone="neutral" title="Tabellen rinasak_status">
               <BodyShort size="small">Én rad per sak. Status er tekst, så det er enkelt å se etter i databasen:</BodyShort>
               <ul className="sl-db">
                 {DB_COLUMNS.map(([col, note]) => (
@@ -515,15 +502,15 @@ export default function AutomatiskSlettingPage() {
                 ))}
               </ul>
               <Snippet>{"select status, count(*) from rinasak_status group by status;"}</Snippet>
-            </article>
-          </div>
-          <div className="avs-ops__col">
+            </OpsCard>
+          </OpsColumn>
+          <OpsColumn>
             <Heading level="3" size="xsmall" spacing>
               Månedsrapporten i Slack
             </Heading>
             <SlackReport />
-          </div>
-        </div>
+          </OpsColumn>
+        </OpsGrid>
       </Section>
 
       <Section id="ordliste" eyebrow="Begreper" title="Ordliste">

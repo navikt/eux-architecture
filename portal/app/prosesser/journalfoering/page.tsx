@@ -38,6 +38,8 @@ import { JumpNav } from "@/components/page/JumpNav";
 import { FurtherReading, repoLinks, type FurtherLink } from "@/components/page/FurtherReading";
 import { Glossary, type GlossaryEntry } from "@/components/page/Glossary";
 import { Pitfalls, type PitfallGroup } from "@/components/page/Pitfalls";
+import { Fact, Facts } from "@/components/process/Facts";
+import { OpsCard, OpsColumn, OpsGrid, OpsValues } from "@/components/process/Ops";
 import { Snippet } from "@/components/process/Snippet";
 import { SubHead } from "@/components/process/SubHead";
 import { SlackCode as C, SlackFigure, SlackMessage } from "@/components/process/Slack";
@@ -332,7 +334,7 @@ export default function JournalfoeringPage() {
   const pickRule = useCallback((rule: EnhetRule) => setInput(presetInput(rule.preset)), []);
 
   return (
-    <div className="portal-page--wide arch-page avs-page jfr-page">
+    <div className="portal-page--wide arch-page proc-page jfr-page">
       <header className="portal-hero arch-hero">
         <div className="arch-hero__text">
           <Detail className="arch-eyebrow">Prosess</Detail>
@@ -468,7 +470,7 @@ export default function JournalfoeringPage() {
                     <Table.Row key={r.when}>
                       <Table.DataCell>{r.when}</Table.DataCell>
                       <Table.DataCell>
-                        <span className="avs-code" data-tone={r.tone}>
+                        <span className="proc-code" data-tone={r.tone}>
                           {r.oppgave}
                         </span>
                       </Table.DataCell>
@@ -477,7 +479,7 @@ export default function JournalfoeringPage() {
                 </Table.Body>
               </Table>
             </div>
-            <BodyShort size="small" className="arch-subtle avs-note">
+            <BodyShort size="small" className="arch-subtle proc-note">
               Oppgavene får frist neste virkedag og opprettes av enhet 9999.
             </BodyShort>
           </div>
@@ -573,7 +575,7 @@ export default function JournalfoeringPage() {
         title="Når noe går galt"
         lead="Fagmodulen prøver kallene på nytt noen ganger, men gir så opp og går videre. Det meste havner bare i loggen eller i Slack. Nattjobbene prøver én natt til før de gir opp."
       >
-        <div className="arch-table avs-errors">
+        <div className="arch-table proc-errors">
           <Table size="small">
             <Table.Header>
               <Table.Row>
@@ -586,7 +588,7 @@ export default function JournalfoeringPage() {
               {ERRORS.map((r) => (
                 <Table.Row key={r.what}>
                   <Table.HeaderCell scope="row">
-                    <span className="jfr-err" data-tone={r.tone}>
+                    <span className="proc-err" data-tone={r.tone}>
                       {r.what}
                     </span>
                   </Table.HeaderCell>
@@ -595,7 +597,7 @@ export default function JournalfoeringPage() {
                     {typeof r.result === "string" ? (
                       <span className="arch-subtle">{r.result}</span>
                     ) : (
-                      <span className="jfr-err__path">
+                      <span className="proc-err__path">
                         <StatusChips ids={r.result} onFocusStatus={focusStatus} />
                       </span>
                     )}
@@ -663,40 +665,25 @@ export default function JournalfoeringPage() {
         title="Kjøring, Kafka og oppfølging"
         lead="Det meste av drift handler om å finne SED-er som ble stående: i Slack, i metrikkene eller i sed_journalstatus."
       >
-        <div className="avs-ops">
-          <div className="avs-ops__col">
-            <article className="arch-card avs-ops__card" data-tone="accent">
-              <Heading level="3" size="xsmall">
-                Nattjobbene
-              </Heading>
+        <OpsGrid>
+          <OpsColumn>
+            <OpsCard tone="accent" title="Nattjobbene">
               <Snippet>{"POST /api/v1/arkivarprosess/{prosess}/execute"}</Snippet>
               <BodyShort size="small">
                 Synkront mot eux-journalarkivar: svarer <code>204</code> når prosessen er ferdig, og <code>400</code> for et ukjent
                 prosessnavn. Gyldige verdier:
               </BodyShort>
-              <ul className="avs-ops__values">
-                {JOBS.map((j) => (
-                  <li key={j.id} className="arch-mono">
-                    {j.id}
-                  </li>
-                ))}
-              </ul>
-            </article>
-            <article className="arch-card avs-ops__card" data-tone="warning">
-              <Heading level="3" size="xsmall">
-                Kjøre en jobb manuelt
-              </Heading>
+              <OpsValues values={JOBS.map((j) => j.id)} />
+            </OpsCard>
+            <OpsCard tone="warning" title="Kjøre en jobb manuelt">
               <BodyShort size="small">Start en ny kjøring fra CronJob-en, f.eks. ferdigstill i prod:</BodyShort>
               <Snippet>kubectl create job --from=cronjob/eux-journalarkivar-ferdigstill-naisjob ferdigstill-manuell -n eessibasis</Snippet>
               <BodyShort size="small" className="arch-subtle">
                 Bruk <code>eux-journalarkivar-feilregistrer-naisjob</code> for feilregistrer, og legg til <code>-q1</code> eller{" "}
                 <code>-q2</code> i dev. Navnet på den nye jobben må være unikt.
               </BodyShort>
-            </article>
-            <article className="arch-card avs-ops__card" data-tone="info">
-              <Heading level="3" size="xsmall">
-                SED-er som ble stående
-              </Heading>
+            </OpsCard>
+            <OpsCard tone="info" title="SED-er som ble stående">
               <BodyShort size="small">I databasen til eux-nav-rinasak:</BodyShort>
               <Snippet>select status, count(*) from sed_journalstatus group by status order by 2 desc;</Snippet>
               <Snippet>
@@ -706,13 +693,10 @@ export default function JournalfoeringPage() {
                 Nattjobbene bruker <code>POST /api/v1/sed/journalstatuser/finn</code> og <code>PUT /api/v1/sed/journalstatuser</code> i
                 eux-nav-rinasak.
               </BodyShort>
-            </article>
-          </div>
-          <div className="avs-ops__col">
-            <article className="arch-card avs-ops__card" data-tone="meta-purple">
-              <Heading level="3" size="xsmall">
-                Kafka
-              </Heading>
+            </OpsCard>
+          </OpsColumn>
+          <OpsColumn>
+            <OpsCard tone="meta-purple" title="Kafka">
               <div className="arch-table">
                 <Table size="small">
                   <Table.Header>
@@ -725,7 +709,7 @@ export default function JournalfoeringPage() {
                     {ENVS.map((e) => (
                       <Table.Row key={e}>
                         <Table.HeaderCell scope="row">{e}</Table.HeaderCell>
-                        <Table.DataCell className="arch-mono jfr-topics">
+                        <Table.DataCell className="arch-mono proc-topics">
                           <span>eessibasis.sedmottatt-v1{e === "prod" ? "" : `-${e}`}</span>
                           <span>eessibasis.sedsendt-v1{e === "prod" ? "" : `-${e}`}</span>
                         </Table.DataCell>
@@ -738,33 +722,21 @@ export default function JournalfoeringPage() {
                 Consumer group <code>eux-fagmodul-journalfoering</code>. Én melding om gangen: <code>max-poll-records: 1</code>,{" "}
                 <code>concurrency: 1</code> og commit per melding.
               </BodyShort>
-            </article>
-            <article className="arch-card avs-ops__card" data-tone="success">
-              <Heading level="3" size="xsmall">
-                Metrikker
-              </Heading>
+            </OpsCard>
+            <OpsCard tone="success" title="Metrikker">
               <BodyShort size="small">
                 Fagmodulen eksponerer <code>/actuator/prometheus</code>. Tellerne får endelsen <code>_total</code> i Prometheus.
               </BodyShort>
-              <dl className="avs-job__meta">
-                <div>
-                  <dt>sed_mottatt</dt>
-                  <dd>Inngående SED-er som ble behandlet uten feil.</dd>
-                </div>
-                <div>
-                  <dt>sed_sendt</dt>
-                  <dd>Utgående SED-er som ble behandlet uten feil.</dd>
-                </div>
-                <div>
-                  <dt>sed_kafka_consumer_failed</dt>
-                  <dd>
-                    Meldinger som feilet og ble hoppet over. Tag <code>topic</code>.
-                  </dd>
-                </div>
-              </dl>
-            </article>
-          </div>
-        </div>
+              <Facts>
+                <Fact term="sed_mottatt">Inngående SED-er som ble behandlet uten feil.</Fact>
+                <Fact term="sed_sendt">Utgående SED-er som ble behandlet uten feil.</Fact>
+                <Fact term="sed_kafka_consumer_failed">
+                  Meldinger som feilet og ble hoppet over. Tag <code>topic</code>.
+                </Fact>
+              </Facts>
+            </OpsCard>
+          </OpsColumn>
+        </OpsGrid>
       </Section>
 
       <Section id="ordliste" eyebrow="Begreper" title="Ordliste">

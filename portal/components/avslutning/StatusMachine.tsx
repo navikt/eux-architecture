@@ -3,7 +3,23 @@
 import { BodyLong } from "@navikt/ds-react";
 import { rounded } from "@/components/architecture/svg";
 import { DetailHint, DetailPanel } from "@/components/process/FlowPanel";
-import { ActorList, JobBadge, Lane, StateCanvas, StateEdges, StateNode, UnusedStatuses, stateFocus, toActors, type StateEdge } from "@/components/process/StateMachine";
+import { Fact, Facts } from "@/components/process/Facts";
+import {
+  ActorList,
+  JobBadge,
+  Lane,
+  LegendBadge,
+  LegendItem,
+  LegendMark,
+  StateCanvas,
+  StateEdges,
+  StateLegend,
+  StateNode,
+  UnusedStatuses,
+  stateFocus,
+  toActors,
+  type StateEdge,
+} from "@/components/process/StateMachine";
 import { JOB_BY_ID, STATUSES, STATUS_BY_ID, type JobId, type StatusId } from "./data";
 import { StatusChips } from "./StatusChips";
 
@@ -122,53 +138,34 @@ export function StatusMachine({ selected, onSelect }: { selected: StatusId | nul
         ))}
       </StateCanvas>
 
-      <div className="avs-legend" aria-hidden>
-        <span>
-          <i className="avs-legend__badge">2</i> jobben som flytter saken
-        </span>
-        <span>
-          <i className="avs-legend__lane" /> neste jobb kaller RINA
-        </span>
-        <span>
-          <i className="avs-legend__final" /> endelig status
-        </span>
-        <span>
-          <i className="avs-legend__line" data-kind="back" /> tilbake via Kafka eller ny runde
-        </span>
-        <span>
-          <i className="avs-legend__line" data-kind="error" /> feil
-        </span>
-      </div>
+      <StateLegend>
+        <LegendItem mark={<LegendBadge>2</LegendBadge>}>jobben som flytter saken</LegendItem>
+        <LegendItem mark={<LegendMark kind="lane" />}>neste jobb kaller RINA</LegendItem>
+        <LegendItem mark={<LegendMark kind="final" />}>endelig status</LegendItem>
+        <LegendItem mark={<LegendMark kind="back" />}>tilbake via Kafka eller ny runde</LegendItem>
+        <LegendItem mark={<LegendMark kind="error" />}>feil</LegendItem>
+      </StateLegend>
 
       {info ? (
         <DetailPanel tone={info.tone} eyebrow={info.label} title={info.id} onClose={() => onSelect(null)}>
           <BodyLong size="small">{info.text}</BodyLong>
-          <dl className="avs-job__meta">
+          <Facts>
             {info.into.length > 0 && (
-              <div>
-                <dt>Kommer fra</dt>
-                <dd>
-                  <ActorList actors={toActors(info.into, JOB_BY_ID)} />
-                </dd>
-              </div>
+              <Fact term="Kommer fra">
+                <ActorList actors={toActors(info.into, JOB_BY_ID)} />
+              </Fact>
             )}
             {info.next.length > 0 && (
-              <div>
-                <dt>Går videre til</dt>
-                <dd>
-                  <StatusChips ids={info.next} onFocusStatus={onSelect} />
-                </dd>
-              </div>
+              <Fact term="Går videre til">
+                <StatusChips ids={info.next} onFocusStatus={onSelect} />
+              </Fact>
             )}
             {info.rina && (
-              <div>
-                <dt>RINA</dt>
-                <dd>
-                  <code>POST /api/v1/rinasaker/{"{id}"}/{info.rina}</code> i eux-rina-terminator-api
-                </dd>
-              </div>
+              <Fact term="RINA">
+                <code>POST /api/v1/rinasaker/{"{id}"}/{info.rina}</code> i eux-rina-terminator-api
+              </Fact>
             )}
-          </dl>
+          </Facts>
         </DetailPanel>
       ) : (
         <DetailHint>Velg en status for å se hvor saken kommer fra og hvor den kan gå videre.</DetailHint>

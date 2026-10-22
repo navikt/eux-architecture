@@ -140,7 +140,7 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
 
   return (
     <div className="sl-seq">
-      <HStack gap="space-16" wrap align="end" className="sl-seq__controls">
+      <HStack gap="space-16" wrap align="end" className="proc-seq__controls">
         <ToggleGroup size="small" value={call} onChange={(v) => setCall(v as Call)} label="Kall">
           <ToggleGroup.Item value="status" label="2 · Statussjekk" />
           <ToggleGroup.Item value="slett" label="1 · Sletting" />
@@ -214,7 +214,7 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
                     fill="var(--ax-bg-default)"
                     stroke={tone.stroke}
                     strokeWidth={1.3}
-                    className="sl-seq__act"
+                    className="proc-seq__act"
                   />
                 )}
               </g>
@@ -229,7 +229,7 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
               const w = Math.round(s.text.length * (s.mono ? 6.2 : 5.6) + 26);
               const tone = TONE[s.tone ?? "info"];
               return (
-                <g key={`${key}-${i}`} className="sl-seq__step" style={{ animationDelay: `${delay(i)}ms` }}>
+                <g key={`${key}-${i}`} className="proc-seq__step" style={{ animationDelay: `${delay(i)}ms` }}>
                   <rect x={x - w / 2} y={y - 13} width={w} height={26} rx={8} fill={tone.fill} stroke={tone.stroke} strokeWidth={1.2} />
                   <text x={x} y={y + 4} textAnchor="middle" fontSize={10.5} fontWeight={s.mono ? 700 : 400} fontStyle={s.mono ? undefined : "italic"} className={s.mono ? "arch-mono" : ""} fill="var(--ax-text-neutral)">
                     {s.text}
@@ -245,7 +245,7 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
             const stroke = s.tone === "danger" ? "var(--ax-border-danger)" : s.tone === "success" ? "var(--ax-border-success)" : "var(--ax-border-neutral-strong)";
             const marker = s.tone ? `arrow-${s.tone}` : "arrow";
             return (
-              <g key={`${key}-${i}`} className="sl-seq__step" style={{ animationDelay: `${delay(i)}ms` }}>
+              <g key={`${key}-${i}`} className="proc-seq__step" style={{ animationDelay: `${delay(i)}ms` }}>
                 <path d={`M ${x1} ${y} L ${x2} ${y}`} stroke={stroke} strokeWidth={1.6} strokeDasharray={s.reply ? "6 4" : undefined} fill="none" markerEnd={svg.url(marker)} />
                 {!reduced && (
                   <circle
@@ -253,8 +253,8 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
                     cy={y}
                     r={4}
                     fill={s.tone === "danger" ? TONE.danger.strong : s.tone === "success" ? TONE.success.strong : TONE.accent.strong}
-                    className="sl-seq__packet"
-                    style={{ animationDelay: `${delay(i)}ms`, ["--sl-dx" as string]: `${x2 - x1}px` }}
+                    className="proc-seq__packet"
+                    style={{ animationDelay: `${delay(i)}ms`, ["--proc-dx" as string]: `${x2 - x1}px` }}
                   />
                 )}
                 <text
@@ -275,7 +275,7 @@ export function RinaSequence({ onFocusStatus }: { onFocusStatus: (s: StatusId) =
           {/* Resultat */}
           <g
             key={`${key}-res`}
-            className="sl-seq__step sl-seq__result arch-node"
+            className="proc-seq__step proc-seq__result arch-node"
             style={{ animationDelay: `${delay(steps.length)}ms` }}
             role="button"
             tabIndex={0}

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { BodyLong, BodyShort } from "@navikt/ds-react";
-import { ArrowRightIcon } from "@navikt/aksel-icons";
 import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
-import { klokke, nextDaily, nextOnDay, r2, until, type NextRun, type OsloTime } from "@/components/process/time";
+import { Fact, Facts } from "@/components/process/Facts";
+import { JobCard, JobFlow } from "@/components/process/Jobs";
+import { klokke, nextDaily, nextOnDay, r2, type NextRun, type OsloTime } from "@/components/process/time";
 import { useOsloNow } from "@/components/process/useOsloNow";
 import { TONE } from "@/lib/tones";
 import { JOBS, JOB_BY_ID, schedLabel, type JobId, type StatusId } from "./data";
@@ -104,7 +104,7 @@ export function NightStrip({ onFocusStatus }: { onFocusStatus: (s: StatusId) => 
 
           {/* Nå */}
           {nowH !== null && (
-            <g className="sl-night__now">
+            <g className="proc-night__now">
               <line x1={xh(nowH)} x2={xh(nowH)} y1={46} y2={TY - 8} stroke="var(--ax-border-danger)" strokeWidth={1.5} strokeDasharray="3 3" opacity={0.7} />
               <rect x={r2(xh(nowH) - 30)} y={30} width={60} height={17} rx={8.5} fill="var(--ax-bg-danger-strong)" />
               <text x={xh(nowH)} y={42} textAnchor="middle" fontSize={10} fontWeight={700} className="arch-mono" fill="var(--ax-text-danger-contrast)">
@@ -140,7 +140,7 @@ export function NightStrip({ onFocusStatus }: { onFocusStatus: (s: StatusId) => 
             return (
               <g
                 key={`${mk.job}-${mk.h}`}
-                className="sl-night__job"
+                className="proc-night__job"
                 opacity={dim ? 0.35 : 1}
                 style={{ transition: "opacity 200ms ease" }}
                 onMouseEnter={() => setFocus(mk.job)}
@@ -176,76 +176,51 @@ export function NightStrip({ onFocusStatus }: { onFocusStatus: (s: StatusId) => 
         </svg>
       </div>
 
-      <ol className="sl-jobs" aria-label="Jobbene i eux-slett-usendte-rinasaker-naisjob">
+      <ol className="proc-jobs" aria-label="Jobbene i eux-slett-usendte-rinasaker-naisjob">
         {JOBS.map((j) => {
           const run = now ? nextRun(j.id, now) : null;
           const s = j.sched.prod;
           const envDiff = j.sched.q1.cron !== s.cron || j.sched.q2.cron !== s.cron;
           return (
-            <li
+            <JobCard
               key={j.id}
-              className={`sl-job ${focus === j.id ? "is-focus" : ""}`}
-              onMouseEnter={() => setFocus(j.id)}
-              onMouseLeave={() => setFocus(null)}
-              onFocus={() => setFocus(j.id)}
-              onBlur={() => setFocus(null)}
+              no={j.no}
+              title={j.title}
+              name={j.id}
+              time={s.freq === "daily" ? klokke(s.h, s.m) : "den 1."}
+              run={run}
+              where={j.id === "rapport" ? "i prod " : ""}
+              text={j.text}
+              focused={focus === j.id}
+              onFocusChange={(on) => setFocus(on ? j.id : null)}
             >
-              <div className="sl-job__head">
-                <span className="avs-night__no">{j.no}</span>
-                <span className="sl-job__name">
-                  <strong>{j.title}</strong>
-                  <span className="arch-mono">{j.id}</span>
-                </span>
-                <span className="sl-job__time arch-mono">{s.freq === "daily" ? klokke(s.h, s.m) : "den 1."}</span>
-              </div>
-              <BodyShort size="small" className="sl-job__next" aria-live="polite">
-                <span className="sl-job__dot" aria-hidden />
-                {run ? (
-                  <>
-                    Neste kjøring {j.id === "rapport" ? "i prod " : ""}
-                    <strong>{until(run.mins)}</strong> <span className="arch-subtle">· {run.label}</span>
-                  </>
-                ) : (
-                  <span className="arch-subtle">Regner ut neste kjøring …</span>
-                )}
-              </BodyShort>
-              <BodyLong size="small">{j.text}</BodyLong>
               {(j.from.length > 0 || j.to.length > 0) && (
-                <div className="avs-job__flow">
-                  <StatusChips ids={j.from} onFocusStatus={onFocusStatus} />
-                  <ArrowRightIcon aria-hidden className="arch-subtle" />
-                  <StatusChips ids={j.to} onFocusStatus={onFocusStatus} />
-                </div>
+                <JobFlow from={<StatusChips ids={j.from} onFocusStatus={onFocusStatus} />} to={<StatusChips ids={j.to} onFocusStatus={onFocusStatus} />} />
               )}
-              <dl className="avs-job__meta">
-                <div>
-                  <dt>Tidsplan</dt>
-                  <dd>
-                    {envDiff ? (
-                      <>
-                        prod: {schedLabel(s)} <code>{s.cron}</code>
-                        <br />
-                        q1 og q2: {schedLabel(j.sched.q1)} <code>{j.sched.q1.cron}</code>
-                      </>
-                    ) : (
-                      <>
-                        {schedLabel(s)} <code>{s.cron}</code> · alle miljøer
-                      </>
-                    )}
-                  </dd>
-                </div>
+              <Facts>
+                <Fact term="Tidsplan">
+                  {envDiff ? (
+                    <>
+                      prod: {schedLabel(s)} <code>{s.cron}</code>
+                      <br />
+                      q1 og q2: {schedLabel(j.sched.q1)} <code>{j.sched.q1.cron}</code>
+                    </>
+                  ) : (
+                    <>
+                      {schedLabel(s)} <code>{s.cron}</code> · alle miljøer
+                    </>
+                  )}
+                </Fact>
                 {j.rina && (
-                  <div>
-                    <dt>RINA</dt>
-                    <dd className="arch-mono">{j.rina}</dd>
-                  </div>
+                  <Fact term="RINA" mono>
+                    {j.rina}
+                  </Fact>
                 )}
-                <div>
-                  <dt>App</dt>
-                  <dd className="arch-mono">{j.app}</dd>
-                </div>
-              </dl>
-            </li>
+                <Fact term="App" mono>
+                  {j.app}
+                </Fact>
+              </Facts>
+            </JobCard>
           );
         })}
       </ol>

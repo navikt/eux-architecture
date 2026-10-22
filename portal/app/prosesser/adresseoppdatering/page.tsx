@@ -15,6 +15,8 @@ import { JumpNav } from "@/components/page/JumpNav";
 import { FurtherReading, repoLinks, type FurtherLink } from "@/components/page/FurtherReading";
 import { Glossary, type GlossaryEntry } from "@/components/page/Glossary";
 import { Pitfalls, type PitfallGroup } from "@/components/page/Pitfalls";
+import { Fact, Facts } from "@/components/process/Facts";
+import { OpsCard, OpsColumn, OpsGrid } from "@/components/process/Ops";
 import { Snippet } from "@/components/process/Snippet";
 
 const SECTIONS = [
@@ -364,7 +366,7 @@ const PROD = ENVS.find((e) => e.env === "prod")!;
 export default function AdresseoppdateringPage() {
 
   return (
-    <div className="portal-page--wide arch-page avs-page adr-page">
+    <div className="portal-page--wide arch-page proc-page adr-page">
       <header className="portal-hero arch-hero adr-hero">
         <HeroArt />
         <div className="arch-hero__text">
@@ -546,7 +548,7 @@ export default function AdresseoppdateringPage() {
         title="Når noe går galt"
         lead="Noen feil stopper bare én adresse. Andre stopper hele SED-en, som da prøves på nytt fra Kafka to ganger med 15 sekunders mellomrom før den havner på DLT."
       >
-        <div className="arch-table avs-errors">
+        <div className="arch-table proc-errors">
           <Table size="small">
             <Table.Header>
               <Table.Row>
@@ -559,7 +561,7 @@ export default function AdresseoppdateringPage() {
               {ERRORS.map((r) => (
                 <Table.Row key={r.what}>
                   <Table.HeaderCell scope="row">
-                    <span className="jfr-err" data-tone={r.tone}>
+                    <span className="proc-err" data-tone={r.tone}>
                       {r.what}
                     </span>
                   </Table.HeaderCell>
@@ -579,12 +581,9 @@ export default function AdresseoppdateringPage() {
       </Section>
 
       <Section id="drift" eyebrow="Drift" title="Kjøring og oppfølging" lead="Appen har ingen database og ingen egne metrikker. Det meste følges opp i loggene.">
-        <div className="avs-ops">
-          <div className="avs-ops__col">
-            <article className="arch-card avs-ops__card" data-tone="meta-purple">
-              <Heading level="3" size="xsmall">
-                Kafka
-              </Heading>
+        <OpsGrid>
+          <OpsColumn>
+            <OpsCard tone="meta-purple" title="Kafka">
               <div className="arch-table">
                 <Table size="small">
                   <Table.Header>
@@ -597,7 +596,7 @@ export default function AdresseoppdateringPage() {
                     {ENVS.map((e) => (
                       <Table.Row key={e.env}>
                         <Table.HeaderCell scope="row">{e.env}</Table.HeaderCell>
-                        <Table.DataCell className="arch-mono jfr-topics">
+                        <Table.DataCell className="arch-mono proc-topics">
                           <span>{e.app}</span>
                           <span>{e.topic}</span>
                         </Table.DataCell>
@@ -610,46 +609,39 @@ export default function AdresseoppdateringPage() {
                 Consumer group <code>{CONSUMER_GROUP}</code>. Manuell commit etter hver SED. Retry- og DLT-topicene heter som
                 hovedtopicen med <code>-retry</code> og <code>-dlt</code> på slutten.
               </BodyShort>
-            </article>
-            <article className="arch-card avs-ops__card" data-tone="success">
-              <Heading level="3" size="xsmall">
-                Behandlingsnummer mot pdl-api
-              </Heading>
-              <dl className="avs-job__meta">
+            </OpsCard>
+            <OpsCard tone="success" title="Behandlingsnummer mot pdl-api">
+              <Facts>
                 {SEKTORER.map((s) => (
-                  <div key={s.id}>
-                    <dt>
-                      {s.id} – {s.label}
-                    </dt>
-                    <dd className="arch-mono">{s.behandlingsnummer}</dd>
-                  </div>
+                  <Fact
+                    key={s.id}
+                    mono
+                    term={
+                      <>
+                        {s.id} – {s.label}
+                      </>
+                    }
+                  >
+                    {s.behandlingsnummer}
+                  </Fact>
                 ))}
-              </dl>
+              </Facts>
               <BodyShort size="small" className="arch-subtle">
                 Velges fra starten av <code>sakType</code> i RINA-saken.
               </BodyShort>
-            </article>
-          </div>
-          <div className="avs-ops__col">
-            <article className="arch-card avs-ops__card" data-tone="accent">
-              <Heading level="3" size="xsmall">
-                Søk i loggene
-              </Heading>
-              <dl className="avs-job__meta adr-logs">
+            </OpsCard>
+          </OpsColumn>
+          <OpsColumn>
+            <OpsCard tone="accent" title="Søk i loggene">
+              <Facts className="adr-logs">
                 {LOG_PHRASES.map((l) => (
-                  <div key={l.text}>
-                    <dt>
-                      <Snippet>{l.text}</Snippet>
-                    </dt>
-                    <dd>{l.means}</dd>
-                  </div>
+                  <Fact key={l.text} term={<Snippet>{l.text}</Snippet>}>
+                    {l.means}
+                  </Fact>
                 ))}
-              </dl>
-            </article>
-            <article className="arch-card avs-ops__card" data-tone="info">
-              <Heading level="3" size="xsmall">
-                Plattform
-              </Heading>
+              </Facts>
+            </OpsCard>
+            <OpsCard tone="info" title="Plattform">
               <ul className="arch-facts">
                 <li>
                   {PROD.cluster}, namespace <code>eessibasis</code>. 2–3 replikaer med 512 Mi minne.
@@ -659,9 +651,9 @@ export default function AdresseoppdateringPage() {
                 </li>
                 <li>Azure AD-token mot eux-rina-api, pdl-api og PDL-mottak. PDL nås via prod-fss-pub og dev-fss-pub.</li>
               </ul>
-            </article>
-          </div>
-        </div>
+            </OpsCard>
+          </OpsColumn>
+        </OpsGrid>
       </Section>
 
       <Section id="ordliste" eyebrow="Begreper" title="Ordliste">

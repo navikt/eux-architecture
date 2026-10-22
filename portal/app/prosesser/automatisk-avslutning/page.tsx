@@ -21,6 +21,8 @@ import { JumpNav } from "@/components/page/JumpNav";
 import { FurtherReading, repoLinks, type FurtherLink } from "@/components/page/FurtherReading";
 import { Glossary, type GlossaryEntry } from "@/components/page/Glossary";
 import { Pitfalls, type PitfallGroup } from "@/components/page/Pitfalls";
+import { JobNo } from "@/components/process/Jobs";
+import { OpsCard, OpsColumn, OpsGrid, OpsValues } from "@/components/process/Ops";
 import { Snippet } from "@/components/process/Snippet";
 import { SubHead } from "@/components/process/SubHead";
 
@@ -222,7 +224,7 @@ export default function AutomatiskAvslutningPage() {
   );
 
   return (
-    <div className="portal-page--wide arch-page avs-page">
+    <div className="portal-page--wide arch-page proc-page">
       <header className="portal-hero arch-hero">
         <div className="arch-hero__text">
           <Detail className="arch-eyebrow">Prosess</Detail>
@@ -352,7 +354,7 @@ export default function AutomatiskAvslutningPage() {
         title="Når kallet til RINA feiler"
         lead="avslutt, arkiver og slett-dokumentutkast kaller eux-rina-terminator-api for én sak om gangen. Svaret avgjør neste status. Ingen jobb prøver igjen."
       >
-        <div className="arch-table avs-errors">
+        <div className="arch-table proc-errors">
           <Table size="small">
             <Table.Header>
               <Table.Row>
@@ -365,7 +367,7 @@ export default function AutomatiskAvslutningPage() {
               {RESPONSES.map((r) => (
                 <Table.Row key={r.code}>
                   <Table.HeaderCell scope="row">
-                    <span className="avs-code" data-tone={r.tone}>
+                    <span className="proc-code" data-tone={r.tone}>
                       {r.code}
                     </span>
                   </Table.HeaderCell>
@@ -394,7 +396,7 @@ export default function AutomatiskAvslutningPage() {
         title="Kjøring, miljøer og rapport"
         lead="Alle jobbene ligger i eux-avslutt-rinasaker-naisjob og kjører i tidssonen Europe/Oslo. Hver jobb gjør ett kall mot samme endepunkt, med prosessnavnet i stien."
       >
-        <div className="arch-table avs-jobtable">
+        <div className="arch-table proc-jobtable">
           <Table size="small">
             <Table.Header>
               <Table.Row>
@@ -410,17 +412,17 @@ export default function AutomatiskAvslutningPage() {
               {JOBS.map((j) => (
                 <Table.Row key={j.id}>
                   <Table.HeaderCell scope="row">
-                    <span className="avs-night__no avs-night__no--inline" aria-hidden>
+                    <JobNo inline hidden>
                       {j.no}
-                    </span>{" "}
+                    </JobNo>{" "}
                     <span className="arch-mono">{j.id}</span>
                   </Table.HeaderCell>
                   {ENVS.map((e) => {
                     const s = j.sched[e.id];
                     return (
-                      <Table.DataCell key={e.id} className={e.id !== "prod" && differsFromProd(j, e.id) ? "avs-diffcell" : undefined}>
+                      <Table.DataCell key={e.id} className={e.id !== "prod" && differsFromProd(j, e.id) ? "proc-diffcell" : undefined}>
                         <span className={s ? "" : "arch-subtle"}>{schedLabel(s)}</span>
-                        {s && <code className="avs-cron">{s.cron}</code>}
+                        {s && <code className="proc-cron">{s.cron}</code>}
                       </Table.DataCell>
                     );
                   })}
@@ -429,48 +431,36 @@ export default function AutomatiskAvslutningPage() {
             </Table.Body>
           </Table>
         </div>
-        <BodyShort size="small" className="arch-subtle avs-note">
+        <BodyShort size="small" className="arch-subtle proc-note">
           Uthevede celler avviker fra prod.
         </BodyShort>
 
-        <div className="avs-ops">
-          <div className="avs-ops__col">
-            <article className="arch-card avs-ops__card" data-tone="accent">
-              <Heading level="3" size="xsmall">
-                Endepunktet
-              </Heading>
+        <OpsGrid>
+          <OpsColumn>
+            <OpsCard tone="accent" title="Endepunktet">
               <Snippet>{"POST /api/v1/prosesser/{prosess}/execute"}</Snippet>
               <BodyShort size="small">
                 Synkront: svarer <code>204</code> når prosessen er ferdig, og <code>400</code> for et ukjent prosessnavn. Gyldige
                 verdier:
               </BodyShort>
-              <ul className="avs-ops__values">
-                {JOBS.map((j) => (
-                  <li key={j.id} className="arch-mono">
-                    {j.id}
-                  </li>
-                ))}
-              </ul>
-            </article>
-            <article className="arch-card avs-ops__card" data-tone="warning">
-              <Heading level="3" size="xsmall">
-                Kjøre en jobb manuelt
-              </Heading>
+              <OpsValues values={JOBS.map((j) => j.id)} />
+            </OpsCard>
+            <OpsCard tone="warning" title="Kjøre en jobb manuelt">
               <BodyShort size="small">Start en ny kjøring fra CronJob-en, f.eks. avslutt i prod:</BodyShort>
               <Snippet>kubectl create job --from=cronjob/eux-avslutt-rinasaker-avslutt-naisjob avslutt-manuell -n eessibasis</Snippet>
               <BodyShort size="small" className="arch-subtle">
                 Bytt ut CronJob-navnet med en av appene i tabellen over (med <code>-q1</code>/<code>-q2</code> i dev). Navnet på
                 den nye jobben må være unikt.
               </BodyShort>
-            </article>
-          </div>
-          <div className="avs-ops__col">
+            </OpsCard>
+          </OpsColumn>
+          <OpsColumn>
             <Heading level="3" size="xsmall" spacing>
               Månedsrapporten i Slack
             </Heading>
             <SlackReport />
-          </div>
-        </div>
+          </OpsColumn>
+        </OpsGrid>
       </Section>
 
       <Section id="ordliste" eyebrow="Begreper" title="Ordliste">

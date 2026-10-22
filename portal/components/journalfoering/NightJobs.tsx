@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { BodyLong, BodyShort, ToggleGroup } from "@navikt/ds-react";
-import { ArrowRightIcon } from "@navikt/aksel-icons";
+import { BodyShort, ToggleGroup } from "@navikt/ds-react";
 import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
-import { klokke, nextDaily, nextOnDay, r2, until, type NextRun, type OsloTime } from "@/components/process/time";
+import { Fact, Facts } from "@/components/process/Facts";
+import { JobCard, JobFlow } from "@/components/process/Jobs";
+import { klokke, nextDaily, nextOnDay, r2, type NextRun, type OsloTime } from "@/components/process/time";
 import { useOsloNow } from "@/components/process/useOsloNow";
 import { TONE } from "@/lib/tones";
 import { ENVS, JOBS, cronjobName, type Env, type Job, type JobId, type StatusId } from "./data";
@@ -174,7 +175,7 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
             return (
               <g
                 key={j.id}
-                className="sl-night__job"
+                className="proc-night__job"
                 opacity={dim ? 0.35 : 1}
                 style={{ transition: "opacity 200ms ease" }}
                 onMouseEnter={() => setFocus(j.id)}
@@ -215,7 +216,7 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
 
           {/* Nå-merket øverst */}
           {nowH !== null && (
-            <g className="sl-night__now">
+            <g className="proc-night__now">
               <rect x={r2(xh(nowH) - 30)} y={30} width={60} height={17} rx={8.5} fill="var(--ax-bg-danger-strong)" />
               <text x={xh(nowH)} y={42} textAnchor="middle" fontSize={10} fontWeight={700} className="arch-mono" fill="var(--ax-text-danger-contrast)">
                 nå {klokke(now!.h, now!.m)}
@@ -225,45 +226,27 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
         </svg>
       </div>
 
-      <ol className="sl-jobs jfr-jobs" aria-label="Nattjobbene i eux-journalarkivar">
+      <ol className="proc-jobs jfr-jobs" aria-label="Nattjobbene i eux-journalarkivar">
         {JOBS.map((j) => {
           const s = j.sched[env];
           const run = now ? nextRun(j, env, now) : null;
           const sameAll = ENVS.every((e) => j.sched[e].cron === j.sched.prod.cron);
           return (
-            <li
+            <JobCard
               key={j.id}
-              className={`sl-job jfr-job ${focus === j.id ? "is-focus" : ""}`}
-              data-off={s.h === null || undefined}
-              onMouseEnter={() => setFocus(j.id)}
-              onMouseLeave={() => setFocus(null)}
-              onFocus={() => setFocus(j.id)}
-              onBlur={() => setFocus(null)}
+              className="jfr-job"
+              off={s.h === null}
+              no={j.no}
+              title={j.title}
+              name={cronjobName(j, env)}
+              time={s.h === null ? "25.11" : klokke(s.h)}
+              run={run}
+              where={`i ${env} `}
+              text={j.text}
+              focused={focus === j.id}
+              onFocusChange={(on) => setFocus(on ? j.id : null)}
             >
-              <div className="sl-job__head">
-                <span className="avs-night__no">{j.no}</span>
-                <span className="sl-job__name">
-                  <strong>{j.title}</strong>
-                  <span className="arch-mono">{cronjobName(j, env)}</span>
-                </span>
-                <span className="sl-job__time arch-mono">{s.h === null ? "25.11" : klokke(s.h)}</span>
-              </div>
-              <BodyShort size="small" className="sl-job__next" aria-live="polite">
-                <span className="sl-job__dot" aria-hidden />
-                {run ? (
-                  <>
-                    Neste kjøring i {env} <strong>{until(run.mins)}</strong> <span className="arch-subtle">· {run.label}</span>
-                  </>
-                ) : (
-                  <span className="arch-subtle">Regner ut neste kjøring …</span>
-                )}
-              </BodyShort>
-              <BodyLong size="small">{j.text}</BodyLong>
-              <div className="avs-job__flow">
-                <StatusChips ids={j.reads} onFocusStatus={onFocusStatus} />
-                <ArrowRightIcon aria-hidden className="arch-subtle" />
-                <StatusChips ids={j.writes} onFocusStatus={onFocusStatus} />
-              </div>
+              <JobFlow from={<StatusChips ids={j.reads} onFocusStatus={onFocusStatus} />} to={<StatusChips ids={j.writes} onFocusStatus={onFocusStatus} />} />
               <ol className="jfr-job__steps" aria-label={`Slik avgjør ${j.id} hva som skjer`}>
                 {j.steps.map((st, i) => (
                   <li key={i} data-tone={st.tone ?? "neutral"} style={{ ["--jfr-i" as string]: i }}>
@@ -276,27 +259,21 @@ export function NightJobs({ onFocusStatus }: { onFocusStatus: (s: StatusId) => v
                   </li>
                 ))}
               </ol>
-              <dl className="avs-job__meta">
-                <div>
-                  <dt>Tidsplan</dt>
-                  <dd>
-                    {s.label} <code>{s.cron}</code>
-                    {sameAll ? " · alle miljøer" : ""}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Kaller</dt>
-                  <dd className="arch-mono">
-                    {APP[env]} POST /api/v1/arkivarprosess/{j.id}/execute
-                  </dd>
-                </div>
-              </dl>
-            </li>
+              <Facts>
+                <Fact term="Tidsplan">
+                  {s.label} <code>{s.cron}</code>
+                  {sameAll ? " · alle miljøer" : ""}
+                </Fact>
+                <Fact term="Kaller" mono>
+                  {APP[env]} POST /api/v1/arkivarprosess/{j.id}/execute
+                </Fact>
+              </Facts>
+            </JobCard>
           );
         })}
       </ol>
 
-      <BodyShort size="small" className="avs-note">
+      <BodyShort size="small" className="proc-note">
         Naisjoben gjør bare ett kall. eux-journalarkivar gjør hele jobben før den svarer. Feiler kallet, logger naisjoben bare en advarsel.
       </BodyShort>
     </div>

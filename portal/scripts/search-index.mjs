@@ -30,7 +30,7 @@ function textOf(node, constants = new Map()) {
         ts.isArrayLiteralExpression(parent) ||
         (ts.isCallExpression(parent) && ["app", "ext", "topic"].includes(parent.expression.getText())) ||
         ts.isJsxExpression(parent) ||
-        (ts.isJsxAttribute(parent) && ["title", "lead", "eyebrow"].includes(parent.name.getText()))
+        (ts.isJsxAttribute(parent) && ["title", "lead", "eyebrow", "term"].includes(parent.name.getText()))
       ) {
         if (!/^(https?:|\/|@|#)/.test(child.text)) parts.push(child.text);
       }

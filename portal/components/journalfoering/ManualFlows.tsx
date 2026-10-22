@@ -183,7 +183,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
 
   return (
     <div className="jfr-seq">
-      <HStack gap="space-16" wrap align="end" className="sl-seq__controls">
+      <HStack gap="space-16" wrap align="end" className="proc-seq__controls">
         <ToggleGroup size="small" value={flow} onChange={(v) => setFlow(v as Flow)} label="Hva gjør saksbehandler?">
           <ToggleGroup.Item value="journalfoer" label="Journalfør saken" />
           <ToggleGroup.Item value="feilregistrer" label="Feilregistrer journalpostene" />
@@ -250,7 +250,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
                     fill="var(--ax-bg-default)"
                     stroke={tone.stroke}
                     strokeWidth={1.3}
-                    className="sl-seq__act"
+                    className="proc-seq__act"
                   />
                 ))}
               </g>
@@ -278,7 +278,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
               const w = Math.round(s.label.length * 6.1 + 28);
               const tone = TONE[s.tone ?? "info"];
               return (
-                <g key={`${key}-${i}`} className="sl-seq__step" style={{ animationDelay: `${delay(i)}ms` }} {...handlers}>
+                <g key={`${key}-${i}`} className="proc-seq__step" style={{ animationDelay: `${delay(i)}ms` }} {...handlers}>
                   {num}
                   <rect x={r2(x - w / 2)} y={y - 13} width={w} height={26} rx={8} fill={tone.fill} stroke={tone.stroke} strokeWidth={1.2} />
                   <text x={x} y={y + 4} textAnchor="middle" fontSize={10.5} fontWeight={700} className="arch-mono" fill="var(--ax-text-neutral)">
@@ -295,7 +295,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
             const stroke = s.tone === "danger" ? "var(--ax-border-danger)" : s.tone === "success" ? "var(--ax-border-success)" : "var(--ax-border-neutral-strong)";
             const marker = s.tone ? `arrow-${s.tone}` : "arrow";
             return (
-              <g key={`${key}-${i}`} className="sl-seq__step" style={{ animationDelay: `${delay(i)}ms` }} {...handlers}>
+              <g key={`${key}-${i}`} className="proc-seq__step" style={{ animationDelay: `${delay(i)}ms` }} {...handlers}>
                 {num}
                 <rect x={Math.min(fx, tx)} y={y - 20} width={Math.abs(tx - fx)} height={28} fill="transparent" />
                 <path
@@ -312,8 +312,8 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
                     cy={y}
                     r={4}
                     fill={s.tone === "success" ? TONE.success.strong : TONE.accent.strong}
-                    className="sl-seq__packet"
-                    style={{ animationDelay: `${delay(i)}ms`, ["--sl-dx" as string]: `${x2 - x1}px` }}
+                    className="proc-seq__packet"
+                    style={{ animationDelay: `${delay(i)}ms`, ["--proc-dx" as string]: `${x2 - x1}px` }}
                   />
                 )}
                 <text
@@ -334,7 +334,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
           {/* Utfall */}
           <g
             key={`${key}-res`}
-            className="sl-seq__step sl-seq__result arch-node"
+            className="proc-seq__step proc-seq__result arch-node"
             style={{ animationDelay: `${delay(steps.length)}ms` }}
             role="button"
             tabIndex={0}

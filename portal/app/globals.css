@@ -135,7 +135,7 @@ main code {
 }
 
 /* Let wide diagrams scroll inside their own container instead of widening the page */
-.portal-shell > main:has(.avs-page) {
+.portal-shell > main:has(.proc-page) {
   min-width: 0;
 }
 
@@ -2042,16 +2042,67 @@ html:has(.arch-page) {
 }
 
 /* ================================================================== */
-/* Automatisk avslutning (avs-*) – builds on the arch-* page styles    */
+/* Process pages (proc-*) – shared by the four /prosesser pages and    */
+/* built from components/process/. Feature sections below override.   */
 /* ================================================================== */
 
-.arch-page [data-tone="danger"] {
-  --tone-soft: var(--ax-bg-danger-soft);
-  --tone-line: var(--ax-border-danger);
-  --tone-text: var(--ax-text-danger);
+/* ---------- Page frame, snippet, subhead and pitfalls ---------- */
+
+.proc-page .portal-diagram {
+  padding: 1rem;
 }
 
-/* Dotted diagram surface, toolbar and hint shared by the process pages (components/process/) */
+.proc-page code {
+  font-size: 0.85em;
+}
+
+.proc-page .arch-table td,
+.proc-page .arch-table th {
+  vertical-align: middle;
+}
+
+.proc-page .arch-further {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.proc-subhead {
+  display: grid;
+  gap: 0.25rem;
+  margin: 2.25rem 0 0.75rem;
+}
+
+.proc-note {
+  margin-top: 0.4rem;
+}
+
+.proc-snippet {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.45rem 0.45rem 0.75rem;
+  border-radius: 10px;
+  background: var(--ax-bg-neutral-moderate);
+  overflow-x: auto;
+}
+
+.proc-snippet code {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.proc-pitfalls {
+  margin-top: 1.5rem;
+}
+
+.proc-pitfalls code {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Diagram surface, toolbar and hint (FlowCanvas.tsx, FlowPanel.tsx) ---------- */
+
 .arch-page .proc-surface,
 .dark .arch-page .proc-surface {
   background-image: radial-gradient(
@@ -2059,14 +2110,6 @@ html:has(.arch-page) {
     transparent 1.3px
   );
   background-size: 18px 18px;
-}
-
-.avs-page .portal-diagram {
-  padding: 1rem;
-}
-
-.avs-page code {
-  font-size: 0.85em;
 }
 
 .proc-toolbar {
@@ -2092,17 +2135,8 @@ html:has(.arch-page) {
   color: var(--ax-text-neutral-subtle);
 }
 
-.proc-subhead {
-  display: grid;
-  gap: 0.25rem;
-  margin: 2.25rem 0 0.75rem;
-}
+/* ---------- Detail panel (FlowPanel.tsx) ---------- */
 
-.avs-note {
-  margin-top: 0.4rem;
-}
-
-/* Detail panel under the diagrams (components/process/FlowPanel.tsx) */
 .proc-detail {
   position: relative;
   display: grid;
@@ -2138,7 +2172,8 @@ html:has(.arch-page) {
   margin-bottom: 0;
 }
 
-/* Status chip (components/process/StatusChips.tsx), shared by the process pages */
+/* ---------- Status chip (StatusChips.tsx) ---------- */
+
 .proc-chip {
   display: inline-flex;
   align-items: center;
@@ -2161,12 +2196,7 @@ html:has(.arch-page) {
   box-shadow: 0 6px 14px -10px var(--tone-line, var(--ax-border-neutral));
 }
 
-.proc-chip:focus-visible,
-.avs-buclink:focus-visible,
-.avs-palette__btn:focus-visible,
-.avs-doc__main:focus-visible,
-.avs-doc__remove:focus-visible,
-.avs-job__btn:focus-visible {
+.proc-chip:focus-visible {
   outline: 2px solid var(--ax-border-focus);
   outline-offset: 2px;
 }
@@ -2176,42 +2206,10 @@ html:has(.arch-page) {
   border-color: var(--ax-border-accent);
 }
 
-.avs-scope {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.05rem 0.5rem;
-  border-radius: 6px;
-  font-family: var(--ax-font-family-mono, ui-monospace, monospace);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  border: 1px solid transparent;
-}
+/* ---------- Job badge, status flow and facts (Jobs.tsx) ---------- */
 
-.avs-scope[data-scope="GLOBALT"] {
-  background: var(--ax-bg-info-moderate);
-  border-color: var(--ax-border-info);
-  color: var(--ax-text-info);
-}
-
-.avs-scope[data-scope="LOKALT"] {
-  background: var(--ax-bg-accent-moderate);
-  border-color: var(--ax-border-accent);
-  color: var(--ax-text-accent);
-}
-
-.avs-scope[data-scope="none"] {
-  background: transparent;
-  border-color: var(--ax-border-neutral-subtle);
-  border-style: dashed;
-  color: var(--ax-text-neutral-subtle);
-  font-family: inherit;
-  font-weight: 500;
-}
-
-/* Small numbered job badge, used in lists and tables */
-.avs-night__no {
+/* Small numbered job badge, used in lists, tables and legends */
+.proc-jobno {
   display: inline-grid;
   place-items: center;
   flex: none;
@@ -2225,93 +2223,78 @@ html:has(.arch-page) {
   line-height: 1;
 }
 
-.avs-night__no--inline {
+.proc-jobno--inline {
   width: 1.2rem;
   height: 1.2rem;
   font-size: 0.68rem;
   vertical-align: 0.1em;
 }
 
-/* ---------- Livsløp ---------- */
-
-.avs-bucpicker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem 1.25rem;
+.proc-legend__badge[data-tone="accent"],
+.proc-jobno[data-tone="accent"] {
+  background: var(--ax-bg-accent-strong);
+  color: var(--ax-text-accent-contrast);
 }
 
-.avs-bucpicker__family {
-  display: grid;
-  gap: 0.3rem;
-  padding-left: 0.7rem;
-  border-left: 3px solid var(--tone-line);
-}
-
-.avs-bucpicker__label {
-  color: var(--tone-text);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  font-size: 0.7rem;
-}
-
-.avs-range {
-  width: 100%;
-  accent-color: var(--ax-bg-accent-strong);
-  cursor: pointer;
-}
-
-/* ---------- Natten ---------- */
-
-.avs-night__grid {
-  display: grid;
-  grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
-  gap: 1.25rem;
-  align-items: start;
-}
-
-.avs-night__dial {
-  position: sticky;
-  top: 5.5rem;
-}
-
-.avs-night__dot {
-  cursor: pointer;
-}
-
-.avs-night__rare {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px dashed var(--ax-border-neutral-subtle);
-}
-
-.avs-night__rare ul {
-  display: grid;
-  gap: 0.35rem;
-  margin: 0.4rem 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.85rem;
-}
-
-.avs-night__rare li {
+.proc-jobflow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
-.avs-jobs {
+.proc-facts {
   display: grid;
-  gap: 0.5rem;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.3rem 0.9rem;
   margin: 0;
+  font-size: 0.82rem;
+}
+
+.proc-facts > div {
+  display: contents;
+}
+
+.proc-facts dt {
+  color: var(--ax-text-neutral-subtle);
+  font-weight: 600;
+}
+
+.proc-facts dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.proc-facts dd code {
+  margin-left: 0.25rem;
+}
+
+/* ---------- Night job cards (Jobs.tsx) ---------- */
+
+.proc-night__now {
+  animation: arch-fade 400ms ease backwards;
+}
+
+.proc-night__job {
+  cursor: default;
+}
+
+.proc-jobs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 0;
   padding: 0;
   list-style: none;
-  counter-reset: none;
 }
 
-.avs-job {
-  position: relative;
+.proc-job {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.85rem 1rem 0.95rem;
   border-radius: 12px;
   border: 1px solid var(--ax-border-neutral-subtle);
   background: var(--ax-bg-default);
@@ -2322,119 +2305,93 @@ html:has(.arch-page) {
   animation: arch-rise 500ms var(--arch-ease) backwards;
 }
 
-.avs-job:nth-child(2) { animation-delay: 40ms; }
-.avs-job:nth-child(3) { animation-delay: 80ms; }
-.avs-job:nth-child(4) { animation-delay: 120ms; }
-.avs-job:nth-child(5) { animation-delay: 160ms; }
-.avs-job:nth-child(6) { animation-delay: 200ms; }
-.avs-job:nth-child(7) { animation-delay: 240ms; }
+.proc-job:nth-child(2) { animation-delay: 60ms; }
 
-.avs-job.is-focus {
-  border-color: color-mix(in srgb, var(--ax-border-accent) 60%, transparent);
-}
+.proc-job:nth-child(3) { animation-delay: 120ms; }
 
-.avs-job.is-open {
+.proc-job.is-focus {
+  translate: 0 -2px;
   border-color: var(--ax-border-accent);
   box-shadow: 0 14px 30px -24px var(--ax-border-accent);
 }
 
-.avs-job.is-open .avs-night__no,
-.avs-job.is-focus .avs-night__no {
+.proc-job.is-focus .proc-jobno {
   background: var(--ax-bg-accent-strong);
   color: var(--ax-text-accent-contrast);
 }
 
-.avs-job__btn {
+.proc-job__head {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.65rem 0.9rem;
-  border: 0;
-  border-radius: 12px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
+  gap: 0.65rem;
 }
 
-.avs-job__name {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.15rem 0.6rem;
+.proc-job__name {
+  display: grid;
   min-width: 0;
+  line-height: 1.25;
 }
 
-.avs-job__name .arch-mono {
-  font-size: 0.78rem;
+.proc-job__name .arch-mono {
+  font-size: 0.75rem;
   color: var(--ax-text-neutral-subtle);
 }
 
-.avs-job__when {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.15rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-align: right;
+.proc-job__time {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ax-text-neutral);
 }
 
-.avs-job__diff {
-  padding: 0 0.4rem;
-  border-radius: 999px;
-  background: var(--ax-bg-warning-moderate);
-  color: var(--ax-text-warning);
-  font-size: 0.68rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.avs-job__body {
-  display: grid;
-  gap: 0.65rem;
-  padding: 0 0.9rem 0.9rem 3.1rem;
-  animation: arch-rise 260ms var(--arch-ease) both;
-}
-
-.avs-job__flow {
+.proc-job__next {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.15rem 0.4rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  background: var(--ax-bg-neutral-soft);
+  font-variant-numeric: tabular-nums;
 }
 
-.avs-job__meta {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: 0.3rem 0.9rem;
-  margin: 0;
-  font-size: 0.82rem;
+.proc-job__dot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ax-bg-accent-strong);
 }
 
-.avs-job__meta > div {
-  display: contents;
+.proc-job__dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--ax-bg-accent-strong);
+  animation: proc-ping 2s ease-out infinite;
 }
 
-.avs-job__meta dt {
-  color: var(--ax-text-neutral-subtle);
-  font-weight: 600;
+@keyframes proc-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  80%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
 }
 
-.avs-job__meta dd {
-  margin: 0;
-  min-width: 0;
-  overflow-wrap: anywhere;
+.proc-job .proc-jobflow {
+  margin-top: auto;
 }
 
-.avs-job__meta dd code {
-  margin-left: 0.25rem;
-}
-
-/* ---------- Statusmaskin ---------- */
+/* ---------- Status machine (StateMachine.tsx) ---------- */
 
 .proc-sm__badge {
   pointer-events: auto;
@@ -2445,7 +2402,7 @@ html:has(.arch-page) {
   opacity: 0.22;
 }
 
-.avs-legend {
+.proc-legend {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem 1.25rem;
@@ -2454,18 +2411,18 @@ html:has(.arch-page) {
   color: var(--ax-text-neutral-subtle);
 }
 
-.avs-legend > span {
+.proc-legend > span {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
 }
 
-.avs-legend i {
+.proc-legend i {
   display: inline-block;
   flex: none;
 }
 
-.avs-legend__badge {
+.proc-legend__badge {
   display: inline-grid !important;
   place-items: center;
   width: 1.1rem;
@@ -2478,32 +2435,36 @@ html:has(.arch-page) {
   font-weight: 800;
 }
 
-.avs-legend__lane {
+.proc-legend__lane {
   width: 1.4rem;
   height: 0.85rem;
   border-radius: 4px;
   border: 1.5px dashed var(--ax-border-info);
 }
 
-.avs-legend__final {
+.proc-legend__final {
   width: 1.4rem;
   height: 0.85rem;
   border-radius: 4px;
   border: 3px double var(--ax-border-neutral-strong);
 }
 
-.avs-legend__line {
+.proc-legend__line {
   width: 1.4rem;
   height: 0;
   border-top: 2px solid var(--ax-border-neutral-strong);
 }
 
-.avs-legend__line[data-kind="back"] {
+.proc-legend__line[data-kind="back"] {
   border-color: var(--ax-border-warning);
 }
 
-.avs-legend__line[data-kind="error"] {
+.proc-legend__line[data-kind="error"] {
   border-color: var(--ax-border-danger);
+}
+
+.proc-legend__line[data-kind="kafka"] {
+  border-top: 2px dashed var(--ax-border-meta-purple);
 }
 
 .proc-unused {
@@ -2515,7 +2476,7 @@ html:has(.arch-page) {
   color: var(--ax-text-neutral-subtle);
 }
 
-/* Simulator kit (components/process/Simulator.tsx), shared by the process pages */
+/* ---------- Simulator (Simulator.tsx) ---------- */
 
 .proc-sim {
   scroll-margin-top: 5.5rem;
@@ -2910,6 +2871,623 @@ button.proc-result__status:hover {
   }
 }
 
+/* ---------- Sequence diagrams (sletting/RinaSequence, journalfoering/ManualFlows) ---------- */
+
+.proc-seq__controls {
+  margin-bottom: 0.9rem;
+}
+
+.proc-seq__step {
+  animation: proc-step-in 360ms var(--arch-ease) both;
+}
+
+@keyframes proc-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.proc-seq__packet {
+  animation: proc-packet 520ms var(--arch-ease) both;
+}
+
+@keyframes proc-packet {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(var(--proc-dx));
+    opacity: 0;
+  }
+}
+
+.proc-seq__act {
+  animation: arch-fade 400ms ease backwards;
+}
+
+.proc-seq__result {
+  cursor: pointer;
+}
+
+/* ---------- Errors and operations (Ops.tsx) ---------- */
+
+.proc-errors table {
+  min-width: 640px;
+}
+
+.proc-jobtable table {
+  min-width: 720px;
+}
+
+.proc-code {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 6px;
+  background: var(--tone-soft);
+  border: 1px solid var(--tone-line);
+  color: var(--tone-text);
+  font-family: var(--ax-font-family-mono, ui-monospace, monospace);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.proc-cron {
+  display: block;
+  width: fit-content;
+  white-space: nowrap;
+  margin-top: 0.15rem;
+  color: var(--ax-text-neutral-subtle);
+  font-size: 0.75rem;
+}
+
+.proc-diffcell {
+  background: color-mix(in srgb, var(--ax-bg-warning-soft) 80%, transparent);
+  box-shadow: inset 3px 0 0 var(--ax-border-warning);
+}
+
+.proc-ops {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+  align-items: start;
+}
+
+.proc-ops__col {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.proc-ops__card {
+  gap: 0.6rem;
+}
+
+.proc-ops__values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.proc-ops__values li {
+  padding: 0.05rem 0.45rem;
+  border-radius: 6px;
+  background: var(--ax-bg-neutral-soft);
+  border: 1px solid var(--ax-border-neutral-subtle);
+  font-size: 0.78rem;
+}
+
+.proc-err {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-weight: 700;
+}
+
+.proc-err::before {
+  content: "";
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: 0.42em;
+  border-radius: 50%;
+  background: var(--tone-line);
+  box-shadow: 0 0 0 3px var(--tone-soft);
+}
+
+.proc-err__path .arch-chips {
+  gap: 0.3rem 1.15rem;
+}
+
+.proc-err__path .proc-chip {
+  position: relative;
+}
+
+.proc-err__path .proc-chip + .proc-chip::before {
+  content: "→";
+  position: absolute;
+  left: -0.95rem;
+  color: var(--ax-text-neutral-subtle);
+  pointer-events: none;
+}
+
+.proc-topics span {
+  display: block;
+  font-size: 0.78rem;
+}
+
+/* ---------- Case journey (Journey.tsx) ---------- */
+
+.proc-journey__controls {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.proc-journey__seg {
+  animation: arch-fade 500ms ease both;
+}
+
+.proc-journey__token {
+  pointer-events: none;
+}
+
+.proc-breathe {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: proc-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes proc-breathe {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.25;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.08;
+  }
+}
+
+.proc-journey__bar {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.85rem;
+}
+
+.proc-journey__range input {
+  width: 100%;
+  accent-color: var(--ax-bg-accent-strong);
+  cursor: pointer;
+}
+
+.proc-journey__now {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+}
+
+.proc-journey__when {
+  min-width: 4.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ax-text-neutral-subtle);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.proc-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--tone-line);
+  background: var(--tone-soft);
+  color: var(--tone-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.proc-status-pill:hover svg {
+  translate: 2px 0;
+}
+
+.proc-status-pill svg {
+  transition: translate 150ms ease;
+}
+
+.proc-status-pill:focus-visible {
+  outline: 2px solid var(--ax-border-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .proc-journey__bar {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .proc-journey__now {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proc-breathe {
+    display: none;
+  }
+
+  .proc-journey__token {
+    transition: none !important;
+  }
+}
+
+/* ---------- Slack mock (Slack.tsx) ---------- */
+
+.proc-slack {
+  margin: 0;
+}
+
+.proc-slack figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.proc-slack__msg {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.proc-slack__avatar {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--ax-bg-accent-strong), var(--ax-bg-meta-purple-strong));
+  color: var(--ax-text-accent-contrast);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.proc-slack__body p {
+  margin: 0.6rem 0 0.15rem;
+}
+
+.proc-slack__body p:first-of-type {
+  margin-top: 0.15rem;
+}
+
+.proc-slack__body ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.proc-slack__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+}
+
+.proc-slack__app {
+  padding: 0 0.25rem;
+  border-radius: 3px;
+  background: var(--ax-bg-neutral-moderate);
+  color: var(--ax-text-neutral-subtle);
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+.proc-slack__code {
+  padding: 0.05rem 0.25rem;
+  border-radius: 4px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-neutral-soft);
+  color: var(--ax-text-danger);
+  font-size: 0.78rem;
+}
+
+/* ---------- Dark ---------- */
+
+.dark .proc-detail,
+.dark .proc-slack__msg {
+  background-color: var(--ax-bg-raised);
+}
+
+.dark .proc-diffcell {
+  background: color-mix(in srgb, var(--ax-bg-warning-soft) 45%, transparent);
+}
+
+.dark .proc-detail {
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--tone-soft) 60%, transparent), transparent 65%),
+    var(--ax-bg-raised);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1000px) {
+  .proc-ops,
+  .proc-jobs {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .proc-night__now,
+  .proc-job,
+  .proc-job__dot::after,
+  .proc-seq__step,
+  .proc-seq__packet,
+  .proc-seq__act {
+    animation: none !important;
+  }
+
+  .proc-seq__packet {
+    display: none;
+  }
+
+  .proc-job.is-focus {
+    translate: none;
+  }
+}
+
+/* ================================================================== */
+/* Automatisk avslutning (avs-*) – builds on the arch-* and proc-* styles */
+/* ================================================================== */
+
+.arch-page [data-tone="danger"] {
+  --tone-soft: var(--ax-bg-danger-soft);
+  --tone-line: var(--ax-border-danger);
+  --tone-text: var(--ax-text-danger);
+}
+
+.avs-buclink:focus-visible,
+.avs-palette__btn:focus-visible,
+.avs-doc__main:focus-visible,
+.avs-doc__remove:focus-visible,
+.avs-job__btn:focus-visible {
+  outline: 2px solid var(--ax-border-focus);
+  outline-offset: 2px;
+}
+
+.avs-scope {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05rem 0.5rem;
+  border-radius: 6px;
+  font-family: var(--ax-font-family-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.avs-scope[data-scope="GLOBALT"] {
+  background: var(--ax-bg-info-moderate);
+  border-color: var(--ax-border-info);
+  color: var(--ax-text-info);
+}
+
+.avs-scope[data-scope="LOKALT"] {
+  background: var(--ax-bg-accent-moderate);
+  border-color: var(--ax-border-accent);
+  color: var(--ax-text-accent);
+}
+
+.avs-scope[data-scope="none"] {
+  background: transparent;
+  border-color: var(--ax-border-neutral-subtle);
+  border-style: dashed;
+  color: var(--ax-text-neutral-subtle);
+  font-family: inherit;
+  font-weight: 500;
+}
+
+/* ---------- Livsløp ---------- */
+
+.avs-bucpicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.25rem;
+}
+
+.avs-bucpicker__family {
+  display: grid;
+  gap: 0.3rem;
+  padding-left: 0.7rem;
+  border-left: 3px solid var(--tone-line);
+}
+
+.avs-bucpicker__label {
+  color: var(--tone-text);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.avs-range {
+  width: 100%;
+  accent-color: var(--ax-bg-accent-strong);
+  cursor: pointer;
+}
+
+/* ---------- Natten ---------- */
+
+.avs-night__grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.avs-night__dial {
+  position: sticky;
+  top: 5.5rem;
+}
+
+.avs-night__dot {
+  cursor: pointer;
+}
+
+.avs-night__rare {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--ax-border-neutral-subtle);
+}
+
+.avs-night__rare ul {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.avs-night__rare li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avs-jobs {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.avs-job {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    translate 180ms var(--arch-ease);
+  animation: arch-rise 500ms var(--arch-ease) backwards;
+}
+
+.avs-job:nth-child(2) { animation-delay: 40ms; }
+.avs-job:nth-child(3) { animation-delay: 80ms; }
+.avs-job:nth-child(4) { animation-delay: 120ms; }
+.avs-job:nth-child(5) { animation-delay: 160ms; }
+.avs-job:nth-child(6) { animation-delay: 200ms; }
+.avs-job:nth-child(7) { animation-delay: 240ms; }
+
+.avs-job.is-focus {
+  border-color: color-mix(in srgb, var(--ax-border-accent) 60%, transparent);
+}
+
+.avs-job.is-open {
+  border-color: var(--ax-border-accent);
+  box-shadow: 0 14px 30px -24px var(--ax-border-accent);
+}
+
+.avs-job.is-open .proc-jobno,
+.avs-job.is-focus .proc-jobno {
+  background: var(--ax-bg-accent-strong);
+  color: var(--ax-text-accent-contrast);
+}
+
+.avs-job__btn {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.avs-job__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.6rem;
+  min-width: 0;
+}
+
+.avs-job__name .arch-mono {
+  font-size: 0.78rem;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.avs-job__when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.avs-job__diff {
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--ax-bg-warning-moderate);
+  color: var(--ax-text-warning);
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.avs-job__body {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0 0.9rem 0.9rem 3.1rem;
+  animation: arch-rise 260ms var(--arch-ease) both;
+}
+
+/* ---------- Statusmaskin ---------- */
+
 /* ---------- Simulator (avslutning) ---------- */
 
 .avs-sim__controls {
@@ -3183,19 +3761,6 @@ button.proc-result__status:hover {
   min-width: 860px;
 }
 
-.avs-errors table {
-  min-width: 640px;
-}
-
-.avs-jobtable table {
-  min-width: 720px;
-}
-
-.avs-page .arch-table td,
-.avs-page .arch-table th {
-  vertical-align: middle;
-}
-
 /* ---------- Lokalt / globalt ---------- */
 
 .avs-lg {
@@ -3315,304 +3880,13 @@ button.proc-result__status:hover {
 
 /* ---------- Feil og drift ---------- */
 
-.avs-code {
-  display: inline-block;
-  padding: 0.1rem 0.5rem;
-  border-radius: 6px;
-  background: var(--tone-soft);
-  border: 1px solid var(--tone-line);
-  color: var(--tone-text);
-  font-family: var(--ax-font-family-mono, ui-monospace, monospace);
-  font-size: 0.8rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.proc-pitfalls {
-  margin-top: 1.5rem;
-}
-
-.proc-pitfalls code {
-  overflow-wrap: anywhere;
-}
-
-.avs-page .arch-further {
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-}
-
-.avs-cron {
-  display: block;
-  width: fit-content;
-  white-space: nowrap;
-  margin-top: 0.15rem;
-  color: var(--ax-text-neutral-subtle);
-  font-size: 0.75rem;
-}
-
-.avs-diffcell {
-  background: color-mix(in srgb, var(--ax-bg-warning-soft) 80%, transparent);
-  box-shadow: inset 3px 0 0 var(--ax-border-warning);
-}
-
-.avs-ops {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  gap: 1rem;
-  margin-top: 1.5rem;
-  align-items: start;
-}
-
-.avs-ops__col {
-  display: grid;
-  gap: 1rem;
-  min-width: 0;
-}
-
-.avs-ops__card {
-  gap: 0.6rem;
-}
-
-.avs-ops__values {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.avs-ops__values li {
-  padding: 0.05rem 0.45rem;
-  border-radius: 6px;
-  background: var(--ax-bg-neutral-soft);
-  border: 1px solid var(--ax-border-neutral-subtle);
-  font-size: 0.78rem;
-}
-
-.proc-snippet {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0.45rem 0.45rem 0.75rem;
-  border-radius: 10px;
-  background: var(--ax-bg-neutral-moderate);
-  overflow-x: auto;
-}
-
-.proc-snippet code {
-  flex: 1;
-  min-width: 0;
-  font-size: 0.8rem;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-/* Case journey (components/process/Journey.tsx), shared by the process pages */
-.proc-journey__controls {
-  display: grid;
-  gap: 0.9rem;
-  margin-bottom: 0.9rem;
-}
-
-.proc-journey__seg {
-  animation: arch-fade 500ms ease both;
-}
-
-.proc-journey__token {
-  pointer-events: none;
-}
-
-.proc-breathe {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: proc-breathe 1.8s ease-in-out infinite;
-}
-
-@keyframes proc-breathe {
-  0%,
-  100% {
-    transform: scale(0.85);
-    opacity: 0.25;
-  }
-  50% {
-    transform: scale(1.25);
-    opacity: 0.08;
-  }
-}
-
-.proc-journey__bar {
-  display: grid;
-  grid-template-columns: auto minmax(160px, 1fr) auto;
-  align-items: center;
-  gap: 0.75rem 1.25rem;
-  margin-top: 0.85rem;
-}
-
-.proc-journey__range input {
-  width: 100%;
-  accent-color: var(--ax-bg-accent-strong);
-  cursor: pointer;
-}
-
-.proc-journey__now {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem 0.6rem;
-}
-
-.proc-journey__when {
-  min-width: 4.5rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--ax-text-neutral-subtle);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.proc-status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid var(--tone-line);
-  background: var(--tone-soft);
-  color: var(--tone-text);
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    background-color 200ms ease,
-    border-color 200ms ease,
-    color 200ms ease;
-}
-
-.proc-status-pill:hover svg {
-  translate: 2px 0;
-}
-
-.proc-status-pill svg {
-  transition: translate 150ms ease;
-}
-
-.proc-status-pill:focus-visible {
-  outline: 2px solid var(--ax-border-focus);
-  outline-offset: 2px;
-}
-
-@media (max-width: 720px) {
-  .proc-journey__bar {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .proc-journey__now {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .proc-breathe {
-    display: none;
-  }
-
-  .proc-journey__token {
-    transition: none !important;
-  }
-}
-
-/* Slack mock (components/process/Slack.tsx), shared by the process pages */
-.proc-slack {
-  margin: 0;
-}
-
-.proc-slack figcaption {
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-}
-
-.proc-slack__msg {
-  display: grid;
-  grid-template-columns: 2.25rem minmax(0, 1fr);
-  gap: 0.75rem;
-  padding: 1rem 1.1rem;
-  border-radius: 14px;
-  border: 1px solid var(--ax-border-neutral-subtle);
-  background: var(--ax-bg-default);
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-
-.proc-slack__avatar {
-  display: grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--ax-bg-accent-strong), var(--ax-bg-meta-purple-strong));
-  color: var(--ax-text-accent-contrast);
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-
-.proc-slack__body p {
-  margin: 0.6rem 0 0.15rem;
-}
-
-.proc-slack__body p:first-of-type {
-  margin-top: 0.15rem;
-}
-
-.proc-slack__body ul {
-  margin: 0;
-  padding-left: 1.1rem;
-}
-
-.proc-slack__meta {
-  display: flex;
-  align-items: baseline;
-  gap: 0.45rem;
-  font-size: 0.85rem;
-}
-
-.proc-slack__app {
-  padding: 0 0.25rem;
-  border-radius: 3px;
-  background: var(--ax-bg-neutral-moderate);
-  color: var(--ax-text-neutral-subtle);
-  font-size: 0.6rem;
-  font-weight: 700;
-}
-
-.proc-slack__code {
-  padding: 0.05rem 0.25rem;
-  border-radius: 4px;
-  border: 1px solid var(--ax-border-neutral-subtle);
-  background: var(--ax-bg-neutral-soft);
-  color: var(--ax-text-danger);
-  font-size: 0.78rem;
-}
-
 /* ---------- Dark ---------- */
 
-.dark .proc-detail,
 .dark .avs-job,
 .dark .avs-doc,
 .dark .avs-lg__card,
-.dark .avs-lg__stage,
-.dark .proc-slack__msg {
+.dark .avs-lg__stage {
   background-color: var(--ax-bg-raised);
-}
-
-.dark .avs-diffcell {
-  background: color-mix(in srgb, var(--ax-bg-warning-soft) 45%, transparent);
-}
-
-.dark .proc-detail {
-  background:
-    linear-gradient(120deg, color-mix(in srgb, var(--tone-soft) 60%, transparent), transparent 65%),
-    var(--ax-bg-raised);
 }
 
 .dark .avs-lg__card {
@@ -3625,8 +3899,7 @@ button.proc-result__status:hover {
 
 @media (max-width: 1000px) {
   .avs-night__grid,
-  .avs-lg,
-  .avs-ops {
+  .avs-lg {
     grid-template-columns: 1fr;
   }
 
@@ -3644,10 +3917,6 @@ button.proc-result__status:hover {
 /* ================================================================== */
 /* Automatisk sletting (/prosesser/automatisk-sletting)               */
 /* ================================================================== */
-
-.avs-legend__line[data-kind="kafka"] {
-  border-top: 2px dashed var(--ax-border-meta-purple);
-}
 
 .sl-legend__sed {
   width: 0.7rem;
@@ -3717,10 +3986,6 @@ button.proc-result__status:hover {
 
 /* ---------- Natten ---------- */
 
-.sl-night__now {
-  animation: arch-fade 400ms ease backwards;
-}
-
 .sl-night__arc {
   transition: opacity 200ms ease;
 }
@@ -3729,125 +3994,7 @@ button.proc-result__status:hover {
   opacity: 0.25;
 }
 
-.sl-night__job {
-  cursor: default;
-}
-
-.sl-jobs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin: 1rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.sl-job {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  min-width: 0;
-  padding: 0.85rem 1rem 0.95rem;
-  border-radius: 12px;
-  border: 1px solid var(--ax-border-neutral-subtle);
-  background: var(--ax-bg-default);
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    translate 180ms var(--arch-ease);
-  animation: arch-rise 500ms var(--arch-ease) backwards;
-}
-
-.sl-job:nth-child(2) { animation-delay: 60ms; }
-.sl-job:nth-child(3) { animation-delay: 120ms; }
-
-.sl-job.is-focus {
-  translate: 0 -2px;
-  border-color: var(--ax-border-accent);
-  box-shadow: 0 14px 30px -24px var(--ax-border-accent);
-}
-
-.sl-job.is-focus .avs-night__no {
-  background: var(--ax-bg-accent-strong);
-  color: var(--ax-text-accent-contrast);
-}
-
-.sl-job__head {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.sl-job__name {
-  display: grid;
-  min-width: 0;
-  line-height: 1.25;
-}
-
-.sl-job__name .arch-mono {
-  font-size: 0.75rem;
-  color: var(--ax-text-neutral-subtle);
-}
-
-.sl-job__time {
-  font-size: 1.35rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  color: var(--ax-text-neutral);
-}
-
-.sl-job__next {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.15rem 0.4rem;
-  padding: 0.35rem 0.6rem;
-  border-radius: 8px;
-  background: var(--ax-bg-neutral-soft);
-  font-variant-numeric: tabular-nums;
-}
-
-.sl-job__dot {
-  position: relative;
-  width: 0.5rem;
-  height: 0.5rem;
-  flex: none;
-  border-radius: 50%;
-  background: var(--ax-bg-accent-strong);
-}
-
-.sl-job__dot::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--ax-bg-accent-strong);
-  animation: sl-ping 2s ease-out infinite;
-}
-
-@keyframes sl-ping {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  80%,
-  100% {
-    transform: scale(2.6);
-    opacity: 0;
-  }
-}
-
-.sl-job .avs-job__flow {
-  margin-top: auto;
-}
-
 /* ---------- Kallet til RINA ---------- */
-
-.sl-seq__controls {
-  margin-bottom: 0.9rem;
-}
 
 .sl-seq__field {
   display: grid;
@@ -3857,47 +4004,6 @@ button.proc-result__status:hover {
 .sl-seq__chips {
   align-items: center;
   min-height: 30px;
-}
-
-.sl-seq__step {
-  animation: sl-step-in 360ms var(--arch-ease) both;
-}
-
-@keyframes sl-step-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.sl-seq__packet {
-  animation: sl-packet 520ms var(--arch-ease) both;
-}
-
-@keyframes sl-packet {
-  0% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  85% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(var(--sl-dx));
-    opacity: 0;
-  }
-}
-
-.sl-seq__act {
-  animation: arch-fade 400ms ease backwards;
-}
-
-.sl-seq__result {
-  cursor: pointer;
 }
 
 /* ---------- Feil ---------- */
@@ -3948,33 +4054,13 @@ button.proc-result__status:hover {
 
 /* ---------- Responsive ---------- */
 
-@media (max-width: 1000px) {
-  .sl-jobs {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
   .sl-sm__sed.is-on,
   .sl-journey__limit,
-  .sl-sys__x,
-  .sl-night__now,
-  .sl-job,
-  .sl-job__dot::after,
-  .sl-seq__step,
-  .sl-seq__packet,
-  .sl-seq__act {
+  .sl-sys__x {
     animation: none !important;
-  }
-
-  .sl-seq__packet {
-    display: none;
-  }
-
-  .sl-job.is-focus {
-    translate: none;
   }
 }
 
@@ -4164,7 +4250,7 @@ button.proc-result__status:hover {
   inset: 0;
   border-radius: 50%;
   background: var(--ax-bg-success-strong);
-  animation: sl-ping 2s ease-out infinite;
+  animation: proc-ping 2s ease-out infinite;
   z-index: -1;
 }
 
@@ -4579,12 +4665,6 @@ button.proc-result__status:hover {
 
 /* ---------- Statuser ---------- */
 
-.avs-legend__badge[data-tone="accent"],
-.avs-night__no[data-tone="accent"] {
-  background: var(--ax-bg-accent-strong);
-  color: var(--ax-text-accent-contrast);
-}
-
 .jfr-legend__stay {
   color: var(--ax-text-neutral);
   font-style: normal;
@@ -4697,7 +4777,7 @@ button.proc-result__status:hover {
   }
 }
 
-.sl-jobs.jfr-jobs {
+.proc-jobs.jfr-jobs {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -4705,16 +4785,16 @@ button.proc-result__status:hover {
   border-style: dashed;
 }
 
-.jfr-job[data-off] .sl-job__time {
+.jfr-job[data-off] .proc-job__time {
   color: var(--ax-text-neutral-subtle);
 }
 
-.jfr-job[data-off] .avs-night__no {
+.jfr-job[data-off] .proc-jobno {
   background: var(--ax-bg-neutral-moderate);
   color: var(--ax-text-neutral-subtle);
 }
 
-.jfr-job .avs-job__flow {
+.jfr-job .proc-jobflow {
   margin-top: 0;
 }
 
@@ -4758,47 +4838,13 @@ button.proc-result__status:hover {
   font-size: 0.72rem;
 }
 
-.jfr-job .avs-job__meta {
+.jfr-job .proc-facts {
   margin-top: auto;
 }
 
 /* ---------- Feil og drift ---------- */
 
-.jfr-err {
-  display: inline-flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  font-weight: 700;
-}
-
-.jfr-err::before {
-  content: "";
-  flex: none;
-  width: 0.55rem;
-  height: 0.55rem;
-  margin-top: 0.42em;
-  border-radius: 50%;
-  background: var(--tone-line);
-  box-shadow: 0 0 0 3px var(--tone-soft);
-}
-
-.jfr-err__path .arch-chips {
-  gap: 0.3rem 1.15rem;
-}
-
-.jfr-err__path .proc-chip {
-  position: relative;
-}
-
-.jfr-err__path .proc-chip + .proc-chip::before {
-  content: "→";
-  position: absolute;
-  left: -0.95rem;
-  color: var(--ax-text-neutral-subtle);
-  pointer-events: none;
-}
-
-.jfr-page .avs-errors table {
+.jfr-page .proc-errors table {
   min-width: 760px;
 }
 
@@ -4813,11 +4859,6 @@ button.proc-result__status:hover {
   display: grid;
   gap: 1.25rem;
   margin-top: 2.25rem;
-}
-
-.jfr-topics span {
-  display: block;
-  font-size: 0.78rem;
 }
 
 .jfr-slack__feed {
@@ -4848,7 +4889,7 @@ button.proc-result__status:hover {
   overflow-wrap: anywhere;
 }
 
-.jfr-night > .avs-note {
+.jfr-night > .proc-note {
   margin-top: 0.75rem;
 }
 
@@ -4890,7 +4931,7 @@ button.proc-result__status:hover {
   .jfr-rules,
   .jfr-feil,
   .jfr-story__stage,
-  .sl-jobs.jfr-jobs {
+  .proc-jobs.jfr-jobs {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -5987,7 +6028,7 @@ button.proc-result__status:hover {
 }
 
 /* ================================================================== */
-/* Adresseoppdatering (adr-*) – builds on the arch-* and avs-* styles  */
+/* Adresseoppdatering (adr-*) – builds on the arch-* and proc-* styles */
 /* ================================================================== */
 
 /* ---------- Hero med parallakse ---------- */
@@ -7379,7 +7420,7 @@ button.proc-result__status:hover {
 
 /* ---------- Feil og drift ---------- */
 
-.adr-page .avs-errors table {
+.adr-page .proc-errors table {
   min-width: 760px;
 }
 

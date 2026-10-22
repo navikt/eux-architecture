@@ -5,6 +5,7 @@ import { BodyShort, HStack } from "@navikt/ds-react";
 import { useReducedMotion, useSvgIds } from "@/components/architecture/hooks";
 import { onActivate } from "@/components/architecture/svg";
 import { TONE, type Tone } from "@/lib/tones";
+import { JobNo } from "./Jobs";
 import { StatusChip } from "./StatusChips";
 
 /*
@@ -232,6 +233,37 @@ export function StateNode<S extends string>({
 }
 
 /** Who moves a case into a status: a job (with its number badge), another system, or a free-text event. */
+/** The key under a status machine: one `LegendItem` per mark. */
+export function StateLegend({ children }: { children: ReactNode }) {
+  return (
+    <div className="proc-legend" aria-hidden>
+      {children}
+    </div>
+  );
+}
+
+export function LegendItem({ mark, children }: { mark: ReactNode; children: ReactNode }) {
+  return (
+    <span>
+      {mark} {children}
+    </span>
+  );
+}
+
+/** The round job number, as drawn by `JobBadge`. */
+export function LegendBadge({ children, tone }: { children: ReactNode; tone?: "accent" }) {
+  return (
+    <i className="proc-legend__badge" data-tone={tone}>
+      {children}
+    </i>
+  );
+}
+
+/** A dashed «calls RINA» lane, a double-bordered final status, or an edge line of the given kind. */
+export function LegendMark({ kind }: { kind: "lane" | "final" | "back" | "error" | "kafka" }) {
+  return kind === "lane" || kind === "final" ? <i className={`proc-legend__${kind}`} /> : <i className="proc-legend__line" data-kind={kind} />;
+}
+
 export type Actor = { name: string; badge?: string | number; tone?: "accent"; mono?: boolean };
 
 /** Jobs become numbered, monospaced actors; anything else goes through `other`. */
@@ -245,9 +277,9 @@ export function ActorList({ actors }: { actors: readonly Actor[] }) {
       {i > 0 && ", "}
       {a.badge !== undefined && (
         <>
-          <span className="avs-night__no avs-night__no--inline" data-tone={a.tone}>
+          <JobNo inline tone={a.tone}>
             {a.badge}
-          </span>{" "}
+          </JobNo>{" "}
         </>
       )}
       {a.mono ? <span className="arch-mono">{a.name}</span> : a.name}
