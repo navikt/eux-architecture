@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ComponentType, type ReactNode, type SVGProps } from "react";
+import { useMemo, useState, useSyncExternalStore, type ComponentType, type ReactNode, type SVGProps } from "react";
 import { Accordion, BodyLong, BodyShort, Chips, CopyButton, Detail, Heading, Table, Tag } from "@navikt/ds-react";
 import {
   ArchiveIcon,
@@ -45,7 +45,10 @@ import { Section } from "@/components/page/Section";
 import { HeroStats } from "@/components/page/HeroStats";
 import { JumpNav } from "@/components/page/JumpNav";
 
-const PAGE_URL = "https://eux-docs.intern.dev.nav.no/nytt-i-neessi";
+const PAGE_PATH = "/nytt-i-neessi";
+const noop = () => () => {};
+/** Lenken følger verten siden er åpnet på, så den stemmer også lokalt og i andre miljøer. */
+const pageUrl = () => new URL(PAGE_PATH, window.location.origin).href;
 
 const SECTIONS = [
   { id: "kort", label: "Kort fortalt" },
@@ -400,6 +403,7 @@ function Tech() {
 /* ---------- Side ---------- */
 
 export function NyttINeessi() {
+  const url = useSyncExternalStore(noop, pageUrl, () => PAGE_PATH);
 
   return (
     <div className="portal-page--wide arch-page nyt-page">
@@ -414,7 +418,7 @@ export function NyttINeessi() {
             er i bruk i produksjon, med mindre noe annet står.
           </BodyLong>
           <div className="nyt-share">
-            <CopyButton copyText={PAGE_URL} size="small" text="Kopier lenke til siden" activeText="Lenken er kopiert" />
+            <CopyButton copyText={url} size="small" text="Kopier lenke til siden" activeText="Lenken er kopiert" />
           </div>
         </div>
 

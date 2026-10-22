@@ -241,7 +241,9 @@ pnpm install
 | `pnpm start` | Run the production build |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
+| `pnpm test` | All tests in `scripts/*.test.mjs` (CI runs this) |
 | `pnpm test:search` | Search ranking, typo tolerance, content indexing and privacy checks |
+| `pnpm test:data` | Cross-checks between data files, e.g. that every `ENV_SERVICES` id is an app in `components/architecture/data.ts` |
 
 ## Deployment
 

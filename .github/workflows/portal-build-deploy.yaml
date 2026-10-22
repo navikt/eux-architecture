@@ -60,9 +60,9 @@ jobs:
         working-directory: portal
         run: pnpm lint
 
-      - name: Search tests
+      - name: Tests
         working-directory: portal
-        run: pnpm test:search
+        run: pnpm test
 
       - name: Cache Next.js build
         uses: actions/cache@v5

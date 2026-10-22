@@ -7,8 +7,19 @@ import { hhmm, type OsloTime } from "@/components/process/time";
 import { useOsloNow } from "@/components/process/useOsloNow";
 import { useSvgIds } from "./hooks";
 
-type Job = { name: string; h: number; m: number; monthly?: boolean; note?: string };
-type Group = { id: string; title: string; target: string; kind: "naisjob" | "scheduled"; jobs: Job[]; chain?: boolean };
+type Job<N extends string = string> = {
+  name: N;
+  h: number;
+  m: number;
+  monthly?: boolean;
+  note?: string;
+  /** Jobben i samme gruppe som må ha kjørt først. Tegnes som en pil fra den. */
+  after?: NoInfer<N>;
+};
+type Group = { id: string; title: string; target: string; kind: "naisjob" | "scheduled"; jobs: Job[] };
+
+/** Lar TypeScript sjekke at hver `after` peker på en jobb i samme liste. */
+const jobs = <N extends string>(list: Job<N>[]): Job[] => list;
 
 const GROUPS: Group[] = [
   {
@@ -16,44 +27,43 @@ const GROUPS: Group[] = [
     title: "eux-journalarkivar-naisjob",
     target: "eux-journalarkivar",
     kind: "naisjob",
-    jobs: [
+    jobs: jobs([
       { name: "ferdigstill", h: 1, m: 0 },
       { name: "feilregistrer", h: 2, m: 0 },
-    ],
+    ]),
   },
   {
     id: "eux-avslutt-rinasaker-naisjob",
     title: "eux-avslutt-rinasaker-naisjob",
     target: "eux-avslutt-rinasaker",
     kind: "naisjob",
-    chain: true,
-    jobs: [
+    jobs: jobs([
       { name: "rapport", h: 0, m: 5, monthly: true },
       { name: "sett-uvirksom", h: 1, m: 0 },
-      { name: "til-avslutning", h: 2, m: 0 },
-      { name: "avslutt", h: 3, m: 0 },
-      { name: "til-arkivering", h: 4, m: 0 },
-      { name: "arkiver", h: 5, m: 0 },
+      { name: "til-avslutning", h: 2, m: 0, after: "sett-uvirksom" },
+      { name: "avslutt", h: 3, m: 0, after: "til-avslutning" },
+      { name: "til-arkivering", h: 4, m: 0, after: "avslutt" },
+      { name: "arkiver", h: 5, m: 0, after: "til-arkivering" },
       { name: "slett-dokumentutkast", h: 14, m: 42 },
-    ],
+    ]),
   },
   {
     id: "eux-slett-usendte-rinasaker-naisjob",
     title: "eux-slett-usendte-rinasaker-naisjob",
     target: "eux-slett-usendte-rinasaker",
     kind: "naisjob",
-    jobs: [
+    jobs: jobs([
       { name: "slett", h: 1, m: 0 },
       { name: "til-sletting", h: 2, m: 0 },
       { name: "rapport", h: 6, m: 0, monthly: true },
-    ],
+    ]),
   },
   {
     id: "eux-barnetrygd",
     title: "eux-barnetrygd",
     target: "eux-barnetrygd",
     kind: "scheduled",
-    jobs: [{ name: "@Scheduled", h: 22, m: 0, note: "innebygd i appen" }],
+    jobs: jobs([{ name: "@Scheduled", h: 22, m: 0, note: "innebygd i appen" }]),
   },
 ];
 
@@ -69,7 +79,7 @@ const xAt = (h: number, m = 0) => X0 + ((h + m / 60) / 24) * (X1 - X0);
 
 type Row =
   | { type: "group"; g: Group; y: number }
-  | { type: "job"; g: Group; j: Job; y: number; idx: number };
+  | { type: "job"; g: Group; j: Job; y: number };
 
 const ROWS: Row[] = (() => {
   const rows: Row[] = [];
@@ -77,10 +87,10 @@ const ROWS: Row[] = (() => {
   for (const g of GROUPS) {
     rows.push({ type: "group", g, y });
     y += GROUP_H;
-    g.jobs.forEach((j, idx) => {
-      rows.push({ type: "job", g, j, y, idx });
+    for (const j of g.jobs) {
+      rows.push({ type: "job", g, j, y });
       y += ROW_H;
-    });
+    }
     y += 8;
   }
   return rows;
@@ -159,13 +169,15 @@ export function NightTimeline({ onFocusNode }: { onFocusNode: (id: string) => vo
                 </g>
               );
             }
-            const { g, j, y, idx } = r;
+            const { g, j, y } = r;
             const key = `${g.id}-${j.name}`;
             const x = xAt(j.h, j.m);
             const cyy = y + ROW_H / 2;
             const isNext = next && next.g.id === g.id && next.j.name === j.name;
             const lit = hover === key;
-            const prev = g.chain && idx > 1 && idx < 6 ? g.jobs[idx - 1] : null;
+            const prev = j.after ? g.jobs.find((p) => p.name === j.after) : undefined;
+            const prevX = prev ? xAt(prev.h, prev.m) : x;
+            const prevY = prev ? cyy - (g.jobs.indexOf(j) - g.jobs.indexOf(prev)) * ROW_H + 6 : cyy;
             const color = g.kind === "scheduled" ? "var(--ax-border-success)" : "var(--ax-border-warning)";
             const label = `${hhmm(j.h, j.m)}${j.monthly ? " · 1. i mnd." : ""}${j.note ? ` · ${j.note}` : ""}`;
             const labelRight = x + 12 + label.length * 6.2 < X1;
@@ -180,10 +192,10 @@ export function NightTimeline({ onFocusNode }: { onFocusNode: (id: string) => vo
                 <text x={24} y={cyy + 4} fontSize={11.5} className="arch-mono" fill="var(--ax-text-neutral-subtle)">
                   {j.name}
                 </text>
-                <line x1={LABEL_W - 4} x2={(prev ? xAt(prev.h, prev.m) : x) - 8} y1={cyy} y2={cyy} stroke="var(--ax-border-neutral-subtle)" strokeDasharray="1 4" />
+                <line x1={LABEL_W - 4} x2={prevX - 8} y1={cyy} y2={cyy} stroke="var(--ax-border-neutral-subtle)" strokeDasharray="1 4" />
                 {prev && (
                   <path
-                    d={`M ${xAt(prev.h, prev.m)} ${cyy - ROW_H + 6} L ${xAt(prev.h, prev.m)} ${cyy} L ${x - 7} ${cyy}`}
+                    d={`M ${prevX} ${prevY} L ${prevX} ${cyy} L ${x - 7} ${cyy}`}
                     fill="none"
                     stroke={color}
                     strokeWidth={1.5}

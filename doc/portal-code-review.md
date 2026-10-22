@@ -11,7 +11,7 @@ When the user writes **`doc/portal-code-review.md next`**, do this:
 3. **Decide.** If the task says **Decision needed**, ask the user with the options given before changing anything. If the task turns out much bigger than its **Effort**, do a coherent first slice. Then add a new `[ ]` task right below it for the rest.
 4. **Fix** only this task. Keep changes surgical, follow the existing code style, and do not start other tasks. Update docs that describe the code you changed (for example `portal/README.md`).
 5. **Verify** with the commands for the area you touched, and make sure everything in **Done when** holds:
-   - portal: `cd portal && pnpm typecheck && pnpm lint && pnpm test:search && pnpm build`
+   - portal: `cd portal && pnpm typecheck && pnpm lint && pnpm test && pnpm build`
    - portal-core: `cd portal-core && mvn -q verify`
    - workflows or NAIS YAML: parse the files (for example with `ruby -ryaml` or `yq`)
    - If verification fails, fix it. Never mark a task done while checks are red.
@@ -268,19 +268,21 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 
 ## portal: data that can drift
 
-### [ ] 23 · Validate the node ids in `ENV_SERVICES`
+### [x] 23 · Validate the node ids in `ENV_SERVICES`
 - **Area:** portal · **Effort:** S
 - **Where:** `components/miljoer/data.ts` (`ENV_SERVICES`), `components/architecture/data.ts` (`NODE_BY_ID`)
 - **Problem:** the keys are plain strings, so a typo or a renamed node fails silently.
 - **Fix:** type the keys as node ids, or add a test next to the existing search tests.
 - **Done when:** an invalid id fails typecheck or tests.
+- **Fixed:** 2026-10-22: new `scripts/data.test.mjs` (`pnpm test:data`) checks that every `ENV_SERVICES` id is an app in `NODE_BY_ID` and is listed once. The new `pnpm test` runs every `scripts/*.test.mjs`, and CI and the verify step above now use it. Renaming `eux-journal` to `eux-jornal` fails with "eux-jornal is not a node in components/architecture/data.ts".
 
-### [ ] 24 · Make the "previous job" logic explicit
+### [x] 24 · Make the "previous job" logic explicit
 - **Area:** portal · **Effort:** S
 - **Where:** `components/architecture/NightTimeline.tsx` (`g.chain && idx > 1 && idx < 6`)
 - **Problem:** the logic depends on the jobs' positions, so adding or reordering a job breaks it silently.
 - **Fix:** add an `after?: jobId` field to each job and use it.
 - **Done when:** the hardcoded index range is gone and the timeline looks the same as before.
+- **Fixed:** 2026-10-22: the four chained avslutt-rinasaker jobs name their predecessor in `after`, and `Group.chain`, the row index and the index range are gone. Each group's jobs go through a `jobs()` helper that types `after` as `NoInfer<N>`, so a misspelt job name fails typecheck. The arrow now starts at the predecessor's actual row, not always the row above. The prerendered `/architecture` HTML is identical to before.
 
 ### [x] 25 · Keep the hero text in one place
 - **Area:** portal · **Effort:** S
@@ -290,12 +292,13 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** the text has a single source.
 - **Fixed:** 2026-10-20: both heroes render `PLATFORM_INTRO` from `components/architecture/data.ts`. `scripts/search-index.mjs` now resolves exported string constants imported with `@/…`, so the search index stays byte-identical and the visible prerendered HTML is unchanged.
 
-### [ ] 26 · Stop hardcoding the copy-link URL
+### [x] 26 · Stop hardcoding the copy-link URL
 - **Area:** portal · **Effort:** S
 - **Where:** `components/nytt-i-neessi/NyttINeessi.tsx` (`PAGE_URL`)
 - **Problem:** the copy-link button always copies the dev URL.
 - **Fix:** build the URL from `window.location.origin` when the button is clicked.
 - **Done when:** the copied link matches the current host.
+- **Fixed:** 2026-10-22: `PAGE_URL` is replaced by `PAGE_PATH`, and the button gets `new URL(PAGE_PATH, window.location.origin)` through `useSyncExternalStore` (the server renders the path). In headless Chrome the button copied `http://localhost:3917/nytt-i-neessi` and `http://127.0.0.1:3917/nytt-i-neessi` on the two hosts, without the `#tidslinje` the page was opened with.
 
 ### [ ] 27 · Derive the numbers written in prose
 - **Area:** portal · **Effort:** S–M
