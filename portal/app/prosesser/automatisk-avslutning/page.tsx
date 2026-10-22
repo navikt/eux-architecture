@@ -192,7 +192,7 @@ const REPOS = ["eux-avslutt-rinasaker", "eux-avslutt-rinasaker-naisjob", "eux-ri
 
 const FURTHER: FurtherLink[] = [
   { href: archHref("eux-avslutt-rinasaker"), title: "Arkitektur", text: "Se eux-avslutt-rinasaker i arkitekturkartet, med alt den snakker med." },
-  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker uten sendt SED slettes etter 15 dager." },
+  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker der ingen SED er sendt eller mottatt, slettes etter 15 dager." },
   { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hvordan SED-er journalføres automatisk." },
   { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Sanntidsmonitor for sedmottatt og sedsendt i Q1 og Q2." },
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },

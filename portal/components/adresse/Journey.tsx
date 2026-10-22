@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { BodyLong, Detail, Heading } from "@navikt/ds-react";
 import { CheckmarkIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { useMediaQuery } from "@/components/architecture/hooks";
 import { SEKTORER, UNNTAK_SED, type Tone } from "./data";
+
+/** Below this width the sticky stage is hidden and each scene sits under its step (see `.adr-journey` in globals.css). */
+const NARROW = "(max-width: 1000px)";
 
 type StationId = "rina" | "kafka" | "app" | "rinaapi" | "pdl";
 
@@ -377,6 +381,8 @@ const STEPS: JourneyStep[] = [
 export function Journey() {
   const [active, setActive] = useState(0);
   const refs = useRef<(HTMLLIElement | null)[]>([]);
+  // Until hydration both layouts are rendered and CSS picks one; after that only the visible one.
+  const narrow = useMediaQuery(NARROW);
 
   useEffect(() => {
     let frame = 0;
@@ -427,7 +433,7 @@ export function Journey() {
               </Heading>
               <BodyLong size="small">{s.body}</BodyLong>
             </div>
-            <div className="adr-step__scene">{s.scene}</div>
+            {narrow !== false && <div className="adr-step__scene">{s.scene}</div>}
           </li>
         ))}
       </ol>
@@ -444,11 +450,12 @@ export function Journey() {
           <li className="adr-stations__token" />
         </ol>
         <div className="adr-scenes">
-          {STEPS.map((s, i) => (
-            <div key={s.id} className="adr-scene" data-active={i === active || undefined}>
-              {s.scene}
-            </div>
-          ))}
+          {narrow !== true &&
+            STEPS.map((s, i) => (
+              <div key={s.id} className="adr-scene" data-active={i === active || undefined}>
+                {s.scene}
+              </div>
+            ))}
         </div>
         <div className="adr-stage__foot">
           <span className="arch-mono">

@@ -114,7 +114,7 @@ const STATIONS: Station[] = [
     x: 760,
     lines: ["doc", "case"],
     labelY: 98,
-    text: "Følger nye saker og om noe er sendt. Saker uten sendt SED etter 15 dager slettes.",
+    text: "Følger nye saker og om det er sendt eller mottatt en SED i dem. Saker uten SED etter 15 dager slettes hvis RINA tillater det.",
     focus: "eux-slett-usendte-rinasaker",
   },
   {

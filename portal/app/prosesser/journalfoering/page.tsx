@@ -308,7 +308,7 @@ const REPOS = ["eux-fagmodul-journalfoering", "eux-journalarkivar", "eux-journal
 const FURTHER: FurtherLink[] = [
   { href: archHref("eux-fagmodul-journalfoering"), title: "Arkitektur", text: "Se fagmodulen i arkitekturkartet, med alt den snakker med." },
   { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan uvirksomme RINA-saker lukkes og arkiveres." },
-  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker uten sendt SED slettes." },
+  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker der ingen SED er sendt eller mottatt, slettes." },
   { href: "/kafka/sed-hendelser", title: "SED-hendelser", text: "Sanntidsmonitor for sedmottatt og sedsendt i Q1 og Q2." },
   { href: "/nav-rinasak/sed-er", title: "SED-er i nEESSI", text: "Saker og SED-er som registreres i eux-nav-rinasak, i sanntid." },
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },

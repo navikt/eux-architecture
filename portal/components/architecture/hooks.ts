@@ -2,21 +2,29 @@
 
 import { useCallback, useEffect, useId, useState, useSyncExternalStore } from "react";
 
-const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
-
-const subscribeReducedMotion = (cb: () => void) => {
-  const mq = window.matchMedia(REDUCED_MOTION);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-};
+/**
+ * Whether the CSS media query matches. `null` during SSR and hydration, so
+ * callers can render markup for both cases until the client knows.
+ */
+export function useMediaQuery(query: string): boolean | null {
+  const subscribe = useCallback(
+    (cb: () => void) => {
+      const mq = window.matchMedia(query);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    [query],
+  );
+  return useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(query).matches,
+    () => null,
+  );
+}
 
 /** True when the user prefers reduced motion. Always false during SSR. */
 export function useReducedMotion(): boolean {
-  return useSyncExternalStore(
-    subscribeReducedMotion,
-    () => window.matchMedia(REDUCED_MOTION).matches,
-    () => false,
-  );
+  return useMediaQuery("(prefers-reduced-motion: reduce)") ?? false;
 }
 
 /** Scrolls the element with the given id to the top of the view, smoothly unless the user prefers reduced motion. */

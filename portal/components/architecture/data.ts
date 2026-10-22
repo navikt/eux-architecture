@@ -312,7 +312,7 @@ export const NODES: ArchNode[] = [
     "eux-slett-usendte-rinasaker",
     "bakgrunn",
     "Kotlin",
-    "Sletter RINA-saker der ingen SED er sendt etter 15 dager.",
+    "Sletter RINA-saker der ingen SED er sendt eller mottatt etter 15 dager.",
     {
       db: true,
       facts: [

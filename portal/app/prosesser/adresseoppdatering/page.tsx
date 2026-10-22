@@ -275,7 +275,7 @@ const FURTHER: FurtherLink[] = [
   { href: archHref("eux-adresse-oppdatering"), title: "Arkitektur", text: "Se eux-adresse-oppdatering i arkitekturkartet." },
   { href: "/prosesser/journalfoering", title: "Journalføring", text: "Hvordan de samme SED-ene arkiveres i Dokarkiv." },
   { href: "/prosesser/automatisk-avslutning", title: "Automatisk avslutning", text: "Hvordan uvirksomme RINA-saker lukkes og arkiveres." },
-  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker uten sendt SED slettes." },
+  { href: "/prosesser/automatisk-sletting", title: "Automatisk sletting", text: "Hvordan saker der ingen SED er sendt eller mottatt, slettes." },
   { href: "/applications", title: "Applikasjoner", text: "Rolle, avhengigheter, Kafka-topics og repo for hver applikasjon." },
   ...repoLinks(REPOS),
 ];
