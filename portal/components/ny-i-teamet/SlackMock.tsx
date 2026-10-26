@@ -7,15 +7,33 @@ import { SLACK_CHANNELS } from "./data";
 import { useInView } from "./hooks";
 
 const AUTOPLAY_MS = 6000;
+const LAST = SLACK_CHANNELS.length - 1;
+
+/** The tab that a key in the vertical tablist moves to from `i`, or null for other keys. */
+function tabFor(key: string, i: number): number | null {
+  switch (key) {
+    case "ArrowDown":
+      return i === LAST ? 0 : i + 1;
+    case "ArrowUp":
+      return i === 0 ? LAST : i - 1;
+    case "Home":
+      return 0;
+    case "End":
+      return LAST;
+    default:
+      return null;
+  }
+}
 
 /** Et lite Slack-vindu. Kanalene byttes automatisk til du velger en selv. */
 export function SlackMock() {
   const [active, setActive] = useState(0);
   const [touched, setTouched] = useState(false);
   const [hover, setHover] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
   const [ref, inView] = useInView<HTMLDivElement>(0.4);
   const reduced = useReducedMotion();
-  const playing = inView && !touched && !hover && !reduced;
+  const playing = inView && !touched && !hover && !focusWithin && !reduced;
 
   useEffect(() => {
     if (!playing) return;
@@ -37,6 +55,10 @@ export function SlackMock() {
       style={{ "--ny-autoplay": `${AUTOPLAY_MS}ms` } as CSSProperties}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      onFocus={() => setFocusWithin(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setFocusWithin(false);
+      }}
     >
       <div className="ny-slack__bar" aria-hidden>
         <span />
@@ -54,9 +76,9 @@ export function SlackMock() {
             aria-orientation="vertical"
             className="ny-slack__tabs"
             onKeyDown={(e) => {
-              if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+              const next = tabFor(e.key, active);
+              if (next === null) return;
               e.preventDefault();
-              const next = (active + (e.key === "ArrowDown" ? 1 : -1) + SLACK_CHANNELS.length) % SLACK_CHANNELS.length;
               pick(next);
               document.getElementById(`ny-slack-tab-${next}`)?.focus();
             }}

@@ -1647,27 +1647,34 @@ html:has(.arch-page) {
   font-size: 0.85rem;
 }
 
-.arch-metro__legend li {
+.arch-metro__legend button {
   display: flex;
   align-items: center;
   gap: 0.65rem;
+  width: 100%;
   padding: 0.3rem 0.5rem;
+  border: 0;
   border-radius: 8px;
-  outline: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
   transition:
     opacity 200ms ease,
     background-color 200ms ease;
 }
 
-.arch-metro__legend li.is-lit {
+.arch-metro__legend button.is-lit,
+.arch-metro__legend button[aria-pressed="true"] {
   background: var(--ax-bg-default);
 }
 
-.arch-metro__legend li.is-dim {
+.arch-metro__legend button.is-dim {
   opacity: 0.45;
 }
 
-.arch-metro__legend li:focus-visible {
+.arch-metro__legend button:focus-visible {
   outline: 2px solid var(--ax-border-focus);
 }
 
@@ -4912,6 +4919,11 @@ button.proc-result__status:hover {
   background: var(--ax-bg-accent-soft);
 }
 
+.jfr-seq__list li:focus-visible {
+  outline: 2px solid var(--ax-border-focus);
+  outline-offset: 2px;
+}
+
 .jfr-seq__n {
   display: grid;
   place-items: center;
@@ -7094,7 +7106,8 @@ button.proc-result__status:hover {
     border-color 180ms ease;
 }
 
-.adr-person:hover {
+.adr-person:hover,
+.adr-person:focus-within {
   translate: 0 -3px;
   border-color: var(--tone-line);
   box-shadow: 0 18px 34px -26px var(--tone-line);

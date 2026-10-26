@@ -323,7 +323,7 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 
 ## Minor accessibility and cleanup
 
-### [ ] 29 · Fill keyboard-accessibility gaps
+### [x] 29 · Fill keyboard-accessibility gaps
 - **Area:** portal · **Effort:** S
 - **Where:**
   - `components/architecture/EventMetro.tsx` (legend items with `tabIndex={0}` but no role)
@@ -332,6 +332,7 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Problem:** some interactions need a mouse.
 - **Fix:** give the legend items a role or turn them into buttons, add Home/End key handling, and pair `onMouseEnter` with `onFocus`.
 - **Done when:** everything is reachable and usable from the keyboard.
+- **Fixed:** 2026-10-26: the `EventMetro` legend items are now `<button aria-pressed>` toggles that pin a topic (the SVG lines pin it on click too), and a pinned or focused topic shows its description and consumers in the info panel. `SlackMock` handles Home/End through a small `tabFor()` and pauses autoplay while focus is inside, like on hover. `ManualFlows`' step list items are focusable and light the matching diagram row on focus, with one shared `hover(i)` for the SVG steps and the list. `.adr-person` lifts on `:focus-within` as on hover. The other hover sites (`NightTimeline` rows, the aria-hidden night-strip dots) are decorative or already have a focus path through `JobCard`, the job buttons or `useNodeSelection`.
 
 ### [ ] 30 · Remove the unused `resolvedTheme`
 - **Area:** portal · **Effort:** S

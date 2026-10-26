@@ -148,7 +148,11 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
   const [flow, setFlow] = useState<Flow>("journalfoer");
   const [oppgave, setOppgave] = useState(true);
   const [run, setRun] = useState(0);
-  const [hover, setHover] = useState<number | null>(null);
+  const [lit, setLit] = useState<number | null>(null);
+  const hover = (i: number) => ({
+    onMouseEnter: () => setLit(i),
+    onMouseLeave: () => setLit(null),
+  });
 
   const lanes = FLOW_LANES[flow];
   const spacing = (W - GUTTER - 2 * MARGIN) / (lanes.length - 1);
@@ -220,8 +224,8 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
           </defs>
 
           {/* Radmarkering */}
-          {hover !== null && (
-            <rect x={6} y={rowY(hover) - 20} width={W - 12} height={36} rx={10} fill="var(--ax-bg-accent-soft)" className="jfr-seq__band" />
+          {lit !== null && (
+            <rect x={6} y={rowY(lit) - 20} width={W - 12} height={36} rx={10} fill="var(--ax-bg-accent-soft)" className="jfr-seq__band" />
           )}
 
           {/* Livslinjer */}
@@ -260,7 +264,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
           {/* Steg */}
           {steps.map((s, i) => {
             const y = rowY(i);
-            const on = hover === i;
+            const on = lit === i;
             const num = (
               <g className="jfr-seq__no">
                 <circle cx={22} cy={y} r={10} fill={on ? TONE.accent.strong : "var(--ax-bg-neutral-moderate)"} />
@@ -269,16 +273,12 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
                 </text>
               </g>
             );
-            const handlers = {
-              onMouseEnter: () => setHover(i),
-              onMouseLeave: () => setHover(null),
-            };
             if (s.kind === "note") {
               const x = laneX[s.on];
               const w = Math.round(s.label.length * 6.1 + 28);
               const tone = TONE[s.tone ?? "info"];
               return (
-                <g key={`${key}-${i}`} className="proc-seq__step" style={{ animationDelay: `${delay(i)}ms` }} {...handlers}>
+                <g key={`${key}-${i}`} className="proc-seq__step" style={{ animationDelay: `${delay(i)}ms` }} {...hover(i)}>
                   {num}
                   <rect x={r2(x - w / 2)} y={y - 13} width={w} height={26} rx={8} fill={tone.fill} stroke={tone.stroke} strokeWidth={1.2} />
                   <text x={x} y={y + 4} textAnchor="middle" fontSize={10.5} fontWeight={700} className="arch-mono" fill="var(--ax-text-neutral)">
@@ -295,7 +295,7 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
             const stroke = s.tone === "danger" ? "var(--ax-border-danger)" : s.tone === "success" ? "var(--ax-border-success)" : "var(--ax-border-neutral-strong)";
             const marker = s.tone ? `arrow-${s.tone}` : "arrow";
             return (
-              <g key={`${key}-${i}`} className="proc-seq__step" style={{ animationDelay: `${delay(i)}ms` }} {...handlers}>
+              <g key={`${key}-${i}`} className="proc-seq__step" style={{ animationDelay: `${delay(i)}ms` }} {...hover(i)}>
                 {num}
                 <rect x={Math.min(fx, tx)} y={y - 20} width={Math.abs(tx - fx)} height={28} fill="transparent" />
                 <path
@@ -365,9 +365,11 @@ export function ManualFlows({ onFocusStatus }: { onFocusStatus: (s: StatusId) =>
         {steps.map((s, i) => (
           <li
             key={`${flow}-${i}`}
-            className={hover === i ? "is-on" : undefined}
-            onMouseEnter={() => setHover(i)}
-            onMouseLeave={() => setHover(null)}
+            className={lit === i ? "is-on" : undefined}
+            tabIndex={0}
+            {...hover(i)}
+            onFocus={() => setLit(i)}
+            onBlur={() => setLit(null)}
           >
             <span className="jfr-seq__n" aria-hidden>
               {i + 1}

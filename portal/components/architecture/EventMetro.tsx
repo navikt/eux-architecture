@@ -50,18 +50,33 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
   const [hoverStation, setHoverStation] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const [hoverLine, setHoverLine] = useState<LineId | null>(null);
+  const [pinnedLine, setPinnedLine] = useState<LineId | null>(null);
 
   const stationId = hoverStation ?? pinned;
   const station = STATIONS.find((s) => s.id === stationId) ?? null;
-  const activeLines = new Set<LineId>(station ? station.lines : hoverLine ? [hoverLine] : []);
+  const line = station ? null : (hoverLine ?? pinnedLine);
+  const activeLines = new Set<LineId>(station ? station.lines : line ? [line] : []);
   const anyActive = activeLines.size > 0;
 
   const lineState = (l: LineId) => (!anyActive ? "" : activeLines.has(l) ? "is-lit" : "is-dim");
   const stationState = (s: Station) => {
     if (station) return s.id === station.id ? "is-lit" : "is-dim";
-    if (hoverLine) return s.lines.includes(hoverLine) ? "is-lit" : "is-dim";
+    if (line) return s.lines.includes(line) ? "is-lit" : "is-dim";
     return "";
   };
+
+  const toggleStation = (id: string) => {
+    setPinnedLine(null);
+    setPinned((p) => (p === id ? null : id));
+  };
+  const toggleLine = (l: LineId) => {
+    setPinned(null);
+    setPinnedLine((p) => (p === l ? null : l));
+  };
+  const lineHover = (l: LineId) => ({
+    onMouseEnter: () => setHoverLine(l),
+    onMouseLeave: () => setHoverLine(null),
+  });
 
   const sourceLit = !anyActive || ["doc", "case", "notif"].some((l) => activeLines.has(l as LineId));
 
@@ -74,7 +89,9 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
           role="group"
           aria-label="Hendelsesflyt fra RINA gjennom Kafka"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setPinned(null);
+            if (e.target !== e.currentTarget) return;
+            setPinned(null);
+            setPinnedLine(null);
           }}
         >
           <defs>
@@ -122,12 +139,7 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
 
           {/* Linjer */}
           {LINE_ORDER.map((l) => (
-            <g
-              key={l}
-              className={`arch-metro__line ${lineState(l)}`}
-              onMouseEnter={() => setHoverLine(l)}
-              onMouseLeave={() => setHoverLine(null)}
-            >
+            <g key={l} className={`arch-metro__line ${lineState(l)}`} {...lineHover(l)} onClick={() => toggleLine(l)}>
               <path d={LINE_PATH[l]} stroke="transparent" strokeWidth={16} fill="none" />
               <path d={LINE_PATH[l]} stroke={LINES[l].color} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" fill="none" />
               <path d={LINE_PATH[l]} stroke="var(--ax-bg-default)" strokeWidth={2.5} strokeLinecap="round" fill="none" className="arch-metro__train" />
@@ -153,9 +165,7 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
             const above = s.labelY < top;
             const tickFrom = above ? s.labelY + 5 : bottom + STATION_R;
             const tickTo = above ? top - STATION_R : s.labelY - 12;
-            const select = () => {
-              setPinned((p) => (p === s.id ? null : s.id));
-            };
+            const select = () => toggleStation(s.id);
             return (
               <g
                 key={s.id}
@@ -237,6 +247,23 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
                 </div>
               )}
             </>
+          ) : line ? (
+            <>
+              <Detail className="arch-eyebrow">Kafka-topic</Detail>
+              <BodyShort weight="semibold" spacing className="arch-mono">
+                {LINES[line].name}
+              </BodyShort>
+              <BodyShort size="small" spacing>
+                {LINES[line].desc}
+              </BodyShort>
+              <HStack gap="space-6" wrap>
+                {STATIONS.filter((s) => s.lines.includes(line)).map((s) => (
+                  <span key={s.id} className="portal-chip" style={{ borderColor: LINES[line].color }}>
+                    {s.label}
+                  </span>
+                ))}
+              </HStack>
+            </>
           ) : (
             <>
               <Detail className="arch-eyebrow">Linjekart</Detail>
@@ -249,20 +276,22 @@ export function EventMetro({ onFocusNode }: { onFocusNode: (id: string) => void 
         </div>
         <ul className="arch-metro__legend" aria-label="Kafka-topics">
           {LINE_ORDER.map((l) => (
-            <li
-              key={l}
-              tabIndex={0}
-              onMouseEnter={() => setHoverLine(l)}
-              onMouseLeave={() => setHoverLine(null)}
-              onFocus={() => setHoverLine(l)}
-              onBlur={() => setHoverLine(null)}
-              className={lineState(l)}
-            >
-              <span className="arch-metro__swatch" style={{ background: LINES[l].color }} />
-              <span>
-                <span className="arch-mono">{LINES[l].name}</span>
-                <span className="arch-subtle"> – {LINES[l].desc}</span>
-              </span>
+            <li key={l}>
+              <button
+                type="button"
+                className={lineState(l)}
+                aria-pressed={pinnedLine === l}
+                {...lineHover(l)}
+                onFocus={() => setHoverLine(l)}
+                onBlur={() => setHoverLine(null)}
+                onClick={() => toggleLine(l)}
+              >
+                <span className="arch-metro__swatch" style={{ background: LINES[l].color }} />
+                <span>
+                  <span className="arch-mono">{LINES[l].name}</span>
+                  <span className="arch-subtle"> – {LINES[l].desc}</span>
+                </span>
+              </button>
             </li>
           ))}
         </ul>
