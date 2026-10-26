@@ -9,17 +9,18 @@ import {
   useSyncExternalStore,
 } from "react";
 import { Theme } from "@navikt/ds-react";
-
-export type ThemeMode = "light" | "dark" | "system";
-export type ResolvedTheme = "light" | "dark";
-
-export const THEME_STORAGE_KEY = "portal-theme";
+import {
+  applyTheme,
+  readThemeMode,
+  resolveTheme,
+  THEME_STORAGE_KEY,
+  type ResolvedTheme,
+  type ThemeMode,
+} from "@/lib/theme";
 
 type ThemeContextValue = {
   /** The user's chosen preference. */
   mode: ThemeMode;
-  /** The theme actually rendered ("system" resolved against the OS setting). */
-  resolvedTheme: ResolvedTheme;
   setMode: (mode: ThemeMode) => void;
 };
 
@@ -48,33 +49,12 @@ function emit() {
   for (const listener of listeners) listener();
 }
 
-function systemPrefersDark(): boolean {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-function readMode(): ThemeMode {
-  try {
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored === "light" || stored === "dark" || stored === "system") {
-      return stored;
-    }
-  } catch {
-    /* storage unavailable */
-  }
-  return "system";
-}
-
-function resolve(mode: ThemeMode): ResolvedTheme {
-  const dark = mode === "dark" || (mode === "system" && systemPrefersDark());
-  return dark ? "dark" : "light";
-}
-
 // Cached so getSnapshot returns a stable reference until something changes.
 let cachedSnapshot: Snapshot | null = null;
 
 function getSnapshot(): Snapshot {
-  const mode = readMode();
-  const resolved = resolve(mode);
+  const mode = readThemeMode(THEME_STORAGE_KEY);
+  const resolved = resolveTheme(mode);
   if (
     cachedSnapshot &&
     cachedSnapshot.mode === mode &&
@@ -116,19 +96,6 @@ function setStoredMode(mode: ThemeMode): void {
   emit();
 }
 
-/**
- * Reflects the resolved theme on <html> so native controls and the Aksel
- * design tokens (which cascade from the `.light` / `.dark` class) stay in sync
- * with the boot script.
- */
-function applyToDocument(mode: ThemeMode, resolved: ResolvedTheme): void {
-  const el = document.documentElement;
-  el.classList.remove("light", "dark");
-  el.classList.add(resolved);
-  el.style.colorScheme = resolved;
-  el.setAttribute("data-theme-mode", mode);
-}
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { mode, resolved } = useSyncExternalStore(
     subscribe,
@@ -136,15 +103,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     getServerSnapshot,
   );
 
+  // Keep <html> in step with the boot script, so native controls and the Aksel tokens follow changes.
   useEffect(() => {
-    if (resolved) applyToDocument(mode, resolved);
+    if (resolved) applyTheme(mode, resolved);
   }, [mode, resolved]);
 
   const setMode = useCallback((next: ThemeMode) => setStoredMode(next), []);
 
   const value = useMemo<ThemeContextValue>(
-    () => ({ mode, resolvedTheme: resolved ?? "light", setMode }),
-    [mode, resolved, setMode],
+    () => ({ mode, setMode }),
+    [mode, setMode],
   );
 
   return (

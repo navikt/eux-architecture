@@ -2,7 +2,8 @@
 
 import { ActionMenu, Button } from "@navikt/ds-react";
 import { MoonIcon, MonitorIcon, SunIcon } from "@navikt/aksel-icons";
-import { useThemeMode, type ThemeMode } from "./ThemeProvider";
+import { useThemeMode } from "./ThemeProvider";
+import type { ThemeMode } from "@/lib/theme";
 
 const OPTIONS: { value: ThemeMode; label: string; Icon: typeof SunIcon }[] = [
   { value: "light", label: "Lyst", Icon: SunIcon },

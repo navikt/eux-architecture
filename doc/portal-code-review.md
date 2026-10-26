@@ -334,9 +334,10 @@ Statuses: `[ ]` open · `[x]` done · `[!]` blocked. Effort: **S** < ½ day · *
 - **Done when:** everything is reachable and usable from the keyboard.
 - **Fixed:** 2026-10-26: the `EventMetro` legend items are now `<button aria-pressed>` toggles that pin a topic (the SVG lines pin it on click too), and a pinned or focused topic shows its description and consumers in the info panel. `SlackMock` handles Home/End through a small `tabFor()` and pauses autoplay while focus is inside, like on hover. `ManualFlows`' step list items are focusable and light the matching diagram row on focus, with one shared `hover(i)` for the SVG steps and the list. `.adr-person` lifts on `:focus-within` as on hover. The other hover sites (`NightTimeline` rows, the aria-hidden night-strip dots) are decorative or already have a focus path through `JobCard`, the job buttons or `useNodeSelection`.
 
-### [ ] 30 · Remove the unused `resolvedTheme`
+### [x] 30 · Remove the unused `resolvedTheme`
 - **Area:** portal · **Effort:** S
 - **Where:** `components/ThemeProvider.tsx` (`resolvedTheme`, `ResolvedTheme`), the boot script in `app/layout.tsx`
 - **Problem:** nothing reads `resolvedTheme`, and the boot script repeats the theme-resolve logic.
 - **Fix:** remove the unused API, or share one resolver function with the boot script.
 - **Done when:** there is no unused export left and the theme still has no flash on load.
+- **Fixed:** 2026-10-26: did both. `resolvedTheme` is gone from the context, and the new `lib/theme.ts` (following `lib/sidebar.ts`) holds the key, the types and the self-contained `readThemeMode`, `resolveTheme` and `applyTheme`. `ThemeProvider` calls them, and `themeBootScript` inlines the same functions as source text, so `app/layout.tsx` no longer has its own copy. The built boot script was run against a fake DOM for stored light/dark/system/invalid/missing values with OS light and dark: same `<html>` class, `color-scheme` and `data-theme-mode` as before, no leaked globals, and it now falls back to "system" when storage is blocked.

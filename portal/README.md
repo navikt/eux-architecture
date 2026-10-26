@@ -223,6 +223,8 @@ icon button next to the user in the bottom of the sidebar
   setState-in-effect). It renders Aksel's `<Theme>` with the resolved theme.
 - An inline boot script in `app/layout.tsx` sets the `light`/`dark` class on
   `<html>` before first paint, so the Aksel design tokens cascade with no flash.
+  It is built from the same `readThemeMode`, `resolveTheme` and `applyTheme` in
+  `lib/theme.ts` that the provider uses, so keep those self-contained.
 - **Diagrams/figures are theme-aware.** Every SVG fill, stroke and text colour is
   driven from Aksel `--ax-*` tokens (e.g. `var(--ax-bg-accent-soft)`,
   `var(--ax-border-accent)`, `var(--ax-text-default)`), so figures re-theme
