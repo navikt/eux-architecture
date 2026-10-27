@@ -7,22 +7,18 @@ import { useInView } from "@/components/ny-i-teamet/hooks";
 
 /**
  * Tre lag oppå hverandre: Spring Boot nederst, eux-parent-pom i midten og
- * app-POM-en øverst. Versjoner stiger opp gjennom lagene. Velg et lag for å se
- * hva det eier.
+ * app-POM-en øverst. Velg et lag for å se hva det eier.
+ *
+ * Alle detaljpanelene ligger i samme rutenettcelle, så høyden er stabil og
+ * lagene flytter seg aldri under markøren.
  */
 export function LayerStack() {
   const [active, setActive] = useState<LayerId>("parent");
   const [ref, inView] = useInView<HTMLDivElement>(0.3);
-  const layer = LAYERS.find((l) => l.id === active) ?? LAYERS[1];
 
   return (
     <div ref={ref} className="avh-stack" data-in={inView || undefined}>
       <div className="avh-stack__pile" role="group" aria-label="Velg et lag">
-        <span className="avh-stack__stream" aria-hidden>
-          {Array.from({ length: 5 }, (_, i) => (
-            <i key={i} style={{ "--i": i } as CSSProperties} />
-          ))}
-        </span>
         {LAYERS.map((l, i) => (
           <button
             key={l.id}
@@ -41,20 +37,25 @@ export function LayerStack() {
         ))}
       </div>
 
-      <div className="avh-stack__detail" data-tone={layer.tone} aria-live="polite" key={layer.id}>
-        <Detail className="arch-eyebrow">{layer.role}</Detail>
-        <Heading level="3" size="medium" spacing>
-          {layer.name}
-        </Heading>
-        <BodyLong spacing>{layer.text}</BodyLong>
-        <Detail className="avh-stack__owns-title">Eier</Detail>
-        <ul className="avh-stack__owns">
-          {layer.owns.map((o, i) => (
-            <li key={o} style={{ "--i": i } as CSSProperties}>
-              {o}
-            </li>
-          ))}
-        </ul>
+      <div className="avh-stack__details" aria-live="polite">
+        {LAYERS.map((l) => {
+          const on = l.id === active;
+          return (
+            <div key={l.id} className="avh-stack__detail" data-tone={l.tone} data-on={on || undefined} inert={!on}>
+              <Detail className="arch-eyebrow">{l.role}</Detail>
+              <Heading level="3" size="medium" spacing>
+                {l.name}
+              </Heading>
+              <BodyLong spacing>{l.text}</BodyLong>
+              <Detail className="avh-stack__owns-title">Eier</Detail>
+              <ul className="avh-stack__owns">
+                {l.owns.map((o) => (
+                  <li key={o}>{o}</li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

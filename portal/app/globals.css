@@ -14253,59 +14253,15 @@ svg.avh-layer {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 2rem;
-  align-items: center;
+  align-items: start;
 }
 
 .avh-stack__pile {
   position: relative;
   display: grid;
-  gap: 0.9rem;
-  padding: 1rem 0 1rem 2.25rem;
-  perspective: 1000px;
-}
-
-.avh-stack__stream {
-  position: absolute;
-  left: 0.9rem;
-  top: 1rem;
-  bottom: 1rem;
-  width: 2px;
-  border-radius: 2px;
-  background: linear-gradient(0deg, var(--ax-border-success), var(--ax-border-accent), var(--ax-border-meta-purple));
-  opacity: 0.6;
-}
-
-.avh-stack__stream i {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: 8px;
-  height: 8px;
-  margin-left: -4px;
-  border-radius: 50%;
-  background: var(--ax-bg-warning-strong);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ax-bg-warning-soft) 80%, transparent);
-  opacity: 0;
-}
-
-.avh-stack[data-in] .avh-stack__stream i {
-  animation: avh-rise 4.5s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * 0.9s);
-}
-
-@keyframes avh-rise {
-  0% {
-    bottom: 0;
-    opacity: 0;
-  }
-  15%,
-  80% {
-    opacity: 1;
-  }
-  100% {
-    bottom: 100%;
-    opacity: 0;
-  }
+  gap: 0.75rem;
+  padding: 0.25rem 0 0.25rem 2.25rem;
+  isolation: isolate;
 }
 
 .avh-slab {
@@ -14317,50 +14273,47 @@ svg.avh-layer {
     "name code";
   align-items: baseline;
   gap: 0.15rem 1rem;
-  padding: 1.05rem 1.25rem;
+  padding: 1rem 1.25rem;
   text-align: start;
   font: inherit;
   color: inherit;
   cursor: pointer;
-  border-radius: 16px;
-  border: 1px solid color-mix(in srgb, var(--tone-line) 25%, var(--ax-border-neutral-subtle));
-  background:
-    linear-gradient(110deg, color-mix(in srgb, var(--tone-soft) 90%, transparent), transparent 80%),
-    var(--ax-bg-default);
-  transform: rotateX(14deg) translateZ(0);
-  transform-origin: 50% 100%;
-  box-shadow: 0 14px 22px -20px var(--tone-line);
-  opacity: 0;
+  border-radius: 14px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
   transition:
-    transform 450ms var(--arch-ease),
-    box-shadow 300ms ease,
-    border-color 200ms ease;
+    background-color 250ms ease,
+    border-color 250ms ease,
+    box-shadow 250ms ease;
+}
+
+.avh-stack .avh-slab {
+  opacity: 0;
 }
 
 .avh-stack[data-in] .avh-slab {
   opacity: 1;
-  animation: avh-drop 700ms var(--arch-ease) backwards;
-  animation-delay: calc(var(--i, 0) * 160ms);
+  transition:
+    opacity 600ms ease calc(var(--i, 0) * 120ms),
+    background-color 250ms ease,
+    border-color 250ms ease,
+    box-shadow 250ms ease;
 }
 
-@keyframes avh-drop {
-  from {
-    opacity: 0;
-    translate: 0 -24px;
-  }
+.avh-slab:hover {
+  border-color: color-mix(in srgb, var(--tone-line) 45%, var(--ax-border-neutral-subtle));
 }
 
-.avh-slab:hover,
 .avh-slab[aria-pressed="true"] {
-  transform: rotateX(0deg) translateX(10px);
-  border-color: var(--tone-line);
-  box-shadow: 0 22px 34px -24px var(--tone-line);
+  border-color: color-mix(in srgb, var(--tone-line) 70%, transparent);
+  background: color-mix(in srgb, var(--tone-soft) 55%, var(--ax-bg-default));
+  box-shadow: 0 10px 24px -22px var(--tone-line);
 }
 
 .avh-slab::before {
   content: "";
   position: absolute;
-  left: -1.6rem;
+  left: calc(-1.35rem - 5px);
   top: 50%;
   width: 10px;
   height: 10px;
@@ -14368,12 +14321,24 @@ svg.avh-layer {
   border-radius: 50%;
   background: var(--ax-bg-default);
   border: 2px solid var(--tone-line);
-  transition: scale 300ms var(--arch-ease);
+  transition: background-color 250ms ease;
 }
 
 .avh-slab[aria-pressed="true"]::before {
-  scale: 1.35;
   background: var(--tone-line);
+}
+
+/* Linjen mellom lagene: fra midten av ett lag til midten av det neste. */
+.avh-slab:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: calc(-1.35rem - 1px);
+  top: 50%;
+  width: 2px;
+  height: calc(100% + 0.75rem);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ax-border-neutral-subtle) 80%, transparent);
+  z-index: -1;
 }
 
 .avh-slab:focus-visible {
@@ -14392,7 +14357,7 @@ svg.avh-layer {
 
 .avh-slab__name {
   grid-area: name;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
@@ -14403,21 +14368,30 @@ svg.avh-layer {
   color: var(--ax-text-neutral-subtle);
 }
 
+/* Alle panelene i samme celle: høyden følger det høyeste og står stille. */
+.avh-stack__details {
+  display: grid;
+}
+
 .avh-stack__detail {
+  grid-area: 1 / 1;
   padding: 1.5rem 1.6rem;
   border-radius: 18px;
   border: 1px solid color-mix(in srgb, var(--tone-line) 30%, transparent);
   background:
     radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--tone-soft) 90%, transparent), transparent 60%),
     var(--ax-bg-raised);
-  animation: avh-fadein 450ms var(--arch-ease);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 220ms ease,
+    visibility 0s linear 220ms;
 }
 
-@keyframes avh-fadein {
-  from {
-    opacity: 0;
-    translate: 0 6px;
-  }
+.avh-stack__detail[data-on] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 280ms ease 60ms;
 }
 
 .avh-stack__detail .arch-eyebrow {
@@ -14441,8 +14415,6 @@ svg.avh-layer {
 .avh-stack__owns li {
   position: relative;
   padding-left: 1.2rem;
-  animation: avh-fadein 400ms var(--arch-ease) backwards;
-  animation-delay: calc(80ms + var(--i, 0) * 60ms);
 }
 
 .avh-stack__owns li::before {
@@ -15226,6 +15198,19 @@ svg.avh-layer {
 }
 
 @media (max-width: 720px) {
+  .avh-slab {
+    grid-template-areas:
+      "role"
+      "name"
+      "code";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .avh-slab__code {
+    justify-self: start;
+    margin-top: 0.2rem;
+  }
+
   .avh-ot {
     --ot-label: 0px;
     --ot-gap: 0px;
@@ -16103,8 +16088,7 @@ svg.avh-layer {
   opacity: 0.55;
 }
 
-.dark .avh-principle,
-.dark .avh-slab {
+.dark .avh-principle {
   background:
     linear-gradient(150deg, color-mix(in srgb, var(--tone-soft) 60%, transparent), transparent 60%),
     var(--ax-bg-raised);
@@ -16223,16 +16207,12 @@ svg.avh-layer {
 @media (prefers-reduced-motion: reduce) {
   .avh-progress,
   .avh-pollen,
-  .avh-stack__stream i,
   .avh-week__bot i {
     display: none;
   }
 
   .avh-principle,
-  .avh-radar,
-  .avh-slab,
-  .avh-slab:hover,
-  .avh-slab[aria-pressed="true"] {
+  .avh-radar {
     transform: none;
   }
 
@@ -16240,7 +16220,7 @@ svg.avh-layer {
     stroke-dashoffset: 0;
   }
 
-  .avh-slab,
+  .avh-stack .avh-slab,
   .avh-week__check {
     opacity: 1;
   }
