@@ -44,7 +44,7 @@ import { HeroArt } from "./HeroArt";
 import { LayerStack } from "./LayerStack";
 import { VersionGuide } from "./VersionGuide";
 import { PomCompare } from "./PomCompare";
-import { DriftChart } from "./DriftChart";
+import { OverrideTimeline } from "./OverrideTimeline";
 import { Cycle } from "./Cycle";
 import { TokenSync } from "./TokenSync";
 import { FrontendHistory, FrontendWeek } from "./Frontend";
@@ -284,18 +284,18 @@ export function Avhengigheter() {
           <div className="avh-history-card__head">
             <Detail className="arch-eyebrow">Historikk · eux-parent-pom, nov. 2025 – okt. 2026</Detail>
             <Heading level="3" size="small">
-              Avstanden fra Spring
+              Overstyringer over tid
             </Heading>
             <BodyLong size="small" className="arch-subtle">
-              Antall Spring-styrte artefakter vi overstyrte, etter hver endring. Toppene er sårbarheter vi tettet selv;
-              dalene er når vi kunne gå tilbake. Pek eller bruk piltastene.
+              Hver stolpe er en periode der eux-parent-pom satte versjonen selv i stedet for å følge Spring Boot. Korte
+              stolper er målet. Velg en stolpe for å se hvorfor den kom, og hvordan den tok slutt.
             </BodyLong>
           </div>
-          <DriftChart />
+          <OverrideTimeline />
           <BodyLong size="small" className="avh-history-card__foot">
-            Sommeren 2026 overstyrte vi Jackson og Tomcat i flere omganger. I oktober testet vi hvor mange sårbarheter
-            Springs egne versjoner faktisk ga – og fjernet alle overstyringene. Lærdommen: gå tilbake så snart du kan,
-            og ikke la overstyringene bli liggende.
+            Lærdommen: en overstyring koster mer enn den ser ut som. Gamle pinner ble liggende lenge etter at de sluttet å
+            gjøre noe, og halve Jackson-pinner ga oss blandede versjoner. I oktober 2026 fjernet vi alle og gikk tilbake
+            til Springs versjoner. Kotlin er ikke med i oversikten – den versjonen eier parent-pom-en med vilje.
           </BodyLong>
         </div>
 

@@ -312,31 +312,139 @@ export const POM_NOTES: Record<number, { tone: Tone; text: string }> = {
 
 /* ---------- Avvik: historikk fra eux-parent-pom ---------- */
 
+/** Vinduet tidslinjen viser. */
+export const OVERRIDE_WINDOW = { start: "2025-11-01", end: "2026-11-01" };
+
+/** Hvordan en overstyring tok slutt. */
+export type OverrideEnd = "caught" | "chose" | "idle" | "dropped";
+
+export const OVERRIDE_END: Record<OverrideEnd, { label: string; tone: Tone }> = {
+  caught: { label: "Spring tok oss igjen", tone: "success" },
+  chose: { label: "Tilbake til Springs versjon", tone: "accent" },
+  idle: { label: "Lå der uten effekt", tone: "neutral" },
+  dropped: { label: "Forsvant i en oppgradering", tone: "warning" },
+};
+
+export type OverridePeriod = {
+  start: string;
+  end: string;
+  /** Satt før vinduet starter – vises med myk venstrekant. */
+  since?: string;
+  versions: string;
+  why: string;
+  ended: string;
+  kind: OverrideEnd;
+};
+
 /**
- * Historikk: hvor mange Spring-styrte artefakter som var overstyrt i
- * eux-parent-pom etter hver endring, november 2025 – oktober 2026.
+ * Historikk: perioder der eux-parent-pom satte en versjon Spring Boot
+ * ellers styrer, november 2025 – oktober 2026. Kotlin er utelatt med vilje:
+ * Kotlin-versjonen eier parent-pom-en selv.
  */
-export const DRIFT: { date: string; n: number; boot?: string; text: string }[] = [
-  { date: "2025-11-19", n: 1, boot: "3.5.7", text: "PostgreSQL-driveren er overstyrt." },
-  { date: "2025-11-24", n: 1, boot: "4.0.0", text: "Spring Boot 4. Ny major – PostgreSQL-overstyringen blir med." },
-  { date: "2025-12-28", n: 1, boot: "4.0.1", text: "Spring Boot 4.0.1." },
-  { date: "2026-02-23", n: 1, boot: "4.0.3", text: "Spring Boot 4.0.3." },
-  { date: "2026-03-23", n: 1, boot: "4.0.4", text: "Spring Boot 4.0.4." },
-  { date: "2026-04-08", n: 3, boot: "4.0.5", text: "Jackson 3 overstyres i tillegg." },
-  { date: "2026-04-24", n: 0, boot: "4.0.6", text: "Spring Boot 4.0.6 tar oss igjen. Alle overstyringene fjernes." },
-  { date: "2026-06-23", n: 0, boot: "4.0.7", text: "Spring Boot 4.0.7, og Dependabot slås på i parent-pom-en." },
-  { date: "2026-06-24", n: 11, text: "Jackson 2 og 3 overstyres – BOM-er, kjerneartefakter og Kotlin-modulen." },
-  { date: "2026-07-02", n: 0, boot: "4.1.0", text: "Spring Boot 4.1. Overstyringene fjernes igjen." },
-  { date: "2026-08-04", n: 9, text: "Jackson overstyres på nytt." },
-  { date: "2026-08-14", n: 11, text: "Jackson-BOM-ene flyttes før Spring Boot – ellers ble versjonene blandet." },
-  { date: "2026-09-07", n: 12, text: "Tomcat overstyres også." },
+export const OVERRIDE_LANES: { lib: string; note: string; periods: OverridePeriod[] }[] = [
   {
-    date: "2026-10-05",
-    n: 0,
-    boot: "4.1.1",
-    text: "Vi prøver Springs egne versjoner og ser hvor mange sårbarheter det gir – og fjerner alle overstyringene.",
+    lib: "PostgreSQL",
+    note: "JDBC-driver",
+    periods: [
+      {
+        start: "2023-07-06",
+        end: "2026-04-24",
+        since: "2023",
+        versions: "42.7.8 → 42.7.10",
+        why: "Satt i parent-pom-en i 2023, og løftet for hånd siden.",
+        ended: "Spring Boot hadde samme versjon, så pinnen gjorde ingenting. Ryddet bort med Spring Boot 4.0.6.",
+        kind: "idle",
+      },
+      {
+        start: "2026-08-14",
+        end: "2026-10-05",
+        versions: "42.7.13",
+        why: "Spring Boot 4.1.0 hadde 42.7.11. Vi ville ha patch-rettelsene i 42.7.13.",
+        ended: "Spring Boot 4.1.1 kom med 42.7.13.",
+        kind: "caught",
+      },
+    ],
   },
-  { date: "2026-10-26", n: 0, boot: "4.1.2", text: "Spring Boot 4.1.2 og Java 25. Ingen overstyringer." },
+  {
+    lib: "HikariCP",
+    note: "Connection pool",
+    periods: [
+      {
+        start: "2023-07-06",
+        end: "2026-04-24",
+        since: "2023",
+        versions: "6.3.3 → 7.0.2",
+        why: "Satt i parent-pom-en i 2023, sammen med PostgreSQL-driveren.",
+        ended: "Spring Boot hadde samme versjon, så pinnen gjorde ingenting. Ryddet bort med Spring Boot 4.0.6.",
+        kind: "idle",
+      },
+    ],
+  },
+  {
+    lib: "Jackson",
+    note: "JSON, versjon 2 og 3",
+    periods: [
+      {
+        start: "2026-04-08",
+        end: "2026-04-24",
+        versions: "Jackson 3: 3.1.1",
+        why: "Sårbarheter i Jackson 3. Spring Boot 4.0.5 hadde 3.1.0.",
+        ended: "Spring Boot 4.0.6 kom med 3.1.2, og pinnen ble fjernet.",
+        kind: "caught",
+      },
+      {
+        start: "2026-06-24",
+        end: "2026-07-02",
+        versions: "2.22.0 og 3.2.0",
+        why: "Vi løftet Jackson 2 og 3 foran Spring Boot. Det krevde pinner på BOM-er, kjerneartefakter, annotations og Kotlin-modulen.",
+        ended: "Pinnene forsvant i oppgraderingen til Spring Boot 4.1, som fortsatt hadde 2.21 og 3.1.",
+        kind: "dropped",
+      },
+      {
+        start: "2026-08-04",
+        end: "2026-10-05",
+        versions: "2.22.1 og 3.2.1",
+        why: "Pinnene kom tilbake. Moduler uten egen pin falt tilbake til Springs versjon, og vi fikk blandede Jackson-versjoner til BOM-ene ble flyttet foran Spring Boot.",
+        ended: "Vi prøvde Springs egne versjoner for å se hvor mange sårbarheter de faktisk ga, og fjernet overstyringene.",
+        kind: "chose",
+      },
+    ],
+  },
+  {
+    lib: "Tomcat",
+    note: "Embedded webserver",
+    periods: [
+      {
+        start: "2026-09-07",
+        end: "2026-10-05",
+        versions: "11.0.25",
+        why: "Spring Boot 4.1.0 hadde 11.0.22.",
+        ended: "Fjernet sammen med de andre i oktober. Spring Boot 4.1.1 hadde 11.0.24.",
+        kind: "chose",
+      },
+    ],
+  },
+];
+
+/** Spring Boot-linjene i eux-parent-pom i samme vindu. */
+export const BOOT_LINES: { line: string; start: string; end: string }[] = [
+  { line: "3.5", start: "2025-11-01", end: "2025-11-24" },
+  { line: "4.0", start: "2025-11-24", end: "2026-07-02" },
+  { line: "4.1", start: "2026-07-02", end: "2026-11-01" },
+];
+
+/** Datoene eux-parent-pom tok i bruk hver Spring Boot-versjon. */
+export const BOOT_RELEASES: { date: string; version: string }[] = [
+  { date: "2025-11-24", version: "4.0.0" },
+  { date: "2025-12-28", version: "4.0.1" },
+  { date: "2026-02-23", version: "4.0.3" },
+  { date: "2026-03-23", version: "4.0.4" },
+  { date: "2026-04-08", version: "4.0.5" },
+  { date: "2026-04-24", version: "4.0.6" },
+  { date: "2026-06-23", version: "4.0.7" },
+  { date: "2026-07-02", version: "4.1.0" },
+  { date: "2026-10-05", version: "4.1.1" },
+  { date: "2026-10-26", version: "4.1.2" },
 ];
 
 export const OVERRIDE_STEPS: { title: string; text: string; tone: Tone }[] = [
