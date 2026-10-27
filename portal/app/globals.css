@@ -16006,3 +16006,312 @@ svg.avh-layer {
     transform: scaleX(1);
   }
 }
+
+/* Avhengigheter: i takt med token-support */
+.avh-sync {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 1.5rem 2rem;
+  padding: 1.5rem;
+  border-radius: 22px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background:
+    radial-gradient(circle at 18% 30%, color-mix(in srgb, var(--ax-bg-meta-purple-soft) 75%, transparent), transparent 45%),
+    radial-gradient(circle at 42% 35%, color-mix(in srgb, var(--ax-bg-accent-soft) 70%, transparent), transparent 45%),
+    var(--ax-bg-raised);
+}
+
+.avh-sync__art {
+  --tx: 0;
+  --tick: 0deg;
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.avh-sync__svg {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.avh-gear {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: rotate 900ms var(--arch-ease);
+}
+
+.avh-gear--a {
+  rotate: calc(var(--tx) * 24deg + var(--tick));
+}
+
+.avh-gear--b {
+  rotate: calc(var(--tx) * -24deg - var(--tick));
+}
+
+.avh-gear__spin {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.avh-sync[data-in] .avh-gear--a .avh-gear__spin {
+  animation: avh-gear-spin 48s linear infinite;
+}
+
+.avh-sync[data-in] .avh-gear--b .avh-gear__spin {
+  animation: avh-gear-spin 48s linear infinite reverse;
+}
+
+@keyframes avh-gear-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.avh-gear__body {
+  fill: var(--tone-soft);
+  stroke: var(--tone-line);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.avh-gear__hole {
+  fill: var(--ax-bg-raised);
+  stroke: color-mix(in srgb, var(--tone-line) 55%, transparent);
+  stroke-width: 1;
+}
+
+.avh-gear__hub {
+  fill: var(--ax-bg-raised);
+  stroke: var(--tone-line);
+  stroke-width: 1.5;
+}
+
+.avh-gear__axle {
+  fill: var(--tone-line);
+}
+
+.avh-sync__beam {
+  stroke: var(--ax-border-success);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 4;
+  opacity: 0.7;
+}
+
+.avh-sync[data-in] .avh-sync__beam {
+  animation: avh-sync-flow 1.6s linear infinite;
+}
+
+@keyframes avh-sync-flow {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+.avh-sync__beat {
+  fill: var(--ax-bg-success-strong);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.avh-sync[data-in] .avh-sync__beat {
+  animation: avh-sync-beat 2.4s ease-in-out infinite;
+}
+
+@keyframes avh-sync-beat {
+  0%,
+  100% {
+    scale: 1;
+    opacity: 0.9;
+  }
+  50% {
+    scale: 1.8;
+    opacity: 0.35;
+  }
+}
+
+.avh-sync__label {
+  font: 600 9.5px var(--arch-mono);
+  fill: var(--ax-text-neutral);
+}
+
+.avh-sync__eq {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.avh-sync__eq > span {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.55rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
+}
+
+.avh-sync__eq small {
+  font-size: 0.72rem;
+  color: var(--ax-text-neutral-subtle);
+}
+
+.avh-sync__eq code {
+  overflow-wrap: anywhere;
+  font: 0.74rem var(--arch-mono);
+  padding: 0;
+  background: none;
+}
+
+.avh-sync__eq b {
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  font: 700 1rem var(--arch-mono);
+  color: var(--ax-text-success);
+  background: var(--ax-bg-success-soft);
+  border: 1px solid var(--ax-border-success-subtle);
+}
+
+.avh-sync__body {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.avh-sync__steps {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.avh-sync__steps li {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.1rem 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ax-bg-default) 70%, transparent);
+  border: 1px solid var(--ax-border-neutral-subtle);
+}
+
+.avh-sync__steps li > span {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  font: 700 0.75rem var(--arch-mono);
+  color: var(--ax-text-accent);
+  border: 1.5px solid var(--ax-border-accent);
+}
+
+.avh-sync__history {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--ax-border-neutral-subtle);
+}
+
+.avh-sync__history ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.avh-sync__history li {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid var(--ax-border-neutral-subtle);
+  background: var(--ax-bg-default);
+  cursor: default;
+  transition:
+    border-color 250ms ease,
+    background 250ms ease,
+    translate 250ms var(--arch-ease);
+}
+
+.avh-sync__history li[data-active] {
+  border-color: var(--ax-border-success);
+  background: color-mix(in srgb, var(--ax-bg-success-soft) 70%, var(--ax-bg-default));
+  translate: 0 -2px;
+}
+
+.avh-sync__history li:focus-visible {
+  outline: 2px solid var(--ax-border-focus);
+  outline-offset: 2px;
+}
+
+.avh-sync__history time {
+  font: 600 0.72rem var(--arch-mono);
+  color: var(--ax-text-neutral-subtle);
+}
+
+.avh-sync__pair {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.avh-sync__pair i {
+  font-style: normal;
+  color: var(--ax-text-success);
+}
+
+.avh-sync__history small {
+  font-size: 0.78rem;
+  color: var(--ax-text-neutral-subtle);
+}
+
+@media (max-width: 1000px) {
+  .avh-sync {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .avh-sync__history ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .avh-sync {
+    padding: 1.1rem;
+  }
+
+  .avh-sync__eq {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+
+  .avh-sync__eq > span {
+    width: 100%;
+  }
+
+  .avh-sync__history ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avh-gear,
+  .avh-sync__history li {
+    transition: none;
+  }
+}

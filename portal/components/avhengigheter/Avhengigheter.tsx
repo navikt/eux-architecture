@@ -36,6 +36,7 @@ import {
   SHORT_VERSION,
   SPRING_BOOT_VERSIONS,
   SPRING_LINE,
+  TOKEN_SUPPORT_REPO,
   WEB_APP_REPO,
   type PrincipleIcon,
 } from "./data";
@@ -45,11 +46,13 @@ import { VersionGuide } from "./VersionGuide";
 import { PomCompare } from "./PomCompare";
 import { DriftChart } from "./DriftChart";
 import { Cycle } from "./Cycle";
+import { TokenSync } from "./TokenSync";
 import { FrontendHistory, FrontendWeek } from "./Frontend";
 
 const SECTIONS = [
   { id: "prinsipper", label: "Prinsipper" },
   { id: "lagene", label: "Lagene" },
+  { id: "token-support", label: "token-support" },
   { id: "hvor", label: "Hvor?" },
   { id: "ren-pom", label: "Ren POM" },
   { id: "avvik", label: "Avvik" },
@@ -222,6 +225,15 @@ export function Avhengigheter() {
           betyr også at en property som <code>&lt;tomcat.version&gt;</code> i appen <em>ikke</em> endrer Springs
           versjoner. Se fallgruvene.
         </BodyLong>
+      </Section>
+
+      <Section
+        id="token-support"
+        eyebrow="Spring-versjonen"
+        title="I takt med token-support"
+        lead="Hvilken Spring Boot-versjon skal vi være på? Den samme som Navs token-support er bygget med. De to går i takt."
+      >
+        <TokenSync />
       </Section>
 
       <Section
@@ -484,6 +496,16 @@ export function Avhengigheter() {
                     <>
                       Første BOM som nevner en artefakt, vinner. En BOM som skal overstyre Spring, må stå{" "}
                       <em>før</em> <code>spring-boot-dependencies</code>. Det lærte vi med Jackson i august 2026.
+                    </>
+                  ),
+                },
+                {
+                  title: "Spring Boot foran token-support",
+                  body: (
+                    <>
+                      En ny Spring Boot kan være ute før token-support har tatt den inn. Løfter vi likevel, kjører
+                      innloggingen på en Spring-versjon den ikke er testet mot. Sjekk{" "}
+                      <ExtLink href={TOKEN_SUPPORT_REPO}>token-support</ExtLink> først, og løft begge sammen.
                     </>
                   ),
                 },

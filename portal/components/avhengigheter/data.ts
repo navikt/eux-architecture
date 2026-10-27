@@ -10,6 +10,7 @@ import type { Tone } from "@/lib/tones";
 
 export const PARENT_POM_REPO = "https://github.com/navikt/eux-parent-pom";
 export const VERSIONS_PLUGIN_REPO = "https://github.com/navikt/eux-versions-maven-plugin";
+export const TOKEN_SUPPORT_REPO = "https://github.com/navikt/token-support";
 export const WEB_APP_REPO = "https://github.com/navikt/eux-web-app";
 export const NAIS_VULNERABILITIES = "https://console.nav.cloud.nais.io/team/eessibasis/vulnerabilities";
 export const NAIS_VULN_DOCS = "https://docs.nais.io/services/vulnerabilities/";
@@ -18,7 +19,7 @@ export const DEPENDABOT_DOCS =
   "https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference";
 
 export const SHORT_VERSION =
-  "Vi lar Spring Boot bestemme versjonene, samler resten i eux-parent-pom og holder app-POM-ene rene. Avviker vi fra Spring, er det for å tette en akutt sårbarhet – og bare til Spring har tatt oss igjen.";
+  "Vi lar Spring Boot bestemme versjonene – i samme Spring-versjon som Navs token-support – samler resten i eux-parent-pom og holder app-POM-ene rene. Avviker vi fra Spring, er det for å tette en akutt sårbarhet – og bare til Spring har tatt oss igjen.";
 
 /* ---------- Prinsipper ---------- */
 
@@ -41,7 +42,7 @@ export const PRINCIPLES: { icon: PrincipleIcon; tone: Tone; title: string; text:
     icon: "flow",
     tone: "info",
     title: "Følg Springs versjoner",
-    text: "Det Spring Boot styrer, lar vi Spring styre. Spring tester bibliotekene sammen, så vi slipper å gjøre det selv.",
+    text: "Det Spring Boot styrer, lar vi Spring styre – i samme versjon som Navs token-support. Da er bibliotekene testet sammen.",
   },
   {
     icon: "bandage",
@@ -347,17 +348,42 @@ export const OVERRIDE_STEPS: { title: string; text: string; tone: Tone }[] = [
 
 /* ---------- Rytmen ---------- */
 
+/* ---------- I takt med token-support ---------- */
+
+export const TOKEN_SYNC_STEPS: { title: string; text: string }[] = [
+  {
+    title: "Se hva token-support bygger på",
+    text: "spring-boot.version i token-support sin pom.xml viser hvilken Spring Boot den nyeste releasen er bygget og testet med.",
+  },
+  {
+    title: "Løft begge i samme endring",
+    text: "spring.boot.version og token.support.version endres sammen i eux-parent-pom, så de følger hverandre.",
+  },
+  {
+    title: "Spring først ute? Vent litt",
+    text: "Kommer en ny Spring Boot før token-support, venter vi til token-support har tatt den inn. Haster en sårbarhet, overstyrer vi heller det ene biblioteket.",
+  },
+];
+
+/* Historikk fra eux-parent-pom og token-support: Spring Boot-versjonen vi løftet til, og token-support-releasen bygget på den. */
+export const TOKEN_SYNC_HISTORY: { date: string; boot: string; token: string; note: string }[] = [
+  { date: "nov. 2025", boot: "4.0.0", token: "6.0.0", note: "Ny major i begge" },
+  { date: "apr. 2026", boot: "4.0.6", token: "6.0.6", note: "Samme dag som token-support" },
+  { date: "jul. 2026", boot: "4.1.0", token: "6.0.11", note: "Spring Boot 4.1" },
+  { date: "okt. 2026", boot: "4.1.2", token: "7.0.1", note: "Én commit, sammen med Java 25" },
+];
+
 export const CYCLE: { title: string; who: string; text: string; tone: Tone }[] = [
   {
     title: "Spring Boot slipper",
     who: "Spring",
-    text: "Spring Boot kommer med en patch omtrent hver måned og en ny minor-versjon to ganger i året.",
+    text: "Spring Boot kommer med en patch omtrent hver måned og en ny minor-versjon to ganger i året. Navs token-support følger etter.",
     tone: "success",
   },
   {
     title: "Vi løfter eux-parent-pom",
     who: "Teamet",
-    text: "Vi løfter spring.boot.version og ser over resten. Dependabot foreslår versjonene parent-pom-en eier selv.",
+    text: "Når token-support er bygget på den nye Spring Boot-versjonen, løfter vi begge sammen. Dependabot foreslår resten.",
     tone: "accent",
   },
   {
@@ -458,6 +484,10 @@ export const FRONTEND_HISTORY: { date: string; title: string; text: string; tone
 export const GLOSSARY: GlossaryEntry[] = [
   { term: "BOM", full: "Bill of Materials", text: "En POM som bare lister versjoner. Spring Boot, Kotlin og Jackson har hver sin." },
   { term: "Parent-POM", text: "En POM appene arver fra. Vår heter eux-parent-pom." },
+  {
+    term: "token-support",
+    text: "Navs bibliotek for å validere og hente tokens fra Azure AD og TokenX i Spring-apper. Spring Boot-versjonen vår følger den.",
+  },
   { term: "dependencyManagement", text: "Bestemmer versjonen en avhengighet får hvis den brukes – uten å legge den til." },
   { term: "Overstyring", text: "En versjon vi setter selv for et bibliotek Spring Boot ellers ville styrt." },
   { term: "Dependabot", text: "GitHubs robot som åpner PR-er når nye versjoner kommer." },
@@ -470,6 +500,7 @@ export const FURTHER: FurtherLink[] = [
   { href: PARENT_POM_REPO, title: "eux-parent-pom", text: "Felles versjoner og plugins for backend.", external: true },
   { href: NAIS_VULNERABILITIES, title: "Sårbarheter i NAIS Console", text: "Teamets sårbarheter, per app og image.", external: true },
   { href: SPRING_BOOT_VERSIONS, title: "Spring Boots versjoner", text: "Alt Spring Boot styrer – sjekk her før du skriver en versjon.", external: true },
+  { href: TOKEN_SUPPORT_REPO, title: "token-support", text: "Navs token-bibliotek – spring-boot.version i pom.xml er vår takt.", external: true },
   { href: VERSIONS_PLUGIN_REPO, title: "eux-versions-maven-plugin", text: "Finner neste versjon ut fra git-taggene.", external: true },
   { href: WEB_APP_REPO, title: "eux-web-app", text: "nEESSI – package.json og Dependabot-oppsettet.", external: true },
   { href: NAIS_VULN_DOCS, title: "NAIS: sårbarheter", text: "SBOM, attestering og hvordan NAIS finner sårbarheter.", external: true },
