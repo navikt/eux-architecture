@@ -76,6 +76,7 @@ spec:
         - /architecture/**
         - /applications/**
         - /environments/**
+        - /avhengigheter/**
         - /prosesser/**
         - /api/internal/**
         - /api/me

@@ -94,6 +94,10 @@ const AREAS: { id: string; title: string; lead: string; tone: Tone; Icon: Icon; 
         page: "/environments",
         text: "Q1 og Q2 – RINA-instanser, nEESSI, CPI- og NIE-endepunkter og Swagger.",
       },
+      {
+        page: "/avhengigheter",
+        text: "Hvordan vi velger avhengigheter og holder dem oppdatert – Spring, eux-parent-pom og Dependabot.",
+      },
     ],
   },
   {

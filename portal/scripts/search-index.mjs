@@ -145,6 +145,7 @@ const componentFolders = {
   "/architecture": ["architecture"],
   "/applications": [],
   "/environments": ["miljoer"],
+  "/avhengigheter": ["avhengigheter"],
   "/prosesser/automatisk-avslutning": ["avslutning"],
   "/prosesser/automatisk-sletting": ["sletting"],
   "/prosesser/journalfoering": ["journalfoering"],

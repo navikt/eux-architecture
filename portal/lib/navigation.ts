@@ -11,6 +11,7 @@ import {
   LayersIcon,
   LinkIcon,
   LocationPinIcon,
+  PackageIcon,
   TestFlaskIcon,
   TrashIcon,
   WavesIcon,
@@ -49,6 +50,7 @@ const NAVIGATION = [
       { href: "/architecture", label: "Arkitektur", Icon: LayersIcon, start: true },
       { href: "/applications", label: "Applikasjoner", Icon: ComponentIcon, start: true },
       { href: "/environments", label: "Miljøer", Icon: CloudIcon, start: true },
+      { href: "/avhengigheter", label: "Avhengigheter", Icon: PackageIcon },
     ],
   },
   {
