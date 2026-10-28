@@ -11,13 +11,11 @@
     <parent>
         <groupId>no.nav.eux</groupId>
         <artifactId>parent-pom</artifactId>
-        <version>2.0.24</version>
+        <version>3.0.1</version>
     </parent>
 
     <properties>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <lz4-java.version>1.11.4</lz4-java.version>
     </properties>
 
     <scm>
@@ -25,6 +23,17 @@
         <developerConnection>scm:git:https://github.com/navikt/eux-architecture.git</developerConnection>
         <url>https://github.com/navikt/eux-architecture.git</url>
     </scm>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Not managed by Spring Boot; kafka-clients brings a vulnerable version (GHSA-mcr4-qmvw-px4g) -->
+            <dependency>
+                <groupId>at.yawk.lz4</groupId>
+                <artifactId>lz4-java</artifactId>
+                <version>${lz4-java.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- Spring -->
@@ -90,7 +99,6 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -108,7 +116,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <jvmTarget>25</jvmTarget>
                     <compilerPlugins>
                         <plugin>spring</plugin>
                     </compilerPlugins>
@@ -139,7 +146,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.boot.version}</version>
                 <executions>
                     <execution>
                         <goals>
