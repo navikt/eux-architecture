@@ -1,0 +1,23 @@
+1.1.1.     $nav.sak.kontekst.bruker.person.etternavn                       X100.CaseContext.PersonContext.familyName
+1.1.2.     $nav.sak.kontekst.bruker.person.fornavn                         X100.CaseContext.PersonContext.forename
+1.1.3.     $nav.sak.kontekst.bruker.person.foedselsdato                    X100.CaseContext.PersonContext.dateBirth
+1.1.4.     $nav.sak.kontekst.bruker.person.kjoenn                          X100.CaseContext.PersonContext.sex.value[0]
+1.2.1.     $nav.sak.kontekst.arbeidsgiver.navn                             X100.CaseContext.EmployerContext.name
+1.2.2.1.1. $nav.sak.kontekst.arbeidsgiver.identifikator[x].id              X100.CaseContext.EmployerContext.IdentificationNumbers.IdentificationNumber[0].number
+1.2.2.1.2. $nav.sak.kontekst.arbeidsgiver.identifikator[x].type            X100.CaseContext.EmployerContext.IdentificationNumbers.IdentificationNumber[0].type.value[0]
+1.2.3.1.   $nav.sak.kontekst.arbeidsgiver.adresse.gate                     X100.CaseContext.EmployerContext.Address.street
+1.2.3.2.   $nav.sak.kontekst.arbeidsgiver.adresse.bygning                  X100.CaseContext.EmployerContext.Address.buildingName
+1.2.3.3.   $nav.sak.kontekst.arbeidsgiver.adresse.by                       X100.CaseContext.EmployerContext.Address.town
+1.2.3.4.   $nav.sak.kontekst.arbeidsgiver.adresse.postnummer               X100.CaseContext.EmployerContext.Address.postalCode
+1.2.3.5.   $nav.sak.kontekst.arbeidsgiver.adresse.region                   X100.CaseContext.EmployerContext.Address.region
+1.2.3.6.   $nav.sak.kontekst.arbeidsgiver.adresse.land                     X100.CaseContext.EmployerContext.Address.country.value[0]
+           $nav.sak.kontekst.arbeidsgiver.adresse.landkode                 X100.CaseContext.EmployerContext.Address.country.value[0]
+1.3.1.     $nav.sak.kontekst.refusjonskrav.id                              X100.CaseContext.ReimbursementContext.reimbursementRequestID
+1.3.2.     $nav.sak.kontekst.refusjonskrav.antallkrav                      X100.CaseContext.ReimbursementContext.totalNumberIndividualClaims
+
+2.1.1.     $nav.sak.endringinstitusjon.leggtilinstitusjon.institusjon.id   X100.ChangeParticipant.AddParticipant.institutionID
+2.1.2.     $nav.sak.endringinstitusjon.leggtilinstitusjon.institusjon.navn X100.ChangeParticipant.AddParticipant.institutionName
+2.2.1.     $nav.sak.endringinstitusjon.fjerninstitusjon.institusjon.id     X100.ChangeParticipant.RemoveParticipant.institutionID
+2.2.2.     $nav.sak.endringinstitusjon.fjerninstitusjon.institusjon.navn   X100.ChangeParticipant.RemoveParticipant.institutionName
+2.3.       $nav.sak.endringinstitusjon.grunn.type                          X100.ChangeParticipant.reason.value[0]
+2.4.       $nav.sak.endringinstitusjon.grunn.annet                         X100.ChangeParticipant.pleaseProvideMoreDetailsIf99OtherSelected

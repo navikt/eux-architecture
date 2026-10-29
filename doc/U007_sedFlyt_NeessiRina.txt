@@ -1,0 +1,111 @@
+U007		"Forespørsel om eksportdokument"
+
+1.1.1.		U007Dto.lokaleSaksnumre[].landkode								$nav.eessisak[x].landkode			U007.LocalCaseNumbers.LocalCaseNumber[0].country.value[0]
+		..												$nav.eessisak[x].land				U007.LocalCaseNumbers.LocalCaseNumber[0].country.value[0]
+1.1.2.		U007Dto.lokaleSaksnumre[].saksnummer								$nav.eessisak[x].saksnummer			U007.LocalCaseNumbers.LocalCaseNumber[0].caseNumber
+1.1.3.1.	U007Dto.lokaleSaksnumre[].institusjonsid							$nav.eessisak[x].institusjonsid			U007.LocalCaseNumbers.LocalCaseNumber[0].Institution.institutionID
+1.1.3.2.	U007Dto.lokaleSaksnumre[].institusjonsnavn							$nav.eessisak[x].institusjonsnavn		U007.LocalCaseNumbers.LocalCaseNumber[0].Institution.institutionName
+
+2.1.1.		U007Dto.bruker.personInfo.etternavn								$nav.bruker.person.etternavn			U007.Person.PersonIdentification.familyName
+2.1.2.		U007Dto.bruker.personInfo.fornavn								$nav.bruker.person.fornavn			U007.Person.PersonIdentification.forename
+2.1.3.		U007Dto.bruker.personInfo.foedselsdato								$nav.bruker.person.foedselsdato			U007.Person.PersonIdentification.dateBirth
+2.1.4.		U007Dto.bruker.personInfo.kjoenn								$nav.bruker.person.kjoenn			U007.Person.PersonIdentification.sex.value[0]
+2.1.5.		U007Dto.bruker.personInfo.pinMangler.etternavnVedFoedsel					$nav.bruker.person.etternavnvedfoedsel		U007.Person.PersonIdentification.familyNameAtBirth
+2.1.6.		U007Dto.bruker.personInfo.pinMangler.fornavnVedFoedsel						$nav.bruker.person.fornavnvedfoedsel		U007.Person.PersonIdentification.forenameAtBirth
+2.1.7.1.1.	U007Dto.bruker.personInfo.pin[].landkode							$nav.bruker.person.pin[x].landkode			U007.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+		..						$nav.bruker.person.pin[x].landkode								U007.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+2.1.7.1.2.	U007Dto.bruker.personInfo.pin[].identifikator							$nav.bruker.person.pin[x].identifikator		U007.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+2.1.7.1.3.	U007Dto.bruker.personInfo.pin[].sektor								$nav.bruker.person.pin[x].sektor		U007.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+2.1.7.1.4.1.	U007Dto.bruker.personInfo.pin[].institusjonsid							$nav.bruker.person.pin[x].institusjonsid	U007.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+2.1.7.1.4.2.	U007Dto.bruker.personInfo.pin[].institusjonsnavn						$nav.bruker.person.pin[x].institusjonsnavn	U007.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+2.1.8.1.1.	U007Dto.bruker.personInfo.pinMangler.foedested.by						$nav.bruker.person.foedested.by			U007.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+2.1.8.1.2.	U007Dto.bruker.personInfo.pinMangler.foedested.region						$nav.bruker.person.foedested.region		U007.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+2.1.8.1.3.	U007Dto.bruker.personInfo.pinMangler.foedested.landkode						$nav.bruker.person.foedested.landkode		U007.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+		.. 						$nav.bruker.person.foedested.landkode								U007.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+2.1.8.2.	U007Dto.bruker.personInfo.pinMangler.far.etternavnVedFoedsel					$nav.bruker.far.person.etternavnvedfoedsel	U007.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+2.1.8.3.	U007Dto.bruker.personInfo.pinMangler.far.fornavn						$nav.bruker.far.person.fornavn			U007.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+2.1.8.4.	U007Dto.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel					$nav.bruker.mor.person.etternavnvedfoedsel	U007.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+2.1.8.5.	U007Dto.bruker.personInfo.pinMangler.mor.fornavn						$nav.bruker.mor.person.fornavn			U007.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+2.2.1.		U007Dto.bruker.personInfo.statsborgerskap[].landkode						$nav.bruker.person.statsborgerskap[x].land	U007.Person.AdditionalInformationPerson.nationality.value[0]
+		.. 						$nav.bruker.person.statsborgerskap[x].landkode							U007.Person.AdditionalInformationPerson.nationality.value[0]
+
+3.1.		U007Dto.registreringsdato									$dagpenger.bruker.landetdetsoekesarbeidi.registreringsdato	U007.DateRegistration.date
+
+4.1.1.		U007Dto.bruker.adresse.gate									$nav.bruker.bostedsadresse.gate			U007.PersonCurrentAddress.AddressDetails.street
+4.1.2.		U007Dto.bruker.adresse.bygning									$nav.bruker.bostedsadresse.bygning		U007.PersonCurrentAddress.AddressDetails.buildingName
+4.1.3.		U007Dto.bruker.adresse.by									$nav.bruker.bostedsadresse.by			U007.PersonCurrentAddress.AddressDetails.town
+4.1.4.		U007Dto.bruker.adresse.postnummer								$nav.bruker.bostedsadresse.postnummer		U007.PersonCurrentAddress.AddressDetails.postalCode
+4.1.5.		U007Dto.bruker.adresse.region									$nav.bruker.bostedsadresse.region		U007.PersonCurrentAddress.AddressDetails.region
+4.1.6.		U007Dto.bruker.adresse.landkode									$nav.bruker.bostedsadresse.land			U007.PersonCurrentAddress.AddressDetails.country.value[0]
+								$nav.bruker.bostedsadresse.landkode								U007.PersonCurrentAddress.AddressDetails.country.value[0]
+4.2.1.1.1.	U007Dto.bruker.telefon[].type									$nav.bruker.person.kontakt.telefon[x].type	U007.PersonCurrentAddress.ContactInformation.TelephoneNumbers.TelephoneNumber[0].type.value[0]
+4.2.1.1.2.	U007Dto.bruker.telefon[].nummer									$nav.bruker.person.kontakt.telefon[x].nummer	U007.PersonCurrentAddress.ContactInformation.TelephoneNumbers.TelephoneNumber[0].number
+4.2.2.1.1.	U007Dto.bruker.epost[].adresse									$nav.bruker.person.kontakt.email[x].adresse	U007.PersonCurrentAddress.ContactInformation.EmailAddresses.EmailAddress[0].email
+
+
+
+
+5.1.		U007Dto.sisteAdresseIKompetentLand.gate								$dagpenger.bruker.kompetentland.sisteadresse.gate	U007.LastAddressInCompetentState.street
+5.2.		U007Dto.sisteAdresseIKompetentLand.bygning							$dagpenger.bruker.kompetentland.sisteadresse.bygning	U007.LastAddressInCompetentState.buildingName
+5.3.		U007Dto.sisteAdresseIKompetentLand.by								$dagpenger.bruker.kompetentland.sisteadresse.by	U007.LastAddressInCompetentState.town
+5.4.		U007Dto.sisteAdresseIKompetentLand.postnummer							$dagpenger.bruker.kompetentland.sisteadresse.postnummer	U007.LastAddressInCompetentState.postalCode
+5.5.		U007Dto.sisteAdresseIKompetentLand.region							$dagpenger.bruker.kompetentland.sisteadresse.region	U007.LastAddressInCompetentState.region
+5.6.		U007Dto.sisteAdresseIKompetentLand.landkode							$dagpenger.bruker.kompetentland.sisteadresse.land	U007.LastAddressInCompetentState.country.value[0]
+		..							$dagpenger.bruker.kompetentland.sisteadresse.landkode						U007.LastAddressInCompetentState.country.value[0]
+
+6.1.1.		U007Dto.institusjonDagpenger.institusjon.id							$dagpenger.anmodningominformasjon.trygdehistorikk.dagpenger.institusjon.id			U007.DetailsInstitutionOrFundGrantingUnemployment.TheInstitutionEXISTSInIR.institutionID
+6.1.2.		U007Dto.institusjonDagpenger.institusjon.navn							$dagpenger.anmodningominformasjon.trygdehistorikk.dagpenger.institusjon.navn			U007.DetailsInstitutionOrFundGrantingUnemployment.TheInstitutionEXISTSInIR.institutionName
+6.2.1.		U007Dto.institusjonDagpenger.ukjentInstitusjon.navn						$dagpenger.anmodningominformasjon.trygdehistorikk.dagpenger.ukjentinstitusjon.navn		U007.DetailsInstitutionOrFundGrantingUnemployment.TheInstitutionDOESNOTExistInIR.institutionName
+6.2.2.1.	U007Dto.institusjonDagpenger.ukjentInstitusjon.adresse.gate					$dagpenger.anmodningominformasjon.trygdehistorikk.dagpenger.ukjentinstitusjon.adresse.gate	U007.DetailsInstitutionOrFundGrantingUnemployment.TheInstitutionDOESNOTExistInIR.InstitutionAddress.street
+6.2.2.2.	U007Dto.institusjonDagpenger.ukjentInstitusjon.adresse.bygning					$dagpenger.anmodningominformasjon.trygdehistorikk.dagpenger.ukjentinstitusjon.adresse.bygning	U007.DetailsInstitutionOrFundGrantingUnemployment.TheInstitutionDOESNOTExistInIR.InstitutionAddress.buildingName
+6.2.2.3.	U007Dto.institusjonDagpenger.ukjentInstitusjon.adresse.by					$dagpenger.anmodningominformasjon.trygdehistorikk.dagpenger.ukjentinstitusjon.adresse.by	U007.DetailsInstitutionOrFundGrantingUnemployment.TheInstitutionDOESNOTExistInIR.InstitutionAddress.town
+6.2.2.4.	U007Dto.institusjonDagpenger.ukjentInstitusjon.adresse.postnummer				$dagpenger.anmodningominformasjon.trygdehistorikk.dagpenger.ukjentinstitusjon.adresse.postnummerU007.DetailsInstitutionOrFundGrantingUnemployment.TheInstitutionDOESNOTExistInIR.InstitutionAddress.postalCode
+6.2.2.5.	U007Dto.institusjonDagpenger.ukjentInstitusjon.adresse.region					$dagpenger.anmodningominformasjon.trygdehistorikk.dagpenger.ukjentinstitusjon.adresse.region	U007.DetailsInstitutionOrFundGrantingUnemployment.TheInstitutionDOESNOTExistInIR.InstitutionAddress.region
+6.2.2.6.	U007Dto.institusjonDagpenger.ukjentInstitusjon.adresse.landkode					$dagpenger.anmodningominformasjon.trygdehistorikk.dagpenger.ukjentinstitusjon.adresse.land	U007.DetailsInstitutionOrFundGrantingUnemployment.TheInstitutionDOESNOTExistInIR.InstitutionAddress.country.value[0]
+														$dagpenger.anmodningominformasjon.trygdehistorikk.dagpenger.ukjentinstitusjon.adresse.landkode	U007.DetailsInstitutionOrFundGrantingUnemployment.TheInstitutionDOESNOTExistInIR.InstitutionAddress.country.value[0]
+		U007Dto.sedType											(metadata, ikkje i ACL)
+		U007Dto.sedVersjon										(metadata, ikkje i ACL)
+		U007Dto.bruker.personInfo.adressebeskyttelsesgrad						(beriking frå PDL, ikkje i ACL)
+3341
+
+U007Dto.kompetentLand.bruker.adresse.gate				
+U007Dto.kompetentLand.bruker.adresse.bygning			
+U007Dto.kompetentLand.bruker.adresse.by				
+U007Dto.kompetentLand.bruker.adresse.postnummer			
+U007Dto.kompetentLand.bruker.adresse.region			
+U007Dto.kompetentLand.bruker.adresse.landkode			
+
+U007Dto.kompetentLand.institusjon.id			
+U007Dto.kompetentLand.institusjon.navn			
+U007Dto.kompetentLand.uregistrertInstitusjon.navn		
+U007Dto.kompetentLand.uregistrertInstitusjon.adresse.gate	
+U007Dto.kompetentLand.uregistrertInstitusjon.adresse.bygning	
+U007Dto.kompetentLand.uregistrertInstitusjon.adresse.by	
+U007Dto.kompetentLand.uregistrertInstitusjon.adresse.postnumme
+U007Dto.kompetentLand.uregistrertInstitusjon.adresse.region	
+U007Dto.kompetentLand.uregistrertInstitusjon.adresse.landkode	
+
+institusjon.id
+-----------
+F001.utbetalingTilInstitusjon.id - $familie.fremsettendemyndighet.institusjon.id 	 
+F002.utbetalingTilInstitusjon.id - $familie.fremsettendemyndighet.institusjon.id 
+F004.utbetalingTilInstitusjon.id - $familie.fremsettendemyndighet.institusjon.id 
+F005.utbetalingTilInstitusjon.id - $familie.fremsettendemyndighet.institusjon.id 
+F016.utbetalingTilInstitusjon.id - $familie.fremsettendemyndighet.institusjon.id 
+F017.utbetalingTilInstitusjon.id - $familie.fremsettendemyndighet.institusjon.id 	
+F021.utbetalingTilInstitusjon.id - $familie.fremsettendemyndighet.institusjon.id
+F022
+F023
+F023
+---
+
+F022.PeriodsAtCurrentRegisteredInstitution.Institution.institutionID: $familie.bruker.registrertnaa.institusjon.id
+F022.PeriodsAtInstitutionInPlaceResidence.Institution.institutionID: $familie.bruker.bosted.institusjon.id
+F022.PeriodsAtLastRegisteredInstitution.Institution.institutionID: $familie.bruker.registrertsist.institusjon.id
+
+F023.PeriodsAtCurrentRegisteredInstitution.Institution.institutionID: $familie.bruker.registrertnaa.institusjon.id
+F023.PeriodsAtInstitutionInPlaceResidence.Institution.institutionID: $familie.bruker.bosted.institusjon.id
+F026.SchoolUniversityEstablishmentHigherEducation.Organisation.IdentificationNumbers.IdentificationNumber[0].number: $familie.anmodningommerinformasjon.utdanningsinstitusjon.identifikator[x].id
+
+
+								

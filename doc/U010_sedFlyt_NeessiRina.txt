@@ -1,0 +1,42 @@
+U010		"Omstendigheter som sannsynligvis påvirker rettighet - eksport"
+
+1.1.1.		U010Dto.lokaleSaksnumre[].landkode				$nav.eessisak[x].land				U010.LocalCaseNumbers.LocalCaseNumber[0].country.value[0]
+		$nav.eessisak[x].landkode					U010.LocalCaseNumbers.LocalCaseNumber[0].country.value[0]
+1.1.2.		U010Dto.lokaleSaksnumre[].saksnummer				$nav.eessisak[x].saksnummer			U010.LocalCaseNumbers.LocalCaseNumber[0].caseNumber
+1.1.3.1.	U010Dto.lokaleSaksnumre[].institusjonsid			$nav.eessisak[x].institusjonsid			U010.LocalCaseNumbers.LocalCaseNumber[0].Institution.institutionID
+1.1.3.2.	U010Dto.lokaleSaksnumre[].institusjonsnavn			$nav.eessisak[x].institusjonsnavn		U010.LocalCaseNumbers.LocalCaseNumber[0].Institution.institutionName
+
+2.1.1.		U010Dto.bruker.personInfo.etternavn				$nav.bruker.person.etternavn			U010.Person.PersonIdentification.familyName
+2.1.2.		U010Dto.bruker.personInfo.fornavn				$nav.bruker.person.fornavn			U010.Person.PersonIdentification.forename
+2.1.3.		U010Dto.bruker.personInfo.foedselsdato				$nav.bruker.person.foedselsdato			U010.Person.PersonIdentification.dateBirth
+2.1.4.		U010Dto.bruker.personInfo.kjoenn				$nav.bruker.person.kjoenn			U010.Person.PersonIdentification.sex.value[0]
+2.1.5.		U010Dto.bruker.personInfo.pinMangler.etternavnVedFoedsel	$nav.bruker.person.etternavnvedfoedsel		U010.Person.PersonIdentification.familyNameAtBirth
+2.1.6.		U010Dto.bruker.personInfo.pinMangler.fornavnVedFoedsel		$nav.bruker.person.fornavnvedfoedsel		U010.Person.PersonIdentification.forenameAtBirth
+2.1.7.1.1.	U010Dto.bruker.personInfo.pin[].landkode			$nav.bruker.person.pin[x].land			U010.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+		$nav.bruker.person.pin[x].landkode				U010.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+2.1.7.1.2.	U010Dto.bruker.personInfo.pin[].identifikator			$nav.bruker.person.pin[x].identifikator		U010.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+2.1.7.1.3.	U010Dto.bruker.personInfo.pin[].sektor				$nav.bruker.person.pin[x].sektor		U010.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+2.1.7.1.4.1.	U010Dto.bruker.personInfo.pin[].institusjonsid			$nav.bruker.person.pin[x].institusjonsid	U010.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+2.1.7.1.4.2.	U010Dto.bruker.personInfo.pin[].institusjonsnavn		$nav.bruker.person.pin[x].institusjonsnavn	U010.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+2.1.8.1.1.	U010Dto.bruker.personInfo.pinMangler.foedested.by		$nav.bruker.person.foedested.by			U010.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+2.1.8.1.2.	U010Dto.bruker.personInfo.pinMangler.foedested.region		$nav.bruker.person.foedested.region		U010.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+2.1.8.1.3.	U010Dto.bruker.personInfo.pinMangler.foedested.landkode		$nav.bruker.person.foedested.land		U010.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+		$nav.bruker.person.foedested.landkode				U010.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+2.1.8.2.	U010Dto.bruker.personInfo.pinMangler.far.etternavnVedFoedsel	$nav.bruker.far.person.etternavnvedfoedsel	U010.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+2.1.8.3.	U010Dto.bruker.personInfo.pinMangler.far.fornavn		$nav.bruker.far.person.fornavn			U010.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+2.1.8.4.	U010Dto.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel	$nav.bruker.mor.person.etternavnvedfoedsel	U010.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+2.1.8.5.	U010Dto.bruker.personInfo.pinMangler.mor.fornavn		$nav.bruker.mor.person.fornavn			U010.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+2.2.1.		U010Dto.bruker.personInfo.statsborgerskap[].landkode		$nav.bruker.person.statsborgerskap[x].land	U010.Person.AdditionalInformationPerson.nationality.value[0]
+		$nav.bruker.person.statsborgerskap[x].landkode			U010.Person.AdditionalInformationPerson.nationality.value[0]
+
+3.1.1.1.	U010Dto.omstendigheter.periode.startdato			$dagpenger.bruker.retttilytelser.paavirkendeomstendigheter.periode.fastperiode.startdato	U010.Circumstance.Period.FixedPeriod.startDate
+3.1.1.2.	U010Dto.omstendigheter.periode.sluttdato			$dagpenger.bruker.retttilytelser.paavirkendeomstendigheter.periode.fastperiode.sluttdato	U010.Circumstance.Period.FixedPeriod.endDate
+3.1.2.1.	U010Dto.omstendigheter.periode.aapenPeriodeType			$dagpenger.bruker.retttilytelser.paavirkendeomstendigheter.periode.aapenperiode.type		U010.Circumstance.Period.OpenPeriod.typeOpenPeriod.value[0]
+3.1.2.2.	U010Dto.omstendigheter.periode.startdato			$dagpenger.bruker.retttilytelser.paavirkendeomstendigheter.periode.aapenperiode.startdato	U010.Circumstance.Period.OpenPeriod.startDate
+3.2.		U010Dto.omstendigheter.typer[]					$dagpenger.bruker.retttilytelser.paavirkendeomstendigheter.type[x].id	U010.Circumstance.circumstances.value[0]
+3.3.1.1.	U010Dto.omstendigheter.andreOmstendigheter[]			$dagpenger.bruker.retttilytelser.paavirkendeomstendigheter.annentype[x].beskrivelse	U010.Circumstance.FillInFollowingIfCircumstancesIsOther.OtherCircumstanceSpecification[0].circumstance
+
+4.1.		U010Dto.oenskerOppfoelging					$dagpenger.bruker.retttilytelser.oenskeraabliinformertomkonsekvenser	U010.FollowUpRequested.followUpRequestedIndicator.value[0]
+		U010Dto.sedType							(metadata, ikkje i ACL)
+		U010Dto.sedVersjon						(metadata, ikkje i ACL)
+		U010Dto.bruker.personInfo.adressebeskyttelsesgrad		(beriking frå PDL, ikkje i ACL)
