@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="nb">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#f7f6f2">
+    <meta name="description" content="Lærdommer, innspill og et felles samtalegrunnlag for vår neste tekniske leder. Oppsummert fra teamets retro.">
+    <title>Retro – rollen som teknisk leder</title>
+    <link rel="icon" href="/retro/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/retro/styles.css">
+    <script src="/retro/data.js" defer></script>
+    <script src="/retro/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#hovedinnhold">Hopp til innhold</a>
+    <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+      <symbol id="i-diagonal" viewBox="0 0 24 24"><path d="M6 18 18 6M6 6h12v12"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5Z"/></symbol>
+      <symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 4v2"/></symbol>
+      <symbol id="i-code" viewBox="0 0 24 24"><path d="m7 7-5 5 5 5m10-10 5 5-5 5m-4-13-2 20"/></symbol>
+      <symbol id="i-message" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 1-8 8H4l1.4-3.5A8 8 0 1 1 20 11Z"/><path d="M8 10h8m-8 4h5"/></symbol>
+      <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v7a5 5 0 0 0 5 5h5M8 5h5a5 5 0 0 1 5 5v3m-3-3 3 3 3-3"/></symbol>
+      <symbol id="i-loop" viewBox="0 0 24 24"><path d="M20 8a8 8 0 0 0-14-3L3 8m0-5v5h5M4 16a8 8 0 0 0 14 3l3-3m0 5v-5h-5"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+      <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 8V3h10v5M7 17H4V9h16v8h-3M7 14h10v7H7Zm9-3h1"/></symbol>
+    </svg>
+
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#hovedinnhold" aria-label="Retro – til toppen"><span class="brand-star" aria-hidden="true">✳</span> retro<span class="brand-dot">.</span></a>
+        <nav aria-label="Hovedmeny">
+          <a href="#laerdommer">Lærdommer</a>
+          <a href="#rollen">Den nye rollen</a>
+          <a href="#neste-steg">Neste steg</a>
+        </nav>
+        <a class="header-source" href="#kilder">Fra post-it til retning <svg class="icon"><use href="#i-diagonal"/></svg></a>
+      </div>
+    </header>
+
+    <main id="hovedinnhold">
+      <section class="hero container" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="status-dot"></span> RETRO · ROLLEN SOM TEKNISK LEDER</div>
+          <h1 id="hero-title">Ta med det gode.<br>Gjør rollen <span class="underlined">tydelig.<svg viewBox="0 0 340 20" aria-hidden="true"><path d="M4 13Q150 0 331 10M75 17Q205 6 324 14"/></svg></span></h1>
+          <p class="hero-description">En teknisk leder går videre. Vi tar et steg tilbake – for å gi den neste et bedre utgangspunkt.</p>
+          <div class="hero-actions">
+            <a class="button button-dark" href="#rollen">Dette trenger vi fremover <svg class="icon"><use href="#i-arrow"/></svg></a>
+            <a class="text-link" href="#laerdommer">Se hva vi lærte <span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="hero-meta"><span class="tiny-notes" aria-hidden="true"><i></i><i></i><i></i></span> Tre ark med innspill. Ett felles samtalegrunnlag.</div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <span class="art-spark spark-one">✳</span><span class="art-spark spark-two">+</span>
+          <div class="paper-note note-yellow"><span class="tape"></span><span class="note-kicker">DET VI TAR MED</span><p>Faglig løft.<br>Engasjement.<br>Gode samtaler.</p><svg class="note-check" viewBox="0 0 60 40"><path d="m8 21 13 12L50 7"/></svg></div>
+          <div class="paper-note note-lilac"><span class="note-kicker">DET VI TRENGER</span><p>Tydelig ansvar.<br>Felles retning.</p><span class="note-line"></span><span class="note-small">Et lag som spiller hverandre gode.</span></div>
+          <div class="paper-note note-green"><svg class="icon"><use href="#i-people"/></svg><span>Sammen om<br>neste kapittel.</span></div>
+          <svg class="drawn-arrow" viewBox="0 0 130 90"><path d="M6 8c76-10 109 7 82 53m-16-9 13 20 22-13"/></svg>
+          <span class="art-caption">Fra lapper til læring.</span>
+        </div>
+      </section>
+
+      <section class="takeaway container" aria-label="Kort fortalt">
+        <div class="takeaway-label"><span aria-hidden="true">↳</span> KORT FORTALT</div>
+        <p>Behold den faglige drivkraften.<br><strong>Gi rollen et tydelig mandat – og gjør retningen felles.</strong></p>
+        <span class="synthesis-label">Sammenfatning<br>av innspillene</span>
+      </section>
+
+      <section id="laerdommer" class="section container" aria-labelledby="lessons-title">
+        <div class="section-heading">
+          <div><div class="eyebrow section-number">01 / LÆRDOMMENE</div><h2 id="lessons-title">Mye å bygge på.<br>Noe å gjøre annerledes.</h2></div>
+          <p>To sider av samme erfaring. Vi skal ikke begynne på nytt, men ta med oss det som gjør teamet bedre.</p>
+        </div>
+        <div class="lessons-grid">
+          <article class="lesson-panel keep-panel reveal">
+            <div class="panel-heading"><span class="round-icon"><svg class="icon"><use href="#i-check"/></svg></span><span class="eyebrow">DET SOM FUNGERTE</span><span class="panel-mark" aria-hidden="true">↗</span></div>
+            <h3>Dette tar vi med oss.</h3>
+            <ul class="lesson-list">
+              <li><strong>Faglig løft og bedre kode</strong><span>Opprydding, kvalitetssikring og større bevissthet om god kode.</span></li>
+              <li><strong>Motivasjon og nysgjerrighet</strong><span>Entusiasme, nye tanker og pådriv for teknologi – blant annet AI.</span></li>
+              <li><strong>En god sparringspartner</strong><span>Diskusjoner, refleksjon og jevnlige tekniske møter og visninger.</span></li>
+              <li><strong>Blikk for helheten</strong><span>Bedre totaloversikt, ansvar for nEESSI/EUX og oppfølging av prosesser.</span></li>
+            </ul>
+            <button class="source-link" type="button" data-board="worked">Les innspillene fra arket <svg class="icon"><use href="#i-diagonal"/></svg></button>
+          </article>
+          <article class="lesson-panel improve-panel reveal">
+            <div class="panel-heading"><span class="round-icon"><svg class="icon"><use href="#i-plus"/></svg></span><span class="eyebrow">DET SOM IKKE VAR OPTIMALT</span><span class="panel-mark" aria-hidden="true">↗</span></div>
+            <h3>Dette må bli tydeligere.</h3>
+            <ul class="lesson-list">
+              <li><strong>Ansvar, myndighet og oppfølging</strong><span>Rollen og grensen mot andre roller var utydelig, også rundt leveranser og personaloppfølging.</span></li>
+              <li><strong>Ett team, ulike deler</strong><span>«To team i ett» og forholdet mellom RINA og resten trenger avklaring.</span></li>
+              <li><strong>En retning alle kjenner</strong><span>Innspillene etterlyser teknisk retning og spør om vi blir for avhengige av AI.</span></li>
+              <li><strong>En arbeidsform vi holder fast ved</strong><span>Metodikk og samarbeid må følges opp. Retroene stoppet, og håndtering av gammel kode er ikke ferdig avklart.</span></li>
+            </ul>
+            <button class="source-link" type="button" data-board="improve">Les innspillene fra arket <svg class="icon"><use href="#i-diagonal"/></svg></button>
+          </article>
+        </div>
+        <div class="nuance"><svg class="icon"><use href="#i-message"/></svg><p><strong>Begge deler kan være sant.</strong> Noen lapper sier «Vi har fått en retning», andre «Vi har ikke alltid visst hvor vi skal». Teknologiinitiativ ble verdsatt, samtidig som retningen ikke var like tydelig for alle.</p></div>
+      </section>
+
+      <section id="rollen" class="role-section section" aria-labelledby="role-title">
+        <div class="container">
+          <div class="section-heading">
+            <div><div class="eyebrow section-number">02 / DEN NYE ROLLEN</div><h2 id="role-title">En faglig drivkraft.<br>Ikke en udefinert altmuligperson.</h2></div>
+            <div><span class="outline-tag">Forslag til rolle</span><p>Seks forventninger, formulert på tvers av arkene. Et utgangspunkt for dialog – ikke en vedtatt rollebeskrivelse.</p></div>
+          </div>
+          <div class="filter-row" role="group" aria-label="Filtrer forventninger">
+            <button type="button" class="filter-button active" data-filter="all" aria-pressed="true">Alle temaer <span>6</span></button>
+            <button type="button" class="filter-button" data-filter="direction" aria-pressed="false">Ansvar og retning</button>
+            <button type="button" class="filter-button" data-filter="people" aria-pressed="false">Mennesker og samarbeid</button>
+            <button type="button" class="filter-button" data-filter="quality" aria-pressed="false">Kvalitet og arbeidsflyt</button>
+          </div>
+          <p id="filter-status" class="sr-only" role="status" aria-live="polite"></p>
+          <div class="role-grid">
+            <article class="role-card reveal" data-category="direction">
+              <div class="role-card-top"><span class="role-icon lilac"><svg class="icon"><use href="#i-compass"/></svg></span><span class="card-number">01</span></div>
+              <h3>Avklar mandat<br>og ansvar</h3>
+              <p>Vit hva du eier, hva teamet eier, og hvor andre roller tar over. Gjør ansvar og myndighet forståelig for alle.</p>
+              <div class="card-practice"><span>I PRAKSIS</span>Lag en rollebeskrivelse sammen. Avklar leveranseoppfølging og grensen mot personalansvar.</div>
+              <button class="source-link" type="button" data-theme="mandate">Se innspill bak temaet <svg class="icon"><use href="#i-diagonal"/></svg></button>
+            </article>
+            <article class="role-card reveal" data-category="direction">
+              <div class="role-card-top"><span class="role-icon peach"><svg class="icon"><use href="#i-route"/></svg></span><span class="card-number">02</span></div>
+              <h3>Sett en retning<br>vi forstår</h3>
+              <p>Knytt teknologivalg til tydelige mål. Behold nysgjerrigheten, men gjør valgene og rammene felles.</p>
+              <div class="card-practice"><span>I PRAKSIS</span>Del teknisk retning, avklar NAVs føringer og bli enige om bevisst bruk av AI.</div>
+              <button class="source-link" type="button" data-theme="direction">Se innspill bak temaet <svg class="icon"><use href="#i-diagonal"/></svg></button>
+            </article>
+            <article class="role-card reveal" data-category="people">
+              <div class="role-card-top"><span class="role-icon green"><svg class="icon"><use href="#i-people"/></svg></span><span class="card-number">03</span></div>
+              <h3>Knytt delene<br>av teamet sammen</h3>
+              <p>Bygg broer mellom RINA og resten. Skap felles forståelse uten å late som at alle jobber med det samme.</p>
+              <div class="card-practice"><span>I PRAKSIS</span>Avklar RINA-ansvaret, del systemoversikten og legg til rette for visninger på tvers.</div>
+              <button class="source-link" type="button" data-theme="collaboration">Se innspill bak temaet <svg class="icon"><use href="#i-diagonal"/></svg></button>
+            </article>
+            <article class="role-card reveal" data-category="quality">
+              <div class="role-card-top"><span class="role-icon yellow"><svg class="icon"><use href="#i-code"/></svg></span><span class="card-number">04</span></div>
+              <h3>Løft kvaliteten.<br>Ta vare på koden.</h3>
+              <p>Bygg videre på oppryddingen og de gode rutinene. Gjør kvalitet til en felles praksis, ikke et soloprosjekt.</p>
+              <div class="card-practice"><span>I PRAKSIS</span>Hold samtalen om kodestandarder levende, og avklar hvordan gammel kode skal refaktoreres.</div>
+              <button class="source-link" type="button" data-theme="quality">Se innspill bak temaet <svg class="icon"><use href="#i-diagonal"/></svg></button>
+            </article>
+            <article class="role-card reveal" data-category="people">
+              <div class="role-card-top"><span class="role-icon pink"><svg class="icon"><use href="#i-message"/></svg></span><span class="card-number">05</span></div>
+              <h3>Vær en faglig<br>sparringspartner</h3>
+              <p>Motiver, utfordre og tenk høyt sammen med teamet. Fortsett å skape engasjement gjennom gode faglige samtaler.</p>
+              <div class="card-practice"><span>I PRAKSIS</span>Skap rom for dialog og refleksjon. Bruk mindre innforstått språk og færre forkortelser.</div>
+              <button class="source-link" type="button" data-theme="sparring">Se innspill bak temaet <svg class="icon"><use href="#i-diagonal"/></svg></button>
+            </article>
+            <article class="role-card reveal" data-category="quality">
+              <div class="role-card-top"><span class="role-icon blue"><svg class="icon"><use href="#i-loop"/></svg></span><span class="card-number">06</span></div>
+              <h3>Hold læring<br>og flyt i gang</h3>
+              <p>Hjelp teamet å bli enige om hvordan vi jobber, deler og forbedrer oss. Følg opp arbeidsformen over tid.</p>
+              <div class="card-practice"><span>I PRAKSIS</span>Avklar møteeierskap, arbeidsflyt i Jira og en rytme for retroer som teamet faktisk ønsker.</div>
+              <button class="source-link" type="button" data-theme="methods">Se innspill bak temaet <svg class="icon"><use href="#i-diagonal"/></svg></button>
+            </article>
+          </div>
+          <div class="role-footnote"><span aria-hidden="true">✳</span><p><strong>Tydelig rolle. Felles ansvar.</strong> Et sentralt spørsmål på arkene er hva teknisk leder skal drive, og hva som fortsatt er teamets ansvar.</p></div>
+        </div>
+      </section>
+
+      <section id="neste-steg" class="section container" aria-labelledby="steps-title">
+        <div class="steps-layout">
+          <div class="steps-intro">
+            <div class="eyebrow section-number">03 / FRA INNSPILL TIL HANDLING</div>
+            <h2 id="steps-title">Gjør neste<br>start litt bedre.</h2>
+            <p>Før vi fyller rollen, bør vi snakke oss gjennom forventningene. Her er et forslag til rekkefølge.</p>
+            <div class="open-question"><span class="eyebrow">ET ÅPENT SPØRSMÅL</span><p>Én eller to tekniske ledere?</p><span>Begge deler er løftet på tiltaksarket. Avklar behovet og grensen mellom RINA og resten før løsningen velges.</span></div>
+            <div class="progress-block">
+              <div class="progress-label"><span>Din møteforberedelse</span><span id="progress-text">0 av 5</span></div>
+              <progress id="preparation-progress" value="0" max="5" aria-label="Forberedte samtalepunkter"></progress>
+              <p id="storage-note">Avkrysninger lagres bare i denne nettleseren. De er ikke felles beslutninger.</p>
+              <button id="reset-progress" type="button" class="quiet-button">Nullstill avkrysninger</button>
+              <span id="progress-status" class="sr-only" role="status"></span>
+            </div>
+          </div>
+          <div class="steps-list">
+            <div class="step">
+              <label class="step-check"><input type="checkbox" data-step="mandate" aria-label="Marker Avklar mandatet som forberedt"><span><svg class="icon"><use href="#i-check"/></svg></span></label>
+              <details open><summary><span class="step-number">01</span><span>Avklar mandatet</span><svg class="icon"><use href="#i-plus"/></svg></summary><div class="step-body"><p>Skriv ned ansvar, myndighet og grenseflater mot andre roller. Skill mellom teknisk ledelse, leveranseoppfølging, personaloppfølging og felles teamansvar.</p><span class="step-output">Ta med videre: utkast til rollebeskrivelse</span></div></details>
+            </div>
+            <div class="step">
+              <label class="step-check"><input type="checkbox" data-step="rina" aria-label="Marker Avklar RINA og helheten som forberedt"><span><svg class="icon"><use href="#i-check"/></svg></span></label>
+              <details><summary><span class="step-number">02</span><span>Avklar RINA og helheten</span><svg class="icon"><use href="#i-plus"/></svg></summary><div class="step-body"><p>Hva skal teknisk leder ha ansvar for på tvers av RINA og nEESSI/EUX? Drøft én eller to ledere, og lag en enkel oversikt over systemene teamet jobber med.</p><span class="step-output">Ta med videre: ansvarsdeling og systemoversikt</span></div></details>
+            </div>
+            <div class="step">
+              <label class="step-check"><input type="checkbox" data-step="direction" aria-label="Marker Gjør retningen felles som forberedt"><span><svg class="icon"><use href="#i-check"/></svg></span></label>
+              <details><summary><span class="step-number">03</span><span>Gjør retningen felles</span><svg class="icon"><use href="#i-plus"/></svg></summary><div class="step-body"><p>Formuler forståelige tekniske mål. Avklar hvordan teamet holder seg oppdatert, hva NAVs retningslinjer betyr for valgene, og hvordan AI skal brukes.</p><span class="step-output">Ta med videre: mål og tekniske føringer</span></div></details>
+            </div>
+            <div class="step">
+              <label class="step-check"><input type="checkbox" data-step="methods" aria-label="Marker Bli enige om arbeidsformen som forberedt"><span><svg class="icon"><use href="#i-check"/></svg></span></label>
+              <details><summary><span class="step-number">04</span><span>Bli enige om arbeidsformen</span><svg class="icon"><use href="#i-plus"/></svg></summary><div class="step-body"><p>Avklar hvem som driver hvilke møter, hvordan dere bruker Jira, og hvor ofte dere ønsker retro. Behold visninger og faglig deling på tvers.</p><span class="step-output">Ta med videre: en enkel arbeidsavtale</span></div></details>
+            </div>
+            <div class="step">
+              <label class="step-check"><input type="checkbox" data-step="start" aria-label="Marker Planlegg starten sammen som forberedt"><span><svg class="icon"><use href="#i-check"/></svg></span></label>
+              <details><summary><span class="step-number">05</span><span>Planlegg starten sammen</span><svg class="icon"><use href="#i-plus"/></svg></summary><div class="step-body"><p>Bruk systemoversikten i innføringen av ny leder. Planlegg teambuilding, dialog og rom for å bli kjent. Gjør forventningene tilgjengelige, også for resten av teamet.</p><span class="step-output">Ta med videre: en felles plan for oppstarten</span></div></details>
+            </div>
+            <p class="steps-disclaimer">Forslagene er bearbeidet fra tiltaksarket. Materialet angir ikke avtalte eiere, frister eller vedtak.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="kilder" class="sources-section section" aria-labelledby="sources-title">
+        <div class="container">
+          <div class="section-heading">
+            <div><div class="eyebrow section-number">04 / TILBAKE TIL LAPPENE</div><h2 id="sources-title">Ikke tatt ut av luften.<br>Hentet fra veggen.</h2></div>
+            <p>Oppsummeringen bygger på de tre bildene fra retroen. Åpne et ark for å se fotoet og de avleste innspillene.</p>
+          </div>
+          <div class="source-grid">
+            <button class="photo-card" type="button" data-board="worked"><div class="photo-frame"><img src="/retro/assets/img_1050.webp" width="1950" height="2600" alt="Arket med post-it-lapper om det som fungerte" loading="lazy"><span class="photo-open"><svg class="icon"><use href="#i-diagonal"/></svg></span></div><span class="photo-caption"><span><small>ARK 01</small><strong>Det som fungerte</strong></span><span class="source-dot green-dot"></span></span></button>
+            <button class="photo-card" type="button" data-board="improve"><div class="photo-frame"><img src="/retro/assets/img_1049.webp" width="1950" height="2600" alt="Arket med post-it-lapper om det som ikke fungerte optimalt, rotert til leseretning" loading="lazy"><span class="photo-open"><svg class="icon"><use href="#i-diagonal"/></svg></span></div><span class="photo-caption"><span><small>ARK 02</small><strong>Det som ikke var optimalt</strong></span><span class="source-dot peach-dot"></span></span></button>
+            <button class="photo-card" type="button" data-board="actions"><div class="photo-frame"><img src="/retro/assets/img_1051.webp" width="1950" height="2600" alt="Arket med forslag til tiltak fremover" loading="lazy"><span class="photo-open"><svg class="icon"><use href="#i-diagonal"/></svg></span></div><span class="photo-caption"><span><small>ARK 03</small><strong>Tiltak fremover</strong></span><span class="source-dot lilac-dot"></span></span></button>
+          </div>
+          <details class="method-details"><summary>Hvordan er håndskriften tolket? <svg class="icon"><use href="#i-plus"/></svg></summary><div><p>Bildene er lest visuelt. Det sidelengs arket er rotert, og svak skrift er kontrollert i forstørrede utsnitt med økt kontrast. Ingen bilder er sendt til en ekstern OCR-tjeneste.</p><p>Avskriften gjengir lesbare innspill med lett normalisert rettskriving, tegnsetting og enkelte forkortelser. Den er ikke en ordrett protokoll. Overlappende, avkuttede og uleselige deler er ikke gjettet; usikre lesninger er merket. Temaene og rolleforslagene er en redaksjonell sammenfatning, ikke dokumentert enighet eller en avstemning.</p></div></details>
+        </div>
+      </section>
+      <section class="closing container"><span class="closing-star" aria-hidden="true">✳</span><h2>Den neste rollen<br>bygger vi <em>sammen.</em></h2><p>Et godt utgangspunkt er ikke alle svarene.<br>Det er en felles forståelse av hva vi må snakke om.</p><button id="print-page" type="button" class="button button-dark"><svg class="icon"><use href="#i-print"/></svg> Skriv ut / lagre som PDF</button></section>
+    </main>
+    <footer class="container"><a class="brand" href="#hovedinnhold">retro<span class="brand-dot">.</span></a><span>Rollen som teknisk leder · Teamets samtalegrunnlag</span><a href="#hovedinnhold" class="text-link">Til toppen <span aria-hidden="true">↑</span></a></footer>
+    <noscript><div class="noscript-message">Hovedoppsummeringen kan leses uten JavaScript. For kildevisning, temafiltrering og lagrede avkrysninger må JavaScript være aktivert. Originalbildene: <a href="/retro/IMG_1050.jpg">Det som fungerte</a>, <a href="/retro/IMG_1049.jpg">Ikke optimalt</a>, <a href="/retro/IMG_1051.jpg">Tiltak</a>.</div></noscript>
+
+    <dialog id="source-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+      <div class="dialog-header"><div><div class="eyebrow">FRA RETROVEGGEN</div><h2 id="dialog-title">Innspillene</h2></div><button id="close-dialog" type="button" class="icon-button" aria-label="Lukk kildevisning" autofocus><svg class="icon"><use href="#i-close"/></svg></button></div>
+      <p id="dialog-description" class="dialog-description"></p>
+      <div id="dialog-content"></div>
+      <div class="dialog-footer">Lesbare utdrag, lett språkvasket. Usikker håndskrift er merket. Se fotoet for opprinnelig ordlyd og plassering.</div>
+    </dialog>
+  </body>
+</html>

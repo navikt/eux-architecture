@@ -196,6 +196,11 @@ and flags (4:3 SVGs from `flag-icons`, MIT) are self-hosted in
 `flags/4x3/<iso>.svg` from the `flag-icons` npm package into
 `public/missoc/flags/`.
 
+`public/retro.html` is a hidden, standalone static page summarising the team's
+retro on the technical lead role. It is not linked from the portal or search,
+has `noindex`, and loads only its own files from `public/retro/` (styles,
+scripts, photos), so `/retro/**` skips autologin like `/missoc/**`.
+
 Login is handled by the NAIS login proxy (Wonderwall, Entra ID). Once a session
 exists, Wonderwall forwards the user's access token in the `Authorization`
 header on every request — also on paths excluded from autologin.

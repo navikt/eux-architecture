@@ -85,6 +85,7 @@ spec:
         - /apple-icon.*
         - /*.html
         - /missoc/**
+        - /retro/**
         - /_next/**
   accessPolicy:
     outbound:
