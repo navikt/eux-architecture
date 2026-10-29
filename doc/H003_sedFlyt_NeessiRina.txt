@@ -1,0 +1,90 @@
+1.1.1.		H003Dto.bruker.personInfo.etternavn				$nav.bruker.person.etternavn				H003.Person.PersonIdentification.familyName
+1.1.2.		H003Dto.bruker.personInfo.fornavn				$nav.bruker.person.fornavn				H003.Person.PersonIdentification.forename
+1.1.3.		H003Dto.bruker.personInfo.foedselsdato				$nav.bruker.person.foedselsdato				H003.Person.PersonIdentification.dateBirth
+1.1.4.		H003Dto.bruker.personInfo.kjoenn				$nav.bruker.person.kjoenn				H003.Person.PersonIdentification.sex.value[0]
+1.1.5.		H003Dto.bruker.personInfo.pinMangler.etternavnVedFoedsel	$nav.bruker.person.etternavnvedfoedsel			H003.Person.PersonIdentification.familyNameAtBirth
+1.1.6.		H003Dto.bruker.personInfo.pinMangler.fornavnVedFoedsel		$nav.bruker.person.fornavnvedfoedsel			H003.Person.PersonIdentification.forenameAtBirth
+1.1.7.1.1.	H003Dto.bruker.personInfo.pin[].landkode			$nav.bruker.person.pin[x].land				H003.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+1.1.7.1.2.	H003Dto.bruker.personInfo.pin[].identifikator			$nav.bruker.person.pin[x].identifikator			H003.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+1.1.7.1.3.	H003Dto.bruker.personInfo.pin[].sektor				$nav.bruker.person.pin[x].sektor			H003.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+1.1.7.1.4.1.	H003Dto.bruker.personInfo.pin[].institusjonsid			$nav.bruker.person.pin[x].institusjonsid		H003.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+1.1.7.1.4.2.	H003Dto.bruker.personInfo.pin[].institusjonsnavn		$nav.bruker.person.pin[x].institusjonsnavn		H003.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+1.1.8.1.1.	H003Dto.bruker.personInfo.pinMangler.foedested.by		$nav.bruker.person.foedested.by				H003.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+1.1.8.1.2.	H003Dto.bruker.personInfo.pinMangler.foedested.region		$nav.bruker.person.foedested.region			H003.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+1.1.8.1.3.	H003Dto.bruker.personInfo.pinMangler.foedested.landkode		$nav.bruker.person.foedested.land			H003.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+1.1.8.2.	H003Dto.bruker.personInfo.pinMangler.far.etternavnVedFoedsel	$nav.bruker.far.person.etternavnvedfoedsel		H003.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+1.1.8.3.	H003Dto.bruker.personInfo.pinMangler.far.fornavn		$nav.bruker.far.person.fornavn				H003.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+1.1.8.4.	H003Dto.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel	$nav.bruker.mor.person.etternavnvedfoedsel		H003.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+1.1.8.5.	H003Dto.bruker.personInfo.pinMangler.mor.fornavn		$nav.bruker.mor.person.fornavn				H003.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+1.2.1.		H003Dto.bruker.personInfo.statsborgerskap[].landkode		$nav.bruker.person.statsborgerskap[x].land		H003.Person.AdditionalInformationPerson.nationality.value[0]
+
+2.1.1.		H003Dto.bruker.adresser[].type					$nav.bruker.adresse[x].type				H003.AddressPerson.AddressPerson[0].typeAddress.value[0]
+2.1.2.1.	H003Dto.bruker.adresser[].gate					$nav.bruker.adresse[x].gate				H003.AddressPerson.AddressPerson[0].Address.street
+2.1.2.2.	H003Dto.bruker.adresser[].bygning				$nav.bruker.adresse[x].bygning				H003.AddressPerson.AddressPerson[0].Address.buildingName
+2.1.2.3.	H003Dto.bruker.adresser[].by					$nav.bruker.adresse[x].by				H003.AddressPerson.AddressPerson[0].Address.town
+2.1.2.4.	H003Dto.bruker.adresser[].postnummer				$nav.bruker.adresse[x].postnummer			H003.AddressPerson.AddressPerson[0].Address.postalCode
+2.1.2.5.	H003Dto.bruker.adresser[].region				$nav.bruker.adresse[x].region				H003.AddressPerson.AddressPerson[0].Address.region
+2.1.2.6.	H003Dto.bruker.adresser[].landkode				$nav.bruker.adresse[x].land				H003.AddressPerson.AddressPerson[0].Address.country.value[0]
+
+3.1.		H003Dto.typeInformasjon						$horisontal.fremlegg.typeinformasjon			H003.TypeInformation.typeInformation.value[0]
+
+3.2.1.		H003Dto.fremlegg.landkode					$horisontal.fremlegg.bruker.person.bosted.land		H003.TypeInformation.ProposalStateResidence.proposedStateResidence.value[0]
+3.2.2.		H003Dto.fremlegg.startdato					$horisontal.fremlegg.bruker.person.bosted.startdato	H003.TypeInformation.ProposalStateResidence.startingDate
+3.2.3.		H003Dto.fremlegg.begrunnelse					$horisontal.fremlegg.bruker.person.bosted.begrunnelse	H003.TypeInformation.ProposalStateResidence.reasoningProposal
+
+3.3.1.		H003Dto.varsel.landkode						$horisontal.varsel.bruker.person.bosted.land		H003.TypeInformation.NotificationStateResidence.stateResidence.value[0]
+3.3.2.		H003Dto.varsel.startdato					$horisontal.varsel.bruker.person.bosted.startdato	H003.TypeInformation.NotificationStateResidence.startingDate
+3.3.3.		H003Dto.varsel.begrunnelse					$horisontal.varsel.bruker.person.bosted.begrunnelse	H003.TypeInformation.NotificationStateResidence.reasoningNotification
+
+4.1.		H003Dto.ytterligereInfo						$nav.ytterligereinformasjon				H003.AdditionalInformation.additionalInformation
+
+		H003Dto.sedType							(metadata, ikkje i ACL)
+		H003Dto.sedVersjon						(metadata, ikkje i ACL)
+		H003Dto.bruker.personInfo.adressebeskyttelsesgrad		(beriking frå PDL, ikkje i ACL)
+
+
+SED-tittel: "Forslag/melding om bostedsstat"
+
+H003Dto.typeInformasjon						
+H003Dto.fremlegg.landkode -> bostedsland.fremlegg.landkode
+H003Dto.fremlegg.startdato					
+H003Dto.fremlegg.begrunnelse					
+H003Dto.varsel.landkode					
+H003Dto.varsel.startdato				
+H003Dto.varsel.begrunnelse
+
+
+
+
+Fremlegg -> forslag (til bostedsland)
+Varsel -> melding (om bostedsland)
+typeInformasjon -> henvendelseType (forslag eller melding) - egentlig overflødig. (fremlegg_om_bostedsland=01 eller varsel_om_bostedsland=02)
+
+
+Forslag/melding om bostedsstat
+
+3.1.		H003Dto.typeInformasjon						
+3.2.1.		H003Dto.fremlegg.landkode					
+3.2.2.		H003Dto.fremlegg.startdato					
+3.2.3.		H003Dto.fremlegg.begrunnelse					
+3.3.1.		H003Dto.varsel.landkode					
+3.3.2.		H003Dto.varsel.startdato				
+3.3.3.		H003Dto.varsel.begrunnelse
+
+Toppnivået veldig bestemt av rina. : Ikke så bestemt av rina. Egne regler? Enten/eller-verdier i egen klasse(parent) ?
+
+H005 anmodning = klasse_1.  "anmodning om info om bosted"
+H006 positivtSvar = klasse_1
+H006 negativtSvar 
+H003 fremlegg (forslag) = klasse_2. (bostedsland)
+H003 varsel   (melding/opplysning) = klasse_2  (bostedsland)
+H065 overfoeringInfo.  "Overføring av krav/dokument/informasjon"
+
+H120 "Anmodning om medisinsk informasjon",
+kravetsArt
+Arbeidsufoer.  arbeidsevne
+Arbeidsdyktig. arbeidsevne
+Familieytelse
+yrkesskade
+
+H121 "Melding om medisinsk informasjon / Svar på forespørsel om medisinsk informasjon",   henvendelse(?)

@@ -1,0 +1,161 @@
+H006	"Svar på anmodning om informasjon om bosted"
+------ Ingen endringer ----------
+1.1.1.		H006Dto.bruker.personInfo.etternavn				
+1.1.2.		H006Dto.bruker.personInfo.fornavn				
+1.1.3.		H006Dto.bruker.personInfo.foedselsdato				
+1.1.4.		H006Dto.bruker.personInfo.kjoenn				
+1.1.5.		H006Dto.bruker.personInfo.pinMangler.etternavnVedFoedsel	
+1.1.6.		H006Dto.bruker.personInfo.pinMangler.fornavnVedFoedsel		
+1.1.7.1.1.	H006Dto.bruker.personInfo.pin[x].landkode			
+1.1.7.1.2.	H006Dto.bruker.personInfo.pin[x].identifikator			
+1.1.7.1.3.	H006Dto.bruker.personInfo.pin[x].sektor				
+1.1.7.1.4.1.	H006Dto.bruker.personInfo.pin[x].institusjonsid			
+1.1.7.1.4.2.	H006Dto.bruker.personInfo.pin[x].institusjonsnavn		
+1.1.8.1.1.	H006Dto.bruker.personInfo.pinMangler.foedested.by		
+1.1.8.1.2.	H006Dto.bruker.personInfo.pinMangler.foedested.region		
+1.1.8.1.3.	H006Dto.bruker.personInfo.pinMangler.foedested.landkode		
+1.1.8.2.	H006Dto.bruker.personInfo.pinMangler.far.etternavnVedFoedsel	
+1.1.8.3.	H006Dto.bruker.personInfo.pinMangler.far.fornavn		
+1.1.8.4.	H006Dto.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel	
+1.1.8.5.	H006Dto.bruker.personInfo.pinMangler.mor.fornavn		
+1.2.1.		H006Dto.bruker.personInfo.statsborgerskap[x].landkode		
+------ Endringer -------------
+2.1.1.1.1.	H006Dto.positivtSvar.adresser[x].type	
+		H006Dto.positivtSvar.oppholdssteder[].adresse.type
+
+2.1.1.1.2.1.	H006Dto.positivtSvar.adresser[x].gate		
+		H006Dto.positivtSvar.oppholdssteder[].adresse.gate
+
+2.1.1.1.2.2.	H006Dto.positivtSvar.adresser[x].bygning			
+		H006Dto.positivtSvar.oppholdssteder[].adresse.bygning
+
+2.1.1.1.2.3.	H006Dto.positivtSvar.adresser[x].by				
+		H006Dto.positivtSvar.oppholdssteder[].adresse.by
+
+2.1.1.1.2.4.	H006Dto.positivtSvar.adresser[x].postnummer	
+		H006Dto.positivtSvar.oppholdssteder[].adresse.postnummer
+
+2.1.1.1.2.5.	H006Dto.positivtSvar.adresser[x].region	
+		H006Dto.positivtSvar.oppholdssteder[].adresse.region
+	
+2.1.1.1.2.6.	H006Dto.positivtSvar.adresser[x].landkode	
+		H006Dto.positivtSvar.oppholdssteder[].adresse.landkode
+
+2.1.2.1.	H006Dto.positivtSvar.personensStatus	
+		H006Dto.positivtSvar.aktivitet.type	
+
+2.1.2.2.1.	H006Dto.positivtSvar.personensStatusAnnet	
+		H006Dto.positivtSvar.aktivitet.annet
+
+2.1.3.1.	H006Dto.positivtSvar.aktiviteter[x].type	
+		H006Dto.positivtSvar.aktivitet.presiseringer[].inntektsgivende
+
+2.1.3.2.	H006Dto.positivtSvar.aktiviteter[x].beskrivelse	
+		H006Dto.positivtSvar.aktivitet.presiseringer[].beskrivelse
+		
+2.1.3.3.	H006Dto.positivtSvar.aktiviteter[x].sted	
+		H006Dto.positivtSvar.aktivitet.presiseringer[].sted
+
+2.1.3.4.	H006Dto.positivtSvar.aktiviteter[x].varighet	
+		H006Dto.positivtSvar.aktivitet.presiseringer[].varighet
+
+2.1.3.5.	H006Dto.positivtSvar.aktiviteter[x].art		
+		H006Dto.positivtSvar.aktivitet.presiseringer[].art
+
+2.1.4.		H006Dto.positivtSvar.inntektskildeStudenter
+		H006Dto.positivtSvar.inntektskildeHvisStudent
+	
+2.1.5.		H006Dto.positivtSvar.bosituasjonHvorPermanent	
+		H006Dto.positivtSvar.hvorPermanentBostedetEr
+
+2.1.6.		H006Dto.positivtSvar.permanentOppholdSkattemessig
+		H006Dto.positivtSvar.skattemessigeGrunner
+		
+2.1.7.1.	H006Dto.positivtSvar.familiestatus.ektefelle.familiemedlem
+		H006Dto.positivtSvar.ektefelle.navn
+
+2.1.7.2.	H006Dto.positivtSvar.familiestatus.ektefelle.bosted	
+		H006Dto.positivtSvar.ektefelle.bosted
+
+2.1.7.3.	H006Dto.positivtSvar.familiestatus.barn.familiemedlem
+		H006Dto.positivtSvar.barn.navn	
+	
+2.1.7.4.	H006Dto.positivtSvar.familiestatus.barn.bosted
+		H006Dto.positivtSvar.barn.bosted
+			
+2.1.7.5.	H006Dto.positivtSvar.familiestatus.barn.skolekrets
+		H006Dto.positivtSvar.barn.skolested
+
+2.1.8.		H006Dto.positivtSvar.grunnForFlytting
+		H006Dto.positivtSvar.antattFlyttegrunn				
+
+3.1.		H006Dto.negativtSvar.kunneIkkeVideresendeInformasjon
+		H006Dto.negativtSvar.opplysningerSomIkkeKanOversendes
+		
+3.2.		H006Dto.negativtSvar.grunner	
+		H006Dto.negativtSvar.grunn				
+
+4.1.		H006Dto.ytterligereInfo	
+		H006Dto.ytterligereInfo					
+
+		H006Dto.sedType							
+		H006Dto.sedVersjon						
+		H006Dto.svarPaaSedId						
+		H006Dto.bruker.personInfo.adressebeskyttelsesgrad
+
+H006: -------------------------------------
+H006: "Svar på anmodning om informasjon om bosted",
+H006: -------------------------------------
+H006Dto.positivtSvar.oppholdssteder[].adresse.gate
+H006Dto.positivtSvar.oppholdssteder[].adresse.bygning
+H006Dto.positivtSvar.oppholdssteder[].adresse.by
+H006Dto.positivtSvar.oppholdssteder[].adresse.postnummer
+H006Dto.positivtSvar.oppholdssteder[].adresse.region
+H006Dto.positivtSvar.oppholdssteder[].adresse.landkode
+H006Dto.positivtSvar.aktivitet.type
+H006Dto.positivtSvar.aktivitet.annet
+H006Dto.positivtSvar.aktivitet.presiseringer[].inntektsgivende
+H006Dto.positivtSvar.aktivitet.presiseringer[].beskrivelse
+H006Dto.positivtSvar.aktivitet.presiseringer[].sted
+H006Dto.positivtSvar.aktivitet.presiseringer[].varighet
+H006Dto.positivtSvar.aktivitet.presiseringer[].art
+H006Dto.positivtSvar.inntektskildeHvisStudent
+H006Dto.positivtSvar.hvorPermanentBostedetEr
+H006Dto.positivtSvar.skattemessigeGrunner
+H006Dto.positivtSvar.ektefelle.navn
+H006Dto.positivtSvar.ektefelle.bosted
+H006Dto.positivtSvar.barn.navn
+H006Dto.positivtSvar.barn.bosted
+H006Dto.positivtSvar.barn.skolested
+H006Dto.positivtSvar.antattFlyttegrunn
+H006Dto.negativtSvar.opplysningerSomIkkeKanOversendes
+H006Dto.negativtSvar.grunn
+
+H005: -------------------------------------
+H005: "Anmodning om informasjon om bosted"
+H005: -------------------------------------
+H005Dto.anmodning.oppholdssteder[].adresse.type
+H005Dto.anmodning.oppholdssteder[].adresse.gate
+H005Dto.anmodning.oppholdssteder[].adresse.bygning
+H005Dto.anmodning.oppholdssteder[].adresse.by
+H005Dto.anmodning.oppholdssteder[].adresse.postnummer
+H005Dto.anmodning.oppholdssteder[].adresse.region
+H005Dto.anmodning.oppholdssteder[].adresse.landkode
+H005Dto.anmodning.oppholdssteder[].oppholdetsVarighet	
+H005Dto.anmodning.oppholdssteder[].varighetUavbruttOpphold	
+H005Dto.anmodning.aktivitet.type
+H005Dto.anmodning.aktivitet.annet
+H005Dto.anmodning.aktivitet.presiseringer[].inntektsgivende
+H005Dto.anmodning.aktivitet.presiseringer[].beskrivelse
+H005Dto.anmodning.aktivitet.Presiseringer[].sted
+H005Dto.anmodning.aktivitet.Presiseringer[].varighet
+H005Dto.anmodning.aktivitet.Presiseringer[].art
+H005Dto.anmodning.inntektskildeHvisStudent
+H005Dto.anmodning.hvorPermanentBostedetEr
+H005Dto.anmodning.skattemessigeGrunner
+H005Dto.anmodning.ektefelle.navn
+H005Dto.anmodning.ektefelle.bosted
+H005Dto.anmodning.barn.navn
+H005Dto.anmodning.barn.bosted
+H005Dto.anmodning.barn.skolested
+H005Dto.anmodning.antattFlyttegrunn							  								

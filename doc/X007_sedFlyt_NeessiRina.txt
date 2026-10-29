@@ -1,0 +1,25 @@
+1.1.1.     X007Dto.bruker.etternavn                    $nav.sak.kontekst.bruker.person.etternavn               X007.CaseContext.PersonContext.familyName
+1.1.2.     X007Dto.bruker.fornavn                      $nav.sak.kontekst.bruker.person.fornavn                 X007.CaseContext.PersonContext.forename
+1.1.3.     X007Dto.bruker.foedselsdato                 $nav.sak.kontekst.bruker.person.foedselsdato            X007.CaseContext.PersonContext.dateBirth
+1.1.4.     X007Dto.bruker.kjoenn                       $nav.sak.kontekst.bruker.person.kjoenn                  X007.CaseContext.PersonContext.sex.value[0]
+1.2.1.     X007Dto.arbeidsgiver.navn                   $nav.sak.kontekst.arbeidsgiver.navn                     X007.CaseContext.EmployerContext.name
+1.2.2.1.1. X007Dto.arbeidsgiver.identifikatorer[].id   $nav.sak.kontekst.arbeidsgiver.identifikator[x].id      X007.CaseContext.EmployerContext.IdentificationNumbers.IdentificationNumber[0].number
+1.2.2.1.2. X007Dto.arbeidsgiver.identifikatorer[].type $nav.sak.kontekst.arbeidsgiver.identifikator[x].type    X007.CaseContext.EmployerContext.IdentificationNumbers.IdentificationNumber[0].type.value[0]
+1.2.3.1.   X007Dto.arbeidsgiver.adresse.gate           $nav.sak.kontekst.arbeidsgiver.adresse.gate             X007.CaseContext.EmployerContext.Address.street
+1.2.3.2.   X007Dto.arbeidsgiver.adresse.bygning        $nav.sak.kontekst.arbeidsgiver.adresse.bygning          X007.CaseContext.EmployerContext.Address.buildingName
+1.2.3.3.   X007Dto.arbeidsgiver.adresse.by             $nav.sak.kontekst.arbeidsgiver.adresse.by               X007.CaseContext.EmployerContext.Address.town
+1.2.3.4.   X007Dto.arbeidsgiver.adresse.postnummer     $nav.sak.kontekst.arbeidsgiver.adresse.postnummer       X007.CaseContext.EmployerContext.Address.postalCode
+1.2.3.5.   X007Dto.arbeidsgiver.adresse.region         $nav.sak.kontekst.arbeidsgiver.adresse.region           X007.CaseContext.EmployerContext.Address.region
+1.2.3.6.                                               $nav.sak.kontekst.arbeidsgiver.adresse.land             X007.CaseContext.EmployerContext.Address.country.value[0]
+           X007Dto.arbeidsgiver.adresse.landkode       $nav.sak.kontekst.arbeidsgiver.adresse.landkode         X007.CaseContext.EmployerContext.Address.country.value[0]
+1.3.1.     X007Dto.refusjonskrav.id                    $nav.sak.kontekst.refusjonskrav.id                      X007.CaseContext.ReimbursementContext.reimbursementRequestID
+1.3.2.     X007Dto.refusjonskrav.antallkrav            $nav.sak.kontekst.refusjonskrav.antallkrav              X007.CaseContext.ReimbursementContext.totalNumberIndividualClaims
+
+2.1.1.     X007Dto.videresend.leggTilInstitusjonId     $nav.sak.videresend.leggtilinstitusjon.institusjon.id   X007.ForwardInformation.AddedParticipant.institutionID
+2.1.2.     X007Dto.videresend.leggTilInstitusjonNavn   $nav.sak.videresend.leggtilinstitusjon.institusjon.navn X007.ForwardInformation.AddedParticipant.institutionName
+2.2.1.     X007Dto.videresend.fjernInstitusjonId       $nav.sak.videresend.fjerninstitusjon.institusjon.id     X007.ForwardInformation.RemovedParticipant.institutionID
+2.2.2.     X007Dto.videresend.fjernInstitusjonNavn     $nav.sak.videresend.fjerninstitusjon.institusjon.navn   X007.ForwardInformation.RemovedParticipant.institutionName
+2.3.       X007Dto.videresend.grunnType                $nav.sak.videresend.grunn.type                          X007.ForwardInformation.reason.value[0]
+2.4.       X007Dto.videresend.grunnAnnet               $nav.sak.videresend.grunn.annet                         X007.ForwardInformation.pleaseProvideMoreDetailsIf99OtherSelected
+           X007Dto.sedType                             (metadata, sett av backend til X007; skriv $sed, ikkje i X007 ACL)
+           X007Dto.sedVersjon                          (metadata, les/skriv $sedGVer + '.' + $sedVer, ikkje i X007 ACL)

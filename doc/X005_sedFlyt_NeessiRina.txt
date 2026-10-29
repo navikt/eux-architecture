@@ -1,0 +1,23 @@
+1.1.1.     X005Dto.bruker.etternavn                    $nav.sak.kontekst.bruker.person.etternavn            X005.CaseContext.PersonContext.familyName
+1.1.2.     X005Dto.bruker.fornavn                      $nav.sak.kontekst.bruker.person.fornavn              X005.CaseContext.PersonContext.forename
+1.1.3.     X005Dto.bruker.foedselsdato                 $nav.sak.kontekst.bruker.person.foedselsdato         X005.CaseContext.PersonContext.dateBirth
+1.1.4.     X005Dto.bruker.kjoenn                       $nav.sak.kontekst.bruker.person.kjoenn               X005.CaseContext.PersonContext.sex.value[0]
+1.2.1.     X005Dto.arbeidsgiver.navn                   $nav.sak.kontekst.arbeidsgiver.navn                  X005.CaseContext.EmployerContext.name
+1.2.2.1.1. X005Dto.arbeidsgiver.identifikatorer[].id   $nav.sak.kontekst.arbeidsgiver.identifikator[x].id   X005.CaseContext.EmployerContext.IdentificationNumbers.IdentificationNumber[0].number
+1.2.2.1.2. X005Dto.arbeidsgiver.identifikatorer[].type $nav.sak.kontekst.arbeidsgiver.identifikator[x].type X005.CaseContext.EmployerContext.IdentificationNumbers.IdentificationNumber[0].type.value[0]
+1.2.3.1.   X005Dto.arbeidsgiver.adresse.gate           $nav.sak.kontekst.arbeidsgiver.adresse.gate          X005.CaseContext.EmployerContext.Address.street
+1.2.3.2.   X005Dto.arbeidsgiver.adresse.bygning        $nav.sak.kontekst.arbeidsgiver.adresse.bygning       X005.CaseContext.EmployerContext.Address.buildingName
+1.2.3.3.   X005Dto.arbeidsgiver.adresse.by             $nav.sak.kontekst.arbeidsgiver.adresse.by            X005.CaseContext.EmployerContext.Address.town
+1.2.3.4.   X005Dto.arbeidsgiver.adresse.postnummer     $nav.sak.kontekst.arbeidsgiver.adresse.postnummer    X005.CaseContext.EmployerContext.Address.postalCode
+1.2.3.5.   X005Dto.arbeidsgiver.adresse.region         $nav.sak.kontekst.arbeidsgiver.adresse.region        X005.CaseContext.EmployerContext.Address.region
+1.2.3.6.                                               $nav.sak.kontekst.arbeidsgiver.adresse.land          X005.CaseContext.EmployerContext.Address.country.value[0]
+           X005Dto.arbeidsgiver.adresse.landkode       $nav.sak.kontekst.arbeidsgiver.adresse.landkode      X005.CaseContext.EmployerContext.Address.country.value[0]
+1.3.1.     X005Dto.refusjonskrav.id                    $nav.sak.kontekst.refusjonskrav.id                   X005.CaseContext.ReimbursementContext.reimbursementRequestID
+1.3.2.     X005Dto.refusjonskrav.antallkrav            $nav.sak.kontekst.refusjonskrav.antallkrav           X005.CaseContext.ReimbursementContext.totalNumberIndividualClaims
+
+2.1.1.     X005Dto.leggTilInstitusjon.institusjonId    $nav.sak.leggtilinstitusjon.institusjon.id           X005.AddedParticipant.AddParticipant.institutionID
+2.1.2.     X005Dto.leggTilInstitusjon.institusjonNavn  $nav.sak.leggtilinstitusjon.institusjon.navn         X005.AddedParticipant.AddParticipant.institutionName
+2.2.       X005Dto.leggTilInstitusjon.grunnType        $nav.sak.leggtilinstitusjon.grunn.type               X005.AddedParticipant.reason.value[0]
+2.3.       X005Dto.leggTilInstitusjon.grunnAnnet       $nav.sak.leggtilinstitusjon.grunn.annet              X005.AddedParticipant.pleaseProvideMoreDetailsIf99OtherSelected
+           X005Dto.sedType                             (metadata, sett av backend til X005; skriv $sed, ikkje i X005 ACL)
+           X005Dto.sedVersjon                          (metadata, les/skriv $sedGVer + '.' + $sedVer, ikkje i X005 ACL)

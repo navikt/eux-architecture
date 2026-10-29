@@ -1,0 +1,46 @@
+U009		"Melding om registrering - eksport"
+
+1.1.1.		U009Dto.lokaleSaksnumre[].landkode				$nav.eessisak[x].land				U009.LocalCaseNumbers.LocalCaseNumber[0].country.value[0]
+		$nav.eessisak[x].landkode					U009.LocalCaseNumbers.LocalCaseNumber[0].country.value[0]
+1.1.2.		U009Dto.lokaleSaksnumre[].saksnummer				$nav.eessisak[x].saksnummer			U009.LocalCaseNumbers.LocalCaseNumber[0].caseNumber
+1.1.3.1.	U009Dto.lokaleSaksnumre[].institusjonsid			$nav.eessisak[x].institusjonsid			U009.LocalCaseNumbers.LocalCaseNumber[0].Institution.institutionID
+1.1.3.2.	U009Dto.lokaleSaksnumre[].institusjonsnavn			$nav.eessisak[x].institusjonsnavn		U009.LocalCaseNumbers.LocalCaseNumber[0].Institution.institutionName
+
+2.1.1.		U009Dto.bruker.personInfo.etternavn				$nav.bruker.person.etternavn			U009.Person.PersonIdentification.familyName
+2.1.2.		U009Dto.bruker.personInfo.fornavn				$nav.bruker.person.fornavn			U009.Person.PersonIdentification.forename
+2.1.3.		U009Dto.bruker.personInfo.foedselsdato				$nav.bruker.person.foedselsdato			U009.Person.PersonIdentification.dateBirth
+2.1.4.		U009Dto.bruker.personInfo.kjoenn				$nav.bruker.person.kjoenn			U009.Person.PersonIdentification.sex.value[0]
+2.1.5.		U009Dto.bruker.personInfo.pinMangler.etternavnVedFoedsel	$nav.bruker.person.etternavnvedfoedsel		U009.Person.PersonIdentification.familyNameAtBirth
+2.1.6.		U009Dto.bruker.personInfo.pinMangler.fornavnVedFoedsel		$nav.bruker.person.fornavnvedfoedsel		U009.Person.PersonIdentification.forenameAtBirth
+2.1.7.1.1.	U009Dto.bruker.personInfo.pin[].landkode			$nav.bruker.person.pin[x].land			U009.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+		$nav.bruker.person.pin[x].landkode				U009.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+2.1.7.1.2.	U009Dto.bruker.personInfo.pin[].identifikator			$nav.bruker.person.pin[x].identifikator		U009.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+2.1.7.1.3.	U009Dto.bruker.personInfo.pin[].sektor				$nav.bruker.person.pin[x].sektor		U009.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+2.1.7.1.4.1.	U009Dto.bruker.personInfo.pin[].institusjonsid			$nav.bruker.person.pin[x].institusjonsid	U009.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+2.1.7.1.4.2.	U009Dto.bruker.personInfo.pin[].institusjonsnavn		$nav.bruker.person.pin[x].institusjonsnavn	U009.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+2.1.8.1.1.	U009Dto.bruker.personInfo.pinMangler.foedested.by		$nav.bruker.person.foedested.by			U009.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+2.1.8.1.2.	U009Dto.bruker.personInfo.pinMangler.foedested.region		$nav.bruker.person.foedested.region		U009.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+2.1.8.1.3.	U009Dto.bruker.personInfo.pinMangler.foedested.landkode		$nav.bruker.person.foedested.land		U009.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+		$nav.bruker.person.foedested.landkode				U009.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+2.1.8.2.	U009Dto.bruker.personInfo.pinMangler.far.etternavnVedFoedsel	$nav.bruker.far.person.etternavnvedfoedsel	U009.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+2.1.8.3.	U009Dto.bruker.personInfo.pinMangler.far.fornavn		$nav.bruker.far.person.fornavn			U009.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+2.1.8.4.	U009Dto.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel	$nav.bruker.mor.person.etternavnvedfoedsel	U009.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+2.1.8.5.	U009Dto.bruker.personInfo.pinMangler.mor.fornavn		$nav.bruker.mor.person.fornavn			U009.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+2.2.1.		U009Dto.bruker.personInfo.statsborgerskap[].landkode		$nav.bruker.person.statsborgerskap[x].land	U009.Person.AdditionalInformationPerson.nationality.value[0]
+		$nav.bruker.person.statsborgerskap[x].landkode			U009.Person.AdditionalInformationPerson.nationality.value[0]
+
+3.1.		U009Dto.registreringsdato					$dagpenger.bruker.landetdetsoekesarbeidi.registreringsdato	U009.DateRegistration.date
+
+4.1.1.		U009Dto.bruker.adresse.gate					$nav.bruker.bostedsadresse.gate			U009.PersonCurrentAddress.AddressDetails.street
+4.1.2.		U009Dto.bruker.adresse.bygning					$nav.bruker.bostedsadresse.bygning		U009.PersonCurrentAddress.AddressDetails.buildingName
+4.1.3.		U009Dto.bruker.adresse.by					$nav.bruker.bostedsadresse.by			U009.PersonCurrentAddress.AddressDetails.town
+4.1.4.		U009Dto.bruker.adresse.postnummer				$nav.bruker.bostedsadresse.postnummer		U009.PersonCurrentAddress.AddressDetails.postalCode
+4.1.5.		U009Dto.bruker.adresse.region					$nav.bruker.bostedsadresse.region		U009.PersonCurrentAddress.AddressDetails.region
+4.1.6.		U009Dto.bruker.adresse.landkode					$nav.bruker.bostedsadresse.land			U009.PersonCurrentAddress.AddressDetails.country.value[0]
+		$nav.bruker.bostedsadresse.landkode				U009.PersonCurrentAddress.AddressDetails.country.value[0]
+4.2.1.1.1.	U009Dto.bruker.telefon[].type					$nav.bruker.person.kontakt.telefon[x].type	U009.PersonCurrentAddress.ContactInformation.TelephoneNumbers.TelephoneNumber[0].type.value[0]
+4.2.1.1.2.	U009Dto.bruker.telefon[].nummer					$nav.bruker.person.kontakt.telefon[x].nummer	U009.PersonCurrentAddress.ContactInformation.TelephoneNumbers.TelephoneNumber[0].number
+4.2.2.1.1.	U009Dto.bruker.epost[].adresse					$nav.bruker.person.kontakt.email[x].adresse	U009.PersonCurrentAddress.ContactInformation.EmailAddresses.EmailAddress[0].email
+		U009Dto.sedType							(metadata, ikkje i ACL)
+		U009Dto.sedVersjon						(metadata, ikkje i ACL)
+		U009Dto.bruker.personInfo.adressebeskyttelsesgrad		(beriking frå PDL, ikkje i ACL)

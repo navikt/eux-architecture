@@ -1,0 +1,28 @@
+H020		"Krav om - refusjon - administrativ kontroll / medisinsk informasjon"
+# Uten Neessi-kolonne: Neessi-kildene var ikke tilgjengelige ved oppdateringen.
+
+1.1.1.		$horisontal.refusjonskrav.kreditorinstitusjon.id			H020.GlobalClaim.CreditorInstitution.institutionID
+1.1.2.		$horisontal.refusjonskrav.kreditorinstitusjon.navn			H020.GlobalClaim.CreditorInstitution.institutionName
+1.2.		$horisontal.refusjonskrav.kreditorinstitusjon.globalreferanse		H020.GlobalClaim.globalReferenceSetByCreditorInstitution
+1.3.		$horisontal.refusjonskrav.totaltantallfakturaer				H020.GlobalClaim.totalNumberInvoices
+1.4.1.		$horisontal.refusjonskrav.kreditorinstitusjon.krav.totalbeloep		H020.GlobalClaim.TotalClaimAmountInCurrencyCreditorInstitution.amount
+1.4.2.		$horisontal.refusjonskrav.kreditorinstitusjon.krav.valuta		H020.GlobalClaim.TotalClaimAmountInCurrencyCreditorInstitution.currency.value[0]
+1.4.3.		$horisontal.refusjonskrav.kreditorinstitusjon.krav.forfallsdato		H020.GlobalClaim.TotalClaimAmountInCurrencyCreditorInstitution.paymentDueOn
+1.5.1.		$horisontal.refusjonskrav.debitorinstitusjon.id				H020.GlobalClaim.DebtorInstitution.institutionID
+1.5.2.		$horisontal.refusjonskrav.debitorinstitusjon.navn			H020.GlobalClaim.DebtorInstitution.institutionName
+1.6.1.		$horisontal.refusjonskrav.bank.konto.sepa.iban				H020.GlobalClaim.BankDetails.IBAN
+1.6.2.		$horisontal.refusjonskrav.bank.konto.sepa.swift				H020.GlobalClaim.BankDetails.BICSWIFT
+
+2.1.1.1.	$nav.bruker.person.etternavn						H020.Claim.Person.PersonInformation.familyName
+2.1.1.2.	$nav.bruker.person.fornavn						H020.Claim.Person.PersonInformation.forename
+2.1.1.3.	$nav.bruker.person.foedselsdato						H020.Claim.Person.PersonInformation.dateBirth
+2.1.1.4.	$nav.bruker.person.kjoenn						H020.Claim.Person.PersonInformation.sex.value[0]
+2.1.2.		$nav.bruker.person.etternavnvedfoedsel					H020.Claim.Person.familyNameAtBirth
+2.1.3.		$nav.bruker.person.fornavnvedfoedsel					H020.Claim.Person.forenameAtBirth
+2.1.4.1.	$nav.bruker.person.pin.identifikator					H020.Claim.Person.PersonIdentificationNumber.pINPersonInCompetentMemberState
+2.1.4.2.	$nav.bruker.person.oppholdsland.pin					H020.Claim.Person.PersonIdentificationNumber.pINPersonInMemberStateStayOrResidence
+2.2.1.		$horisontal.refusjonskrav.refusjon[x].henvisningtil			H020.Claim.Reimbursement[0].inReferenceYour.value[0]
+2.2.2.		$horisontal.refusjonskrav.refusjon[x].utstedelsesdato			H020.Claim.Reimbursement[0].issuedOn
+2.2.3.		$horisontal.refusjonskrav.refusjon[x].kreditorinstitusjon.fakturanummer	H020.Claim.Reimbursement[0].invoiceNumberCreditorInstitution
+2.2.4.1.	$horisontal.refusjonskrav.refusjon[x].kreditorinstitusjon.beloep	H020.Claim.Reimbursement[0].InvoiceAmountInCurrencyCreditorInstitution.amount
+2.2.4.2.	$horisontal.refusjonskrav.refusjon[x].kreditorinstitusjon.valuta	H020.Claim.Reimbursement[0].InvoiceAmountInCurrencyCreditorInstitution.currency.value[0]

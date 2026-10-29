@@ -1,0 +1,488 @@
+F002		"Svar om avgjørelse av kompetanse"
+
+1.1.				$familie.avgjoerelsekompetanse.svar.formaal[x].id								F002.PurposeThisSED.purposeThisSED.value[0]
+
+2.1.				$familie.krav.dato												F002.ReceiptApplicationForFamilyBenefits.dateReceiptApplication
+2.2.1.1.			$familie.krav.anmodningomperiode[x].fastperiode.startdato							F002.ReceiptApplicationForFamilyBenefits.RequestForPeriodInformation[0].FixedPeriod.startDate
+2.2.1.2.			$familie.krav.anmodningomperiode[x].fastperiode.sluttdato							F002.ReceiptApplicationForFamilyBenefits.RequestForPeriodInformation[0].FixedPeriod.endDate
+2.2.2.1.			$familie.krav.anmodningomperiode[x].aapenperiode.type								F002.ReceiptApplicationForFamilyBenefits.RequestForPeriodInformation[0].OpenPeriod.typeOpenPeriod.value[0]
+2.2.2.2.			$familie.krav.anmodningomperiode[x].aapenperiode.startdato							F002.ReceiptApplicationForFamilyBenefits.RequestForPeriodInformation[0].OpenPeriod.startDate
+2.3.				$familie.krav.type												F002.ReceiptApplicationForFamilyBenefits.typeClaim.value[0]
+2.4.				$familie.krav.informasjonsoeknad										F002.ReceiptApplicationForFamilyBenefits.informationApplication.value[0]
+2.5.				$familie.krav.oenskermerinformasjonom										F002.ReceiptApplicationForFamilyBenefits.pointsForWhichMoreInformationNeeded
+
+3.1.				$familie.endringer[x].gjelder											F002.InformationAboutChangeInCircumstances.changeCircumstanceFor.value[0]
+
+4.1.				$nav.ytterligereinformasjon											F002.AdditionalRequestOrInformation.additionalInformation
+
+5.1.				$familie.vedtak.gjelderallebarnja										F002.Decision.DecisionRegardingAllChildrenMentionedInThisSED.value[0]
+5.2.1.				$familie.vedtak.gjelderallebarnnei										F002.Decision.DecisionWhichDoesNotConcernAllChildren.DecisionRegardingAllChildrenMentionedInThisSED.value[0]
+5.2.2.1.			$familie.vedtak.gjelder.barn[x].person.etternavn								F002.Decision.DecisionWhichDoesNotConcernAllChildren.ChildForWhomThisDecisionApplies[0].familyName
+5.2.2.2.			$familie.vedtak.gjelder.barn[x].person.fornavn									F002.Decision.DecisionWhichDoesNotConcernAllChildren.ChildForWhomThisDecisionApplies[0].forename
+5.2.2.3.			$familie.vedtak.gjelder.barn[x].person.foedselsdato								F002.Decision.DecisionWhichDoesNotConcernAllChildren.ChildForWhomThisDecisionApplies[0].dateBirth
+5.3.1.1.1.			$familie.vedtak.periode[x].fastperiode.startdato								F002.Decision.Periods.Period[0].FixedPeriod.startDate
+5.3.1.1.2.			$familie.vedtak.periode[x].fastperiode.sluttdato								F002.Decision.Periods.Period[0].FixedPeriod.endDate
+5.3.1.2.1.			$familie.vedtak.periode[x].aapenperiode.type									F002.Decision.Periods.Period[0].OpenPeriod.typeOpenPeriod.value[0]
+5.3.1.2.2.			$familie.vedtak.periode[x].aapenperiode.startdato								F002.Decision.Periods.Period[0].OpenPeriod.startDate
+5.4.				$familie.vedtak.type												F002.Decision.typeDecision.value[0]
+5.5.				$familie.vedtak.grunn												F002.Decision.theReasonForDecision
+5.6.				$familie.vedtak.ytterligereinformasjon										F002.Decision.additionalInformation
+5.7.1.1.1.1.			$familie.vedtak.artikkel68.primaerkompetanse[x].periode.fastperiode.startdato					F002.Decision.DecisionsPrimaryCompetenceWithArticle68Regulation.Decision[0].Period.FixedPeriod.startDate
+5.7.1.1.1.2.			$familie.vedtak.artikkel68.primaerkompetanse[x].periode.fastperiode.sluttdato					F002.Decision.DecisionsPrimaryCompetenceWithArticle68Regulation.Decision[0].Period.FixedPeriod.endDate
+5.7.1.1.2.1.			$familie.vedtak.artikkel68.primaerkompetanse[x].periode.aapenperiode.type					F002.Decision.DecisionsPrimaryCompetenceWithArticle68Regulation.Decision[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+5.7.1.1.2.2.			$familie.vedtak.artikkel68.primaerkompetanse[x].periode.aapenperiode.startdato					F002.Decision.DecisionsPrimaryCompetenceWithArticle68Regulation.Decision[0].Period.OpenPeriod.startDate
+5.7.1.2.			$familie.vedtak.artikkel68.primaerkompetanse[x].ytelserutbetales						F002.Decision.DecisionsPrimaryCompetenceWithArticle68Regulation.Decision[0].paymentBenefitIndicator.value[0]
+5.8.1.1.1.1.			$familie.vedtak.artikkel68.sekundaerkompetanse[x].periode.fastperiode.startdato					F002.Decision.DecisionSecondaryCompetenceWithArticle68.Decision[0].Period.FixedPeriod.startDate
+5.8.1.1.1.2.			$familie.vedtak.artikkel68.sekundaerkompetanse[x].periode.fastperiode.sluttdato					F002.Decision.DecisionSecondaryCompetenceWithArticle68.Decision[0].Period.FixedPeriod.endDate
+5.8.1.1.2.1.			$familie.vedtak.artikkel68.sekundaerkompetanse[x].periode.aapenperiode.type					F002.Decision.DecisionSecondaryCompetenceWithArticle68.Decision[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+5.8.1.1.2.2.			$familie.vedtak.artikkel68.sekundaerkompetanse[x].periode.aapenperiode.startdato				F002.Decision.DecisionSecondaryCompetenceWithArticle68.Decision[0].Period.OpenPeriod.startDate
+5.8.1.2.			$familie.vedtak.artikkel68.sekundaerkompetanse[x].ytelserutbetales						F002.Decision.DecisionSecondaryCompetenceWithArticle68.Decision[0].paymentBenefitIndicator.value[0]
+5.9.1.1.1.1.			$familie.vedtak.artikkel58.primaerkompetanse[x].periode.fastperiode.startdato					F002.Decision.DecisionPrimaryCompetenceWithArticle58Regulation.Decision[0].Period.FixedPeriod.startDate
+5.9.1.1.1.2.			$familie.vedtak.artikkel58.primaerkompetanse[x].periode.fastperiode.sluttdato					F002.Decision.DecisionPrimaryCompetenceWithArticle58Regulation.Decision[0].Period.FixedPeriod.endDate
+5.9.1.1.2.1.			$familie.vedtak.artikkel58.primaerkompetanse[x].periode.aapenperiode.type					F002.Decision.DecisionPrimaryCompetenceWithArticle58Regulation.Decision[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+5.9.1.1.2.2.			$familie.vedtak.artikkel58.primaerkompetanse[x].periode.aapenperiode.startdato					F002.Decision.DecisionPrimaryCompetenceWithArticle58Regulation.Decision[0].Period.OpenPeriod.startDate
+5.10.1.1.1.1.			$familie.vedtak.artikkel58.sekundaerkompetanse[x].periode.fastperiode.startdato					F002.Decision.DecisionSecondaryCompetenceWithArticle58.Decision[0].Period.FixedPeriod.startDate
+5.10.1.1.1.2.			$familie.vedtak.artikkel58.sekundaerkompetanse[x].periode.fastperiode.sluttdato					F002.Decision.DecisionSecondaryCompetenceWithArticle58.Decision[0].Period.FixedPeriod.endDate
+5.10.1.1.2.1.			$familie.vedtak.artikkel58.sekundaerkompetanse[x].periode.aapenperiode.type					F002.Decision.DecisionSecondaryCompetenceWithArticle58.Decision[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+5.10.1.1.2.2.			$familie.vedtak.artikkel58.sekundaerkompetanse[x].periode.aapenperiode.startdato				F002.Decision.DecisionSecondaryCompetenceWithArticle58.Decision[0].Period.OpenPeriod.startDate
+5.11.				$familie.vedtak.innhold												F002.Decision.contentDecision
+5.12.				$familie.vedtak.dato												F002.Decision.dateDecision
+
+6.1.				$familie.vedtak.uenighet.grunn.ansettelse.periodestatus.for							F002.ReasonForDisagreement.employmentSelfEmploymentPeriodStatus.value[0]
+6.2.				$familie.vedtak.uenighet.grunn.pensjon.mottaksperiode.for							F002.ReasonForDisagreement.periodPensionReceived.value[0]
+6.3.				$familie.vedtak.uenighet.grunn.medlemsperiode.for								F002.ReasonForDisagreement.insurancePeriod.value[0]
+6.4.				$familie.vedtak.uenighet.grunn.oppholdsvarighet.for								F002.ReasonForDisagreement.durationTerritory.value[0]
+6.5.				$familie.vedtak.uenighet.grunn.bosted.barn.for									F002.ReasonForDisagreement.residenceChildren.value[0]
+6.6.				$familie.vedtak.uenighet.grunn.personligsituasjon.for								F002.ReasonForDisagreement.personalSituationElementsArt11RegulationECNo9872009.value[0]
+6.7.				$familie.vedtak.uenighet.grunn.ytterligegrunner									F002.ReasonForDisagreement.additionalGroundsForDisagreement
+
+7.1.1.				$familie.etterkommunikasjon[x].enighet.dato									F002.InformationAgreementDisagreementAfter.InformationAgreementWithDecision[0].decisionDated
+7.1.2.				$familie.etterkommunikasjon[x].enighet.ytterligeinformasjon							F002.InformationAgreementDisagreementAfter.InformationAgreementWithDecision[0].additionalInformationDisagreementWithDecision
+7.1.3.1.			$familie.etterkommunikasjon[x].uenighet.sendestiladministrativkommmisjon					F002.InformationAgreementDisagreementAfter.InformationAgreementWithDecision[0].InCaseDisagreement.theCaseWillTakenAdministrativeCommissionIndicator.value[0]
+7.1.3.2.			$familie.etterkommunikasjon[x].uenighet.ytterligeinformasjon							F002.InformationAgreementDisagreementAfter.InformationAgreementWithDecision[0].InCaseDisagreement.additionalInformationForGroundsDisagreement
+
+8.1.1.				$nav.bruker.person.etternavn											F002.Claimant.PersonIdentification.familyName
+8.1.2.				$nav.bruker.person.fornavn											F002.Claimant.PersonIdentification.forename
+8.1.3.				$nav.bruker.person.foedselsdato											F002.Claimant.PersonIdentification.dateBirth
+8.1.4.				$nav.bruker.person.kjoenn											F002.Claimant.PersonIdentification.sex.value[0]
+8.1.5.				$nav.bruker.person.etternavnvedfoedsel										F002.Claimant.PersonIdentification.familyNameAtBirth
+8.1.6.				$nav.bruker.person.fornavnvedfoedsel										F002.Claimant.PersonIdentification.forenameAtBirth
+8.1.7.1.1.			$nav.bruker.person.pin[x].land											F002.Claimant.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+				$bruker.personinfo.pin[x].landkode										F002.Claimant.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+8.1.7.1.2.			$nav.bruker.person.pin[x].identifikator										F002.Claimant.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+8.1.7.1.3.			$nav.bruker.person.pin[x].sektor										F002.Claimant.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+8.1.7.1.4.1.			$nav.bruker.person.pin[x].institusjonsid									F002.Claimant.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+8.1.7.1.4.2.			$nav.bruker.person.pin[x].institusjonsnavn									F002.Claimant.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+8.1.8.1.1.			$nav.bruker.person.foedested.by											F002.Claimant.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+8.1.8.1.2.			$nav.bruker.person.foedested.region										F002.Claimant.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+8.1.8.1.3.			$nav.bruker.person.foedested.land										F002.Claimant.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+				$bruker.personinfo.pinmangler.foedested.landkode								F002.Claimant.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+8.1.8.2.			$nav.bruker.far.person.etternavnvedfoedsel									F002.Claimant.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+8.1.8.3.			$nav.bruker.far.person.fornavn											F002.Claimant.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+8.1.8.4.			$nav.bruker.mor.person.etternavnvedfoedsel									F002.Claimant.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+8.1.8.5.			$nav.bruker.mor.person.fornavn											F002.Claimant.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+8.2.1.1.			$nav.bruker.person.statsborgerskap[x].land									F002.Claimant.AdditionalInformationAboutNationality.Nationalities[0].nationality.value[0]
+				$bruker.personinfo.statsborgerskap[x].landkode									F002.Claimant.AdditionalInformationAboutNationality.Nationalities[0].nationality.value[0]
+8.2.1.2.			$nav.bruker.person.statsborgerskap[x].siden									F002.Claimant.AdditionalInformationAboutNationality.Nationalities[0].since
+8.3.1.1.			$nav.bruker.adresse[x].type											F002.Claimant.AddressesPerson.AddressPerson[0].typeAddress.value[0]
+8.3.1.2.1.			$nav.bruker.adresse[x].gate											F002.Claimant.AddressesPerson.AddressPerson[0].Address.street
+8.3.1.2.2.			$nav.bruker.adresse[x].bygning											F002.Claimant.AddressesPerson.AddressPerson[0].Address.buildingName
+8.3.1.2.3.			$nav.bruker.adresse[x].by											F002.Claimant.AddressesPerson.AddressPerson[0].Address.town
+8.3.1.2.4.			$nav.bruker.adresse[x].postnummer										F002.Claimant.AddressesPerson.AddressPerson[0].Address.postalCode
+8.3.1.2.5.			$nav.bruker.adresse[x].region											F002.Claimant.AddressesPerson.AddressPerson[0].Address.region
+8.3.1.2.6.			$nav.bruker.adresse[x].land											F002.Claimant.AddressesPerson.AddressPerson[0].Address.country.value[0]
+				$bruker.personinfo.adresser[x].landkode										F002.Claimant.AddressesPerson.AddressPerson[0].Address.country.value[0]
+8.4.1.1.1.			$nav.bruker.person.kontakt.telefon[x].type									F002.Claimant.ContactDetails.TelephoneNumbers.TelephoneNumber[0].type.value[0]
+8.4.1.1.2.			$nav.bruker.person.kontakt.telefon[x].nummer									F002.Claimant.ContactDetails.TelephoneNumbers.TelephoneNumber[0].number
+8.4.2.1.1.			$nav.bruker.person.kontakt.email[x].adresse									F002.Claimant.ContactDetails.EmailAddresses.EmailAddress[0].email
+8.5.1.1.1.			$familie.bruker.dekketavtrygd.periode[x].fastperiode.startdato							F002.Claimant.CoverageBySocialSecurityScheme.PeriodsCoveredBySecuritySchemeInSendingMember.Period[0].startDate
+8.5.1.1.2.			$familie.bruker.dekketavtrygd.periode[x].fastperiode.sluttdato							F002.Claimant.CoverageBySocialSecurityScheme.PeriodsCoveredBySecuritySchemeInSendingMember.Period[0].endDate
+8.5.2.1.1.			$familie.bruker.ikkedekketavtrygd.periode[x].fastperiode.startdato						F002.Claimant.CoverageBySocialSecurityScheme.PeriodsNotCovered.PeriodNotCovered[0].startDate
+8.5.2.1.2.			$familie.bruker.ikkedekketavtrygd.periode[x].fastperiode.sluttdato						F002.Claimant.CoverageBySocialSecurityScheme.PeriodsNotCovered.PeriodNotCovered[0].endDate
+8.5.3.1.1.1.1.1.1.		$bruker.periodermedretttilytelser[x].retttilfamilieytelser[x].periode.fastperiode.startdato			F002.Claimant.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].FixedPeriod.startDate
+8.5.3.1.1.1.1.1.2.		$bruker.periodermedretttilytelser[x].retttilfamilieytelser[x].periode.fastperiode.sluttdato			F002.Claimant.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].FixedPeriod.endDate
+8.5.3.1.1.1.1.2.1.		$bruker.periodermedretttilytelser[x].retttilfamilieytelser[x].periode.aapenperiode.type				F002.Claimant.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].OpenPeriod.typeOpenPeriod.value[0]
+8.5.3.1.1.1.1.2.2.		$bruker.periodermedretttilytelser[x].retttilfamilieytelser[x].periode.aapenperiode.startdato			F002.Claimant.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].OpenPeriod.startDate
+8.5.3.1.2.1.1.1.1.1.		$bruker.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.fastperiode.startdato			F002.Claimant.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.FixedPeriod.startDate
+8.5.3.1.2.1.1.1.1.2.		$bruker.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.fastperiode.sluttdato			F002.Claimant.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.FixedPeriod.endDate
+8.5.3.1.2.1.1.1.2.1.		$bruker.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.aapenperiode.type			F002.Claimant.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+8.5.3.1.2.1.1.1.2.2.		$bruker.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.aapenperiode.startdato		F002.Claimant.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.OpenPeriod.startDate
+8.5.3.1.2.1.1.2.		$bruker.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].grunn.FReasonEntitlementType			F002.Claimant.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].reason.value[0]
+8.5.3.1.2.1.1.3.		$bruker.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].grunn.annen					F002.Claimant.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].otherReason
+8.6.1.1.1.			$nav.bruker.familierelasjoner[x].type										F002.Claimant.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].familyRelationship.value[0]
+8.6.1.1.2.			$nav.bruker.familierelasjoner[x].annentype									F002.Claimant.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].other
+8.6.1.1.3.1.1.			$nav.bruker.familierelasjoner[x].periode.fastperiode.startdato							F002.Claimant.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.FixedPeriod.startDate
+8.6.1.1.3.1.2.			$nav.bruker.familierelasjoner[x].periode.fastperiode.sluttdato							F002.Claimant.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.FixedPeriod.endDate
+8.6.1.1.3.2.1.			$nav.bruker.familierelasjoner[x].periode.aapenperiode.type							F002.Claimant.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+8.6.1.1.3.2.2.			$nav.bruker.familierelasjoner[x].periode.aapenperiode.startdato							F002.Claimant.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.OpenPeriod.startDate
+8.6.1.1.4.			$nav.bruker.familierelasjoner[x].annenfamilierelasjon								F002.Claimant.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].otherRelationship
+8.6.1.1.5.			$nav.bruker.familierelasjoner[x].person.navn									F002.Claimant.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].namePerson
+8.6.1.1.6.			$nav.bruker.familierelasjoner[x].dato										F002.Claimant.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].dateRelationship
+8.6.1.1.7.			$nav.bruker.familierelasjoner[x].sammehusstand									F002.Claimant.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].wasClaimantAMemberSameHouseholdPersonInQuestionIndicator.value[0]
+8.7.1.1.1.1.1.1.		$bruker.aktivitetsstatusforperioder[x].aktiveperioder[x].type.FTypeEmploymentType				F002.Claimant.StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].typeEmployment.value[0]
+8.7.1.1.1.1.1.2.1.1.1.		$bruker.aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].fastperiode.startdato			F002.Claimant.StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].FixedPeriod.startDate
+8.7.1.1.1.1.1.2.1.1.2.		$bruker.aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].fastperiode.sluttdato			F002.Claimant.StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].FixedPeriod.endDate
+8.7.1.1.1.1.1.2.1.2.1.		$bruker.aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].aapenperiode.type				F002.Claimant.StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].OpenPeriod.typeOpenPeriod.value[0]
+8.7.1.1.1.1.1.2.1.2.2.		$bruker.aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].aapenperiode.startdato			F002.Claimant.StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].OpenPeriod.startDate
+8.7.1.1.2.1.1.1.		$bruker.aktivitetsstatusforperioder[x].inaktiveperioder[x].type.FActivePersonType				F002.Claimant.StatusPerson.Statuses.Status[0].PersonRegardedANonActivePerson.TypesNonActivity.TypeNoActivity[0].typeNonActivePerson.value[0]
+8.7.1.1.2.1.1.2.1.1.1.		$bruker.aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].fastperiode.startdato			F002.Claimant.StatusPerson.Statuses.Status[0].PersonRegardedANonActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].FixedPeriod.startDate
+8.7.1.1.2.1.1.2.1.1.2.		$bruker.aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].fastperiode.sluttdato			F002.Claimant.StatusPerson.Statuses.Status[0].PersonRegardedANonActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].FixedPeriod.endDate
+8.7.1.1.2.1.1.2.1.2.1.		$bruker.aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].aapenperiode.type				F002.Claimant.StatusPerson.Statuses.Status[0].PersonRegardedANonActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].OpenPeriod.typeOpenPeriod.value[0]
+8.7.1.1.2.1.1.2.1.2.2.		$bruker.aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].aapenperiode.startdato			F002.Claimant.StatusPerson.Statuses.Status[0].PersonRegardedANonActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].OpenPeriod.startDate
+8.7.1.1.3.1.1.1.1.		$bruker.aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].fastperiode.startdato			F002.Claimant.StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].FixedPeriod.startDate
+8.7.1.1.3.1.1.1.2.		$bruker.aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].fastperiode.sluttdato			F002.Claimant.StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].FixedPeriod.endDate
+8.7.1.1.3.1.1.2.1.		$bruker.aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].aapenperiode.type				F002.Claimant.StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].OpenPeriod.typeOpenPeriod.value[0]
+8.7.1.1.3.1.1.2.2.		$bruker.aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].aapenperiode.startdato			F002.Claimant.StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].OpenPeriod.startDate
+8.7.2.1.1.			$nav.bruker.pensjon[x].type											F002.Claimant.StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].typePension.value[0]
+8.7.2.1.2.1.1.			$nav.bruker.pensjon[x].periode.fastperiode.startdato								F002.Claimant.StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.FixedPeriod.startDate
+8.7.2.1.2.1.2.			$nav.bruker.pensjon[x].periode.fastperiode.sluttdato								F002.Claimant.StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.FixedPeriod.endDate
+8.7.2.1.2.2.1.			$nav.bruker.pensjon[x].periode.aapenperiode.type								F002.Claimant.StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+8.7.2.1.2.2.2.			$nav.bruker.pensjon[x].periode.aapenperiode.startdato								F002.Claimant.StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.OpenPeriod.startDate
+8.7.3.1.1.1.			$nav.bruker.trygdeperiode[x].fastperiode.startdato								F002.Claimant.StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].FixedPeriod.startDate
+8.7.3.1.1.2.			$nav.bruker.trygdeperiode[x].fastperiode.sluttdato								F002.Claimant.StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].FixedPeriod.endDate
+8.7.3.1.2.1.			$nav.bruker.trygdeperiode[x].aapenperiode.type									F002.Claimant.StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].OpenPeriod.typeOpenPeriod.value[0]
+8.7.3.1.2.2.			$nav.bruker.trygdeperiode[x].aapenperiode.startdato								F002.Claimant.StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].OpenPeriod.startDate
+8.7.4.1.1.1.1.			$nav.bruker.grunnforbosetting.periode[x].fastperiode.startdato							F002.Claimant.StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].FixedPeriod.startDate
+8.7.4.1.1.1.2.			$nav.bruker.grunnforbosetting.periode[x].fastperiode.sluttdato							F002.Claimant.StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].FixedPeriod.endDate
+8.7.4.1.1.2.1.			$nav.bruker.grunnforbosetting.periode[x].aapenperiode.type							F002.Claimant.StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].OpenPeriod.typeOpenPeriod.value[0]
+8.7.4.1.1.2.2.			$nav.bruker.grunnforbosetting.periode[x].aapenperiode.startdato							F002.Claimant.StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].OpenPeriod.startDate
+8.7.4.2.			$bruker.grunnforbosetting.flyttedato.til.avsenderlandet								F002.Claimant.StatusPerson.GroundsForResidence.DurationsTerritory.movingDateIntoSendingMemberState
+8.7.4.3.			$bruker.grunnforbosetting.flyttedato.til.mottakerlandet								F002.Claimant.StatusPerson.GroundsForResidence.DurationsTerritory.movingDateIntoReceivingMemberState
+8.7.4.4.			$bruker.grunnforbosetting.personligsituasjon.artikkel11								F002.Claimant.StatusPerson.GroundsForResidence.DurationsTerritory.personalSituationElementsArticle11RegulationECNo9872009
+
+9.1.1.				$nav.ektefelle.person.etternavn											F002.InformationSpouseOrPartner.PersonIdentification.familyName
+9.1.2.				$nav.ektefelle.person.fornavn											F002.InformationSpouseOrPartner.PersonIdentification.forename
+9.1.3.				$nav.ektefelle.person.foedselsdato										F002.InformationSpouseOrPartner.PersonIdentification.dateBirth
+9.1.4.				$nav.ektefelle.person.kjoenn											F002.InformationSpouseOrPartner.PersonIdentification.sex.value[0]
+9.1.5.				$nav.ektefelle.person.etternavnvedfoedsel									F002.InformationSpouseOrPartner.PersonIdentification.familyNameAtBirth
+9.1.6.				$nav.ektefelle.person.fornavnvedfoedsel										F002.InformationSpouseOrPartner.PersonIdentification.forenameAtBirth
+9.1.7.1.1.			$nav.ektefelle.person.pin[x].land										F002.InformationSpouseOrPartner.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+				$ektefelle.personinfo.pin[x].landkode										F002.InformationSpouseOrPartner.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+9.1.7.1.2.			$nav.ektefelle.person.pin[x].identifikator									F002.InformationSpouseOrPartner.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+9.1.7.1.3.			$nav.ektefelle.person.pin[x].sektor										F002.InformationSpouseOrPartner.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+9.1.7.1.4.1.			$nav.ektefelle.person.pin[x].institusjonsid									F002.InformationSpouseOrPartner.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+9.1.7.1.4.2.			$nav.ektefelle.person.pin[x].institusjonsnavn									F002.InformationSpouseOrPartner.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+9.1.8.1.1.			$nav.ektefelle.person.foedested.by										F002.InformationSpouseOrPartner.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+9.1.8.1.2.			$nav.ektefelle.person.foedested.region										F002.InformationSpouseOrPartner.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+9.1.8.1.3.			$nav.ektefelle.person.foedested.land										F002.InformationSpouseOrPartner.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+				$ektefelle.personinfo.pinmangler.foedested.landkode								F002.InformationSpouseOrPartner.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+9.1.8.2.			$nav.ektefelle.far.person.etternavnvedfoedsel									F002.InformationSpouseOrPartner.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+9.1.8.3.			$nav.ektefelle.far.person.fornavn										F002.InformationSpouseOrPartner.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+9.1.8.4.			$nav.ektefelle.mor.person.etternavnvedfoedsel									F002.InformationSpouseOrPartner.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+9.1.8.5.			$nav.ektefelle.mor.person.fornavn										F002.InformationSpouseOrPartner.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+9.2.1.1.			$nav.ektefelle.person.statsborgerskap[x].land									F002.InformationSpouseOrPartner.AdditionalInformationAboutNationality.Nationalities[0].nationality.value[0]
+				$ektefelle.personinfo.statsborgerskap[x].landkode								F002.InformationSpouseOrPartner.AdditionalInformationAboutNationality.Nationalities[0].nationality.value[0]
+9.2.1.2.			$nav.ektefelle.person.statsborgerskap[x].siden									F002.InformationSpouseOrPartner.AdditionalInformationAboutNationality.Nationalities[0].since
+9.3.1.1.			$nav.ektefelle.adresse[x].type											F002.InformationSpouseOrPartner.AddressesPerson.AddressPerson[0].typeAddress.value[0]
+9.3.1.2.1.			$nav.ektefelle.adresse[x].gate											F002.InformationSpouseOrPartner.AddressesPerson.AddressPerson[0].Address.street
+9.3.1.2.2.			$nav.ektefelle.adresse[x].bygning										F002.InformationSpouseOrPartner.AddressesPerson.AddressPerson[0].Address.buildingName
+9.3.1.2.3.			$nav.ektefelle.adresse[x].by											F002.InformationSpouseOrPartner.AddressesPerson.AddressPerson[0].Address.town
+9.3.1.2.4.			$nav.ektefelle.adresse[x].postnummer										F002.InformationSpouseOrPartner.AddressesPerson.AddressPerson[0].Address.postalCode
+9.3.1.2.5.			$nav.ektefelle.adresse[x].region										F002.InformationSpouseOrPartner.AddressesPerson.AddressPerson[0].Address.region
+9.3.1.2.6.			$nav.ektefelle.adresse[x].land											F002.InformationSpouseOrPartner.AddressesPerson.AddressPerson[0].Address.country.value[0]
+				$ektefelle.personinfo.adresser[x].landkode									F002.InformationSpouseOrPartner.AddressesPerson.AddressPerson[0].Address.country.value[0]
+9.4.1.1.1.			$nav.ektefelle.person.kontakt.telefon[x].type									F002.InformationSpouseOrPartner.ContactDetails.TelephoneNumbers.TelephoneNumber[0].type.value[0]
+9.4.1.1.2.			$nav.ektefelle.person.kontakt.telefon[x].nummer									F002.InformationSpouseOrPartner.ContactDetails.TelephoneNumbers.TelephoneNumber[0].number
+9.4.2.1.1.			$nav.ektefelle.person.kontakt.email[x].adresse									F002.InformationSpouseOrPartner.ContactDetails.EmailAddresses.EmailAddress[0].email
+9.5.1.1.1.			$familie.ektefelle.dekketavtrygd.periode[x].fastperiode.startdato						F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsCoveredBySecuritySchemeInSendingMember.Period[0].startDate
+9.5.1.1.2.			$familie.ektefelle.dekketavtrygd.periode[x].fastperiode.sluttdato						F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsCoveredBySecuritySchemeInSendingMember.Period[0].endDate
+9.5.2.1.1.			$familie.ektefelle.ikkedekketavtrygd.periode[x].fastperiode.startdato						F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsNotCovered.PeriodNotCovered[0].startDate
+9.5.2.1.2.			$familie.ektefelle.ikkedekketavtrygd.periode[x].fastperiode.sluttdato						F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsNotCovered.PeriodNotCovered[0].endDate
+9.5.3.1.1.1.1.1.1.		$ektefelle.periodermedretttilytelser[x].retttilfamilieytelser[x].periode.fastperiode.startdato			F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].FixedPeriod.startDate
+9.5.3.1.1.1.1.1.2.		$ektefelle.periodermedretttilytelser[x].retttilfamilieytelser[x].periode.fastperiode.sluttdato			F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].FixedPeriod.endDate
+9.5.3.1.1.1.1.2.1.		$ektefelle.periodermedretttilytelser[x].retttilfamilieytelser[x].periode.aapenperiode.type			F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].OpenPeriod.typeOpenPeriod.value[0]
+9.5.3.1.1.1.1.2.2.		$ektefelle.periodermedretttilytelser[x].retttilfamilieytelser[x].periode.aapenperiode.startdato			F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].OpenPeriod.startDate
+9.5.3.1.2.1.1.1.1.1.		$ektefelle.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.fastperiode.startdato		F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.FixedPeriod.startDate
+9.5.3.1.2.1.1.1.1.2.		$ektefelle.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.fastperiode.sluttdato		F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.FixedPeriod.endDate
+9.5.3.1.2.1.1.1.2.1.		$ektefelle.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.aapenperiode.type			F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+9.5.3.1.2.1.1.1.2.2.		$ektefelle.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.aapenperiode.startdato		F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.OpenPeriod.startDate
+9.5.3.1.2.1.1.2.		$ektefelle.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].grunn.FReasonEntitlementType		F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].reason.value[0]
+9.5.3.1.2.1.1.3.		$ektefelle.periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].grunn.annen				F002.InformationSpouseOrPartner.CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].otherReason
+9.6.1.1.1.			$nav.ektefelle.familierelasjoner[x].type									F002.InformationSpouseOrPartner.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].familyRelationship.value[0]
+9.6.1.1.2.			$nav.ektefelle.familierelasjoner[x].annentype									F002.InformationSpouseOrPartner.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].other
+9.6.1.1.3.1.1.			$nav.ektefelle.familierelasjoner[x].periode.fastperiode.startdato						F002.InformationSpouseOrPartner.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.FixedPeriod.startDate
+9.6.1.1.3.1.2.			$nav.ektefelle.familierelasjoner[x].periode.fastperiode.sluttdato						F002.InformationSpouseOrPartner.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.FixedPeriod.endDate
+9.6.1.1.3.2.1.			$nav.ektefelle.familierelasjoner[x].periode.aapenperiode.type							F002.InformationSpouseOrPartner.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+9.6.1.1.3.2.2.			$nav.ektefelle.familierelasjoner[x].periode.aapenperiode.startdato						F002.InformationSpouseOrPartner.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.OpenPeriod.startDate
+9.6.1.1.4.			$nav.ektefelle.familierelasjoner[x].annenfamilierelasjon							F002.InformationSpouseOrPartner.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].otherRelationship
+9.6.1.1.5.			$nav.ektefelle.familierelasjoner[x].person.navn									F002.InformationSpouseOrPartner.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].namePerson
+9.6.1.1.6.			$nav.ektefelle.familierelasjoner[x].dato									F002.InformationSpouseOrPartner.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].dateRelationship
+9.6.1.1.7.			$nav.ektefelle.familierelasjoner[x].sammehusstand								F002.InformationSpouseOrPartner.FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].wasClaimantAMemberSameHouseholdPersonInQuestionIndicator.value[0]
+9.7.1.1.1.1.1.1.		$ektefelle.aktivitetsstatusforperioder[x].aktiveperioder[x].type.FTypeEmploymentType				F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].typeEmployment.value[0]
+9.7.1.1.1.1.1.2.1.1.1.		$ektefelle.aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].fastperiode.startdato			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].FixedPeriod.startDate
+9.7.1.1.1.1.1.2.1.1.2.		$ektefelle.aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].fastperiode.sluttdato			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].FixedPeriod.endDate
+9.7.1.1.1.1.1.2.1.2.1.		$ektefelle.aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].aapenperiode.type			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].OpenPeriod.typeOpenPeriod.value[0]
+9.7.1.1.1.1.1.2.1.2.2.		$ektefelle.aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].aapenperiode.startdato			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].OpenPeriod.startDate
+9.7.1.1.2.1.1.1.		$ektefelle.aktivitetsstatusforperioder[x].inaktiveperioder[x].type.FActivePersonType				F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].PersonRegardedANonActivePerson.TypesNonActivity.TypeNoActivity[0].typeNonActivePerson.value[0]
+9.7.1.1.2.1.1.2.1.1.1.		$ektefelle.aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].fastperiode.startdato			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].PersonRegardedANonActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].FixedPeriod.startDate
+9.7.1.1.2.1.1.2.1.1.2.		$ektefelle.aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].fastperiode.sluttdato			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].PersonRegardedANonActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].FixedPeriod.endDate
+9.7.1.1.2.1.1.2.1.2.1.		$ektefelle.aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].aapenperiode.type			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].PersonRegardedANonActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].OpenPeriod.typeOpenPeriod.value[0]
+9.7.1.1.2.1.1.2.1.2.2.		$ektefelle.aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].aapenperiode.startdato			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].PersonRegardedANonActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].OpenPeriod.startDate
+9.7.1.1.3.1.1.1.1.		$ektefelle.aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].fastperiode.startdato			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].FixedPeriod.startDate
+9.7.1.1.3.1.1.1.2.		$ektefelle.aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].fastperiode.sluttdato			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].FixedPeriod.endDate
+9.7.1.1.3.1.1.2.1.		$ektefelle.aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].aapenperiode.type				F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].OpenPeriod.typeOpenPeriod.value[0]
+9.7.1.1.3.1.1.2.2.		$ektefelle.aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].aapenperiode.startdato			F002.InformationSpouseOrPartner.StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].OpenPeriod.startDate
+9.7.2.1.1.			$nav.ektefelle.pensjon[x].type											F002.InformationSpouseOrPartner.StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].typePension.value[0]
+9.7.2.1.2.1.1.			$nav.ektefelle.pensjon[x].periode.fastperiode.startdato								F002.InformationSpouseOrPartner.StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.FixedPeriod.startDate
+9.7.2.1.2.1.2.			$nav.ektefelle.pensjon[x].periode.fastperiode.sluttdato								F002.InformationSpouseOrPartner.StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.FixedPeriod.endDate
+9.7.2.1.2.2.1.			$nav.ektefelle.pensjon[x].periode.aapenperiode.type								F002.InformationSpouseOrPartner.StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+9.7.2.1.2.2.2.			$nav.ektefelle.pensjon[x].periode.aapenperiode.startdato							F002.InformationSpouseOrPartner.StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.OpenPeriod.startDate
+9.7.3.1.1.1.			$nav.ektefelle.trygdeperiode[x].fastperiode.startdato								F002.InformationSpouseOrPartner.StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].FixedPeriod.startDate
+9.7.3.1.1.2.			$nav.ektefelle.trygdeperiode[x].fastperiode.sluttdato								F002.InformationSpouseOrPartner.StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].FixedPeriod.endDate
+9.7.3.1.2.1.			$nav.ektefelle.trygdeperiode[x].aapenperiode.type								F002.InformationSpouseOrPartner.StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].OpenPeriod.typeOpenPeriod.value[0]
+9.7.3.1.2.2.			$nav.ektefelle.trygdeperiode[x].aapenperiode.startdato								F002.InformationSpouseOrPartner.StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].OpenPeriod.startDate
+9.7.4.1.1.1.1.			$nav.ektefelle.grunnforbosetting.periode[x].fastperiode.startdato						F002.InformationSpouseOrPartner.StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].FixedPeriod.startDate
+9.7.4.1.1.1.2.			$nav.ektefelle.grunnforbosetting.periode[x].fastperiode.sluttdato						F002.InformationSpouseOrPartner.StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].FixedPeriod.endDate
+9.7.4.1.1.2.1.			$nav.ektefelle.grunnforbosetting.periode[x].aapenperiode.type							F002.InformationSpouseOrPartner.StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].OpenPeriod.typeOpenPeriod.value[0]
+9.7.4.1.1.2.2.			$nav.ektefelle.grunnforbosetting.periode[x].aapenperiode.startdato						F002.InformationSpouseOrPartner.StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].OpenPeriod.startDate
+9.7.4.2.			$ektefelle.grunnforbosetting.flyttedato.til.avsenderlandet							F002.InformationSpouseOrPartner.StatusPerson.GroundsForResidence.DurationsTerritory.movingDateIntoSendingMemberState
+9.7.4.3.			$ektefelle.grunnforbosetting.flyttedato.til.mottakerlandet							F002.InformationSpouseOrPartner.StatusPerson.GroundsForResidence.DurationsTerritory.movingDateIntoReceivingMemberState
+9.7.4.4.			$ektefelle.grunnforbosetting.personligsituasjon.artikkel11							F002.InformationSpouseOrPartner.StatusPerson.GroundsForResidence.DurationsTerritory.personalSituationElementsArticle11RegulationECNo9872009
+
+10.1.1.1.			$andrepersoner[x].personinfo.etternavn										F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.familyName
+10.1.1.2.			$andrepersoner[x].personinfo.fornavn										F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.forename
+10.1.1.3.			$andrepersoner[x].personinfo.foedselsdato									F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.dateBirth
+10.1.1.4.			$andrepersoner[x].personinfo.kjoenn										F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.sex.value[0]
+10.1.1.5.			$andrepersoner[x].personinfo.pinmangler.etternavnvedfoedsel							F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.familyNameAtBirth
+10.1.1.6.			$andrepersoner[x].personinfo.pinmangler.fornavnvedfoedsel							F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.forenameAtBirth
+10.1.1.7.1.1.			$andrepersoner[x].personinfo.pin[x].landkode									F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+10.1.1.7.1.2.			$andrepersoner[x].personinfo.pin[x].identifikator								F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+10.1.1.7.1.3.			$andrepersoner[x].personinfo.pin[x].sektor									F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+10.1.1.7.1.4.1.			$andrepersoner[x].personinfo.pin[x].institusjonsid								F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+10.1.1.7.1.4.2.			$andrepersoner[x].personinfo.pin[x].institusjonsnavn								F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+10.1.1.8.1.1.			$andrepersoner[x].personinfo.pinmangler.foedested.by								F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+10.1.1.8.1.2.			$andrepersoner[x].personinfo.pinmangler.foedested.region							F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+10.1.1.8.1.3.			$andrepersoner[x].personinfo.pinmangler.foedested.landkode							F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+10.1.1.8.2.			$andrepersoner[x].personinfo.pinmangler.far.etternavnvedfoedsel							F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+10.1.1.8.3.			$andrepersoner[x].personinfo.pinmangler.far.fornavn								F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+10.1.1.8.4.			$andrepersoner[x].personinfo.pinmangler.mor.etternavnvedfoedsel							F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+10.1.1.8.5.			$andrepersoner[x].personinfo.pinmangler.mor.fornavn								F002.InformationOtherPersons.InformationOtherPerson[0].PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+10.1.2.1.1.			$andrepersoner[x].personinfo.statsborgerskap[x].landkode							F002.InformationOtherPersons.InformationOtherPerson[0].InformationOtherPerson[0].AdditionalInformationAboutNationality.Nationalities[0].nationality.value[0]
+10.1.2.1.2.			$andrepersoner[x].personinfo.statsborgerskap[x].siden								F002.InformationOtherPersons.InformationOtherPerson[0].InformationOtherPerson[0].AdditionalInformationAboutNationality.Nationalities[0].since
+10.1.3.1.1.			$andrepersoner[x].personinfo.adresser[x].type									F002.InformationOtherPersons.InformationOtherPerson[0].AddressesPerson.AddressPerson[0].typeAddress.value[0]
+10.1.3.1.2.1.			$andrepersoner[x].personinfo.adresser[x].gate									F002.InformationOtherPersons.InformationOtherPerson[0].AddressesPerson.AddressPerson[0].Address.street
+10.1.3.1.2.2.			$andrepersoner[x].personinfo.adresser[x].bygning								F002.InformationOtherPersons.InformationOtherPerson[0].AddressesPerson.AddressPerson[0].Address.buildingName
+10.1.3.1.2.3.			$andrepersoner[x].personinfo.adresser[x].by									F002.InformationOtherPersons.InformationOtherPerson[0].AddressesPerson.AddressPerson[0].Address.town
+10.1.3.1.2.4.			$andrepersoner[x].personinfo.adresser[x].postnummer								F002.InformationOtherPersons.InformationOtherPerson[0].AddressesPerson.AddressPerson[0].Address.postalCode
+10.1.3.1.2.5.			$andrepersoner[x].personinfo.adresser[x].region									F002.InformationOtherPersons.InformationOtherPerson[0].AddressesPerson.AddressPerson[0].Address.region
+10.1.3.1.2.6.			$andrepersoner[x].personinfo.adresser[x].landkode								F002.InformationOtherPersons.InformationOtherPerson[0].AddressesPerson.AddressPerson[0].Address.country.value[0]
+10.1.4.1.1.1.																	F002.InformationOtherPersons.InformationOtherPerson[0].ContactDetails.TelephoneNumbers.TelephoneNumber[0].type.value[0]
+10.1.4.1.1.2.			$andrepersoner[x].personinfo.telefoner[x].nummer								F002.InformationOtherPersons.InformationOtherPerson[0].ContactDetails.TelephoneNumbers.TelephoneNumber[0].number
+10.1.4.2.1.1.			$andrepersoner[x].personinfo.epostadresser[x]									F002.InformationOtherPersons.InformationOtherPerson[0].ContactDetails.EmailAddresses.EmailAddress[0].email
+10.1.5.1.1.1.			$andrepersoner[x].perioderdekketavtrygdeordning.periode[x].fastperiode.startdato				F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsCoveredBySecuritySchemeInSendingMember.Period[0].startDate
+10.1.5.1.1.2.			$andrepersoner[x].perioderdekketavtrygdeordning.periode[x].fastperiode.sluttdato				F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsCoveredBySecuritySchemeInSendingMember.Period[0].endDate
+10.1.5.2.1.1.			$andrepersoner[x].perioderikkedekketavtrygdeordning.periode[x].fastperiode.startdato				F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsNotCovered.PeriodNotCovered[0].startDate
+10.1.5.2.1.2.			$andrepersoner[x].perioderikkedekketavtrygdeordning.periode[x].fastperiode.sluttdato				F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsNotCovered.PeriodNotCovered[0].endDate
+10.1.5.3.1.1.1.1.1.1.		$andrepersoner[x].periodermedretttilytelser[x].retttilfamilieytelser[x].periode.fastperiode.startdato		F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].FixedPeriod.startDate
+10.1.5.3.1.1.1.1.1.2.		$andrepersoner[x].periodermedretttilytelser[x].retttilfamilieytelser[x].periode.fastperiode.sluttdato		F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].FixedPeriod.endDate
+10.1.5.3.1.1.1.1.2.1.		$andrepersoner[x].periodermedretttilytelser[x].retttilfamilieytelser[x].periode.aapenperiode.type		F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].OpenPeriod.typeOpenPeriod.value[0]
+10.1.5.3.1.1.1.1.2.2.		$andrepersoner[x].periodermedretttilytelser[x].retttilfamilieytelser[x].periode.aapenperiode.startdato		F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsExists.PeriodEntitlementFamilyBenefits.PeriodEntitlementFamilyBenefit[0].OpenPeriod.typeOpenPeriod.startDate
+10.1.5.3.1.2.1.1.1.1.1.		$andrepersoner[x].periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.fastperiode.startdato	F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.FixedPeriod.startDate
+10.1.5.3.1.2.1.1.1.1.2.		$andrepersoner[x].periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.fastperiode.sluttdato	F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.FixedPeriod.endDate
+10.1.5.3.1.2.1.1.1.2.1.		$andrepersoner[x].periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.aapenperiode.type		F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+10.1.5.3.1.2.1.1.1.2.2.		$andrepersoner[x].periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].periode.aapenperiode.startdato	F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].Period.OpenPeriod.startDate
+10.1.5.3.1.2.1.1.2.		$andrepersoner[x].periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].grunn.FReasonEntitlementType	F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].reason.value[0]
+10.1.5.3.1.2.1.1.3.		$andrepersoner[x].periodermedretttilytelser[x].ikkeretttilfamilieytelser[x].grunn.annen				F002.InformationOtherPersons.InformationOtherPerson[0].CoverageBySocialSecurityScheme.PeriodsEntitlement.PeriodOfEntitlement[0].EntitlementFamilyBenefitsDoesNotExist.PeriodNoEntitlementFamilyBenefits.PeriodNoEntitlementToFamilyBenefit[0].otherReason
+10.1.6.1.1.1.			$andrepersoner[x].familierelasjoner[x].type									F002.InformationOtherPersons.InformationOtherPerson[0].FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].familyRelationship.value[0]
+10.1.6.1.1.2.			$andrepersoner[x].familierelasjoner[x].annentype								F002.InformationOtherPersons.InformationOtherPerson[0].FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].other
+10.1.6.1.1.3.1.1.		$andrepersoner[x].familierelasjoner[x].periode.fastperiode.startdato						F002.InformationOtherPersons.InformationOtherPerson[0].FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.FixedPeriod.startDate
+10.1.6.1.1.3.1.2.		$andrepersoner[x].familierelasjoner[x].periode.fastperiode.sluttdato						F002.InformationOtherPersons.InformationOtherPerson[0].FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.FixedPeriod.endDate
+10.1.6.1.1.3.2.1.		$andrepersoner[x].familierelasjoner[x].periode.aapenperiode.type						F002.InformationOtherPersons.InformationOtherPerson[0].FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+10.1.6.1.1.3.2.2.		$andrepersoner[x].familierelasjoner[x].periode.aapenperiode.startdato						F002.InformationOtherPersons.InformationOtherPerson[0].FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].Period.OpenPeriod.startDate
+10.1.6.1.1.4.			$andrepersoner[x].familierelasjoner[x].annenfamilierelasjon							F002.InformationOtherPersons.InformationOtherPerson[0].FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].otherRelationship
+10.1.6.1.1.5.			$andrepersoner[x].familierelasjoner[x].person.navn								F002.InformationOtherPersons.InformationOtherPerson[0].FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].namePerson
+10.1.6.1.1.6.			$andrepersoner[x].familierelasjoner[x].dato									F002.InformationOtherPersons.InformationOtherPerson[0].FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].dateRelationship
+10.1.6.1.1.7.			$andrepersoner[x].familierelasjoner[x].sammehusstand								F002.InformationOtherPersons.InformationOtherPerson[0].FamilyRelationshipClaimantSpouseOrOtherPerson.Relationships.FamilyRelationship[0].wasClaimantAMemberSameHouseholdPersonInQuestionIndicator.value[0]
+10.1.7.1.1.1.1.1.1.		$andrepersoner[x].aktivitetsstatusforperioder[x].aktiveperioder[x].type.FTypeEmploymentType			F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].typeEmployment.value[0]
+10.1.7.1.1.1.1.1.2.1.1.1.	$andrepersoner[x].aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].fastperiode.startdato		F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].FixedPeriod.startDate
+10.1.7.1.1.1.1.1.2.1.1.2.	$andrepersoner[x].aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].fastperiode.sluttdato		F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].FixedPeriod.endDate
+10.1.7.1.1.1.1.1.2.1.2.1.	$andrepersoner[x].aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].aapenperiode.type			F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].OpenPeriod.typeOpenPeriod.value[0]
+10.1.7.1.1.1.1.1.2.1.2.2.	$andrepersoner[x].aktivitetsstatusforperioder[x].aktiveperioder[x].periode[x].aapenperiode.startdato		F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.Employments.Employment[0].PeriodsEmployment.Period[0].OpenPeriod.typeOpenPeriod.startDate
+10.1.7.1.1.2.1.1.1.		$andrepersoner[x].aktivitetsstatusforperioder[x].inaktiveperioder[x].type.FActivePersonType			F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.TypesNonActivity.TypeNoActivity[0].typeNonActivePerson.value[0]
+10.1.7.1.1.2.1.1.2.1.1.1.	$andrepersoner[x].aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].fastperiode.startdato		F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].FixedPeriod.startDate
+10.1.7.1.1.2.1.1.2.1.1.2.	$andrepersoner[x].aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].fastperiode.sluttdato		F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].FixedPeriod.endDate
+10.1.7.1.1.2.1.1.2.1.2.1.	$andrepersoner[x].aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].aapenperiode.type		F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].OpenPeriod.typeOpenPeriod.value[0]
+10.1.7.1.1.2.1.1.2.1.2.2.	$andrepersoner[x].aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].aapenperiode.startdato		F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].OpenPeriod.typeOpenPeriod.startDate
+10.1.7.1.1.3.1.1.1.1.		$andrepersoner[x].aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].fastperiode.startdato		F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].FixedPeriod.startDate
+10.1.7.1.1.3.1.1.1.2.		$andrepersoner[x].aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].fastperiode.sluttdato		F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].FixedPeriod.endDate
+10.1.7.1.1.3.1.1.2.1.		$andrepersoner[x].aktivitetsstatusforperioder[x].ingeninformasjon.periode[x].aapenperiode.type			F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].NoInformationAboutActivityPerson.PeriodsNonActivity.Period[0].OpenPeriod.typeOpenPeriod.value[0]
+10.1.7.1.1.3.1.1.2.2.		$andrepersoner[x].aktivitetsstatusforperioder[x].inaktiveperioder[x].periode[x].aapenperiode.startdato		F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.Statuses.Status[0].PersonRegardedAnActivePerson.TypesNonActivity.TypeNoActivity[0].PeriodsNonActivity.Period[0].OpenPeriod.typeOpenPeriod.startDate
+10.1.7.2.1.1.			$andrepersoner[x].pensjon[x].type										F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].typePension.value[0]
+10.1.7.2.1.2.1.1.		$andrepersoner[x].pensjon[x].periode.fastperiode.startdato							F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.FixedPeriod.startDate
+10.1.7.2.1.2.1.2.		$andrepersoner[x].pensjon[x].periode.fastperiode.sluttdato							F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.FixedPeriod.endDate
+10.1.7.2.1.2.2.1.		$andrepersoner[x].pensjon[x].periode.aapenperiode.type								F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.OpenPeriod.typeOpenPeriod.value[0]
+10.1.7.2.1.2.2.2.		$andrepersoner[x].pensjon[x].periode.aapenperiode.startdato							F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.PeriodsPensionReceivedInSendingMemberState.PeriodPensionReceivedInSendingMemberState[0].Period.OpenPeriod.startDate
+10.1.7.3.1.1.1.			$andrepersoner[x].trygdeperiode[x].fastperiode.startdato							F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].FixedPeriod.startDate
+10.1.7.3.1.1.2.			$andrepersoner[x].trygdeperiode[x].fastperiode.sluttdato							F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].FixedPeriod.endDate
+10.1.7.3.1.2.1.			$andrepersoner[x].trygdeperiode[x].aapenperiode.type								F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].OpenPeriod.typeOpenPeriod.value[0]
+10.1.7.3.1.2.2.			$andrepersoner[x].trygdeperiode[x].aapenperiode.startdato							F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.InsurancePeriodsInSendingMemberState.InsurancePeriod[0].OpenPeriod.startDate
+10.1.7.4.1.1.1.1.		$andrepersoner[x].grunnforbosetting.periode[x].fastperiode.startdato						F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].FixedPeriod.startDate
+10.1.7.4.1.1.1.2.		$andrepersoner[x].grunnforbosetting.periode[x].fastperiode.sluttdato						F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].FixedPeriod.endDate
+10.1.7.4.1.1.2.1.		$andrepersoner[x].grunnforbosetting.periode[x].aapenperiode.type						F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].OpenPeriod.typeOpenPeriod.value[0]
+10.1.7.4.1.1.2.2.		$andrepersoner[x].grunnforbosetting.periode[x].aapenperiode.startdato						F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.GroundsForResidence.DurationsTerritory.DurationTerritory[0].OpenPeriod.startDate
+10.1.7.4.2.			$andrepersoner[x].grunnforbosetting.flyttedato.til.avsenderlandet						F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.GroundsForResidence.movingDateIntoSendingMemberState
+10.1.7.4.3.			$andrepersoner[x].grunnforbosetting.flyttedato.til.mottakerlandet						F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.GroundsForResidence.movingDateIntoReceivingMemberState
+10.1.7.4.4.			$andrepersoner[x].grunnforbosetting.personligsituasjon.artikkel11						F002.InformationOtherPersons.InformationOtherPerson[0].StatusPerson.GroundsForResidence.personalSituationElementsArticle11RegulationECNo9872009
+
+11.1.				$familie.fremsettendemyndighet.begrunnelse									F002.ClaimingAuthority.reasonForAuthorityClaim
+11.2.1.				$familie.fremsettendemyndighet.institusjon.id									F002.ClaimingAuthority.ClaimingAuthority.institutionID
+11.2.2.				$familie.fremsettendemyndighet.institusjon.navn									F002.ClaimingAuthority.ClaimingAuthority.institutionName
+11.3.1.1.			$familie.fremsettendemyndighet.konto.sepa.iban									F002.ClaimingAuthority.BankDetails.SEPAAccount.iban
+11.3.1.2.			$familie.fremsettendemyndighet.konto.sepa.swift									F002.ClaimingAuthority.BankDetails.SEPAAccount.bicswift
+11.3.1.3.			$familie.fremsettendemyndighet.konto.sepa.banknavn								F002.ClaimingAuthority.BankDetails.SEPAAccount.bankName
+11.3.1.4.			$familie.fremsettendemyndighet.konto.sepa.betalingsreferanse							F002.ClaimingAuthority.BankDetails.SEPAAccount.paymentReferenceOrCaseNumber
+11.3.1.5.			$familie.fremsettendemyndighet.konto.sepa.kontoeier								F002.ClaimingAuthority.BankDetails.SEPAAccount.accountHolderName
+11.3.2.1.			$familie.fremsettendemyndighet.konto.ikkesepa.kontonummer							F002.ClaimingAuthority.BankDetails.NonSEPAAccount.accountNumber
+11.3.2.2.			$familie.fremsettendemyndighet.konto.ikkesepa.swift								F002.ClaimingAuthority.BankDetails.NonSEPAAccount.BICSWIFT
+11.3.2.3.			$familie.fremsettendemyndighet.konto.ikkesepa.bankensnavn							F002.ClaimingAuthority.BankDetails.NonSEPAAccount.bankName
+11.3.2.4.1.			$familie.fremsettendemyndighet.konto.ikkesepa.adresse.gate							F002.ClaimingAuthority.BankDetails.NonSEPAAccount.BankAddress.street
+11.3.2.4.2.			$familie.fremsettendemyndighet.konto.ikkesepa.adresse.bygning							F002.ClaimingAuthority.BankDetails.NonSEPAAccount.BankAddress.buildingName
+11.3.2.4.3.			$familie.fremsettendemyndighet.konto.ikkesepa.adresse.by							F002.ClaimingAuthority.BankDetails.NonSEPAAccount.BankAddress.town
+11.3.2.4.4.			$familie.fremsettendemyndighet.konto.ikkesepa.adresse.postnummer						F002.ClaimingAuthority.BankDetails.NonSEPAAccount.BankAddress.postalCode
+11.3.2.4.5.			$familie.fremsettendemyndighet.konto.ikkesepa.adresse.region							F002.ClaimingAuthority.BankDetails.NonSEPAAccount.BankAddress.region
+11.3.2.4.6.			$familie.fremsettendemyndighet.konto.ikkesepa.adresse.land							F002.ClaimingAuthority.BankDetails.NonSEPAAccount.BankAddress.country.value[0]
+				$familie.fremsettendemyndighet.konto.ikkesepa.adresse.landkode							F002.ClaimingAuthority.BankDetails.NonSEPAAccount.BankAddress.country.value[0]
+
+12.1.1.1.			$nav.barn[x].person.etternavn											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.familyName
+12.1.1.2.			$nav.barn[x].person.fornavn											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.forename
+12.1.1.3.			$nav.barn[x].person.foedselsdato										F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.dateBirth
+12.1.1.4.			$nav.barn[x].person.kjoenn											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.sex.value[0]
+12.1.1.5.			$nav.barn[x].person.etternavnvedfoedsel										F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.familyNameAtBirth
+12.1.1.6.			$nav.barn[x].person.fornavnvedfoedsel										F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.forenameAtBirth
+12.1.1.7.1.1.			$nav.barn[x].person.pin[x].land											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+				$barn[x].personinfo.pin[x].landkode										F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+12.1.1.7.1.2.			$nav.barn[x].person.pin[x].identifikator									F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+12.1.1.7.1.3.			$nav.barn[x].person.pin[x].sektor										F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+12.1.1.7.1.4.1.			$nav.barn[x].person.pin[x].institusjonsid									F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+12.1.1.7.1.4.2.			$nav.barn[x].person.pin[x].institusjonsnavn									F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+12.1.1.8.1.1.			$nav.barn[x].person.foedested.by										F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+12.1.1.8.1.2.			$nav.barn[x].person.foedested.region										F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+12.1.1.8.1.3.			$nav.barn[x].person.foedested.land										F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+				$barn[x].personinfo.pinmangler.foedested.landkode								F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+12.1.1.8.2.			$nav.barn[x].far.person.etternavnvedfoedsel									F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+12.1.1.8.3.			$nav.barn[x].far.person.fornavn											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+12.1.1.8.4.			$nav.barn[x].mor.person.etternavnvedfoedsel									F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+12.1.1.8.5.			$nav.barn[x].mor.person.fornavn											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].ChildDetails.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+12.1.2.1.1.			$nav.barn[x].person.statsborgerskap[x].land									F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AdditionalInformationAboutNationality.Nationalities[0].nationality.value[0]
+				$barn[x].personinfo.statsborgerskap[x].landkode									F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AdditionalInformationAboutNationality.Nationalities[0].nationality.value[0]
+12.1.2.1.2.			$nav.barn[x].person.statsborgerskap[x].siden									F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AdditionalInformationAboutNationality.Nationalities[0].since
+12.1.3.1.1.			$nav.barn[x].adresse[x].type											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AddressesChild.AddressPerson[0].typeAddress.value[0]
+12.1.3.1.2.1.			$nav.barn[x].adresse[x].gate											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AddressesChild.AddressPerson[0].Address.street
+12.1.3.1.2.2.			$nav.barn[x].adresse[x].bygning											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AddressesChild.AddressPerson[0].Address.buildingName
+12.1.3.1.2.3.			$nav.barn[x].adresse[x].by											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AddressesChild.AddressPerson[0].Address.town
+12.1.3.1.2.4.			$nav.barn[x].adresse[x].postnummer										F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AddressesChild.AddressPerson[0].Address.postalCode
+12.1.3.1.2.5.			$nav.barn[x].adresse[x].region											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AddressesChild.AddressPerson[0].Address.region
+12.1.3.1.2.6.			$nav.barn[x].adresse[x].land											F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AddressesChild.AddressPerson[0].Address.country.value[0]
+				$barn[x].personinfo.adresser[x].landkode									F002.InformationChildren.ChildForWhomThisDecisionApplies[0].AddressesChild.AddressPerson[0].Address.country.value[0]
+12.1.4.1.1.			$nav.barn[x].barnetsrelasjon[x].relasjontilperson								F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].relationshipWith.value[0]
+12.1.4.1.2.			$nav.barn[x].barnetsrelasjon[x].type										F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].type.value[0]
+12.1.4.1.3.1.1.			$nav.barn[x].barnetsrelasjon[x].periode.fastperiode.startdato							F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].PeriodRelationship.FixedPeriod.startDate
+12.1.4.1.3.1.2.			$nav.barn[x].barnetsrelasjon[x].periode.fastperiode.sluttdato							F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].PeriodRelationship.FixedPeriod.endDate
+12.1.4.1.3.2.1.			$nav.barn[x].barnetsrelasjon[x].periode.aapenperiode.type							F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].PeriodRelationship.OpenPeriod.typeOpenPeriod.value[0]
+12.1.4.1.3.2.2.			$nav.barn[x].barnetsrelasjon[x].periode.aapenperiode.startdato							F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].PeriodRelationship.OpenPeriod.startDate
+12.1.4.1.4.			$nav.barn[x].barnetsrelasjon[x].erdeltforeldreansvar								F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].jointCustodyIndicator.value[0]
+12.1.4.1.5.1.			$nav.barn[x].barnetsrelasjon[x].boribrukerenshushold								F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].ChildrenHousehold.isChildAMemberSameHouseholdClaimantIndicator.value[0]
+12.1.4.1.5.2.			$nav.barn[x].barnetsrelasjon[x].boriektefelleshushold								F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].ChildrenHousehold.isChildAMemberSameHouseholdSpousePartnerInQuestionIndicator.value[0]
+12.1.4.1.5.3.			$nav.barn[x].barnetsrelasjon[x].boriannenpersonshushold								F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].ChildrenHousehold.isChildAMemberSameHouseholdOtherPersonInQuestionIndicator.value[0]
+12.1.4.1.5.4.			$nav.barn[x].barnetsrelasjon[x].borpaaeninstitusjon								F002.InformationChildren.ChildForWhomThisDecisionApplies[0].RelationshipsClaimantSpousePartnerOrOtherPerson.RelationshipPerChild[0].ChildrenHousehold.isChildInInstitutionIndicator.value[0]
+12.1.5.1.1.1.1.			$nav.barn[x].grunnforbosetting.periode[x].fastperiode.startdato							F002.InformationChildren.ChildForWhomThisDecisionApplies[0].GroundsForResidence.DurationsTerritory.DurationTerritory[0].FixedPeriod.startDate
+12.1.5.1.1.1.2.			$nav.barn[x].grunnforbosetting.periode[x].fastperiode.sluttdato							F002.InformationChildren.ChildForWhomThisDecisionApplies[0].GroundsForResidence.DurationsTerritory.DurationTerritory[0].FixedPeriod.endDate
+12.1.5.1.1.2.1.			$nav.barn[x].grunnforbosetting.periode[x].aapenperiode.type							F002.InformationChildren.ChildForWhomThisDecisionApplies[0].GroundsForResidence.DurationsTerritory.DurationTerritory[0].OpenPeriod.typeOpenPeriod.value[0]
+12.1.5.1.1.2.2.			$nav.barn[x].grunnforbosetting.periode[x].aapenperiode.startdato						F002.InformationChildren.ChildForWhomThisDecisionApplies[0].GroundsForResidence.DurationsTerritory.DurationTerritory[0].OpenPeriod.startDate
+12.1.5.2.			$nav.barn[x].grunnforbosetting.flyttedato.til.avsenderlandet							F002.InformationChildren.ChildForWhomThisDecisionApplies[0].GroundsForResidence.movingDateIntoSendingMemberState
+12.1.5.3.			$nav.barn[x].grunnforbosetting.flyttedato.til.mottakerlandet							F002.InformationChildren.ChildForWhomThisDecisionApplies[0].GroundsForResidence.movingDateIntoReceivingMemberState
+12.1.5.4.			$nav.barn[x].grunnforbosetting.personligsituasjon.artikkel11							F002.InformationChildren.ChildForWhomThisDecisionApplies[0].GroundsForResidence.personalSituationElementsArticle11RegulationECNo9872009
+
+13.1.1.				$familie.ytelse.barn[x].barnetsnavn										F002.AmountsNamesCurrenciesForFamilyBenefitsChildren.AmountNameCurrencyForFamilyBenefitsForAChild[0].nameChild
+13.1.2.				$familie.ytelse.barn[x].betegnelseytelse									F002.AmountsNamesCurrenciesForFamilyBenefitsChildren.AmountNameCurrencyForFamilyBenefitsForAChild[0].nameBenefit
+13.1.3.1.1.			$familie.ytelse.barn[x].beloep											F002.AmountsNamesCurrenciesForFamilyBenefitsChildren.AmountNameCurrencyForFamilyBenefitsForAChild[0].FamilyBenefitDetails.Amount.amount
+13.1.3.1.2.			$familie.ytelse.barn[x].valuta											F002.AmountsNamesCurrenciesForFamilyBenefitsChildren.AmountNameCurrencyForFamilyBenefitsForAChild[0].FamilyBenefitDetails.Amount.currency.value[0]
+13.1.3.2.1.			$familie.ytelse.barn[x].startdato										F002.AmountsNamesCurrenciesForFamilyBenefitsChildren.AmountNameCurrencyForFamilyBenefitsForAChild[0].FamilyBenefitDetails.DateForGrantedBenefits.startDate
+13.1.3.2.2.			$familie.ytelse.barn[x].sluttdato										F002.AmountsNamesCurrenciesForFamilyBenefitsChildren.AmountNameCurrencyForFamilyBenefitsForAChild[0].FamilyBenefitDetails.DateForGrantedBenefits.endDate
+13.1.3.3.			$familie.ytelse.barn[x].avgrensningperiode									F002.AmountsNamesCurrenciesForFamilyBenefitsChildren.AmountNameCurrencyForFamilyBenefitsForAChild[0].FamilyBenefitDetails.periodDefinition
+13.1.3.4.			$familie.ytelse.barn[x].mottaker.navn										F002.AmountsNamesCurrenciesForFamilyBenefitsChildren.AmountNameCurrencyForFamilyBenefitsForAChild[0].FamilyBenefitDetails.nameBeneficiary
+
+14.1.1.				$familie.ytelse.helefamilie[x].betegnelseytelse									F002.AmountsFamilyBenefitForEntireFamily.AmountFamilyBenefit[0].nameBenefit
+14.1.2.				$familie.ytelse.helefamilie[x].antallpersoner									F002.AmountsFamilyBenefitForEntireFamily.AmountFamilyBenefit[0].numberPersonsBenefitsAreGrantedFor
+14.1.3.1.1.			$familie.ytelse.helefamilie[x].beloep										F002.AmountsFamilyBenefitForEntireFamily.AmountFamilyBenefit[0].FamilyBenefitDetails.Amount.amount
+14.1.3.1.2.			$familie.ytelse.helefamilie[x].valuta										F002.AmountsFamilyBenefitForEntireFamily.AmountFamilyBenefit[0].FamilyBenefitDetails.Amount.currency.value[0]
+14.1.3.2.1.			$familie.ytelse.helefamilie[x].startdato									F002.AmountsFamilyBenefitForEntireFamily.AmountFamilyBenefit[0].FamilyBenefitDetails.DateForGrantedBenefits.startDate
+14.1.3.2.2.			$familie.ytelse.helefamilie[x].sluttdato									F002.AmountsFamilyBenefitForEntireFamily.AmountFamilyBenefit[0].FamilyBenefitDetails.DateForGrantedBenefits.endDate
+14.1.3.3.			$familie.ytelse.helefamilie[x].avgrensningperiode								F002.AmountsFamilyBenefitForEntireFamily.AmountFamilyBenefit[0].FamilyBenefitDetails.periodDefinition
+14.1.3.4.			$familie.ytelse.helefamilie[x].mottaker.navn									F002.AmountsFamilyBenefitForEntireFamily.AmountFamilyBenefit[0].FamilyBenefitDetails.nameBeneficiary
+
+15.1.1.				$familie.anmodningmotregning.barn[x].svar.type									F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].requestOrReplyRequestForOffsettingFamilyBenefitsForAChild.value[0]
+15.1.2.				$familie.anmodningmotregning.barn[x].barnetsnavn								F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].nameChild
+15.1.3.				$familie.anmodningmotregning.barn[x].betegnelseytelse								F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].nameBenefit
+15.1.4.1.1.			$familie.anmodningmotregning.barn[x].beloep									F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].FamilyBenefitDetails.Amount.amount
+15.1.4.1.2.			$familie.anmodningmotregning.barn[x].valuta									F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].FamilyBenefitDetails.Amount.currency.value[0]
+15.1.4.2.1.			$familie.anmodningmotregning.barn[x].startdato									F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].FamilyBenefitDetails.DateForGrantedBenefits.startDate
+15.1.4.2.2.			$familie.anmodningmotregning.barn[x].sluttdato									F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].FamilyBenefitDetails.DateForGrantedBenefits.endDate
+15.1.4.3.			$familie.anmodningmotregning.barn[x].avgrensningperiode								F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].FamilyBenefitDetails.periodDefinition
+15.1.4.4.			$familie.anmodningmotregning.barn[x].mottaker.navn								F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].FamilyBenefitDetails.nameBeneficiary
+15.1.5.				$familie.anmodningmotregning.barn[x].begrunnelse								F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].groundsRequestForOverpaymentOffsetting
+15.1.6.				$familie.anmodningmotregning.barn[x].ytterligereinformasjon							F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].additionalInformation
+15.1.7.				$familie.anmodningmotregning.barn[x].vedtaksdato								F002.RequestOrReplyRequestForOffsettingFamilyBenefits.RequestReplyRequestSettingFamilyBenefits[0].dateDecision
+15.2.1.1.			$motregning.barnoppsummert.totalt.beloep									F002.RequestOrReplyRequestForOffsettingFamilyBenefits.TotalAmountOfFamilyBenefits.TotalAmount.amount
+15.2.1.2.			$motregning.barnoppsummert.totalt.valuta									F002.RequestOrReplyRequestForOffsettingFamilyBenefits.TotalAmountOfFamilyBenefits.TotalAmount.currency.value[0]
+15.2.2.				$motregning.barnoppsummert.betalingspresiseringenvariabeltsymbol						F002.RequestOrReplyRequestForOffsettingFamilyBenefits.TotalAmountOfFamilyBenefits.variableSymbol
+15.2.3.				$motregning.barnoppsummert.meldingtilmottaker									F002.RequestOrReplyRequestForOffsettingFamilyBenefits.TotalAmountOfFamilyBenefits.messageForRecipient
+
+16.1.1.				$familie.anmodningmotregning.helefamilie[x].svar.type								F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].requestOrReplyRequestBenefitForEntireFamily.value[0]
+16.1.2.				$familie.anmodningmotregning.helefamilie[x].betegnelseytelse							F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].nameBenefit
+16.1.3.				$familie.anmodningmotregning.helefamilie[x].antallpersoner							F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].numberPersonsBenefitsAreGrantedFor
+16.1.4.1.1.			$familie.anmodningmotregning.helefamilie[x].beloep								F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].FamilyBenefitDetails.Amount.amount
+16.1.4.1.2.			$familie.anmodningmotregning.helefamilie[x].valuta								F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].FamilyBenefitDetails.Amount.currency.value[0]
+16.1.4.2.1.			$familie.anmodningmotregning.helefamilie[x].startdato								F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].FamilyBenefitDetails.DateForGrantedBenefits.startDate
+16.1.4.2.2.			$familie.anmodningmotregning.helefamilie[x].sluttdato								F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].FamilyBenefitDetails.DateForGrantedBenefits.endDate
+16.1.4.3.			$familie.anmodningmotregning.helefamilie[x].avgrensningperiode							F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].FamilyBenefitDetails.periodDefinition
+16.1.4.4.			$familie.anmodningmotregning.helefamilie[x].mottaker.navn							F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].FamilyBenefitDetails.nameBeneficiary
+16.1.5.				$familie.anmodningmotregning.helefamilie[x].begrunnelse								F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].groundsRequestForOverpaymentOffsetting
+16.1.6.				$familie.anmodningmotregning.helefamilie[x].ytterligereinformasjon						F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].additionalInformation
+16.1.7.				$familie.anmodningmotregning.helefamilie[x].vedtaksdato								F002.RequestRequestOffsettingFamilyBenefits.RequestOrReplyRequestForOffsettingFamilyBenefit[0].dateDecision
+16.2.1.1.			$motregning.helefamilienoppsummert.totalt.beloep								F002.RequestRequestOffsettingFamilyBenefits.TotalAmountOfFamilyBenefits.TotalAmount.amount
+16.2.1.2.			$motregning.helefamilienoppsummert.totalt.valuta								F002.RequestRequestOffsettingFamilyBenefits.TotalAmountOfFamilyBenefits.TotalAmount.currency.value[0]
+16.2.2.				$motregning.helefamilienoppsummert.betalingspresiseringenvariabeltsymbol					F002.RequestRequestOffsettingFamilyBenefits.TotalAmountOfFamilyBenefits.variableSymbol
+16.2.3.				$motregning.helefamilienoppsummert.meldingtilmottaker								F002.RequestRequestOffsettingFamilyBenefits.TotalAmountOfFamilyBenefits.messageForRecipient
+
+17.1.1.1.1.			$familie.refusjon.krav[x].beloep										F002.ClaimForReimbursementWithArticle58RegulationNo987.ClaimDetails.ClaimDetail[0].Amount.amount
+17.1.1.1.2.			$familie.refusjon.krav[x].valuta										F002.ClaimForReimbursementWithArticle58RegulationNo987.ClaimDetails.ClaimDetail[0].Amount.currency.value[0]
+17.1.1.2.1.			$familie.refusjon.krav[x].innvilgetytelse.startdato								F002.ClaimForReimbursementWithArticle58RegulationNo987.ClaimDetails.ClaimDetail[0].DateForGrantedBenefits.startDate
+17.1.1.2.2.			$familie.refusjon.krav[x].innvilgetytelse.sluttdato								F002.ClaimForReimbursementWithArticle58RegulationNo987.ClaimDetails.ClaimDetail[0].DateForGrantedBenefits.endDate
+17.1.1.3.			$familie.refusjon.krav[x].ytterligereinformasjon								F002.ClaimForReimbursementWithArticle58RegulationNo987.ClaimDetails.ClaimDetail[0].additionalInformation
+17.2.1.1.			$familie.refusjon.totalt.beloep											F002.ClaimForReimbursementWithArticle58RegulationNo987.TotalClaimsAmount.TotalAmount.amount
+17.2.1.2.			$familie.refusjon.totalt.valuta											F002.ClaimForReimbursementWithArticle58RegulationNo987.TotalClaimsAmount.TotalAmount.currency.value[0]
+17.2.2.				$familie.refusjon.betalingspresiseringenvariabeltsymbol								F002.ClaimForReimbursementWithArticle58RegulationNo987.TotalClaimsAmount.variableSymbol
+17.2.3.				$familie.refusjon.melding											F002.ClaimForReimbursementWithArticle58RegulationNo987.TotalClaimsAmount.messageForRecipient
+
+
+
+
+"F004.ClaimingAuthority.ClaimingAuthority.institutionID"
+"F005.ClaimingAuthority.ClaimingAuthority.institutionID"
+"F016.ClaimingAuthority.ClaimingAuthority.institutionID"
+"F017.ClaimingAuthority.ClaimingAuthority.institutionID"
+"F021.ClaimingAuthority.ClaimingAuthority.institutionID"
+"F022.PeriodsAtCurrentRegisteredInstitution.Institution.institutionID"
+"F022.PeriodsAtInstitutionInPlaceResidence.Institution.institutionID"
+"F022.PeriodsAtLastRegisteredInstitution.Institution.institutionID"
+"F023.PeriodsAtCurrentRegisteredInstitution.Institution.institutionID"
+"F023.PeriodsAtInstitutionInPlaceResidence.Institution.institutionID"
+"F023.PeriodsAtLastRegisteredInstitution.Institution.institutionID"
+"U001.UnemploymentBenefitsPeriods.UnemploymentBenefitsPeriod[0].LocalInstitution.TheInstitutionEXISTSInIR.institutionID"
+"U001CB.UnemploymentBenefitsPeriods.UnemploymentBenefitsPeriod[0].LocalInstitution.TheInstitutionEXISTSInIR.institutionID"
+"U005.BenefitsClaimsDetails.BenefitsClaimDetails[0].OfficeInformation.TheInstitutionEXISTSInIR.institutionID"
+"U020.IndividualClaims.IndividualClaim[0].InstitutionWhichCertifiedInsuranceRecord.TheInstitutionEXISTSInIR.institutionID"
+"U029.IndividualClaims.IndividualClaim[0].InstitutionWhichCertifiedInsuranceRecord.TheInstitutionEXISTSInIR.institutionID"
+"X100.ChangeParticipant.AddParticipant.institutionID"
+"X100.ChangeParticipant.RemoveParticipant.institutionID"
+
+
+│ 9.2.1.    │ F001.utbetalingTilInstitusjon.id              
+│ 11.2.1.   │ F002.utbetalingTilInstitusjon.id              
+│ 1.1.1.    │ H020Dto.refusjonskrav.kreditorinstitusjon.id  
+│ 1.5.1.    │ H020Dto.refusjonskrav.debitorinstitusjon.id   
+│ 1.1.1.    │ H021Dto.refusjonskrav.kreditorinstitusjon.id  
+│ 3.3.2.    │ H065Dto.overfoeringInfo.til.institusjon.id    
+│ 7.1.2.1.1 │ U002.dagpengeperioder[].institusjon.id                                                                                                                    │
+│ 6.1.1.    │ U007Dto.institusjonDagpenger.institusjon.id   

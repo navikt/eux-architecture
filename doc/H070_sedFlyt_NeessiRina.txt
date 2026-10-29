@@ -1,0 +1,44 @@
+1.1.1.		H070Dto.bruker.personInfo.etternavn				$nav.bruker.person.etternavn			H070.Person.PersonIdentification.familyName
+1.1.2.		H070Dto.bruker.personInfo.fornavn				$nav.bruker.person.fornavn			H070.Person.PersonIdentification.forename
+1.1.3.		H070Dto.bruker.personInfo.foedselsdato				$nav.bruker.person.foedselsdato			H070.Person.PersonIdentification.dateBirth
+1.1.4.		H070Dto.bruker.personInfo.kjoenn				$nav.bruker.person.kjoenn			H070.Person.PersonIdentification.sex.value[0]
+1.1.5.		H070Dto.bruker.personInfo.pinMangler.etternavnVedFoedsel	$nav.bruker.person.etternavnvedfoedsel		H070.Person.PersonIdentification.familyNameAtBirth
+1.1.6.		H070Dto.bruker.personInfo.pinMangler.fornavnVedFoedsel		$nav.bruker.person.fornavnvedfoedsel		H070.Person.PersonIdentification.forenameAtBirth
+1.1.7.1.1.	H070Dto.bruker.personInfo.pin[x].landkode			$nav.bruker.person.pin[x].landkode		H070.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+1.1.7.1.2.	H070Dto.bruker.personInfo.pin[x].identifikator			$nav.bruker.person.pin[x].identifikator		H070.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+1.1.7.1.3.	H070Dto.bruker.personInfo.pin[x].sektor				$nav.bruker.person.pin[x].sektor		H070.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+1.1.7.1.4.1.	H070Dto.bruker.personInfo.pin[x].institusjonsid			$nav.bruker.person.pin[x].institusjonsid	H070.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+1.1.7.1.4.2.	H070Dto.bruker.personInfo.pin[x].institusjonsnavn		$nav.bruker.person.pin[x].institusjonsnavn	H070.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+1.1.8.1.1.	H070Dto.bruker.personInfo.pinMangler.foedested.by		$nav.bruker.person.foedested.by			H070.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+1.1.8.1.2.	H070Dto.bruker.personInfo.pinMangler.foedested.region		$nav.bruker.person.foedested.region		H070.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+1.1.8.1.3.	H070Dto.bruker.personInfo.pinMangler.foedested.landkode		$nav.bruker.person.foedested.landkode		H070.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+1.1.8.2.	H070Dto.bruker.personInfo.pinMangler.far.etternavnVedFoedsel	$nav.bruker.far.person.etternavnvedfoedsel	H070.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+1.1.8.3.	H070Dto.bruker.personInfo.pinMangler.far.fornavn		$nav.bruker.far.person.fornavn			H070.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+1.1.8.4.	H070Dto.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel	$nav.bruker.mor.person.etternavnvedfoedsel	H070.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+1.1.8.5.	H070Dto.bruker.personInfo.pinMangler.mor.fornavn		$nav.bruker.mor.person.fornavn			H070.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+1.2.1.		H070Dto.bruker.personInfo.statsborgerskap[x].landkode		$nav.bruker.person.statsborgerskap[x].landkode	H070.Person.AdditionalInformationPerson.nationality.value[0]
+
+2.1.		H070Dto.doedsdato						$nav.bruker.doedsfall.doedsdato			H070.NotificationDeath.dateDeath
+2.2.1.		H070Dto.doedssted.gate						$nav.bruker.doedsfall.sted.adresse.gate		H070.NotificationDeath.PlaceDeath.street
+2.2.2.		H070Dto.doedssted.bygning					$nav.bruker.doedsfall.sted.adresse.bygning	H070.NotificationDeath.PlaceDeath.buildingName
+2.2.3.		H070Dto.doedssted.by						$nav.bruker.doedsfall.sted.adresse.by		H070.NotificationDeath.PlaceDeath.town
+2.2.4.		H070Dto.doedssted.postnummer					$nav.bruker.doedsfall.sted.adresse.postnummer	H070.NotificationDeath.PlaceDeath.postalCode
+2.2.5.		H070Dto.doedssted.region					$nav.bruker.doedsfall.sted.adresse.region	H070.NotificationDeath.PlaceDeath.region
+2.2.6.		H070Dto.doedssted.landkode					$nav.bruker.doedsfall.sted.adresse.landkode	H070.NotificationDeath.PlaceDeath.country.value[0]
+
+3.1.		H070Dto.ytterligereInfo						$nav.ytterligereinformasjon			H070.AdditionalInformation.additionalInformation
+
+4.1.		H070Dto.vedlagtDokumentasjon.forhaandsdefinerteDokumenter	$nav.bruker.doedsfall.dokumentervedlagt.type[x]	H070.PleaseFindAttachedDocumentsConfirmingDeath.predefinedDocuments.value[0]
+4.2.1.1.	H070Dto.vedlagtDokumentasjon.annetDokument[x]			$nav.bruker.doedsfall.dokumentervedlagt.annet[x]	H070.PleaseFindAttachedDocumentsConfirmingDeath.OtherDocumentsAttached.OtherDocument[0].document
+
+		H070Dto.sedType							(metadata, ikkje i ACL)
+		H070Dto.sedVersjon						(metadata, ikkje i ACL)
+		H070Dto.bruker.personInfo.adressebeskyttelsesgrad		(beriking fra PDL, ikkje i ACL)
+
+
+doedsdato
+doedssted.adresse.type
+
+Dro inneholder ikke klassenavn, men manifestasjoner av Klasse: adresse -> Adresse og Person -> bruker, ektefelle, 
+
+DTO inneholder IKKE klasseopplysninger. Kun felt-navn/ navn på implementasjon av klasse

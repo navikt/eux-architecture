@@ -1,0 +1,133 @@
+var euxRinaApiDto = om.readValue(json, H005Acl.class);
+...
+var dto = svc.lagH005Dto(euxRinaApiDto);
+...
+var informasjon = dto.informasjonFastslaaBosted();
+
+-> 
+var h005Acl = om.readValue(json, H005Acl.class);
+...
+var h005Dto = h005Service.lagH005Dto(h005Acl);
+...
+var informasjonFastslaaBostedDto = h005Dto.informasjonFastslaaBosted();
+---
+      if (ektefelleDto == null) return null;
+      return EktefelleAcl.builder()
+-> 
+      if (ektefelleDto == null)
+        return null;
+      return EktefelleAcl.builder()
+---
+- @Nullable og 'til'...: 
+H005Dto.@Nullable AdresseDto tilAdresse(H005Dto.@Nullable Bruker bruker)
+->
+H005Dto.AdresseDto lagAdresseDto(H005Dto Bruker bruker)
+---
+- tvetydige variabelnavn
+srv
+dto
+source
+---
+AI:
+Oppdaterte  H003Service.java  etter samme mønster som H006Service:
+
+• Metodenavn  til*  →  lag*  (mapping mellom Dto/RinaApiDto)
+• Fjernet  @Nullable  overalt
+• Fjernet alle kommentarer (klassejavadoc og seksjonskommentarer)
+•  return null  på egen linje
+• Variabel-/parameternavn matcher klassenavn, primitiver uendret
+• Oppdaterte  H003ServiceTest.java  til å bruke de nye metodenavnene ( lagH003Dto ,  lagH003EuxRinaApiDto ) 
+
+
+
+"Anmodning om informasjon om bosted"
+1.1.1.		H005Dto.bruker.personInfo.etternavn					$nav.bruker.person.etternavn								H005.Person.PersonIdentification.familyName
+1.1.2.		H005Dto.bruker.personInfo.fornavn					$nav.bruker.person.fornavn								H005.Person.PersonIdentification.forename
+1.1.3.		H005Dto.bruker.personInfo.foedselsdato					$nav.bruker.person.foedselsdato								H005.Person.PersonIdentification.dateBirth
+1.1.4.		H005Dto.bruker.personInfo.kjoenn					$nav.bruker.person.kjoenn								H005.Person.PersonIdentification.sex.value[0]
+1.1.5.		H005Dto.bruker.personInfo.pinMangler.etternavnVedFoedsel		$nav.bruker.person.etternavnvedfoedsel							H005.Person.PersonIdentification.familyNameAtBirth
+1.1.6.		H005Dto.bruker.personInfo.pinMangler.fornavnVedFoedsel			$nav.bruker.person.fornavnvedfoedsel							H005.Person.PersonIdentification.forenameAtBirth
+1.1.7.1.1.	H005Dto.bruker.personInfo.pin[].landkode				$nav.bruker.person.pin[x].land								H005.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].country.value[0]
+1.1.7.1.2.	H005Dto.bruker.personInfo.pin[].identifikator				$nav.bruker.person.pin[x].identifikator							H005.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].personalIdentificationNumber
+1.1.7.1.3.	H005Dto.bruker.personInfo.pin[].sektor					$nav.bruker.person.pin[x].sektor							H005.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].sector.value[0]
+1.1.7.1.4.1.	H005Dto.bruker.personInfo.pin[].institusjonsid				$nav.bruker.person.pin[x].institusjonsid						H005.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionID
+1.1.7.1.4.2.	H005Dto.bruker.personInfo.pin[].institusjonsnavn			$nav.bruker.person.pin[x].institusjonsnavn						H005.Person.PersonIdentification.PINPersonInEachInstitution.PersonalIdentificationNumber[0].Institution.institutionName
+1.1.8.1.1.	H005Dto.bruker.personInfo.pinMangler.foedested.by			$nav.bruker.person.foedested.by								H005.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.town
+1.1.8.1.2.	H005Dto.bruker.personInfo.pinMangler.foedested.region			$nav.bruker.person.foedested.region							H005.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.region
+1.1.8.1.3.	H005Dto.bruker.personInfo.pinMangler.foedested.landkode			$nav.bruker.person.foedested.land							H005.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.PlaceBirth.country.value[0]
+1.1.8.2.	H005Dto.bruker.personInfo.pinMangler.far.etternavnVedFoedsel		$nav.bruker.far.person.etternavnvedfoedsel						H005.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.fatherFamilyNameAtBirth
+1.1.8.3.	H005Dto.bruker.personInfo.pinMangler.far.fornavn			$nav.bruker.far.person.fornavn								H005.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameFather
+1.1.8.4.	H005Dto.bruker.personInfo.pinMangler.mor.etternavnVedFoedsel		$nav.bruker.mor.person.etternavnvedfoedsel						H005.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.motherFamilyNameAtBirth
+1.1.8.5.	H005Dto.bruker.personInfo.pinMangler.mor.fornavn			$nav.bruker.mor.person.fornavn								H005.Person.PersonIdentification.IfPINNotProvidedForEveryInstitutionPleaseProvide.forenameMother
+1.2.1.		H005Dto.bruker.personInfo.statsborgerskap[].landkode			$nav.bruker.person.statsborgerskap[x].land						H005.Person.AdditionalInformationPerson.nationality.value[0]
+
+2.1.		H005Dto.anmodningOmInformasjon						$horisontal.anmodningominformasjon.detaljer						H005.RequestForInformation.detailsRequest
+
+3.1.1.		H005Dto.informasjonFastslaaBosted.adresser[].adresse.type		$horisontal.anmodningominformasjon.fastslaabosteder[x].bruker.adresse.type		H005.ElementsDetermineResidence.Addresses[0].typeAddress.value[0]
+3.1.2.1.	H005Dto.informasjonFastslaaBosted.adresser[].adresse.gate		$horisontal.anmodningominformasjon.fastslaabosteder[x].bruker.adresse.gate		H005.ElementsDetermineResidence.Addresses[0].Address.street
+3.1.2.2.	H005Dto.informasjonFastslaaBosted.adresser[].adresse.bygning		$horisontal.anmodningominformasjon.fastslaabosteder[x].bruker.adresse.bygning		H005.ElementsDetermineResidence.Addresses[0].Address.buildingName
+3.1.2.3.	H005Dto.informasjonFastslaaBosted.adresser[].adresse.by			$horisontal.anmodningominformasjon.fastslaabosteder[x].bruker.adresse.by		H005.ElementsDetermineResidence.Addresses[0].Address.town
+3.1.2.4.	H005Dto.informasjonFastslaaBosted.adresser[].adresse.postnummer		$horisontal.anmodningominformasjon.fastslaabosteder[x].bruker.adresse.postnummer	H005.ElementsDetermineResidence.Addresses[0].Address.postalCode
+3.1.2.5.	H005Dto.informasjonFastslaaBosted.adresser[].adresse.region		$horisontal.anmodningominformasjon.fastslaabosteder[x].bruker.adresse.region		H005.ElementsDetermineResidence.Addresses[0].Address.region
+3.1.2.6.	H005Dto.informasjonFastslaaBosted.adresser[].adresse.landkode		$horisontal.anmodningominformasjon.fastslaabosteder[x].bruker.adresse.land		H005.ElementsDetermineResidence.Addresses[0].Address.country.value[0]
+3.1.3.		H005Dto.informasjonFastslaaBosted.adresser[].oppholdetsVarighet		$horisontal.anmodningominformasjon.fastslaabosteder[x].oppholdetsvarighet		H005.ElementsDetermineResidence.Addresses[0].durationPresence
+3.1.4.		H005Dto.informasjonFastslaaBosted.adresser[].varighetUavbruttOpphold	$horisontal.anmodningominformasjon.fastslaabosteder[x].varighetuavbruttopphold		H005.ElementsDetermineResidence.Addresses[0].continuityPresence
+
+3.2.		H005Dto.informasjonFastslaaBosted.personensStatus			$horisontal.anmodningominformasjon.aktivitet.status.id					H005.ElementsDetermineResidence.statusPerson.value[0]
+3.3.1.		H005Dto.informasjonFastslaaBosted.personensStatusAnnet			$horisontal.anmodningominformasjon.aktivitet.status.annet				H005.ElementsDetermineResidence.PleaseFillInIfStatusPersonOther.other
+
+3.4.1.		H005Dto.informasjonFastslaaBosted.aktiviteter[].type			$horisontal.anmodningominformasjon.aktiviteter[x].type					H005.ElementsDetermineResidence.DescriptionNatureSpecificCharacteristicsActivity[0].typeActivity.value[0]
+3.4.2.		H005Dto.informasjonFastslaaBosted.aktiviteter[].beskrivelse		$horisontal.anmodningominformasjon.aktiviteter[x].beskrivelse				H005.ElementsDetermineResidence.DescriptionNatureSpecificCharacteristicsActivity[0].descriptionActivity
+3.4.3.		H005Dto.informasjonFastslaaBosted.aktiviteter[].sted			$horisontal.anmodningominformasjon.aktiviteter[x].sted					H005.ElementsDetermineResidence.DescriptionNatureSpecificCharacteristicsActivity[0].locationActivity
+3.4.4.		H005Dto.informasjonFastslaaBosted.aktiviteter[].varighet		$horisontal.anmodningominformasjon.aktiviteter[x].varighet				H005.ElementsDetermineResidence.DescriptionNatureSpecificCharacteristicsActivity[0].durationActivity
+3.4.5.		H005Dto.informasjonFastslaaBosted.aktiviteter[].art			$horisontal.anmodningominformasjon.aktiviteter[x].art					H005.ElementsDetermineResidence.DescriptionNatureSpecificCharacteristicsActivity[0].natureActivity
+
+3.5.		H005Dto.informasjonFastslaaBosted.inntektskildeStudenter		$horisontal.anmodningominformasjon.inntektskilde.studenter				H005.ElementsDetermineResidence.sourceIncomeStudents
+
+3.6.		H005Dto.informasjonFastslaaBosted.bosituasjonHvorPermanent		$horisontal.anmodningominformasjon.fastslaabosted.bruker.hvorpermanent			H005.ElementsDetermineResidence.housingSituationInParticularHowPermanentItIs
+
+3.7.		H005Dto.informasjonFastslaaBosted.permanentOppholdSkattemessig		$horisontal.anmodningominformasjon.fastslaabosted.bruker.permanentoppholdskattemessig	H005.ElementsDetermineResidence.residenceForTaxPurposes
+
+3.8.1.		H005Dto.informasjonFastslaaBosted.familiestatus.ektefelle.familiemedlem	$horisontal.anmodningominformasjon.familiestatus.ektefelle.familiemedlem		H005.ElementsDetermineResidence.FamilyStatus.familyMemberSpouse
+3.8.2.		H005Dto.informasjonFastslaaBosted.familiestatus.ektefelle.bosted	$horisontal.anmodningominformasjon.familiestatus.ektefelle.bosted			H005.ElementsDetermineResidence.FamilyStatus.placeResidenceSpouse
+3.8.3.		H005Dto.informasjonFastslaaBosted.familiestatus.barn.familiemedlem	$horisontal.anmodningominformasjon.familiestatus.barn.familiemedlem			H005.ElementsDetermineResidence.FamilyStatus.familyMemberChildren
+3.8.4.		H005Dto.informasjonFastslaaBosted.familiestatus.barn.bosted		$horisontal.anmodningominformasjon.familiestatus.barn.bosted				H005.ElementsDetermineResidence.FamilyStatus.placeResidenceChildren
+3.8.5.		H005Dto.informasjonFastslaaBosted.familiestatus.barn.skolekrets		$horisontal.anmodningominformasjon.familiestatus.barn.skolekrets			H005.ElementsDetermineResidence.FamilyStatus.placeSchoolChildren
+
+3.9.		H005Dto.informasjonFastslaaBosted.grunnForFlytting			$horisontal.anmodningominformasjon.fastslaabosted.bruker.grunnforflytting		H005.ElementsDetermineResidence.intentionPersonConcernedReasonsMove
+
+4.1.		H005Dto.ytterligereInfo							$nav.ytterligereinformasjon								H005.AdditionalInformation.additionalInformation
+
+		H005Dto.sedType								(metadata, ikkje i ACL)
+		H005Dto.sedVersjon							(metadata, ikkje i ACL)
+		H005Dto.bruker.personInfo.adressebeskyttelsesgrad			(beriking frå PDL, ikkje i ACL)
+
+
+H006: -------------------------------------
+H006: "Svar på anmodning om informasjon om bosted",
+H006: -------------------------------------
+H006Dto.positivtSvar.oppholdssteder[].adresse.gate
+H006Dto.positivtSvar.oppholdssteder[].adresse.bygning
+H006Dto.positivtSvar.oppholdssteder[].adresse.by
+H006Dto.positivtSvar.oppholdssteder[].adresse.postnummer
+H006Dto.positivtSvar.oppholdssteder[].adresse.region
+H006Dto.positivtSvar.oppholdssteder[].adresse.landkode
+H006Dto.positivtSvar.aktivitet.type
+H006Dto.positivtSvar.aktivitet.annet
+H006Dto.positivtSvar.aktivitet.presiseringer[].inntektsgivende
+H006Dto.positivtSvar.aktivitet.presiseringer[].beskrivelse
+H006Dto.positivtSvar.aktivitet.presiseringer[].sted
+H006Dto.positivtSvar.aktivitet.presiseringer[].varighet
+H006Dto.positivtSvar.aktivitet.presiseringer[].art
+H006Dto.positivtSvar.inntektskildeHvisStudent
+H006Dto.positivtSvar.hvorPermanentBostedetEr
+H006Dto.positivtSvar.skattemessigGrunn
+H006Dto.positivtSvar.ektefelle.navn
+H006Dto.positivtSvar.ektefelle.bosted
+H006Dto.positivtSvar.barn.navn
+H006Dto.positivtSvar.barn.bosted
+H006Dto.positivtSvar.barn.skolested
+H006Dto.positivtSvar.antattFlyttegrunn
+H006Dto.negativtSvar.opplysningerSomIkkeKanOversendes
+H006Dto.negativtSvar.grunn
+
